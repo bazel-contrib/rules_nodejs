@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "__invalid_dependency__": "removed by pre_install_patches",
+    "semver": "1.0.0"
+  }
+}

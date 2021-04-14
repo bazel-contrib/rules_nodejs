@@ -1,0 +1,10 @@
+--- internal/npm_install/test/patches_npm/node_modules/semver/semver.js
++++ internal/npm_install/test/patches_npm/node_modules/semver/semver.js
+@@ -34,6 +34,7 @@ exports.valid = valid
+ exports.validPackage = validPackage
+ exports.validRange = validRange
+ exports.maxSatisfying = maxSatisfying
++exports.patched = true
+ 
+ function clean (ver) {
+   v = exports.parse(ver)

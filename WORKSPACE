@@ -433,6 +433,30 @@ filegroup(
 )
 
 yarn_install(
+    name = "internal_npm_install_test_patches_yarn",
+    package_json = "//internal/npm_install/test/patches_yarn:package.json",
+    package_path = "internal/npm_install/test/patches_yarn",
+    patch_args = ["-p0"],
+    patch_tool = "patch",
+    post_install_patches = ["//internal/npm_install/test/patches_yarn:semver+1.0.0.patch"],
+    pre_install_patches = ["//internal/npm_install/test/patches_yarn:package_json.patch"],
+    symlink_node_modules = False,
+    yarn_lock = "//internal/npm_install/test/patches_yarn:yarn.lock",
+)
+
+npm_install(
+    name = "internal_npm_install_test_patches_npm",
+    package_json = "//internal/npm_install/test/patches_npm:package.json",
+    package_lock_json = "//internal/npm_install/test/patches_npm:package-lock.json",
+    package_path = "internal/npm_install/test/patches_npm",
+    patch_args = ["-p0"],
+    patch_tool = "patch",
+    post_install_patches = ["//internal/npm_install/test/patches_npm:semver+1.0.0.patch"],
+    pre_install_patches = ["//internal/npm_install/test/patches_npm:package_json.patch"],
+    symlink_node_modules = False,
+)
+
+yarn_install(
     name = "fine_grained_goldens_multi_linked",
     included_files = [
         "",

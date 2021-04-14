@@ -1,0 +1,9 @@
+--- internal/npm_install/test/patches_npm/package.json
++++ internal/npm_install/test/patches_npm/package.json
+@@ -1,6 +1,5 @@
+ {
+   "dependencies": {
+-    "__invalid_dependency__": "removed by pre_install_patches",
+     "semver": "1.0.0"
+   }
+ }
