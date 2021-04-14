@@ -1,3 +1,21 @@
+# [3.4.0](https://github.com/bazelbuild/rules_nodejs/compare/3.3.0...3.4.0) (2021-04-14)
+
+
+### Bug Fixes
+
+* **esbuild:** use run_node to invoke linker before running esuild ([be184c2](https://github.com/bazelbuild/rules_nodejs/commit/be184c2))
+* **typescript:** output path for .json in root package ([#2602](https://github.com/bazelbuild/rules_nodejs/issues/2602)) ([1c50e96](https://github.com/bazelbuild/rules_nodejs/commit/1c50e96)), closes [#2598](https://github.com/bazelbuild/rules_nodejs/issues/2598)
+
+
+### Features
+
+* add pre and post install patches to yarn_install and npm_install ([#2607](https://github.com/bazelbuild/rules_nodejs/issues/2607)) ([d805f33](https://github.com/bazelbuild/rules_nodejs/commit/d805f33))
+* support for multi-linked first party dependencies ([e90b4ae](https://github.com/bazelbuild/rules_nodejs/commit/e90b4ae))
+* **esbuild:** add output_css flag to esbuild() ([#2545](https://github.com/bazelbuild/rules_nodejs/issues/2545)) ([c5ed4f8](https://github.com/bazelbuild/rules_nodejs/commit/c5ed4f8))
+* **esbuild:** allow ts / tsx files in esbuilds srcs ([#2594](https://github.com/bazelbuild/rules_nodejs/issues/2594)) ([9e91872](https://github.com/bazelbuild/rules_nodejs/commit/9e91872))
+
+
+
 # [3.3.0](https://github.com/bazelbuild/rules_nodejs/compare/3.2.3...3.3.0) (2021-04-08)
 
 
