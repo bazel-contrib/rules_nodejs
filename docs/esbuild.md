@@ -31,7 +31,7 @@ yarn add -D @bazel/esbuild
 Add an `http_archive` fetching the esbuild binary for each platform that you need to support. 
 
 ```python
-_ESBUILD_VERSION = "0.11.5"  # reminder: update SHAs below when changing this value
+_ESBUILD_VERSION = "0.11.6"  # reminder: update SHAs below when changing this value
 http_archive(
     name = "esbuild_darwin",
     urls = [
@@ -39,7 +39,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "98436890727bdb0d4beddd9c9e07d0aeff0e8dfe0169f85e568eca0dd43f665e",
+    sha256 = "2b06365b075b854654fc9ed26fcd48a0c38947e1c8d5151ce400cd1e173bb138",
 )
 
 http_archive(
@@ -49,7 +49,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["esbuild.exe"])""",
-    sha256 = "589c8ff97210bd41de106e6317ce88f9e88d2cacfd8178ae1217f2b857ff6c3a",
+    sha256 = "ddab1121833f0a12ca4fb3e288231e058f5526310671e84c0a9aa575340bb20b",
 )
 
 http_archive(
@@ -59,7 +59,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "113c2e84895f4422a3676db4e15d9f01b2b4fac041edab25284fdb9574ba58a0",
+    sha256 = "34612e3e15e6c31d9d742d3fd677bd5208b7e5c0ee9c93809999138c6c5c1039",
 )
 ```
 
@@ -129,9 +129,9 @@ This will create an output directory containing all the code split chunks, along
 **USAGE**
 
 <pre>
-esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>,
-        <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>,
-        <a href="#esbuild-tool">tool</a>)
+esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-launcher">launcher</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>,
+        <a href="#esbuild-max_threads">max_threads</a>, <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_css">output_css</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>,
+        <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>, <a href="#esbuild-tool">tool</a>)
 </pre>
 
 Runs the esbuild bundler under Bazel
@@ -199,6 +199,11 @@ See https://esbuild.github.io/api/#format for more details
 
 Defaults to `""`
 
+<h4 id="esbuild-launcher">launcher</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*): Internal use only
+
+
 <h4 id="esbuild-link_workspace_root">link_workspace_root</h4>
 
 (*Boolean*): Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
@@ -228,6 +233,15 @@ Defaults to `False`
 <h4 id="esbuild-output">output</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Name of the output file when bundling
+
+
+<h4 id="esbuild-output_css">output_css</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Declare a .css file will be output next to output bundle.
+
+If your JS code contains import statements that import .css files, esbuild will place the
+content in a file next to the main output file, which you'll need to declare. If your output
+file is named 'foo.js', you should set this to 'foo.css'.
 
 
 <h4 id="esbuild-output_dir">output_dir</h4>
@@ -269,9 +283,7 @@ Defaults to `False`
 
 <h4 id="esbuild-srcs">srcs</h4>
 
-(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Non-entry point JavaScript source files from the workspace.
-
-You must not repeat file(s) passed to entry_point
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Source files to be made available to esbuild
 
 Defaults to `[]`
 

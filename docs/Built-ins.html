@@ -870,8 +870,9 @@ See https://docs.bazel.build/versions/master/be/make-variables.html#custom_varia
 
 <pre>
 npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#npm_install-included_files">included_files</a>,
-            <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install-npm_command">npm_command</a>, <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>,
-            <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
+            <a href="#npm_install-links">links</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install-npm_command">npm_command</a>, <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>,
+            <a href="#npm_install-package_path">package_path</a>, <a href="#npm_install-patch_args">patch_args</a>, <a href="#npm_install-patch_tool">patch_tool</a>, <a href="#npm_install-post_install_patches">post_install_patches</a>, <a href="#npm_install-pre_install_patches">pre_install_patches</a>, <a href="#npm_install-quiet">quiet</a>,
+            <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
 </pre>
 
 <p>Runs npm install during workspace setup.</p>
@@ -960,6 +961,64 @@ as well as the fine grained targets such as <code class="language-plaintext high
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
+<h4 id="npm_install-links">links</h4>
+
+<p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): Targets to link as npm packages.</p>
+
+<p>A mapping of npm package names to bazel targets to linked into node_modules.</p>
+
+<p>If <code class="language-plaintext highlighter-rouge">package_path</code> is also set, the bazel target will be linked to the node_modules at <code class="language-plaintext highlighter-rouge">package_path</code>
+along with other 3rd party npm packages from this rule.</p>
+
+<p>For example,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yarn_install(
+    name = "npm",
+    package_json = "//web:package.json",
+    yarn_lock = "//web:yarn.lock",
+    package_path = "web",
+    links = {
+        "@scope/target": "//some/scoped/target",
+        "target": "//some/target",
+    },
+)
+</code></pre></div></div>
+
+<p>creates targets in the @npm external workspace that can be used by other rules which
+are linked into <code class="language-plaintext highlighter-rouge">web/node_modules</code> along side the 3rd party deps since the <code class="language-plaintext highlighter-rouge">project_path</code> is <code class="language-plaintext highlighter-rouge">web</code>.</p>
+
+<p>The above links will create the targets,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@npm//@scope/target
+@npm//target
+</code></pre></div></div>
+
+<p>that can be referenced as <code class="language-plaintext highlighter-rouge">data</code> or <code class="language-plaintext highlighter-rouge">deps</code> by other rules such as <code class="language-plaintext highlighter-rouge">nodejs_binary</code> and <code class="language-plaintext highlighter-rouge">ts_project</code>
+and can be required as <code class="language-plaintext highlighter-rouge">@scope/target</code> and <code class="language-plaintext highlighter-rouge">target</code> with standard node_modules resolution at runtime,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nodejs_binary(
+    name = "bin",
+    entry_point = "bin.js",
+    deps = [
+        "@npm//@scope/target",
+        "@npm//target"
+        "@npm//other/dep"
+    ],
+)
+
+ts_project(
+    name = "test",
+    srcs = [...],
+    deps = [
+        "@npm//@scope/target",
+        "@npm//target"
+        "@npm//other/dep"
+    ],
+)
+</code></pre></div></div>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+
 <h4 id="npm_install-manual_build_file_contents">manual_build_file_contents</h4>
 
 <p>(<em>String</em>): Experimental attribute that can be used to override the generated BUILD.bazel file and set its contents manually.</p>
@@ -1002,6 +1061,39 @@ in the same location they are found in the source tree. In a future release, thi
 directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/issues/2451</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
+
+<h4 id="npm_install-patch_args">patch_args</h4>
+
+<p>(<em>List of strings</em>): The arguments given to the patch tool. Defaults to -p0, however -p1 will usually be needed for patches generated by git. If multiple -p arguments are specified, the last one will take effect.If arguments other than -p are specified, Bazel will fall back to use patch command line tool instead of the Bazel-native patch implementation. When falling back to patch command line tool and patch_tool attribute is not specified, <code class="language-plaintext highlighter-rouge">patch</code> will be used.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["-p0"]</code></p>
+
+<h4 id="npm_install-patch_tool">patch_tool</h4>
+
+<p>(<em>String</em>): The patch(1) utility to use. If this is specified, Bazel will use the specifed patch tool instead of the Bazel-native patch implementation.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
+
+<h4 id="npm_install-post_install_patches">post_install_patches</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Patch files to apply after running package manager.</p>
+
+<p>This can be used to make changes to installed packages after the package manager runs.</p>
+
+<p>File paths in patches should be relative to workspace root.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="npm_install-pre_install_patches">pre_install_patches</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Patch files to apply before running package manager.</p>
+
+<p>This can be used to make changes to package.json or other data files passed in before running the
+package manager.</p>
+
+<p>File paths in patches should be relative to workspace root.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="npm_install-quiet">quiet</h4>
 
@@ -1052,8 +1144,8 @@ data attribute.</p>
 <p><strong>USAGE</strong></p>
 
 <pre>
-pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-srcs">srcs</a>, <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-tgz">tgz</a>,
-        <a href="#pkg_npm-vendor_external">vendor_external</a>)
+pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-package_path">package_path</a>, <a href="#pkg_npm-srcs">srcs</a>,
+        <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-tgz">tgz</a>, <a href="#pkg_npm-vendor_external">vendor_external</a>)
 </pre>
 
 <p>The pkg_npm rule creates a directory containing a publishable npm artifact.</p>
@@ -1168,6 +1260,14 @@ to create a NodeContextInfo.  The dependencies of this attribute must provide: N
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
+<h4 id="pkg_npm-package_path">package_path</h4>
+
+<p>(<em>String</em>): The directory in the workspace to link to.
+If set, link this pkg_npm to the node_modules under the package path specified.
+If unset, the default is to link to the node_modules root of the workspace.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
+
 <h4 id="pkg_npm-srcs">srcs</h4>
 
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Files inside this directory which are simply copied into the package.</p>
@@ -1256,9 +1356,9 @@ See the section on stamping in the README.</p>
 
 <pre>
 yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>, <a href="#yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</a>,
-             <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_path">package_path</a>, <a href="#yarn_install-quiet">quiet</a>,
-             <a href="#yarn_install-repo_mapping">repo_mapping</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>,
-             <a href="#yarn_install-yarn_lock">yarn_lock</a>)
+             <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-links">links</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_path">package_path</a>,
+             <a href="#yarn_install-patch_args">patch_args</a>, <a href="#yarn_install-patch_tool">patch_tool</a>, <a href="#yarn_install-post_install_patches">post_install_patches</a>, <a href="#yarn_install-pre_install_patches">pre_install_patches</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>,
+             <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
 </pre>
 
 <p>Runs yarn install during workspace setup.</p>
@@ -1362,6 +1462,64 @@ as well as the fine grained targets such as <code class="language-plaintext high
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
+<h4 id="yarn_install-links">links</h4>
+
+<p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): Targets to link as npm packages.</p>
+
+<p>A mapping of npm package names to bazel targets to linked into node_modules.</p>
+
+<p>If <code class="language-plaintext highlighter-rouge">package_path</code> is also set, the bazel target will be linked to the node_modules at <code class="language-plaintext highlighter-rouge">package_path</code>
+along with other 3rd party npm packages from this rule.</p>
+
+<p>For example,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yarn_install(
+    name = "npm",
+    package_json = "//web:package.json",
+    yarn_lock = "//web:yarn.lock",
+    package_path = "web",
+    links = {
+        "@scope/target": "//some/scoped/target",
+        "target": "//some/target",
+    },
+)
+</code></pre></div></div>
+
+<p>creates targets in the @npm external workspace that can be used by other rules which
+are linked into <code class="language-plaintext highlighter-rouge">web/node_modules</code> along side the 3rd party deps since the <code class="language-plaintext highlighter-rouge">project_path</code> is <code class="language-plaintext highlighter-rouge">web</code>.</p>
+
+<p>The above links will create the targets,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@npm//@scope/target
+@npm//target
+</code></pre></div></div>
+
+<p>that can be referenced as <code class="language-plaintext highlighter-rouge">data</code> or <code class="language-plaintext highlighter-rouge">deps</code> by other rules such as <code class="language-plaintext highlighter-rouge">nodejs_binary</code> and <code class="language-plaintext highlighter-rouge">ts_project</code>
+and can be required as <code class="language-plaintext highlighter-rouge">@scope/target</code> and <code class="language-plaintext highlighter-rouge">target</code> with standard node_modules resolution at runtime,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nodejs_binary(
+    name = "bin",
+    entry_point = "bin.js",
+    deps = [
+        "@npm//@scope/target",
+        "@npm//target"
+        "@npm//other/dep"
+    ],
+)
+
+ts_project(
+    name = "test",
+    srcs = [...],
+    deps = [
+        "@npm//@scope/target",
+        "@npm//target"
+        "@npm//other/dep"
+    ],
+)
+</code></pre></div></div>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+
 <h4 id="yarn_install-manual_build_file_contents">manual_build_file_contents</h4>
 
 <p>(<em>String</em>): Experimental attribute that can be used to override the generated BUILD.bazel file and set its contents manually.</p>
@@ -1388,6 +1546,39 @@ in the same location they are found in the source tree. In a future release, thi
 directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/issues/2451</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
+
+<h4 id="yarn_install-patch_args">patch_args</h4>
+
+<p>(<em>List of strings</em>): The arguments given to the patch tool. Defaults to -p0, however -p1 will usually be needed for patches generated by git. If multiple -p arguments are specified, the last one will take effect.If arguments other than -p are specified, Bazel will fall back to use patch command line tool instead of the Bazel-native patch implementation. When falling back to patch command line tool and patch_tool attribute is not specified, <code class="language-plaintext highlighter-rouge">patch</code> will be used.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["-p0"]</code></p>
+
+<h4 id="yarn_install-patch_tool">patch_tool</h4>
+
+<p>(<em>String</em>): The patch(1) utility to use. If this is specified, Bazel will use the specifed patch tool instead of the Bazel-native patch implementation.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
+
+<h4 id="yarn_install-post_install_patches">post_install_patches</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Patch files to apply after running package manager.</p>
+
+<p>This can be used to make changes to installed packages after the package manager runs.</p>
+
+<p>File paths in patches should be relative to workspace root.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="yarn_install-pre_install_patches">pre_install_patches</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Patch files to apply before running package manager.</p>
+
+<p>This can be used to make changes to package.json or other data files passed in before running the
+package manager.</p>
+
+<p>File paths in patches should be relative to workspace root.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="yarn_install-quiet">quiet</h4>
 
@@ -1569,7 +1760,7 @@ In this case you can specify what the dbg version of the output should look like
 <p><strong>USAGE</strong></p>
 
 <pre>
-js_library(<a href="#js_library-name">name</a>, <a href="#js_library-srcs">srcs</a>, <a href="#js_library-package_name">package_name</a>, <a href="#js_library-deps">deps</a>, <a href="#js_library-kwargs">kwargs</a>)
+js_library(<a href="#js_library-name">name</a>, <a href="#js_library-srcs">srcs</a>, <a href="#js_library-package_name">package_name</a>, <a href="#js_library-package_path">package_path</a>, <a href="#js_library-deps">deps</a>, <a href="#js_library-kwargs">kwargs</a>)
 </pre>
 
 <p>Groups JavaScript code so that it can be depended on like an npm package.</p>
@@ -1651,29 +1842,75 @@ It will also provide <a href="https://docs.bazel.build/versions/master/skylark/l
 
 <h4 id="js_library-name">name</h4>
 
-<p>a name for the target</p>
+<p>The name for the target</p>
 
 <h4 id="js_library-srcs">srcs</h4>
 
-<p>the list of files that comprise the package</p>
+<p>The list of files that comprise the package</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="js_library-package_name">package_name</h4>
 
-<p>the name it will be imported by. Should match the “name” field in the package.json file.</p>
+<p>The name it will be imported by. Should match the “name” field in the package.json file.</p>
+
+<p>If package_name == “$node_modules$” this indictates that this js_library target is one or more external npm
+packages in node_modules. This is a special case that used be covered by the internal only
+<code class="language-plaintext highlighter-rouge">external_npm_package</code> attribute. NB: ‘$’ is an illegal character
+for npm packages names so this reserved name will not conflict with any valid package_name values</p>
+
+<p>This is used by the yarn_install &amp; npm_install repository rules for npm dependencies installed by
+yarn &amp; npm. When true, js_library will provide ExternalNpmPackageInfo.</p>
+
+<p>It can also be used for user-managed npm dependencies if node_modules is layed out outside of bazel.
+For example,</p>
+
+<p>js_library(
+    name = “node_modules”,
+    srcs = glob(
+        include = [
+            “node_modules/<strong>/<em>.js”,
+            “node_modules/**/</em>.d.ts”,
+            “node_modules/</strong>/<em>.json”,
+            “node_modules/.bin/</em>”,
+        ],
+        exclude = [
+            # Files under test &amp; docs may contain file names that
+            # are not legal Bazel labels (e.g.,
+            # node_modules/ecstatic/test/public/ä¸­æ/æªæ¡.html)
+            “node_modules/<strong>/test/</strong>”,
+            “node_modules/<strong>/docs/</strong>”,
+            # Files with spaces in the name are not legal Bazel labels
+            “node_modules/<em>*/</em> <em>/<strong>”,
+            “node_modules/</strong>/</em> *”,
+        ],
+    ),
+    # Special value to provide ExternalNpmPackageInfo which is used by downstream
+    # rules that use these npm dependencies
+    package_name = “$node_modules$”,
+)</p>
+
+<p>See <code class="language-plaintext highlighter-rouge">examples/user_managed_deps</code> for a working example of user-managed npm dependencies.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
 
+<h4 id="js_library-package_path">package_path</h4>
+
+<p>The directory in the workspace to link to.
+If set, link this js_library to the node_modules under the package path specified.
+If unset, the default is to link to the node_modules root of the workspace.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
+
 <h4 id="js_library-deps">deps</h4>
 
-<p>other targets that provide JavaScript code</p>
+<p>Other targets that provide JavaScript code</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="js_library-kwargs">kwargs</h4>
 
-<p>used for undocumented legacy features</p>
+<p>Other attributes</p>
 
 <h2 id="npm_package_bin">npm_package_bin</h2>
 
@@ -2058,7 +2295,7 @@ These outputs should be named “foo.umd.js”
 <p><strong>USAGE</strong></p>
 
 <pre>
-LinkablePackageInfo(<a href="#LinkablePackageInfo-files">files</a>, <a href="#LinkablePackageInfo-package_name">package_name</a>, <a href="#LinkablePackageInfo-path">path</a>, <a href="#LinkablePackageInfo-_tslibrary">_tslibrary</a>)
+LinkablePackageInfo(<a href="#LinkablePackageInfo-files">files</a>, <a href="#LinkablePackageInfo-package_name">package_name</a>, <a href="#LinkablePackageInfo-package_path">package_path</a>, <a href="#LinkablePackageInfo-path">path</a>, <a href="#LinkablePackageInfo-_tslibrary">_tslibrary</a>)
 </pre>
 
 <p>The LinkablePackageInfo provider provides information to the linker for linking pkg_npm built packages</p>
@@ -2072,9 +2309,13 @@ LinkablePackageInfo(<a href="#LinkablePackageInfo-files">files</a>, <a href="#Li
 
 <p>The package name.</p>
 
-<p>Should be the same as name field in the package’s package.json.</p>
+<p>This field is optional. If not set, the target can be made linkable to a package_name with the npm_link rule.</p>
+<h4 id="LinkablePackageInfo-package_path">package_path</h4>
 
-<p>In the future, the linker may validate that the names match the name in a package.json file.</p>
+<p>The directory in the workspace to link to.</p>
+
+<p>If set, link the 1st party dependencies to the node_modules under the package path specified.
+If unset, the default is to link to the node_modules root of the workspace.</p>
 <h4 id="LinkablePackageInfo-path">path</h4>
 
 <p>The path to link to.</p>

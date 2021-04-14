@@ -198,8 +198,8 @@ containing:</p>
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span><span class="p">,</span> <span class="s">"http_archive"</span><span class="p">)</span>
 <span class="n">http_archive</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"build_bazel_rules_nodejs"</span><span class="p">,</span>
-    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"dd7ea7efda7655c218ca707f55c3e1b9c68055a70c31a98f264b3445bc8f4cb1"</span><span class="p">,</span>
-    <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="s">"https://github.com/bazelbuild/rules_nodejs/releases/download/3.2.3/rules_nodejs-3.2.3.tar.gz"</span><span class="p">],</span>
+    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"f533eeefc8fe1ddfe93652ec50f82373d0c431f7faabd5e6323f6903195ef227"</span><span class="p">,</span>
+    <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="s">"https://github.com/bazelbuild/rules_nodejs/releases/download/3.3.0/rules_nodejs-3.3.0.tar.gz"</span><span class="p">],</span>
 <span class="p">)</span>
 
 <span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"node_repositories"</span><span class="p">)</span>
@@ -326,6 +326,27 @@ in use.</p>
 <p>So if for example you want to build a docker image from a non-linux platform you would run <code class="language-plaintext highlighter-rouge">bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //app</code>, which will ensure that the linux nodejs binary is downloaded and provided to the nodejs_binary target.</p>
 
 <p>Note: The toolchain currently only provides a platform-specific nodejs binary. Any native modules will still be fetched/built, by npm/yarn, for your host platform, so they will not work on the target platform. Support for cross-compilation with native dependencies will follow.</p>
+
+<p>Because these rules use the target platform to decide which node binary to use, you will run into trouble if you are trying to invoke these rules as part of a cross-compilation
+to a platform that is not supported by the default node repositories, eg when trying to bundle some js products into a binary targeting Android or iOS. You can work around this
+by defining your own toolchain, and specifying the host platform as an execution requirement instead. For example, if you are building on a Mac, you could add the following
+to your workspace:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>register_toolchains("//node_toolchain")
+</code></pre></div></div>
+
+<p>And the following in node_toolchain/BUILD.bazel:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>toolchain(
+    name = "node_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:osx",
+        "@platforms//cpu:x86_64",
+    ],
+    toolchain = "@nodejs_darwin_amd64_config//:toolchain",
+    toolchain_type = "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
+)
+</code></pre></div></div>
 
       </div>
     </div>
