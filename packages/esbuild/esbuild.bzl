@@ -270,7 +270,7 @@ See https://esbuild.github.io/api/#sources-content for more details
         "target": attr.string(
             default = "es2015",
             doc = """Environment target (e.g. es2017, chrome58, firefox57, safari11, 
-edge16, node10, default esnext)
+edge16, node10, esnext). Default es2015.
 
 See https://esbuild.github.io/api/#target for more details
             """,
