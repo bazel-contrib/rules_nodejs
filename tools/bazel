@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+
+# Bazelisk looks for this file, and runs it in place of the Bazel command if present.	
+# See https://github.com/bazelbuild/bazelisk/blob/master/README.md#other-features	
+# This gives us a place to create a custom environment for Bazel to run in.
+
+set -eu
+
+BOLD=$([ -t 0 ] && tput bold || echo "")
+RED=$([ -t 0 ] && tput setaf 1 || echo "")
+GREEN=$([ -t 0 ] && tput setaf 2 || echo "")
+YELLOW=$([ -t 0 ] && tput setaf 3 || echo "")
+CL=$([ -t 0 ] && tput sgr0 || echo "") # reset
+
+readonly COMPLETION_SNIPPET_DELIM="bazel-completion"
+readonly COMPLETION_SNIPPET_BEGIN_DELIM="# BEGIN-${COMPLETION_SNIPPET_DELIM}"
+readonly COMPLETION_SNIPPET_END_DELIM="# END-${COMPLETION_SNIPPET_DELIM}"
+
+ARGS=( "$@" )
+TARGETS_AND_FLAGS=( "${ARGS[@]:1}" )
+TARGETS=( "${TARGETS_AND_FLAGS[@]%%-*}" )
+
+print_help() {
+    VERB=${1}
+    DESC=${2}
+
+    LENGTH=${#VERB}
+    while [[ ${LENGTH} -lt 20 ]]; do
+        VERB="${VERB} "
+        LENGTH=${#VERB}
+    done
+
+    echo "  ${VERB}${DESC}"
+}
+
+#######################################
+# Modify an rcfile with a snippet without duplication.
+#
+# Globals:
+#   COMPLETION_SNIPPET_BEGIN_DELIM
+#   COMPLETION_SNIPPET_END_DELIM
+# Arguments:
+#   RCFILE - the rcfile to modify
+#   SNIPPET_TMP - a file containing the snippet to append to RCFILE
+#######################################
+append_to_rcfile() {
+    RCFILE="${1}"
+    SNIPPET_TMP="${2}"
+
+    RCFILE_TMP=$(mktemp)
+    PATTERN_TMP=$(mktemp)
+
+    echo "/^${COMPLETION_SNIPPET_BEGIN_DELIM}/,/^${COMPLETION_SNIPPET_END_DELIM}/{next}1" > "${PATTERN_TMP}"
+    awk -f "${PATTERN_TMP}" "$RCFILE" > "${RCFILE_TMP}"
+    cat "${SNIPPET_TMP}" >> "${RCFILE_TMP}"
+    cp "${RCFILE_TMP}" "${RCFILE}"
+    rm "${PATTERN_TMP}" "${SNIPPET_TMP}" "${RCFILE_TMP}"
+
+    echo -e "${YELLOW}Completion snippet added to ${RCFILE}${CL}"
+}
+
+#######################################
+# Configure autocompletion for bazel.
+# Optimistically tries to configure for both zsh and bash.
+#
+# Globals:
+#   HOME
+#   COMPLETION_SNIPPET_BEGIN_DELIM
+#   COMPLETION_SNIPPET_END_DELIM
+# Arguments:
+#   None
+#######################################
+configure_bazel_autocompletion() {
+    readonly ZSHRC="${HOME}/.zshrc"
+    readonly BASH_PROFILE="${HOME}/.bash_profile"
+    readonly WORKSPACE_DIR=$(bazel info workspace --ui_event_filters=-INFO)
+
+    DID_CONFIGURE="none"
+
+    ##
+    ## Zsh
+    ##
+    if [[ -f "${ZSHRC}" ]]; then
+        readonly ZSH_COMPLETION_SCRIPT="${WORKSPACE_DIR}/bazel/completion/zsh/_bazel"
+        readonly ZSH_SNIPPET_TMP=$(mktemp)
+
+        mkdir -p "${HOME}/.zsh/completion/"
+        cp "${ZSH_COMPLETION_SCRIPT}" "${HOME}/.zsh/completion/"
+        cat << EOF >> "${ZSH_SNIPPET_TMP}"
+${COMPLETION_SNIPPET_BEGIN_DELIM}
+autoload -U +X compinit && compinit
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path ~/.zsh/cache
+fpath[1,0]=~/.zsh/completion/
+${COMPLETION_SNIPPET_END_DELIM}
+EOF
+        append_to_rcfile "${ZSHRC}" "${ZSH_SNIPPET_TMP}"
+        DID_CONFIGURE="zsh"
+    fi 
+
+    ##
+    ## Bash
+    ##
+    if [[ -f "${BASH_PROFILE}" ]]; then
+        readonly BASH_COMPLETION_SCRIPT="${WORKSPACE_DIR}/bazel/completion/bash/bazel.bash"
+        readonly BASH_SNIPPET_TMP=$(mktemp)
+
+        cat << EOF >> "${BASH_SNIPPET_TMP}"
+${COMPLETION_SNIPPET_BEGIN_DELIM}
+if [ -f "${BASH_COMPLETION_SCRIPT}" ]; then
+    source "${BASH_COMPLETION_SCRIPT}"
+fi
+${COMPLETION_SNIPPET_END_DELIM}
+EOF
+        append_to_rcfile "${BASH_PROFILE}" "${BASH_SNIPPET_TMP}"
+        DID_CONFIGURE="bash"
+    fi
+
+    if [[ "${DID_CONFIGURE}" == "none" ]]; then
+        echo -e "${RED}Completion setup was expecting to find ${BASH_PROFILE} or ${ZSHRC}${CL}."
+        echo -e "${YELLOW}Please contact the #bazel slack channel for help.${CL}"
+        exit 1
+    fi
+
+    echo -e "${GREEN}Bazel completion should now be available (in a new terminal) 🎉${CL}"
+}
+
+case "${ARGS[0]}" in
+    "completion")
+        if [ ! -x ${TARGETS+x} ]; then
+            echo -e "${RED}ERROR${CL}: 'bazel completion' does not take any arguments."
+            exit 1
+        fi
+
+        configure_bazel_autocompletion
+    ;;
+    "outputs")
+        if [ -x ${TARGETS+x} ]; then
+            echo -e "${RED}ERROR${CL} Requested an empty set of targets\nUsage: 'bazel outputs <targets>'"
+            exit 1
+        fi
+
+        echo -e "Querying for outputs for ${TARGETS[*]}\n"
+
+        for T in "${TARGETS[@]}"; do
+            OUTS=$(${BAZEL_REAL} aquery "${T}" --include_commandline=false --output jsonproto 2> /dev/null |\
+                jq --raw-output '((.actions[]?.outputIds)[] as $ids | (.artifacts[] | select(.id | IN( $ids )))) as $art | $art.execPath')
+
+            echo "${BOLD}${T}${CL}:"
+            if [ -x ${OUTS+x} ]; then
+                echo -e "\t${YELLOW}No outputs${CL}"
+            else
+                printf "\t${GREEN}%s${CL}\n" "${OUTS[@]}"
+            fi
+        done
+    ;;
+    "help" | "--help")
+        ${BAZEL_REAL} "$@"
+
+        if [[ "${#ARGS[@]}" -eq 1 ]]; then
+            echo -e "\nCustom commands:"
+            print_help "outputs" "Prints the output paths to any artifacts that are created when requesting a build"
+            print_help "completion" "Configures bazel CLI autocompletion for ~/.zshrc and/or ~/.bash_profile."
+        fi
+    ;;
+    *)
+        exec -a bazel "${BAZEL_REAL}" "$@"
+esac
