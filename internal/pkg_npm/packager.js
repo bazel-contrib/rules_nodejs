@@ -61,21 +61,32 @@ function unquoteArgs(s) {
 }
 
 /**
- * The status files are expected to look like
- * BUILD_SCM_HASH 83c699db39cfd74526cdf9bebb75aa6f122908bb
- * BUILD_SCM_LOCAL_CHANGES true
- * STABLE_BUILD_SCM_VERSION 6.0.0-beta.6+12.sha-83c699d.with-local-changes
- * BUILD_TIMESTAMP 1520021990506
- *
- * @param {string} p the path to the status file
- * @returns a two-dimensional array of key/value pairs
- */
+* The status files are expected to look like
+* BUILD_SCM_HASH 83c699db39cfd74526cdf9bebb75aa6f122908bb
+* BUILD_SCM_LOCAL_CHANGES true
+* STABLE_BUILD_SCM_VERSION 6.0.0-beta.6+12.sha-83c699d.with-local-changes
+* BUILD_TIMESTAMP 1520021990506
+*
+* Parsing regex is created based on Bazel's documentation describing the status file schema:
+*   The key names can be anything but they may only use upper case letters and underscores. The
+*   first space after the key name separates it from the value. The value is the rest of the line
+*   (including additional whitespaces).
+*
+* @param {string} p the path to the status file
+* @returns a two-dimensional array of key/value pairs
+*/
 function parseStatusFile(p) {
   if (!p) return [];
-  return fs.readFileSync(p, {encoding: 'utf-8'})
-      .split('\n')
-      .filter(t => !!t)
-      .map(t => t.split(' '));
+  const results = {};
+  const statusFile = fs.readFileSync(p, {encoding: 'utf-8'});
+  for (const match of `\n${statusFile}`.matchAll(/^([A-Z_]+) (.*)/gm)) {
+    // Lines which go unmatched define an index value of `0` and should be skipped.
+    if (match.index === 0) {
+      continue;
+    }
+    results[match[1]] = match[2];
+  }
+  return results;
 }
 
 function main(args) {
@@ -95,15 +106,16 @@ function main(args) {
   // Replace statuses last so that earlier substitutions can add
   // status-related placeholders
   if (volatileFile || infoFile) {
-    const statusEntries = parseStatusFile(volatileFile)
-    statusEntries.push(...parseStatusFile(infoFile))
+    const statuses = {
+      ...parseStatusFile(volatileFile),
+      ...parseStatusFile(infoFile),
+    };
     // Looks like {'BUILD_SCM_VERSION': 'v1.2.3'}
-    const statuses = new Map(statusEntries)
     for (let idx = 0; idx < substitutions.length; idx++) {
       const match = substitutions[idx][1].match(/\{(.*)\}/);
       if (!match) continue;
       const statusKey = match[1];
-      let statusValue = statuses.get(statusKey);
+      let statusValue = statuses[statusKey];
       if (statusValue) {
         // npm versions must be numeric, so if the VCS tag starts with leading 'v', strip it
         // See https://github.com/bazelbuild/rules_nodejs/pull/1591
