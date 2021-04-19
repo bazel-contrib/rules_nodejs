@@ -454,9 +454,13 @@ export function createProgramAndEmit(
     if (!/\.ng(factory|summary)\.ts$/.test(sf.fileName)) {
       return false;
     }
-    return isCompilationTarget(bazelOpts, {
-      fileName: sf.fileName.slice(0, /*'.ngfactory|ngsummary.ts'.length*/ -13) + '.ts'
-    } as ts.SourceFile);
+    const base = sf.fileName.slice(0, /*'.ngfactory|ngsummary.ts'.length*/ -13);
+    // It's possible a file was named ngsummary.ts or ngfactory.ts but *not* synthetic
+    // So verify that base.ts or base.tsx was originally part of the compilation
+    const tsCandidate = {fileName: `${base}.ts`} as ts.SourceFile;
+    const tsxCandidate = {fileName: `${base}.tsx`} as ts.SourceFile;
+    return isCompilationTarget(bazelOpts, tsCandidate) ||
+        isCompilationTarget(bazelOpts, tsxCandidate);
   }
 
   // If the Angular plugin is in use, this list of files to emit should exclude
