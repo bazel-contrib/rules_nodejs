@@ -422,6 +422,13 @@ def _prepare_node(repository_ctx):
     yarn_bin_label = ("%s/bin/yarn.js" % yarn_package) if not is_windows else ("%s/yarn.cmd" % yarn_package)
     yarn_script = "%s/bin/yarn.js" % yarn_path
 
+    # Ensure that the "vendored" binaries are resolved
+    # Just requesting their path from the repository context is enough to eager-load them
+    if repository_ctx.attr.vendored_node:
+        repository_ctx.path(Label(node_bin_label))
+    if repository_ctx.attr.vendored_yarn:
+        repository_ctx.path(Label(yarn_bin_label))
+
     entry_ext = ".cmd" if is_windows else ""
     node_entry = "bin/node%s" % entry_ext
     npm_entry = "bin/npm%s" % entry_ext
