@@ -21,7 +21,7 @@ _DOC = """Assembles a web application from source files."""
 
 _ATTRS = dict(NODE_CONTEXT_ATTRS, **{
     "additional_root_paths": attr.string_list(
-        doc = """Path prefixes to strip off all srcs, in addition to the current package. Longest wins.""",
+        doc = """Path prefixes to strip off all srcs relative to the root of the repo, in addition to the current package. Longest wins.""",
     ),
     "srcs": attr.label_list(
         allow_files = True,
