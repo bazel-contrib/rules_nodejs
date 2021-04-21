@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "composite": true,
-        "tsBuildInfoFile": "my.tsbuildinfo",
-        "types": []
+        "tsBuildInfoFile": "my.tsbuildinfo"
     }
 }

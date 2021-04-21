@@ -13,7 +13,6 @@ ts_project(
     tsconfig = {
         "compilerOptions": {
             "rootDir": "subdir",
-            "types": [],
         },
     },
 )

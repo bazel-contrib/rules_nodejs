@@ -4,7 +4,6 @@ ts_project(
     tsconfig = {
         "compilerOptions": {
             "moduleResolution": "Node",
-            "types": [],
         },
     },
     deps = ["//packages/typescript/test/ts_project/import_package_by_name/lib"],

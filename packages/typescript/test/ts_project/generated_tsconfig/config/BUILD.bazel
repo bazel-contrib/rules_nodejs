@@ -10,10 +10,10 @@ ts_project(
             "declarationDir": "types",
             "declarationMap": True,
             "module": "esnext",
+            "moduleResolution": "node",
             "outDir": "out",
             "rootDir": "src",
             "sourceMap": True,
-            "types": [],
         },
     },
 )

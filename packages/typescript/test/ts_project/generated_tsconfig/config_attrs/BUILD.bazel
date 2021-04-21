@@ -13,7 +13,7 @@ ts_project(
     tsconfig = {
         "compilerOptions": {
             "module": "esnext",
-            "types": [],
+            "moduleResolution": "node",
         },
     },
 )
