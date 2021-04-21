@@ -1,11 +1,11 @@
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "pkg_npm")
 load("@npm//typescript:index.bzl", "tsc")
+load("//internal/common:assert.bzl", "assert_program_produces_stdout")
 
 # For now this is an internal API
 # TODO: decide if package.json is sufficient for all use cases
-load("//internal/node:node.bzl", "package_main")
-load(":test.bzl", "assert_program_produces_stdout")
+load("//internal/node:node.bzl", "directory_entry_point")
 
 filegroup(
     name = "ts_sources",
@@ -61,10 +61,9 @@ nodejs_binary(
 # Now just assert that running that program produces the expected stdout
 assert_program_produces_stdout(
     name = "test_a",
-    stdout = [
-        "running entry point A",
-        "",
-    ],
+    stdout = ["running entry point A"],
+    # This requires runfiles
+    tags = ["no-bazelci-windows"],
     tool = "run_a",
 )
 
@@ -73,10 +72,10 @@ assert_program_produces_stdout(
 # Without the pkg_npm, we should still be able to run the program.
 # But we need an adapter rule that gives us the equivalent of the "main" field
 
-package_main(
+directory_entry_point(
     name = "entry_point_b",
     directory = "build",
-    main = "b.js",
+    entry_point = "b.js",
 )
 
 nodejs_binary(
@@ -88,9 +87,6 @@ nodejs_binary(
 # Now just assert that running that program produces the expected stdout
 assert_program_produces_stdout(
     name = "test_b",
-    stdout = [
-        "running entry point B",
-        "",
-    ],
+    stdout = ["running entry point B"],
     tool = "run_b",
 )

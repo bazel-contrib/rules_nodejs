@@ -1,3 +1,3 @@
 if (require.main === module) {
-  console.log('running entry point A')
+  process.stdout.write('running entry point A')
 }

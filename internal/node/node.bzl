@@ -319,7 +319,7 @@ fi
     substitutions["TEMPLATED_entry_point_execroot_path"] = "\"%s\"" % _ts_to_js(_to_execroot_path(ctx, _get_entry_point_file(ctx)))
     substitutions["TEMPLATED_entry_point_manifest_path"] = "$(rlocation \"%s\")" % _ts_to_js(_to_manifest_path(ctx, _get_entry_point_file(ctx)))
     if EntryPointInfo in ctx.attr.entry_point:
-        substitutions["TEMPLATED_entry_point_main"] = ctx.attr.entry_point[EntryPointInfo].main
+        substitutions["TEMPLATED_entry_point_main"] = ctx.attr.entry_point[EntryPointInfo].entry_point
     else:
         substitutions["TEMPLATED_entry_point_main"] = ""
 
@@ -690,21 +690,21 @@ EntryPointInfo = provider(
     doc = "Tells runners about what JS file is the entry point, or main where node should begin evaluation",
     fields = {
         "directory": "a TreeArtifact (ctx.actions.declare_directory) containing the entry point",
-        "main": "path relative to the directory, same as package.json's main property",
+        "entry_point": "path relative to the directory, same as package.json's main/module fields",
     },
 )
 
-def _package_main(ctx):
+def _directory_entry_point(ctx):
     if not ctx.file.directory.is_directory:
         fail("directory attribute must be created with Bazel declare_directory (TreeArtifact)")
-    return [EntryPointInfo(main = ctx.attr.main, directory = ctx.file.directory)]
+    return [EntryPointInfo(entry_point = ctx.attr.entry_point, directory = ctx.file.directory)]
 
-package_main = rule(
+directory_entry_point = rule(
     doc = """Provide EntryPointInfo to give an entry_point within a directory.
         Otherwise there is no way to give a Bazel label for it.""",
-    implementation = _package_main,
+    implementation = _directory_entry_point,
     attrs = {
         "directory": attr.label(doc = "a directory containing the entry point", mandatory = True, allow_single_file = True),
-        "main": attr.string(doc = "entry point for the program, same as package.json main", mandatory = True),
+        "entry_point": attr.string(doc = "entry point for the program, same as package.json like main/module", mandatory = True),
     },
 )
