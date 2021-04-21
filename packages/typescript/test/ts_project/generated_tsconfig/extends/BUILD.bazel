@@ -9,7 +9,6 @@ ts_project(
         "compilerOptions": {
             "declaration": True,
             "outDir": "case_one",
-            "types": [],
         },
     },
 )
@@ -30,7 +29,6 @@ ts_project(
         "compilerOptions": {
             "declaration": True,
             "outDir": "case_two",
-            "types": [],
         },
     },
 )

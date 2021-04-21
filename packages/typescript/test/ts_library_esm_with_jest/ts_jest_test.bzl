@@ -12,7 +12,10 @@ Uses ts_library prodmode esm output"""
         name = "%s_ts" % name,
         srcs = srcs,
         data = data,
-        deps = deps + ["@npm//@types/jest"],
+        # Ideally we'd use @types/jest, but it causes typings conflicts
+        # if installed together with @types/jasmine and they both end up
+        # ambiently included in a TS compile
+        deps = deps + ["@npm//@types/jasmine"],
         # NB: hacky hidden configuration setting so that es6_sources does not include tsickle
         #     .externs.js outputs
         runtime = "nodejs",

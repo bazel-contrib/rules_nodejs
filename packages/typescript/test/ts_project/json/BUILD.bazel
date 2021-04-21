@@ -30,7 +30,6 @@ ts_project(
             "declaration": True,
             "emitDeclarationOnly": True,
             "resolveJsonModule": True,
-            "types": [],
         },
     },
 )

@@ -7,7 +7,6 @@ ts_project(
         "compilerOptions": {
             "declaration": True,
             "emitDeclarationOnly": True,
-            "types": [],
         },
     },
 )

@@ -5,7 +5,6 @@ ts_project(
     tsconfig = {
         "compilerOptions": {
             "declaration": True,
-            "types": [],
         },
     },
 )
