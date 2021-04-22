@@ -108,6 +108,8 @@ node_repositories(
 Will download yarn from https://github.com/yarnpkg/yarn/releases/download/v1.2.1/yarn-v1.12.1.tar.gz
 and expect the file to have sha256sum `09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d`.
 
+If you don't use Yarn at all, you can skip downloading it by setting `yarn_urls = []`.
+
 
 ### Using a local version
 
@@ -240,6 +242,8 @@ Defaults to `{}`
 (*List of strings*): custom list of URLs to use to download Yarn
 
 Each entry is a template, similar to the `node_urls` attribute, using `yarn_version` and `yarn_repositories` in the substitutions.
+
+If this list is empty, we won't download yarn at all.
 
 Defaults to `["https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]`
 
@@ -1206,7 +1210,7 @@ Assembles a web application from source files.
 
 <h4 id="pkg_web-additional_root_paths">additional_root_paths</h4>
 
-(*List of strings*): Path prefixes to strip off all srcs, in addition to the current package. Longest wins.
+(*List of strings*): Path prefixes to strip off all srcs relative to the root of the repo, in addition to the current package. Longest wins.
 
 Defaults to `[]`
 

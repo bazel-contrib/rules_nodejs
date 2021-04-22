@@ -265,6 +265,8 @@ and expect that file to have sha256sum <code class="language-plaintext highlight
 <p>Will download yarn from https://github.com/yarnpkg/yarn/releases/download/v1.2.1/yarn-v1.12.1.tar.gz
 and expect the file to have sha256sum <code class="language-plaintext highlighter-rouge">09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d</code>.</p>
 
+<p>If you don’t use Yarn at all, you can skip downloading it by setting <code class="language-plaintext highlighter-rouge">yarn_urls = []</code>.</p>
+
 <h3 id="using-a-local-version">Using a local version</h3>
 
 <p>To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set vendored_node and or vendored_yarn
@@ -390,6 +392,8 @@ Example: {“type”: “basic”, “login”: “<UserName>", "password": "<Pa
 <p>(<em>List of strings</em>): custom list of URLs to use to download Yarn</p>
 
 <p>Each entry is a template, similar to the <code class="language-plaintext highlighter-rouge">node_urls</code> attribute, using <code class="language-plaintext highlighter-rouge">yarn_version</code> and <code class="language-plaintext highlighter-rouge">yarn_repositories</code> in the substitutions.</p>
+
+<p>If this list is empty, we won’t download yarn at all.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">["https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]</code></p>
 
@@ -1319,7 +1323,7 @@ pkg_web(<a href="#pkg_web-name">name</a>, <a href="#pkg_web-additional_root_path
 
 <h4 id="pkg_web-additional_root_paths">additional_root_paths</h4>
 
-<p>(<em>List of strings</em>): Path prefixes to strip off all srcs, in addition to the current package. Longest wins.</p>
+<p>(<em>List of strings</em>): Path prefixes to strip off all srcs relative to the root of the repo, in addition to the current package. Longest wins.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
@@ -2565,7 +2569,7 @@ mandatory: true
           </li>
           
         </ul>
-        <ul class="section-nav">
+        <ul id="toc" class="section-nav">
 <li class="toc-entry toc-h2"><a href="#node_repositories">node_repositories</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#simplest-usage">Simplest Usage</a></li>

@@ -36,6 +36,32 @@ For example `ts_library` produces named AMD modules in its "devmode" output, and
 
 ## Compatibility
 
+
+### First-party code
+
+First-party code has to be authored as named AMD/UMD modules.
+This is also historically referred to as "RequireJS" modules since that's the
+JS loader that is typically used with them.
+
+If you write TypeScript, you can do this following their [documentation](https://www.typescriptlang.org/docs/handbook/modules.html).
+
+There is an example in this repository: we have an `index.ts` file that wants
+to be used with require.js `require("@bazel/concatjs")`.
+So it
+[declares
+that module name](https://github.com/bazelbuild/rules_nodejs/blob/bd53eb524ea3bd56b46b7a5f2eff700443e281ec/packages/concatjs/index.ts#L1)
+using the TS triple-slash syntax:
+
+```typescript
+///<amd-module name="@bazel/concatjs"/>
+```
+
+it is [also compiled with](https://github.com/bazelbuild/rules_nodejs/blob/bd53eb524ea3bd56b46b7a5f2eff700443e281ec/packages/concatjs/BUILD.bazel#L28)
+the `"compilerOptions": { "module": "umd" }` TypeScript setting.
+
+
+### Third-party code
+
 To make it easier to produce a UMD version of a third-party npm package, we automatically generate a target that uses Browserify to build one, using the `main` entry from the package's `package.json`.
 In most cases this will make the package loadable under concatjs.
 This target has a `__umd` suffix. For example, if your library is at `@npm//foo` then the UMD target is `@npm//foo:foo__umd`.

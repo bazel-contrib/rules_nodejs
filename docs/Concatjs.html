@@ -203,6 +203,29 @@ For example <code class="language-plaintext highlighter-rouge">ts_library</code>
 
 <h2 id="compatibility">Compatibility</h2>
 
+<h3 id="first-party-code">First-party code</h3>
+
+<p>First-party code has to be authored as named AMD/UMD modules.
+This is also historically referred to as “RequireJS” modules since that’s the
+JS loader that is typically used with them.</p>
+
+<p>If you write TypeScript, you can do this following their <a href="https://www.typescriptlang.org/docs/handbook/modules.html">documentation</a>.</p>
+
+<p>There is an example in this repository: we have an <code class="language-plaintext highlighter-rouge">index.ts</code> file that wants
+to be used with require.js <code class="language-plaintext highlighter-rouge">require("@bazel/concatjs")</code>.
+So it
+<a href="https://github.com/bazelbuild/rules_nodejs/blob/bd53eb524ea3bd56b46b7a5f2eff700443e281ec/packages/concatjs/index.ts#L1">declares
+that module name</a>
+using the TS triple-slash syntax:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">///&lt;amd-module name="@bazel/concatjs"/&gt;</span>
+</code></pre></div></div>
+
+<p>it is <a href="https://github.com/bazelbuild/rules_nodejs/blob/bd53eb524ea3bd56b46b7a5f2eff700443e281ec/packages/concatjs/BUILD.bazel#L28">also compiled with</a>
+the <code class="language-plaintext highlighter-rouge">"compilerOptions": { "module": "umd" }</code> TypeScript setting.</p>
+
+<h3 id="third-party-code">Third-party code</h3>
+
 <p>To make it easier to produce a UMD version of a third-party npm package, we automatically generate a target that uses Browserify to build one, using the <code class="language-plaintext highlighter-rouge">main</code> entry from the package’s <code class="language-plaintext highlighter-rouge">package.json</code>.
 In most cases this will make the package loadable under concatjs.
 This target has a <code class="language-plaintext highlighter-rouge">__umd</code> suffix. For example, if your library is at <code class="language-plaintext highlighter-rouge">@npm//foo</code> then the UMD target is <code class="language-plaintext highlighter-rouge">@npm//foo:foo__umd</code>.</p>
@@ -575,8 +598,13 @@ karma_web_test target.</p>
           </li>
           
         </ul>
-        <ul class="section-nav">
-<li class="toc-entry toc-h2"><a href="#compatibility">Compatibility</a></li>
+        <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#compatibility">Compatibility</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#first-party-code">First-party code</a></li>
+<li class="toc-entry toc-h3"><a href="#third-party-code">Third-party code</a></li>
+</ul>
+</li>
 <li class="toc-entry toc-h2"><a href="#serving-js-in-development-mode-under-bazel">Serving JS in development mode under Bazel</a></li>
 <li class="toc-entry toc-h2"><a href="#testing-with-karma">Testing with Karma</a></li>
 <li class="toc-entry toc-h2"><a href="#installing-with-user-managed-dependencies">Installing with user-managed dependencies</a></li>
