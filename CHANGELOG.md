@@ -1,3 +1,20 @@
+## [3.4.1](https://github.com/bazelbuild/rules_nodejs/compare/3.4.0...3.4.1) (2021-04-22)
+
+
+### Bug Fixes
+
+* **builtin:** don't restart npm_install rule just to look up a label ([#2621](https://github.com/bazelbuild/rules_nodejs/issues/2621)) ([16d3a25](https://github.com/bazelbuild/rules_nodejs/commit/16d3a25)), closes [#2620](https://github.com/bazelbuild/rules_nodejs/issues/2620)
+* **builtin:** gracefully handle the case of empty yarn_urls ([#2619](https://github.com/bazelbuild/rules_nodejs/issues/2619)) ([fea3db3](https://github.com/bazelbuild/rules_nodejs/commit/fea3db3))
+* **builtin:** properly parse status file value containing spaces ([#2615](https://github.com/bazelbuild/rules_nodejs/issues/2615)) ([406dcb5](https://github.com/bazelbuild/rules_nodejs/commit/406dcb5))
+* **builtin:** resolve vendored node/yarn from external repo ([#2614](https://github.com/bazelbuild/rules_nodejs/issues/2614)) ([3564940](https://github.com/bazelbuild/rules_nodejs/commit/3564940)), closes [#2019](https://github.com/bazelbuild/rules_nodejs/issues/2019)
+* **concatjs:** update karma to 6.3.2 and fix [#2093](https://github.com/bazelbuild/rules_nodejs/issues/2093) ([#2603](https://github.com/bazelbuild/rules_nodejs/issues/2603)) ([c80479d](https://github.com/bazelbuild/rules_nodejs/commit/c80479d))
+* **esbuild:** correct rule argument documentation stating default target ([#2608](https://github.com/bazelbuild/rules_nodejs/issues/2608)) ([e710a6b](https://github.com/bazelbuild/rules_nodejs/commit/e710a6b))
+* **examples:** transpile Angular es5 bundle to SystemJS ([#2562](https://github.com/bazelbuild/rules_nodejs/issues/2562)) ([b0175cd](https://github.com/bazelbuild/rules_nodejs/commit/b0175cd))
+* **typescript:** handle .tsx inputs to angular ([#2613](https://github.com/bazelbuild/rules_nodejs/issues/2613)) ([901df38](https://github.com/bazelbuild/rules_nodejs/commit/901df38)), closes [#2542](https://github.com/bazelbuild/rules_nodejs/issues/2542)
+* add support for terser 5 under node 12 and higher ([#2558](https://github.com/bazelbuild/rules_nodejs/issues/2558)) ([bd53eb5](https://github.com/bazelbuild/rules_nodejs/commit/bd53eb5))
+
+
+
 # [3.4.0](https://github.com/bazelbuild/rules_nodejs/compare/3.3.0...3.4.0) (2021-04-14)
 
 

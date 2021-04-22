@@ -19,4 +19,4 @@
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "3.4.0"
+VERSION = "3.4.1"
