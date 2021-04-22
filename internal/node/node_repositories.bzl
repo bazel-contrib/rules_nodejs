@@ -115,6 +115,8 @@ node_repositories(
 Will download yarn from https://github.com/yarnpkg/yarn/releases/download/v1.2.1/yarn-v1.12.1.tar.gz
 and expect the file to have sha256sum `09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d`.
 
+If you don't use Yarn at all, you can skip downloading it by setting `yarn_urls = []`.
+
 ### Using a local version
 
 To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set vendored_node and or vendored_yarn
@@ -220,6 +222,8 @@ By default, if this attribute has no items, we'll use a list of all public NodeJ
         doc = """custom list of URLs to use to download Yarn
 
 Each entry is a template, similar to the `node_urls` attribute, using `yarn_version` and `yarn_repositories` in the substitutions.
+
+If this list is empty, we won't download yarn at all.
 """,
     ),
     "yarn_version": attr.string(
@@ -313,6 +317,14 @@ def _download_yarn(repository_ctx):
     Args:
       repository_ctx: The repository rule context
     """
+    yarn_urls = repository_ctx.attr.yarn_urls
+
+    # If there are no URLs to download yarn, skip the download
+    if not len(yarn_urls):
+        repository_ctx.file("yarn_info", content = "# no yarn urls")
+        return
+
+    # If yarn is vendored locally, we still need the info file but can skip downloading
     if repository_ctx.attr.vendored_yarn:
         repository_ctx.file("yarn_info", content = "# vendored_yarn: {vendored_yarn}".format(
             vendored_yarn = repository_ctx.attr.vendored_yarn,
@@ -326,7 +338,6 @@ def _download_yarn(repository_ctx):
     # The size of _YARN_VERSIONS constant is huge and not useful to document.
     if not yarn_repositories.items():
         yarn_repositories = _YARN_VERSIONS
-    yarn_urls = repository_ctx.attr.yarn_urls
 
     if yarn_version in yarn_repositories:
         filename, strip_prefix, sha256 = yarn_repositories[yarn_version]
