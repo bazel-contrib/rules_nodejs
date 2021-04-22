@@ -35,7 +35,7 @@
     "@angular/language-service": "11.2.3",
     "@bazel/bazelisk": "^1.7.5",
     "@bazel/buildifier": "^4.0.1",
-    "@bazel/ibazel": "^0.15.9",
+    "@bazel/ibazel": "^0.15.10",
     "@types/jasmine": "~3.6.0",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "12.12.6",

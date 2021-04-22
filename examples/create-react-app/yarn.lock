@@ -1078,15 +1078,15 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/ibazel@^0.15.9":
-  version "0.15.9"
-  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.15.9.tgz#db9dea1831a789bd87b12a2c72b1f5d8dd4853f0"
-  integrity sha512-37r6bs47UNYcp3jrgXqq//GmX1GJtDPQTok4EZQq/ZMEemvh2S7m1fqe1NjNp0D6LdivUmF4z8wb3LjVaT97cg==
+"@bazel/ibazel@^0.15.10":
+  version "0.15.10"
+  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.15.10.tgz#cf0cff1aec6d8e7bb23e1fc618d09fbd39b7a13f"
+  integrity sha512-0v+OwCQ6fsGFa50r6MXWbUkSGuWOoZ22K4pMSdtWiL5LKFIE4kfmMmtQS+M7/ICNwk2EIYob+NRreyi/DGUz5A==
 
-"@bazel/runfiles@^3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@bazel/runfiles/-/runfiles-3.4.0.tgz#21c7aedb296b42eb7a725d17927042a48c6516c3"
-  integrity sha512-zdx2ECXcWw1BMgh58Br5amevzNnxBVeQocDpoIKw5kOYoYCobCcjJDOmqkTidDXGec7ZNeUtkInVOuU0w+K/zQ==
+"@bazel/runfiles@^3.4.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@bazel/runfiles/-/runfiles-3.4.1.tgz#57f0257bab4423e868b39fc808befb2a916233c4"
+  integrity sha512-sd1/YrtFhHHGVwTmbkJJSurk4YUx87uXyv8vTRDKzzrbEMh6Il8jAUZpffCD760xikBKdZHvw8oaiTlH9cU7zg==
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"

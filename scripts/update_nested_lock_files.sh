@@ -30,9 +30,9 @@ for workspaceRoot in ${workspaceRoots[@]} ; do
             # `yarn install` will not update stale deps so we also need to run
             # `yarn install @bazel/foobar@${VERSION}` for each package in the @bazel
             # scope
-            echo_and_run yarn install --ignore-scripts
+            echo_and_run npx yarn install --ignore-scripts
             for package in ${packages[@]} ; do
-              echo_and_run yarn add ${package}@${VERSION} --ignore-scripts
+              echo_and_run npx yarn add ${package}@${VERSION} --ignore-scripts
             done
         fi
         if [ -f "./package-lock.json" ]; then
