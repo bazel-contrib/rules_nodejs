@@ -20,20 +20,10 @@
 load("@bazel_gazelle//:deps.bzl", "go_repository")
 
 # END-DEV-ONLY
-load("@build_bazel_rules_nodejs//:index.bzl", "check_bazel_version", "check_rules_nodejs_version")
 
 def ts_setup_workspace():
-    """This repository rule should be called from your WORKSPACE file.
-
-    It creates some additional Bazel external repositories that are used internally
-    by the TypeScript rules.
-    """
-
-    # 0.18.0: support for .bazelignore
-    check_bazel_version("0.18.0")
-
-    # 0.16.8: ng_package fix for packaging binary files
-    check_rules_nodejs_version("0.16.8")
+    "DEPRECATED: This repository rule does nothing and may be removed in the future."
+    pass
 
 # BEGIN-DEV-ONLY
 def ts_setup_dev_workspace():

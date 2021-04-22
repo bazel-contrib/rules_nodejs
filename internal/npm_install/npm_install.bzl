@@ -390,19 +390,7 @@ def _symlink_node_modules(repository_ctx):
 def _check_min_bazel_version(rule, repository_ctx):
     if repository_ctx.attr.symlink_node_modules:
         # When using symlink_node_modules enforce the minimum Bazel version required
-        check_bazel_version(
-            message = """
-        A minimum Bazel version of 0.26.0 is required for the %s @%s repository rule.
-
-        By default, yarn_install and npm_install in build_bazel_rules_nodejs >= 0.30.0
-        depends on the managed directory feature added in Bazel 0.26.0. See
-        https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-030.
-
-        You can opt out of this feature by setting `symlink_node_modules = False`
-        on all of your yarn_install & npm_install rules.
-        """ % (rule, repository_ctx.attr.name),
-            minimum_bazel_version = "0.26.0",
-        )
+        check_bazel_version(minimum_bazel_version = "0.26.0")
 
 def _npm_install_impl(repository_ctx):
     """Core implementation of npm_install."""

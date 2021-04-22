@@ -13,7 +13,6 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load(":check_version_test.bzl", "check_version_test_suite")
 
 licenses(["notice"])  # Apache 2.0
 
@@ -29,8 +28,6 @@ bzl_library(
 
 # Exported to be consumed for generating stardoc.
 exports_files(["check_bazel_version.bzl"])
-
-check_version_test_suite()
 
 filegroup(
     name = "package_contents",

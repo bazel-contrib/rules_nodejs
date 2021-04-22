@@ -10,7 +10,7 @@ http_archive(
 
 load("@build_bazel_rules_nodejs//:index.bzl", "check_rules_nodejs_version", "node_repositories", "npm_install", "yarn_install")
 
-# Test that check_rules_nodejs_version works as expected
+# TODO: remove this in 4.0: https://github.com/bazelbuild/rules_nodejs/issues/2622
 check_rules_nodejs_version(minimum_version_string = "0.11.2")
 
 node_repositories()

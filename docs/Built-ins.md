@@ -1580,9 +1580,9 @@ a string indicating the minimum version
 
 <h4 id="check_bazel_version-message">message</h4>
 
-optional string to print to your users, could be used to help them update
+DEPRECATED: does nothing
 
-Defaults to `""`
+
 
 
 

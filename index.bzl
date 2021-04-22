@@ -17,9 +17,7 @@
 Users should not load files under "/internal"
 """
 
-load("//:version.bzl", "VERSION")
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
-load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
 load("//internal/common:params_file.bzl", _params_file = "params_file")
 load("//internal/generated_file_test:generated_file_test.bzl", _generated_file_test = "generated_file_test")
@@ -95,23 +93,10 @@ SUPPORTED_BAZEL_VERSIONS = [
 ]
 
 def check_rules_nodejs_version(minimum_version_string):
+    """Does nothing.
+
+    This function existed for interop with other repos, but we now version rules_nodejs as a unit.
+
+    Deprecated: remove any uses of this function.
     """
-    Verify that a minimum build_bazel_rules_nodejs is loaded a WORKSPACE.
-
-    This should be called from the `WORKSPACE` file so that the build fails as
-    early as possible. For example:
-
-    ```
-    # in WORKSPACE:
-    load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
-    check_rules_nodejs_version("0.11.2")
-    ```
-
-    Args:
-      minimum_version_string: a string indicating the minimum version
-    """
-    if not check_version(VERSION, minimum_version_string):
-        fail("\nCurrent build_bazel_rules_nodejs version is {}, expected at least {}\n".format(
-            VERSION,
-            minimum_version_string,
-        ))
+    pass
