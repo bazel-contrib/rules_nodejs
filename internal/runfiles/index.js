@@ -1,8 +1,6 @@
 // clang-format off
 'use strict';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
 var path = require('path');
 var fs = require('fs');
 
@@ -11,18 +9,33 @@ function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'defau
 var path__default = /*#__PURE__*/_interopDefaultLegacy(path);
 var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs);
 
+function getDefaultExportFromCjs (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
+
+function createCommonjsModule(fn) {
+  var module = { exports: {} };
+	return fn(module, module.exports), module.exports;
+}
+
+var paths = createCommonjsModule(function (module, exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BAZEL_OUT_REGEX = void 0;
 // NB: on windows thanks to legacy 8-character path segments it might be like
 // c:/b/ojvxx6nx/execroot/build_~1/bazel-~1/x64_wi~1/bin/internal/npm_in~1/test
-var BAZEL_OUT_REGEX = /(\/bazel-out\/|\/bazel-~1\/x64_wi~1\/)/;
+exports.BAZEL_OUT_REGEX = /(\/bazel-out\/|\/bazel-~1\/x64_wi~1\/)/;
+});
 
-var paths = /*#__PURE__*/Object.defineProperty({
-	BAZEL_OUT_REGEX: BAZEL_OUT_REGEX
-}, '__esModule', {value: true});
+var runfiles$1 = createCommonjsModule(function (module, exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Runfiles = void 0;
+
+
 
 /**
  * Class that provides methods for resolving Bazel runfiles.
  */
-class Runfiles$1 {
+class Runfiles {
     constructor(_env) {
         this._env = _env;
         // If Bazel sets a variable pointing to a runfiles manifest,
@@ -180,25 +193,20 @@ class Runfiles$1 {
         return this._resolve(dirname, path__default['default'].join(path__default['default'].basename(moduleBase), moduleTail || ''));
     }
 }
-var Runfiles_1 = Runfiles$1;
-
-var runfiles$1 = /*#__PURE__*/Object.defineProperty({
-	Runfiles: Runfiles_1
-}, '__esModule', {value: true});
-
-var Runfiles = runfiles$1.Runfiles;
-
-var _BAZEL_OUT_REGEX = paths.BAZEL_OUT_REGEX;
-/** Instance of the runfile helpers. */
-var runfiles_2 = new runfiles$1.Runfiles(process.env);
-
-var runfiles = /*#__PURE__*/Object.defineProperty({
-	Runfiles: Runfiles,
-	_BAZEL_OUT_REGEX: _BAZEL_OUT_REGEX,
-	runfiles: runfiles_2
-}, '__esModule', {value: true});
-
 exports.Runfiles = Runfiles;
-exports._BAZEL_OUT_REGEX = _BAZEL_OUT_REGEX;
-exports.default = runfiles;
-exports.runfiles = runfiles_2;
+});
+
+var runfiles = createCommonjsModule(function (module, exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.runfiles = exports._BAZEL_OUT_REGEX = exports.Runfiles = void 0;
+
+Object.defineProperty(exports, "Runfiles", { enumerable: true, get: function () { return runfiles$1.Runfiles; } });
+
+Object.defineProperty(exports, "_BAZEL_OUT_REGEX", { enumerable: true, get: function () { return paths.BAZEL_OUT_REGEX; } });
+/** Instance of the runfile helpers. */
+exports.runfiles = new runfiles$1.Runfiles(process.env);
+});
+
+var index = /*@__PURE__*/getDefaultExportFromCjs(runfiles);
+
+module.exports = index;

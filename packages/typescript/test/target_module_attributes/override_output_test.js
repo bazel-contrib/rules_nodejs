@@ -16,9 +16,10 @@ describe('googmodule', () => {
   });
 
   it('should have es5 in devmode', () => {
-    expect(fs.readFileSync(devmodeOutput, {
-      encoding: 'utf-8'
-    })).toContain(`exports.a = function () { return 'hello world'; };`);
+    const devoutput = fs.readFileSync(devmodeOutput, {encoding: 'utf-8'});
+
+    expect(devoutput).toContain(`a = function () { return 'hello world'; };`);
+    expect(devoutput).toContain(`exports.a = `);
   });
 
   it('should have amd module syntax in prodmode', () => {
@@ -28,8 +29,9 @@ describe('googmodule', () => {
   });
 
   it('should have es5 in prodmode', () => {
-    expect(fs.readFileSync(prodmodeOutput, {
-      encoding: 'utf-8'
-    })).toContain(`exports.a = function () { return 'hello world'; };`);
+    const prodoutput = fs.readFileSync(prodmodeOutput, {encoding: 'utf-8'});
+
+    expect(prodoutput).toContain(`a = function () { return 'hello world'; };`);
+    expect(prodoutput).toContain(`exports.a = `);
   });
 });

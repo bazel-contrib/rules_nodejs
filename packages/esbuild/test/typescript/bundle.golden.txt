@@ -32,7 +32,9 @@ var require_module_dynamic = __commonJS((exports, module) => {
   })(function(require2, exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {value: true});
-    exports2.getId = () => "dynamic-id";
+    exports2.getId = void 0;
+    const getId5 = /* @__PURE__ */ __name(() => "dynamic-id", "getId");
+    exports2.getId = getId5;
   });
 });
 

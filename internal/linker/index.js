@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.main = exports.reduceModules = void 0;
 const fs = require("fs");
 const path = require("path");
 const { runfiles: _defaultRunfiles, _BAZEL_OUT_REGEX } = require('../runfiles/index.js');

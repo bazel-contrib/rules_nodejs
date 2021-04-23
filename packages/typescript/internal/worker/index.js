@@ -51,14 +51,13 @@ function getWatchProgram(args) {
     return cachedWatchedProgram;
 }
 function emitOnce(args) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const watchProgram = getWatchProgram(args);
         if (consolidateChangesCallback) {
             consolidateChangesCallback();
         }
         workerRequestTimestamp = Date.now();
-        const result = yield ((_a = watchProgram) === null || _a === void 0 ? void 0 : _a.getProgram().emit(undefined, undefined, {
+        const result = yield (watchProgram === null || watchProgram === void 0 ? void 0 : watchProgram.getProgram().emit(undefined, undefined, {
             isCancellationRequested: function (timestamp) {
                 return timestamp !== workerRequestTimestamp;
             }.bind(null, workerRequestTimestamp),
@@ -94,7 +93,7 @@ function main() {
             argsFilePath = argsFilePath.slice(1);
         }
         const args = fs.readFileSync(argsFilePath).toString().split('\n');
-        emitOnce(args).finally(() => { var _a; return (_a = cachedWatchedProgram) === null || _a === void 0 ? void 0 : _a.close(); });
+        emitOnce(args).finally(() => cachedWatchedProgram === null || cachedWatchedProgram === void 0 ? void 0 : cachedWatchedProgram.close());
     }
 }
 if (require.main === module) {

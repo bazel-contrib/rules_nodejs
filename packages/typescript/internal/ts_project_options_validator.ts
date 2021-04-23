@@ -70,6 +70,8 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
         [ts.JsxEmit.Preserve]: 'preserve',
         [ts.JsxEmit.React]: 'react',
         [ts.JsxEmit.ReactNative]: 'react-native',
+        [ts.JsxEmit.ReactJSX]: 'react-jsx',
+        [ts.JsxEmit.ReactJSXDev]: 'react-jsx-dev',
       }
 
   function

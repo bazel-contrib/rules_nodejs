@@ -14,10 +14,10 @@
         "yarn": ">=1.13.0"
     },
     "devDependencies": {
-        "@angular/common": "^9.1.0",
-        "@angular/compiler": "^9.1.0",
-        "@angular/compiler-cli": "^9.1.0",
-        "@angular/core": "^9.1.0",
+        "@angular/common": "^11.2.11",
+        "@angular/compiler": "^11.2.11",
+        "@angular/compiler-cli": "^11.2.11",
+        "@angular/core": "^11.2.11",
         "@babel/cli": "^7.6.2",
         "@babel/core": "^7.6.2",
         "@babel/preset-env": "^7.6.2",
@@ -92,11 +92,11 @@
         "tsickle": "0.38.0",
         "tsutils": "2.27.2",
         "typeorm": "0.2.18",
-        "typescript": "^3.7.5",
+        "typescript": "~4.1.0",
         "unidiff": "1.0.1",
         "yarn": "1.22.0",
         "c8": "7.5.0",
-        "zone.js": "0.8.29"
+        "zone.js": "^0.11.4"
     },
     "// resolutions/**/jest-serializer": "need to resolve to a version that doesn't have a /// <reference path='../v8.d.ts' /> in build/index.d.ts which exposes a bug in ts_library",
     "resolutions": {
@@ -132,7 +132,7 @@
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "stardoc": "bazel build --noincompatible_strict_action_env //docs && cp -f dist/bin/docs/*.md ./docs && cp -f dist/bin/docs/docs-out/*.html ./docs && cp -f dist/bin/docs/docs-out/css/*.css ./docs/css",
         "version": "conventional-changelog -p angular -i CHANGELOG.md -s && node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage version.bzl docs/install.md packages/create/index.js README.md CHANGELOG.md e2e/*/WORKSPACE examples/*/WORKSPACE",
-        "postinstall": "patch-package && node internal/npm_install/test/postinstall.js"
+        "postinstall": "patch-package && ngcc --async --properties fesm2015 main && node internal/npm_install/test/postinstall.js"
     },
     "husky": {
         "hooks": {
