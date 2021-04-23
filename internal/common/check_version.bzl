@@ -33,6 +33,9 @@ def parse_version(version_string):
     # Remove commit from version.
     version = version_string.split(" ", 1)[0]
 
+    # Remove semver "build metadata" tag
+    version = version.split("+", 1)[0]
+
     # Split into (release, date) parts and only return the release
     # as a tuple of integers.
     parts = version.split("-", 1)
