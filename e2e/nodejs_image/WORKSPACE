@@ -35,9 +35,9 @@ yarn_install(
 
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "4521794f0fba2e20f3bf15846ab5e01d5332e587e9ce81629c7f96c793bb7036",
-    strip_prefix = "rules_docker-0.14.4",
-    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.14.4/rules_docker-v0.14.4.tar.gz"],
+    sha256 = "20dfc1d9bc6a251455c4f306d3dea030b323ea3f22e0600698fab9665eb273b8",
+    strip_prefix = "rules_docker-0086a29d19b124b04a864e3913cfa7a2cba46349",
+    urls = ["https://github.com/bazelbuild/rules_docker/archive/0086a29d19b124b04a864e3913cfa7a2cba46349.tar.gz"],
 )
 
 load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
@@ -47,10 +47,6 @@ container_repositories()
 load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
 
 container_deps()
-
-load("@io_bazel_rules_docker//repositories:pip_repositories.bzl", "pip_deps")
-
-pip_deps()
 
 load("@io_bazel_rules_docker//nodejs:image.bzl", nodejs_image_repositories = "repositories")
 
