@@ -5,7 +5,7 @@
 const https = require("https");
 
 const MIN_VERSION = [8, 0, 0];
-const MAX_VERSION = [15, 99, 99];
+const MAX_VERSION = [16, 99, 99];
 
 const REPOSITORY_TYPES = {
   "darwin-x64.tar.gz": "darwin_amd64",
