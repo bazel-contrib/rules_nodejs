@@ -18,7 +18,7 @@ yarn add -D @bazel/esbuild
 Add an `http_archive` fetching the esbuild binary for each platform that you need to support. 
 
 ```python
-_ESBUILD_VERSION = "0.11.6"  # reminder: update SHAs below when changing this value
+_ESBUILD_VERSION = "0.11.14"  # reminder: update SHAs below when changing this value
 http_archive(
     name = "esbuild_darwin",
     urls = [
@@ -26,7 +26,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "2b06365b075b854654fc9ed26fcd48a0c38947e1c8d5151ce400cd1e173bb138",
+    sha256 = "81c8623c4c03a1fc449c37a90dd630025e334d312420d42106a899f78bd5e3fe",
 )
 
 http_archive(
@@ -36,7 +36,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["esbuild.exe"])""",
-    sha256 = "ddab1121833f0a12ca4fb3e288231e058f5526310671e84c0a9aa575340bb20b",
+    sha256 = "d977751550550099cb9deb95d3fc436c21374b3875131589dde162dfb1c03bf4",
 )
 
 http_archive(
@@ -46,7 +46,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "34612e3e15e6c31d9d742d3fd677bd5208b7e5c0ee9c93809999138c6c5c1039",
+    sha256 = "fbf8d42fbd12d2392893a5d8cea3860e875c47ee715660e844dff822b8747321",
 )
 ```
 
