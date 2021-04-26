@@ -65,8 +65,8 @@ NPM_UMD_ATTRS = {
     "excluded": attr.string_list(
         doc = """List of excluded packages that should not be bundled by browserify.
 
-Packages listed here are passed to browserify with the `-u` argument. See https://github.com/browserify/browserify#usage
-for details.
+Packages listed here are passed to browserify with the `-u` argument.
+See <https://github.com/browserify/browserify#usage> for details.
 
 For example, `typeorm` npm package has an optional dependency on `react-native-sqlite-storage`. For browserify to
 ignore this optional require and leave it as `require('react-native-sqlite-storage')` in the output UMD bundle, you

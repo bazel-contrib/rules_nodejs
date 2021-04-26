@@ -57,7 +57,7 @@ using a value that matches a known version (see the default values)
 
 ### Using a custom version
 
-You can pass in a custom list of NodeJS and/or Yarn repositories and URLs for node_resositories to use.
+You can pass in a custom list of NodeJS and/or Yarn repositories and URLs for node_repositories to use.
 
 #### Custom NodeJS versions
 
@@ -83,7 +83,7 @@ node_repositories(
 )
 ```
 
-A Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
+In this example, a Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
 and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e`
 
 #### Custom Yarn versions
@@ -112,14 +112,14 @@ node_repositories(
 )
 ```
 
-Will download yarn from https://github.com/yarnpkg/yarn/releases/download/v1.2.1/yarn-v1.12.1.tar.gz
+Will download yarn from `https://github.com/yarnpkg/yarn/releases/download/v1.2.1/yarn-v1.12.1.tar.gz`
 and expect the file to have sha256sum `09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d`.
 
 If you don't use Yarn at all, you can skip downloading it by setting `yarn_urls = []`.
 
 ### Using a local version
 
-To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set vendored_node and or vendored_yarn
+To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set `vendored_node` and/or `vendored_yarn`
 to point to those before calling node_repositories. You can also point to a location where node is installed on your computer,
 but we don't recommend this because it leads to version skew between you, your coworkers, and your Continuous Integration environment.
 It also ties your build to a single platform, preventing you from cross-compiling into a Linux docker image on Mac for example.
@@ -128,7 +128,7 @@ See the [the repositories documentation](repositories.html) for how to use the r
 
 ### Manual install
 
-You can optionally pass a `package_json` array to node_repositories. This lets you use Bazel's version of yarn or npm, yet always run the package manager yourself.
+You can optionally pass a `package_json` array to `node_repositories`. This lets you use Bazel's version of yarn or npm, yet always run the package manager yourself.
 This is an advanced scenario you can use in place of the `npm_install` or `yarn_install` rules, but we don't recommend it, and might remove it in the future.
 
 ```
@@ -146,6 +146,7 @@ _ATTRS = {
     "node_download_auth": attr.string_dict(
         default = {},
         doc = """auth to use for all url requests
+
 Example: {\"type\": \"basic\", \"login\": \"<UserName>\", \"password\": \"<Password>\" }
 """,
     ),
@@ -183,7 +184,7 @@ and `{filename}` with the matching entry from the `node_repositories` attribute.
     ),
     "preserve_symlinks": attr.bool(
         default = True,
-        doc = """Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
+        doc = """Turn on `--node_options=--preserve-symlinks` for `nodejs_binary` and `nodejs_test` rules.
 
 When this option is turned on, node will preserve the symlinked path for resolves instead of the default
 behavior of resolving to the real path. This means that all required files must be in be included in your

@@ -159,7 +159,7 @@ esbuild(
 )
 ```
 
-See https://esbuild.github.io/api/#define for more details
+See <https://esbuild.github.io/api/#define> for more details
             """,
         ),
         "deps": attr.label_list(
@@ -176,7 +176,7 @@ See https://esbuild.github.io/api/#define for more details
             default = [],
             doc = """A list of module names that are treated as external and not included in the resulting bundle
 
-See https://esbuild.github.io/api/#external for more details
+See <https://esbuild.github.io/api/#external> for more details
             """,
         ),
         "format": attr.string(
@@ -185,7 +185,7 @@ See https://esbuild.github.io/api/#external for more details
             doc = """The output format of the bundle, defaults to iife when platform is browser
 and cjs when platform is node. If performing code splitting, defaults to esm.
 
-See https://esbuild.github.io/api/#format for more details
+See <https://esbuild.github.io/api/#format> for more details
         """,
         ),
         "launcher": attr.label(
@@ -212,7 +212,7 @@ Removes whitespace, shortens identifieres and uses equivalent but shorter syntax
 
 Sets all --minify-* flags
 
-See https://esbuild.github.io/api/#minify for more details
+See <https://esbuild.github.io/api/#minify> for more details
             """,
         ),
         "output": attr.output(
@@ -231,7 +231,7 @@ file is named 'foo.js', you should set this to 'foo.css'.""",
             default = False,
             doc = """If true, esbuild produces an output directory containing all the output files from code splitting
 
-See https://esbuild.github.io/api/#splitting for more details
+See <https://esbuild.github.io/api/#splitting> for more details
             """,
         ),
         "output_map": attr.output(
@@ -243,7 +243,7 @@ See https://esbuild.github.io/api/#splitting for more details
             values = ["node", "browser", "neutral", ""],
             doc = """The platform to bundle for.
 
-See https://esbuild.github.io/api/#platform for more details
+See <https://esbuild.github.io/api/#platform> for more details
             """,
         ),
         "sourcemap": attr.string(
@@ -251,7 +251,7 @@ See https://esbuild.github.io/api/#platform for more details
             mandatory = False,
             doc = """Defines where sourcemaps are output and how they are included in the bundle. By default, a separate `.js.map` file is generated and referenced by the bundle. If 'external', a separate `.js.map` file is generated but not referenced by the bundle. If 'inline', a sourcemap is generated and its contents are inlined into the bundle (and no external sourcemap file is created). If 'both', a sourcemap is inlined and a `.js.map` file is created.
 
-See https://esbuild.github.io/api/#sourcemap for more details
+See <https://esbuild.github.io/api/#sourcemap> for more details
             """,
         ),
         "sources_content": attr.bool(
@@ -259,7 +259,7 @@ See https://esbuild.github.io/api/#sourcemap for more details
             default = False,
             doc = """If False, omits the `sourcesContent` field from generated source maps
 
-See https://esbuild.github.io/api/#sources-content for more details
+See <https://esbuild.github.io/api/#sources-content> for more details
             """,
         ),
         "srcs": attr.label_list(
@@ -272,7 +272,7 @@ See https://esbuild.github.io/api/#sources-content for more details
             doc = """Environment target (e.g. es2017, chrome58, firefox57, safari11, 
 edge16, node10, esnext). Default es2015.
 
-See https://esbuild.github.io/api/#target for more details
+See <https://esbuild.github.io/api/#target> for more details
             """,
         ),
         "tool": attr.label(

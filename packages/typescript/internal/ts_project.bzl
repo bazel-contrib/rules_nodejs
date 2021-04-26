@@ -368,12 +368,12 @@ def ts_project_macro(
 
     Unlike `ts_library`, this rule is the thinnest possible layer of Bazel interoperability on top
     of the TypeScript compiler. It shifts the burden of configuring TypeScript into the tsconfig.json file.
-    See https://github.com/bazelbuild/rules_nodejs/blob/master/docs/TypeScript.md#alternatives
+    See <https://github.com/bazelbuild/rules_nodejs/blob/master/docs/TypeScript.md#alternatives>
     for more details about the trade-offs between the two rules.
 
     Some TypeScript options affect which files are emitted, and Bazel wants to know these ahead-of-time.
     So several options from the tsconfig file must be mirrored as attributes to ts_project.
-    See https://www.typescriptlang.org/v2/en/tsconfig for a listing of the TypeScript options.
+    See <https://www.typescriptlang.org/v2/en/tsconfig> for a listing of the TypeScript options.
 
     Any code that works with `tsc` should work with `ts_project` with a few caveats:
 
@@ -446,9 +446,9 @@ def ts_project_macro(
        `error TS6305: Output file '/path/to/execroot/a.d.ts' has not been built from source file '/path/to/execroot/a.ts'.`
        As a workaround, you can give the Windows "fastbuild" output directory as the `outDir` in your tsconfig file.
        On other platforms, the value isn't read so it does no harm.
-       See https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project as an example.
+       See <https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project> as an example.
        We hope this will be fixed in a future release of TypeScript;
-       follow https://github.com/microsoft/TypeScript/issues/37378
+       follow <https://github.com/microsoft/TypeScript/issues/37378>
 
     3) When TypeScript encounters an import statement, it adds the source file resolved by that reference
        to the program. However you may have included that source file in a different project, so this causes
@@ -532,13 +532,13 @@ def ts_project_macro(
         supports_workers: Experimental! Use only with caution.
 
             Allows you to enable the Bazel Persistent Workers strategy for this project.
-            See https://docs.bazel.build/versions/master/persistent-workers.html
+            See <https://docs.bazel.build/versions/master/persistent-workers.html>
 
             This requires that the tsc binary support a `--watch` option.
 
             NOTE: this does not work on Windows yet.
             We will silently fallback to non-worker mode on Windows regardless of the value of this attribute.
-            Follow https://github.com/bazelbuild/rules_nodejs/issues/2277 for progress on this feature.
+            Follow <https://github.com/bazelbuild/rules_nodejs/issues/2277> for progress on this feature.
 
         root_dir: a string specifying a subdirectory under the input package which should be consider the
             root directory of all the input files.

@@ -30,13 +30,13 @@ COMMON_ATTRIBUTES = dict(dict(), **{
     "data": attr.label_list(
         doc = """Data files required by this rule.
 
-If symlink_node_modules is True, this attribute is optional since the package manager
+If `symlink_node_modules` is True, this attribute is optional since the package manager
 will run in your workspace folder. It is recommended, however, that all files that the
 package manager depends on, such as `.rc` files or files used in `postinstall`, are added
-symlink_node_modules is True so that the repository rule is rerun when any of these files
+`symlink_node_modules` is True so that the repository rule is rerun when any of these files
 change.
 
-If symlink_node_modules is False, the package manager is run in the bazel external
+If `symlink_node_modules` is False, the package manager is run in the bazel external
 repository so all files that the package manager depends on must be listed.
 """,
     ),
@@ -151,7 +151,7 @@ ts_project(
 
 Can be used to work-around a bazel performance issue if the
 default `@wksp//:node_modules` target has too many files in it.
-See https://github.com/bazelbuild/bazel/issues/5153. If
+See <https://github.com/bazelbuild/bazel/issues/5153>. If
 you are running into performance issues due to a large
 node_modules target it is recommended to switch to using
 fine grained npm dependencies.
@@ -165,9 +165,9 @@ fine grained npm dependencies.
         default = "",
         doc = """If set, link the 3rd party node_modules dependencies under the package path specified.
 
-In most cases, this should be the directory of the package.json file so that the linker links the node_modules
+In most cases, this should be the directory of the package.json file so that the linker links the `node_modules`
 in the same location they are found in the source tree. In a future release, this will default to the package.json
-directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/issues/2451""",
+directory. This is planned for 4.0: <https://github.com/bazelbuild/rules_nodejs/issues/2451>""",
     ),
     "patch_args": attr.string_list(
         default = ["-p0"],
@@ -513,7 +513,7 @@ npm_install = repository_rule(
         "args": attr.string_list(
             doc = """Arguments passed to npm install.
 
-See npm CLI docs https://docs.npmjs.com/cli/install.html for complete list of supported arguments.""",
+See npm CLI docs <https://docs.npmjs.com/cli/install.html> for complete list of supported arguments.""",
             default = [],
         ),
         "npm_command": attr.string(

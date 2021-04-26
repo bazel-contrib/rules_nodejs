@@ -479,16 +479,16 @@ If source files need to be required then they can be copied to the bin_dir with 
         To pass a node startup option, prepend it with `--node_options=`, e.g.
         `--node_options=--preserve-symlinks`.
 
-Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+Subject to 'Make variable' substitution. See <https://docs.bazel.build/versions/master/be/make-variables.html>.
 
 1. Subject to predefined source/output path variables substitutions.
 
 The predefined variables `execpath`, `execpaths`, `rootpath`, `rootpaths`, `location`, and `locations` take
 label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths denoted by that label.
 
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables for more info.
+See <https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables> for more info.
 
-NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
+NB: This $(location) substition returns the manifest file path which differs from the `*_binary` & `*_test`
 args and genrule bazel substitions. This will be fixed in a future major release.
 See docs string of `expand_location_into_runfiles` macro in `internal/common/expand_into_runfiles.bzl`
 for more info.
@@ -529,7 +529,8 @@ const some_file = runfiles.resolveWorkspaceRelative(args[0]);
 
 NB: Bazel will error if it sees the single dollar sign $(rlocation path) in `templated_args` as it will try to
 expand `$(rlocation)` since we now expand predefined & custom "make" variables such as `$(COMPILATION_MODE)`,
-`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`. See https://docs.bazel.build/versions/master/be/make-variables.html.
+`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`.
+See <https://docs.bazel.build/versions/master/be/make-variables.html>.
 
 To prevent expansion of `$(rlocation)` write it as `$$(rlocation)`. Bazel understands `$$` to be
 the string literal `$` and the expansion results in `$(rlocation)` being passed as an arg instead
@@ -539,16 +540,16 @@ the `rlocation` function in the runfiles.bash helper. For example, the templated
 is then converted in bash to the absolute path of `//:some_file` in runfiles by the runfiles.bash helper
 before being passed as an argument to the program.
 
-NB: nodejs_binary and nodejs_test will preserve the legacy behavior of `$(rlocation)` so users don't
+NB: `nodejs_binary` and `nodejs_test` will preserve the legacy behavior of `$(rlocation)` so users don't
 need to update to `$$(rlocation)`. This may be changed in the future.
 
 2. Subject to predefined variables & custom variable substitutions.
 
-Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+Predefined "Make" variables such as `$(COMPILATION_MODE)` and `$(TARGET_CPU)` are expanded.
+See <https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables>.
 
-Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
-See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+Custom variables are also expanded including variables set through the Bazel CLI with `--define=SOME_VAR=SOME_VALUE`.
+See <https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables>.
 
 Predefined genrule variables are not supported in this context.
 """,
@@ -647,10 +648,10 @@ When the binary returns zero exit code, the test passes; otherwise it fails.
 `nodejs_test` is a convenient way to write a novel kind of test based on running
 your own test runner. For example, the `ts-api-guardian` library has a way to
 assert the public API of a TypeScript program, and uses `nodejs_test` here:
-https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl
+<https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl>
 
 If you just want to run a standard test using a test runner from npm, use the generated
-*_test target created by npm_install/yarn_install, such as `mocha_test`.
+`*_test` target created by `npm_install`/`yarn_install`, such as `mocha_test`.
 Some test runners like Karma and Jasmine have custom rules with added features, e.g. `jasmine_node_test`.
 
 By default, Bazel runs tests with a working directory set to your workspace root.

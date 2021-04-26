@@ -41,14 +41,15 @@ _TERSER_ATTRS = {
         doc = """Additional command line arguments to pass to terser.
 
 Terser only parses minify() args from the config file so additional arguments such as `--comments` may
-be passed to the rule using this attribute. See https://github.com/terser/terser#command-line-usage for the
+be passed to the rule using this attribute.
+See <https://github.com/terser/terser#command-line-usage> for the
 full list of terser CLI options.""",
     ),
     "config_file": attr.label(
         doc = """A JSON file containing Terser minify() options.
 
 This is the file you would pass to the --config-file argument in terser's CLI.
-https://github.com/terser-js/terser#minify-options documents the content of the file.
+<https://github.com/terser-js/terser#minify-options> documents the content of the file.
 
 Bazel will make a copy of your config file, treating it as a template.
 

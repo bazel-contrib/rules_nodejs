@@ -74,6 +74,6 @@ node_toolchain = rule(
     },
     doc = """Defines a node toolchain.
 
-For usage see https://docs.bazel.build/versions/master/toolchains.html#defining-toolchains.
+For usage see <https://docs.bazel.build/versions/master/toolchains.html#defining-toolchains>.
 """,
 )

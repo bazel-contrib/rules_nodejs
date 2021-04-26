@@ -41,7 +41,7 @@ def expand_location_into_runfiles(ctx, input, targets = []):
     given string by replacing with the expanded path. Expansion only works for labels that point to direct dependencies
     of this rule or that are explicitly listed in the optional argument targets.
 
-    See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables.
+    See <https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables>.
 
     Use `$(rootpath)` and `$(rootpaths)` to expand labels to the runfiles path that a built binary can use
     to find its dependencies. This path is of the format:
@@ -58,13 +58,13 @@ def expand_location_into_runfiles(ctx, input, targets = []):
     - `<bin_dir>/external/external_repo/path/to/file`
 
     The legacy `$(location)` and `$(locations)` expansion is DEPRECATED as it returns the runfiles manifest path of the
-    format `repo/path/to/file` which behaves differently than the built-in `$(location)` expansion in args of *_binary
+    format `repo/path/to/file` which behaves differently than the built-in `$(location)` expansion in args of `*_binary`
     and *_test rules which returns the rootpath.
-    See https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes-binaries.
+    See <https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes-binaries>.
 
     The legacy `$(location)` and `$(locations)` expansion also differs from how the builtin `ctx.expand_location()` expansions
     of `$(location)` and `$(locations)` behave as that function returns either the execpath or rootpath depending on the context.
-    See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables.
+    See <https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables>.
 
     The behavior of `$(location)` and `$(locations)` expansion will be fixed in a future major release to match the
     to default Bazel behavior and return the same path as `ctx.expand_location()` returns for these.

@@ -324,17 +324,18 @@ def js_library(
         srcs: The list of files that comprise the package
         package_name: The name it will be imported by. Should match the "name" field in the package.json file.
 
-            If package_name == "$node_modules$" this indictates that this js_library target is one or more external npm
+            If `package_name == "$node_modules$"` this indictates that this `js_library` target is one or more external npm
             packages in node_modules. This is a special case that used be covered by the internal only
             `external_npm_package` attribute. NB: '$' is an illegal character
             for npm packages names so this reserved name will not conflict with any valid package_name values
 
-            This is used by the yarn_install & npm_install repository rules for npm dependencies installed by
-            yarn & npm. When true, js_library will provide ExternalNpmPackageInfo.
+            This is used by the `yarn_install` & `npm_install` repository rules for npm dependencies installed by
+            yarn & npm. When true, `js_library` will provide `ExternalNpmPackageInfo`.
 
             It can also be used for user-managed npm dependencies if node_modules is layed out outside of bazel.
             For example,
 
+            ```starlark
             js_library(
                 name = "node_modules",
                 srcs = glob(
@@ -359,11 +360,12 @@ def js_library(
                 # rules that use these npm dependencies
                 package_name = "$node_modules$",
             )
+            ```
 
             See `examples/user_managed_deps` for a working example of user-managed npm dependencies.
         package_path: The directory in the workspace to link to.
-            If set, link this js_library to the node_modules under the package path specified.
-            If unset, the default is to link to the node_modules root of the workspace.
+            If set, link this `js_library` to the `node_modules` under the package path specified.
+            If unset, the default is to link to the `node_modules` root of the workspace.
         deps: Other targets that provide JavaScript code
         **kwargs: Other attributes
     """

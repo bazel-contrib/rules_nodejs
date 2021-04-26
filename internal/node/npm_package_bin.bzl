@@ -115,13 +115,13 @@ def npm_package_bin(
     It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
 
     This is like a genrule() except that it runs our launcher script that first
-    links the node_modules tree before running the program.
+    links the `node_modules` tree before running the program.
 
     By default, Bazel runs actions with a working directory set to your workspace root.
     Use the `chdir` attribute to change the working directory before the program runs.
 
     This is a great candidate to wrap with a macro, as documented:
-    https://docs.bazel.build/versions/master/skylark/macros.html#full-example
+    <https://docs.bazel.build/versions/master/skylark/macros.html#full-example>
 
     Args:
         data: similar to [genrule.srcs](https://docs.bazel.build/versions/master/be/general.html#genrule.srcs)
@@ -140,11 +140,11 @@ def npm_package_bin(
 
         args: Command-line arguments to the tool.
 
-            Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+            Subject to 'Make variable' substitution. See <https://docs.bazel.build/versions/master/be/make-variables.html>.
 
             1. Predefined source/output path substitions is applied first:
 
-            See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables.
+            See <https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables>.
 
             Use $(execpath) $(execpaths) to expand labels to the execroot (where Bazel runs build actions).
 
@@ -160,7 +160,7 @@ def npm_package_bin(
             2. "Make" variables are expanded second:
 
             Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
-            See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+            See <https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables>.
 
             Like genrule, you may also use some syntax sugar for locations.
 
@@ -172,10 +172,10 @@ def npm_package_bin(
             - `$(RULEDIR)`: the root output directory of the rule, corresponding with its package
                 (can be used with output_dir=True or False)
 
-            See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_genrule_variables.
+            See <https://docs.bazel.build/versions/master/be/make-variables.html#predefined_genrule_variables>.
 
-            Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
-            See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+            Custom variables are also expanded including variables set through the Bazel CLI with `--define=SOME_VAR=SOME_VALUE`.
+            See <https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables>.
 
         package: an npm package whose binary to run, like "terser". Assumes your node_modules are installed in a workspace called "npm"
         package_bin: the "bin" entry from `package` that should be run. By default package_bin is the same string as `package`
