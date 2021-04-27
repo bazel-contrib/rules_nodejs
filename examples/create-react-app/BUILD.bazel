@@ -56,7 +56,7 @@ react_scripts(
         "@npm//@types",
     ],
     env = {
-        "BUILD_PATH": "./build"
+        "BUILD_PATH": "./build",
     },
     output_dir = True,
 )
