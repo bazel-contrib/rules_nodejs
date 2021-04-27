@@ -1,0 +1,22 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("//packages/typescript:index.bzl", "ts_project")
+
+ts_project(
+    name = "ngc",
+    srcs = [
+        "comp.ng.html",
+        "component.ts",
+    ],
+    extends = "//packages/typescript/test/ts_project:tsconfig-base.json",
+    tsc = "@npm//@angular/compiler-cli/bin:ngc",
+    tsconfig = ":tsconfig.json",
+    deps = [
+        "@npm//@angular/core",
+    ],
+)
+
+generated_file_test(
+    name = "test",
+    src = "component.js_",
+    generated = ":component.js",
+)
