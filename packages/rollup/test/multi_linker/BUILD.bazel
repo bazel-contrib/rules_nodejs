@@ -16,6 +16,7 @@ rollup_bundle(
     name = "bundle",
     config_file = "rollup.config.js",
     entry_point = "main.js",
+    sourcemap = "hidden",
     deps = [
         "tsconfig",
         "@rollup_test_multi_linker_deps//@rollup/plugin-commonjs",
