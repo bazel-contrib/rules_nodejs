@@ -21,6 +21,9 @@ jobs:
         # Number of days of inactivity before a stale issue is closed
         days-before-close: 14
 
+        # If an issue/PR is assigned, trust the assignee to stay involved
+        # Can revisit if these get stale
+        exempt-all-assignees: true
         # Issues with these labels will never be considered stale
         exempt-issue-labels: "need: discussion,cleanup"
 
