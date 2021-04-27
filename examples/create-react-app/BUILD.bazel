@@ -45,7 +45,8 @@ _RUNTIME_DEPS = [
 ]
 
 react_scripts(
-    # Note: this must be named "build" since react-scripts hard-codes that as the output dir
+    # Note: If you want to change the name make sure you update BUILD_PATH below accordingly
+    # https://create-react-app.dev/docs/advanced-configuration/
     name = "build",
     args = [
         "--node_options=--require=./$(execpath chdir.js)",
@@ -54,6 +55,9 @@ react_scripts(
     data = _RUNTIME_DEPS + [
         "@npm//@types",
     ],
+    env = {
+        "BUILD_PATH": "./build",
+    },
     output_dir = True,
 )
 
@@ -85,7 +89,6 @@ react_scripts_test(
     ],
     data = _RUNTIME_DEPS + [
         "copy_test_files",
-        "@npm//@testing-library/dom",
         "@npm//@testing-library/jest-dom",
         "@npm//@testing-library/react",
         "@npm//@testing-library/user-event",
