@@ -58,4 +58,6 @@ generated_file_test(
     name = "checked_in_node_patches",
     src = "node_patches.js",
     generated = "//packages/node-patches:bundle",
+    # For some reason rollup produces different, non-matching output with --config=no-runfiles
+    tags = ["fix-windows"],
 )

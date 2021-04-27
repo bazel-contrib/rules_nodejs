@@ -18,7 +18,7 @@ ts_library(
     name = "erroneous",
     srcs = glob(["*.ts"]),
     expected_diagnostics = [
-        "TS2322: Type '\"not a number\"' is not assignable to type 'number'",
+        "TS2322: Type 'string' is not assignable to type 'number'",
         "TS2304: Cannot find name 'TypeThatDoesNotExist'",
     ],
 )

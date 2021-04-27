@@ -33,7 +33,7 @@ exports.config = {
 
       browser.baseUrl = `http://localhost:${port}`;
 
-      return new Promise(resolve => {
+      return new Promise<void>(resolve => {
         app.listen(port, () => {
           resolve();
         });

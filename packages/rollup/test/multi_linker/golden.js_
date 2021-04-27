@@ -14,9 +14,9 @@ function commonjsRequire () {
 
 var lib = createCommonjsModule(function (module, exports) {
 exports.__esModule = true;
+exports.key = void 0;
 exports.key = 'rollup';
 });
 
 var key = lib.key;
 console.log(key);
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYnVuZGxlLmpzIiwic291cmNlcyI6WyJsaWIuanMiLCJtYWluLmpzIl0sInNvdXJjZXNDb250ZW50IjpbIlwidXNlIHN0cmljdFwiO1xuZXhwb3J0cy5fX2VzTW9kdWxlID0gdHJ1ZTtcbmV4cG9ydHMua2V5ID0gJ3JvbGx1cCc7XG4iLCJ2YXIga2V5ID0gcmVxdWlyZSgnLi9saWInKS5rZXk7XG5jb25zb2xlLmxvZyhrZXkpO1xuIl0sIm5hbWVzIjpbInJlcXVpcmUkJDAiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7OztBQUNBLGtCQUFrQixHQUFHLElBQUksQ0FBQztBQUMxQixXQUFXLEdBQUcsUUFBUTs7O0FDRnRCLElBQUksR0FBRyxHQUFHQSxHQUFnQixDQUFDLEdBQUcsQ0FBQztBQUMvQixPQUFPLENBQUMsR0FBRyxDQUFDLEdBQUcsQ0FBQyJ9

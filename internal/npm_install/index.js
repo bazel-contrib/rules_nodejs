@@ -1,5 +1,6 @@
 /* THIS FILE GENERATED FROM .ts; see BUILD.bazel */ /* clang-format off */'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.printIndexBzl = exports.printPackageBin = exports.parsePackage = exports.getDirectDependencySet = exports.main = void 0;
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
