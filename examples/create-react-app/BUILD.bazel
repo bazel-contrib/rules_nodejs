@@ -89,7 +89,6 @@ react_scripts_test(
     ],
     data = _RUNTIME_DEPS + [
         "copy_test_files",
-        "@npm//@testing-library/dom",
         "@npm//@testing-library/jest-dom",
         "@npm//@testing-library/react",
         "@npm//@testing-library/user-event",
