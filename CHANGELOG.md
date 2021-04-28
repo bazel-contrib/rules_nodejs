@@ -1,3 +1,17 @@
+## [3.4.2](https://github.com/bazelbuild/rules_nodejs/compare/3.4.1...3.4.2) (2021-04-28)
+
+
+### Bug Fixes
+
+* **builtin:** allow bazel version to have semver build metadata ([#2624](https://github.com/bazelbuild/rules_nodejs/issues/2624)) ([6a2e136](https://github.com/bazelbuild/rules_nodejs/commit/6a2e136))
+
+
+### Features
+
+* **builtin:** add version 16.x.x versions of NodeJS ([#2626](https://github.com/bazelbuild/rules_nodejs/issues/2626)) ([fc34588](https://github.com/bazelbuild/rules_nodejs/commit/fc34588))
+
+
+
 ## [3.4.1](https://github.com/bazelbuild/rules_nodejs/compare/3.4.0...3.4.1) (2021-04-22)
 
 
