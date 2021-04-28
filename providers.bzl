@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Public providers, aspects and helper surface is re-exported here.
+"""
+Public providers, aspects and helpers that are shipped in the built-in build_bazel_rules_nodejs repository.
 
 Users should not load files under "/internal"
 """

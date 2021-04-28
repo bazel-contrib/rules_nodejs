@@ -47,8 +47,8 @@ stardoc(
 nodejs_test(
     name = "test",
     data = [
-        "docs_test.js",
         "README.md",
+        "docs_test.js",
     ],
     entry_point = ":docs_test.js",
     tags = [

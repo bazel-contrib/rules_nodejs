@@ -12,7 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Public API surface is re-exported here.
+"""
+# Protractor rules for Bazel
+
+The Protractor rules run tests under the Protractor framework with Bazel.
+
+## Installation
+
+Add the `@bazel/protractor` npm package to your `devDependencies` in `package.json`.
 """
 
 load(

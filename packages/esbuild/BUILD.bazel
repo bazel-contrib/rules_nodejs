@@ -39,22 +39,10 @@ bzl_library(
 stardoc(
     name = "docs",
     testonly = True,
-    out = "index.md",
+    out = "README.md",
     input = "index.docs.bzl",
     tags = ["fix-windows"],
     deps = [":bzl"],
-)
-
-genrule(
-    name = "generate_README",
-    srcs = [
-        "_README.md",
-        "index.md",
-    ],
-    outs = ["README.md"],
-    cmd = """cat $(execpath _README.md) $(execpath index.md) | sed 's/^##/\\\n##/' > $@""",
-    tags = ["fix-windows"],
-    visibility = ["//docs:__pkg__"],
 )
 
 copy_file(
@@ -79,12 +67,7 @@ pkg_npm(
         "@build_bazel_rules_nodejs//packages/esbuild:launcher.js": "//@bazel/esbuild:launcher.js",
     }),
     deps = [
+        ":README.md",
         ":npm_version_check",
-    ] + select({
-        # FIXME: fix stardoc on Windows; //packages/karma:index.md generation fails with:
-        #   ERROR: D:/b/62unjjin/external/npm_bazel_karma/BUILD.bazel:65:1: Couldn't build file
-        #   external/npm_bazel_karma/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
-        "@bazel_tools//src/conditions:windows": [],
-        "//conditions:default": [":generate_README"],
-    }),
+    ],
 )
