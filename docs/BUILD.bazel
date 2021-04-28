@@ -16,7 +16,7 @@ load("//tools/stardoc:index.bzl", "rules_nodejs_docs", "stardoc")
 
 stardoc(
     name = "builtins",
-    out = "builtins.api",
+    out = "builtins.md",
     input = "//:index.for_docs.bzl",
     tags = ["fix-windows"],
     deps = [
@@ -27,30 +27,12 @@ stardoc(
 
 stardoc(
     name = "providers",
-    out = "providers.api",
+    out = "_providers.md",
     input = "//:providers.bzl",
     tags = ["fix-windows"],
     deps = [
         "//:bzl",
     ],
-)
-
-_BUILTINS_README = "# Built-in rules\n\nThese rules are available without any npm installation, via the `WORKSPACE` install of the `build_bazel_rules_nodejs` workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.\n\n"
-
-# Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
-# Only referenced when we do a release.
-# TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
-genrule(
-    name = "builtins_md",
-    srcs = [
-        ":builtins.api",
-        ":providers.api",
-    ],
-    outs = ["builtins.doc"],
-    cmd = "echo '%s' > $@;" % _BUILTINS_README +
-          "cat $(location :builtins.api) | sed 's/^##/\\\n##/' >> $@ &&" +
-          "cat $(location :providers.api) | sed 's/^##/\\\n##/' >> $@",
-    tags = ["fix-windows"],
 )
 
 rules_nodejs_docs(
@@ -72,12 +54,13 @@ rules_nodejs_docs(
     includes = glob(["_includes/*"]),
     layouts = glob(["_layouts/*"]),
     readmes = {
-        "Built-ins": ":builtins.doc",
+        "Built-ins": ":builtins.md",
         "Concatjs": "//packages/concatjs:README.md",
         "Cypress": "//packages/cypress:README.md",
         "Jasmine": "//packages/jasmine:README.md",
         "Labs": "//packages/labs:README.md",
         "Protractor": "//packages/protractor:README.md",
+        "Providers": ":_providers.md",
         "Rollup": "//packages/rollup:README.md",
         "Terser": "//packages/terser:README.md",
         "TypeScript": "//packages/typescript:README.md",

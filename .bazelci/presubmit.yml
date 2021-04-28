@@ -120,9 +120,6 @@ tasks:
     # TODO(gregmagolan): figure out how to install missing shared libs
     # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
     - "--build_tag_filters=-cypress"
-    # Build the docs up to the point of running Jekyll as this requires some locally installed deps
-    # Building the stardoc targets provides a little test coverage in formatting etc
-    - "//docs:builtins_md"
     test_flags:
     # Both chrome & firefox are missing shared libs on bazelci ubuntu.
     # On circleci we have the same issue but we can work around it using apt-get.

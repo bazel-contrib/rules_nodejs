@@ -12,7 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Public API surface is re-exported here.
+"""
+# Jasmine rules for Bazel
+
+The Jasmine rules run tests under the Jasmine framework with Bazel.
+
+## Installation
+
+Add the `@bazel/jasmine` npm package to your `devDependencies` in `package.json`.
 """
 
 load(":jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
