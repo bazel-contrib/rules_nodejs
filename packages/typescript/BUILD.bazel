@@ -38,7 +38,7 @@ bzl_library(
 
 stardoc(
     name = "docs",
-    out = "index.md",
+    out = "README.md",
     input = "index.docs.bzl",
     tags = ["fix-windows"],
     deps = [":bzl"],
@@ -48,27 +48,12 @@ nodejs_test(
     name = "test",
     data = [
         "docs_test.js",
-        "index.md",
+        "README.md",
     ],
     entry_point = ":docs_test.js",
     tags = [
         "fix-windows",
     ],
-)
-
-# Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
-# Only referenced when we do a release.
-# TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
-genrule(
-    name = "generate_README",
-    srcs = [
-        "index.md",
-        "_README.md",
-    ],
-    outs = ["README.md"],
-    cmd = """cat $(execpath _README.md) $(execpath index.md) | sed 's/^##/\\\n##/' > $@""",
-    tags = ["fix-windows"],
-    visibility = ["//docs:__pkg__"],
 )
 
 copy_file(
@@ -93,15 +78,10 @@ pkg_npm(
         "build_bazel_rules_typescript",
     ],
     deps = [
+        ":README.md",
         ":npm_version_check",
         "//packages/typescript/internal:BUILD",
         "//packages/typescript/internal:ts_project_options_validator.js",
         "//packages/typescript/internal/worker:filegroup",
-    ] + select({
-        # FIXME: fix stardoc on Windows; //packages/typescript:index.md generation fails with:
-        #   ERROR: D:/b/62unjjin/external/npm_bazel_typescript/BUILD.bazel:36:1: Couldn't build file
-        #   external/npm_bazelnpm_bazel_typescript_terser/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
-        "@bazel_tools//src/conditions:windows": [],
-        "//conditions:default": [":generate_README"],
-    }),
+    ],
 )
