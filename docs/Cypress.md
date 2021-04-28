@@ -10,10 +10,10 @@ nav: rule
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
+
 # Cypress rules for Bazel
 
 The Cypress rules run tests under the Cypress e2e testing framework with Bazel.
-
 
 ## Installation
 
@@ -38,7 +38,6 @@ load("@npm//@bazel/cypress:index.bzl", "cypress_repository")
 cypress_repository(name = "cypress")
 ```
 
-
 ### macOS install requirements
 On macOS, `cypress_repository` generates an external repository containing files whose names contain spaces. In order to make these files compatible with bazel you will need to add the following flag to your `.bazelrc` file:
 ```python
@@ -46,10 +45,8 @@ On macOS, `cypress_repository` generates an external repository containing files
 build --experimental_inprocess_symlink_creation
 ```
 
-
 ### windows install requirements
 At this point in time, `cypress_repository` is incompatible with bazel sandboxing on Windows. This may change in the future, but for now using cypress on windows requires windows sandboxing be disabled (it is disabled by default)
-
 
 ## Example use of cypress_web_test
 This example assumes you've named your external repository for node_modules as `npm` and for cypress as `cypress`

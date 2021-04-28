@@ -124,6 +124,10 @@
       
       
       
+      <li><a href="/rules_nodejs/Providers.html">Providers</a></li>
+      
+      
+      
       <li><a href="/rules_nodejs/Rollup.html">Rollup</a></li>
       
       
@@ -179,6 +183,7 @@
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
+
 <h1 id="esbuild-rules-for-bazel">esbuild rules for Bazel</h1>
 
 <p>The esbuild rules runs the <a href="https://github.com/evanw/esbuild">esbuild</a> bundler tool with Bazel.
@@ -196,7 +201,7 @@ esbuild is an extremely fast JavaScript bundler written in Go, its <a href="http
 
 <p>Add an <code class="language-plaintext highlighter-rouge">http_archive</code> fetching the esbuild binary for each platform that you need to support.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">_ESBUILD_VERSION</span> <span class="o">=</span> <span class="s">"0.11.6"</span>  <span class="c1"># reminder: update SHAs below when changing this value
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">_ESBUILD_VERSION</span> <span class="o">=</span> <span class="s">"0.11.14"</span>  <span class="c1"># reminder: update SHAs below when changing this value
 </span><span class="n">http_archive</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"esbuild_darwin"</span><span class="p">,</span>
     <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span>
@@ -204,7 +209,7 @@ esbuild is an extremely fast JavaScript bundler written in Go, its <a href="http
     <span class="p">],</span>
     <span class="n">strip_prefix</span> <span class="o">=</span> <span class="s">"package"</span><span class="p">,</span>
     <span class="n">build_file_content</span> <span class="o">=</span> <span class="s">"""exports_files(["bin/esbuild"])"""</span><span class="p">,</span>
-    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"2b06365b075b854654fc9ed26fcd48a0c38947e1c8d5151ce400cd1e173bb138"</span><span class="p">,</span>
+    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"81c8623c4c03a1fc449c37a90dd630025e334d312420d42106a899f78bd5e3fe"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">http_archive</span><span class="p">(</span>
@@ -214,7 +219,7 @@ esbuild is an extremely fast JavaScript bundler written in Go, its <a href="http
     <span class="p">],</span>
     <span class="n">strip_prefix</span> <span class="o">=</span> <span class="s">"package"</span><span class="p">,</span>
     <span class="n">build_file_content</span> <span class="o">=</span> <span class="s">"""exports_files(["esbuild.exe"])"""</span><span class="p">,</span>
-    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"ddab1121833f0a12ca4fb3e288231e058f5526310671e84c0a9aa575340bb20b"</span><span class="p">,</span>
+    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"d977751550550099cb9deb95d3fc436c21374b3875131589dde162dfb1c03bf4"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">http_archive</span><span class="p">(</span>
@@ -224,7 +229,7 @@ esbuild is an extremely fast JavaScript bundler written in Go, its <a href="http
     <span class="p">],</span>
     <span class="n">strip_prefix</span> <span class="o">=</span> <span class="s">"package"</span><span class="p">,</span>
     <span class="n">build_file_content</span> <span class="o">=</span> <span class="s">"""exports_files(["bin/esbuild"])"""</span><span class="p">,</span>
-    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"34612e3e15e6c31d9d742d3fd677bd5208b7e5c0ee9c93809999138c6c5c1039"</span><span class="p">,</span>
+    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"fbf8d42fbd12d2392893a5d8cea3860e875c47ee715660e844dff822b8747321"</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div></div>
 

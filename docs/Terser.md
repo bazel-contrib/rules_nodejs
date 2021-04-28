@@ -10,17 +10,16 @@ nav: rule
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
+
 # Terser rules for Bazel
 
 The Terser rules run the Terser JS minifier with Bazel.
 
 Wraps the Terser CLI documented at https://github.com/terser-js/terser#command-line-usage
 
-
 ## Installation
 
 Add the `@bazel/terser` npm package to your `devDependencies` in `package.json`.
-
 
 ## Installing with user-managed dependencies
 
@@ -36,7 +35,6 @@ nodejs_binary(
     data = ["//:node_modules"],
 )
 ```
-
 
 
 ## terser_minified

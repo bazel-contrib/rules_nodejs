@@ -124,6 +124,10 @@
       
       
       
+      <li><a href="/rules_nodejs/Providers.html">Providers</a></li>
+      
+      
+      
       <li><a href="/rules_nodejs/Rollup.html">Rollup</a></li>
       
       
@@ -179,6 +183,7 @@
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
+
 <h1 id="typescript-rules-for-bazel">TypeScript rules for Bazel</h1>
 
 <p>The TypeScript rules integrate the TypeScript compiler with Bazel.</p>
@@ -850,6 +855,19 @@ Helps Bazel to predict the path where the .tsbuildinfo output is written.</p>
 
 <p>For example, <code class="language-plaintext highlighter-rouge">tsc = "@my_deps//typescript/bin:tsc"</code>
 Or you can pass a custom compiler binary instead.</p>
+
+<p>One possible compiler is the Angular compiler, provided by the
+<code class="language-plaintext highlighter-rouge">@angular/compiler-cli</code> package as the <code class="language-plaintext highlighter-rouge">ngc</code> binary, which can be set typically with
+<code class="language-plaintext highlighter-rouge">tsc = "@npm//@angular/compiler-cli/bin:ngc"</code>
+Note that you’ll also need to pass <code class="language-plaintext highlighter-rouge">.html</code> and <code class="language-plaintext highlighter-rouge">.css</code> files to the <code class="language-plaintext highlighter-rouge">srcs</code> of the <code class="language-plaintext highlighter-rouge">ts_project</code>
+so that they’re declared as inputs for the Angular compiler to read them.</p>
+
+<p>An example can be found in the rules_nodejs repo under <code class="language-plaintext highlighter-rouge">packages/typescript/test/ts_project/ngc</code>.</p>
+
+<p>&gt; To use the <code class="language-plaintext highlighter-rouge">ngc</code> program from Angular versions prior to 11, you’ll need a fix for 
+&gt; https://github.com/angular/angular/issues/36290
+&gt; To apply the fix, you can use the patch-package package to apply this patch:
+&gt; https://gist.github.com/alexeagle/ba44b2601bd7c953d29c6e8ec44d1ef9</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
 

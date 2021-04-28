@@ -10,10 +10,10 @@ nav: rule
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
+
 # TypeScript rules for Bazel
 
 The TypeScript rules integrate the TypeScript compiler with Bazel.
-
 
 ## Alternatives
 
@@ -21,7 +21,6 @@ This package provides Bazel wrappers around the TypeScript compiler.
 
 At a high level, there are three alternatives provided: `tsc`, `ts_project`, `ts_library`.
 This section describes the trade-offs between these rules.
-
 
 ### tsc
 
@@ -46,7 +45,6 @@ Then call it, using the [`npm_package_bin`](Built-ins#npm_package_bin) documenta
 Here is an example:
 https://github.com/bazelbuild/rules_nodejs/blob/3.2.2/internal/node/test/BUILD.bazel#L491-L507
 
-
 ### ts_project
 
 `ts_project` simply runs `tsc --project`, with Bazel knowing which outputs to expect based on the TypeScript compiler options,
@@ -64,7 +62,6 @@ https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/
 And there are also many uses of it in our <examples>
 
 [DeclarationInfo]: Built-ins#declarationinfo
-
 
 ### ts_library
 
@@ -85,7 +82,6 @@ However it is very challenging to configure and there is little available suppor
 
 [concatjs]: https://www.npmjs.com/package/@bazel/concatjs
 
-
 ## Installation
 
 Add a `devDependency` on `@bazel/typescript`
@@ -97,7 +93,6 @@ $ npm install --save-dev @bazel/typescript
 ```
 
 Watch for any `peerDependency` warnings - we assume you have already installed the `typescript` package from npm.
-
 
 ## Typical Usage
 
@@ -189,7 +184,6 @@ Defaults to `[]`
 
 
 
-
 ## ts_library
 
 **USAGE**
@@ -209,11 +203,9 @@ TypeScript targets and JavaScript for the browser and Closure compiler.
 By default, `ts_library` uses the `tsconfig.json` file in the workspace root
 directory. See the notes about the `tsconfig` attribute below.
 
-
 ## Serving TypeScript for development
 
 `ts_library` is typically served by the concatjs_devserver rule, documented in the `@bazel/concatjs` package.
-
 
 ## Accessing JavaScript outputs
 
@@ -443,7 +435,6 @@ Defaults to `True`
 Defaults to `False`
 
 
-
 ## ts_project
 
 **USAGE**
@@ -511,7 +502,6 @@ Any code that works with `tsc` should work with `ts_project` with a few caveats:
 > See some related discussion including both "rootDirs" and "paths" for a monorepo setup
 > using custom import paths:
 > https://github.com/bazelbuild/rules_nodejs/issues/2298
-
 
 ### Issues when running non-sandboxed
 
@@ -707,6 +697,19 @@ Label of the TypeScript compiler binary to run.
 
 For example, `tsc = "@my_deps//typescript/bin:tsc"`
 Or you can pass a custom compiler binary instead.
+
+One possible compiler is the Angular compiler, provided by the
+`@angular/compiler-cli` package as the `ngc` binary, which can be set typically with
+`tsc = "@npm//@angular/compiler-cli/bin:ngc"`
+Note that you'll also need to pass `.html` and `.css` files to the `srcs` of the `ts_project`
+so that they're declared as inputs for the Angular compiler to read them.
+
+An example can be found in the rules_nodejs repo under `packages/typescript/test/ts_project/ngc`.
+
+&gt; To use the `ngc` program from Angular versions prior to 11, you'll need a fix for 
+&gt; https://github.com/angular/angular/issues/36290
+&gt; To apply the fix, you can use the patch-package package to apply this patch:
+&gt; https://gist.github.com/alexeagle/ba44b2601bd7c953d29c6e8ec44d1ef9
 
 Defaults to `None`
 

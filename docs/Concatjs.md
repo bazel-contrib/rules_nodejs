@@ -10,6 +10,7 @@ nav: rule
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
+
 # @bazel/concatjs
 
 Concatjs is a JavaScript bundler, in a trivial sense: the UNIX `cat` command is a basic implementation:
@@ -33,9 +34,7 @@ So Bazel rules that originated in Google's codebase have affordances for concatj
 For example `ts_library` produces named AMD modules in its "devmode" output, and
 `karma_web_test` expects to bundle inputs using concatjs.
 
-
 ## Compatibility
-
 
 ### First-party code
 
@@ -59,7 +58,6 @@ using the TS triple-slash syntax:
 it is [also compiled with](https://github.com/bazelbuild/rules_nodejs/blob/bd53eb524ea3bd56b46b7a5f2eff700443e281ec/packages/concatjs/BUILD.bazel#L28)
 the `"compilerOptions": { "module": "umd" }` TypeScript setting.
 
-
 ### Third-party code
 
 To make it easier to produce a UMD version of a third-party npm package, we automatically generate a target that uses Browserify to build one, using the `main` entry from the package's `package.json`.
@@ -73,7 +71,6 @@ You can always write your own shim that grabs a symbol from a package you use, a
 For example, even though RxJS ships with a UMD bundle, it contains multiple entry points and uses anonymous modules, not named modules. So our Angular/concatjs example has a `rxjs_shims.js` file that exposes some RxJS operators, then at <https://github.com/bazelbuild/rules_nodejs/blob/2.3.1/examples/angular/src/BUILD.bazel#L65-L71> this is combined in a `filegroup` with the `rxjs.umd.js` file. Now we use this filegroup target when depending on RxJS in a `concatjs_*` rule.
 
 Ultimately by using concatjs, you're signing up for at least a superficial understanding of these shims and may need to update them when you change your dependencies.
-
 
 ## Serving JS in development mode under Bazel
 
@@ -131,7 +128,6 @@ finishes.
 
 [ibazel]: https://github.com/bazelbuild/bazel-watcher
 
-
 ## Testing with Karma
 
 The `karma_web_test` rule runs karma tests with Bazel.
@@ -159,7 +155,6 @@ browser_repositories(
     firefox = True,
 )
 ```
-
 
 ## Installing with user-managed dependencies
 
@@ -272,7 +267,6 @@ Defaults to `"/_/ts_scripts.js"`
             They are served relative to the package where this rule is declared.
 
 Defaults to `[]`
-
 
 
 ## karma_web_test
@@ -388,7 +382,6 @@ Defaults to `["@npm//karma", "@npm//karma-chrome-launcher", "@npm//karma-firefox
 <h4 id="karma_web_test-kwargs">kwargs</h4>
 
 Passed through to `karma_web_test`
-
 
 
 

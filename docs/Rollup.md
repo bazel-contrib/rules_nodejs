@@ -10,15 +10,14 @@ nav: rule
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
+
 # Rollup rules for Bazel
 
 The Rollup rules run the [rollup.js](https://rollupjs.org/) bundler with Bazel.
 
-
 ## Installation
 
 Add the `@bazel/rollup` npm package to your `devDependencies` in `package.json`. (`rollup` itself should also be included in `devDependencies`, unless you plan on providing it via a custom target.)
-
 
 ### Installing with user-managed dependencies
 
@@ -34,7 +33,6 @@ nodejs_binary(
     data = ["//:node_modules"],
 )
 ```
-
 
 ## Usage
 
@@ -65,7 +63,6 @@ module.exports = {
 }
 ```
 
-
 ### Output types
 
 You must determine ahead of time whether Rollup will write a single file or a directory.
@@ -93,7 +90,6 @@ To get multiple output formats, you can wrap the rule with a macro or list compr
 ```
 
 This will produce one output per requested format.
-
 
 ### Stamping
 
@@ -135,7 +131,8 @@ function parseStatusFile(p) {
   if (!p) return [];
   const results = {};
   const statusFile = require('fs').readFileSync(p, {encoding: 'utf-8'});
-  for (const match of `\n${statusFile}`.matchAll(/^([A-Z_]+) (.*)/gm)) {
+  for (const match of `
+${statusFile}`.matchAll(/^([A-Z_]+) (.*)/gm)) {
     // Lines which go unmatched define an index value of `0` and should be skipped.
     if (match.index === 0) {
       continue;
@@ -157,7 +154,6 @@ if (statuses['BUILD_SCM_VERSION']) {
 }
 ```
 
-
 ### Debug and Opt builds
 
 When you use `--compilation_mode=dbg`, Bazel produces a distinct output-tree in `bazel-out/[arch]-dbg/bin`.
@@ -174,7 +170,6 @@ const DEBUG = process.env['COMPILATION_MODE'] === 'dbg';
 ```
 
 and configure Rollup differently when `DEBUG` is `true` or `false`.
-
 
 ### Increasing Heap memory for rollup
 

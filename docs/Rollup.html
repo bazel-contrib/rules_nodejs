@@ -124,6 +124,10 @@
       
       
       
+      <li><a href="/rules_nodejs/Providers.html">Providers</a></li>
+      
+      
+      
       <li><a href="/rules_nodejs/Rollup.html">Rollup</a></li>
       
       
@@ -179,6 +183,7 @@
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
+
 <h1 id="rollup-rules-for-bazel">Rollup rules for Bazel</h1>
 
 <p>The Rollup rules run the <a href="https://rollupjs.org/">rollup.js</a> bundler with Bazel.</p>
@@ -298,7 +303,8 @@ Each line is a space-separated key/value pair.</p>
   <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">p</span><span class="p">)</span> <span class="k">return</span> <span class="p">[];</span>
   <span class="kd">const</span> <span class="nx">results</span> <span class="o">=</span> <span class="p">{};</span>
   <span class="kd">const</span> <span class="nx">statusFile</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">fs</span><span class="dl">'</span><span class="p">).</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">p</span><span class="p">,</span> <span class="p">{</span><span class="na">encoding</span><span class="p">:</span> <span class="dl">'</span><span class="s1">utf-8</span><span class="dl">'</span><span class="p">});</span>
-  <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">match</span> <span class="k">of</span> <span class="s2">`\n</span><span class="p">${</span><span class="nx">statusFile</span><span class="p">}</span><span class="s2">`</span><span class="p">.</span><span class="nx">matchAll</span><span class="p">(</span><span class="sr">/^</span><span class="se">([</span><span class="sr">A-Z_</span><span class="se">]</span><span class="sr">+</span><span class="se">)</span><span class="sr"> </span><span class="se">(</span><span class="sr">.*</span><span class="se">)</span><span class="sr">/gm</span><span class="p">))</span> <span class="p">{</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">match</span> <span class="k">of</span> <span class="s2">`
+</span><span class="p">${</span><span class="nx">statusFile</span><span class="p">}</span><span class="s2">`</span><span class="p">.</span><span class="nx">matchAll</span><span class="p">(</span><span class="sr">/^</span><span class="se">([</span><span class="sr">A-Z_</span><span class="se">]</span><span class="sr">+</span><span class="se">)</span><span class="sr"> </span><span class="se">(</span><span class="sr">.*</span><span class="se">)</span><span class="sr">/gm</span><span class="p">))</span> <span class="p">{</span>
     <span class="c1">// Lines which go unmatched define an index value of `0` and should be skipped.</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">match</span><span class="p">.</span><span class="nx">index</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">continue</span><span class="p">;</span>

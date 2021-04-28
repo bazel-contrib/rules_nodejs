@@ -10,10 +10,10 @@ nav: rule
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
+
 # Jasmine rules for Bazel
 
 The Jasmine rules run tests under the Jasmine framework with Bazel.
-
 
 ## Installation
 

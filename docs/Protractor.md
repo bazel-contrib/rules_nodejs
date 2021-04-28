@@ -10,15 +10,14 @@ nav: rule
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
+
 # Protractor rules for Bazel
 
 The Protractor rules run tests under the Protractor framework with Bazel.
 
-
 ## Installation
 
 Add the `@bazel/protractor` npm package to your `devDependencies` in `package.json`.
-
 
 
 ## protractor_web_test
@@ -101,7 +100,6 @@ Defaults to `"@npm//:node_modules/protractor/bin/protractor"`
 <h4 id="protractor_web_test-kwargs">kwargs</h4>
 
 passed through to `protractor_web_test`
-
 
 
 

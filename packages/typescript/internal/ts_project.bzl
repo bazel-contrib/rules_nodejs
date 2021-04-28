@@ -519,6 +519,19 @@ def ts_project_macro(
             For example, `tsc = "@my_deps//typescript/bin:tsc"`
             Or you can pass a custom compiler binary instead.
 
+            One possible compiler is the Angular compiler, provided by the
+            `@angular/compiler-cli` package as the `ngc` binary, which can be set typically with
+            `tsc = "@npm//@angular/compiler-cli/bin:ngc"`
+            Note that you'll also need to pass `.html` and `.css` files to the `srcs` of the `ts_project`
+            so that they're declared as inputs for the Angular compiler to read them.
+
+            An example can be found in the rules_nodejs repo under `packages/typescript/test/ts_project/ngc`.
+
+            > To use the `ngc` program from Angular versions prior to 11, you'll need a fix for 
+            > https://github.com/angular/angular/issues/36290
+            > To apply the fix, you can use the patch-package package to apply this patch:
+            > https://gist.github.com/alexeagle/ba44b2601bd7c953d29c6e8ec44d1ef9
+
         typescript_package: Label of the package containing all data deps of tsc.
 
             For example, `typescript_package = "@my_deps//typescript"`
