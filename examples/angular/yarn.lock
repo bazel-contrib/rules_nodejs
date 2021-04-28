@@ -834,10 +834,10 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/angular@^3.4.1":
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/angular/-/angular-3.4.1.tgz#08371509dbecd7bada26b2e97b031ff2d2431256"
-  integrity sha512-FwOcIk5e3Hfrguj2nS7ghdADuPpsBky/1JgnCZQ/gvEfMma29T0TT0OZGTkz4ZHlSNF3GQ/dPj1GKWAhZGz9Gg==
+"@bazel/angular@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/angular/-/angular-3.4.2.tgz#08db0a82b81b657ecb87f514617531fc018e3638"
+  integrity sha512-SFCTSbLCklE1vEZZZOS3CByypaiNlZa50LKOR4+rd9uhDAHZLIFHYa667j/i2bm4NxLAAVr+a0pRbjMjOBkX2g==
   dependencies:
     "@angular-devkit/architect" "^0.901.7"
     "@bazel/bazelisk" "^1.4.0"
@@ -863,10 +863,10 @@
   resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-4.0.1.tgz#52cfbad5cbb86e9183a29dde2370cd465730ea0d"
   integrity sha512-BTmtvJbeeEVrqRApI1gr5hvPgYcHLpdGJ5EXNXEWO692ztMPSj5fB/dH0xUlaW45jn6LimYx8ymqTMhj3538og==
 
-"@bazel/concatjs@^3.4.1":
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-3.4.1.tgz#5a07102a841eea3841ef1b2b9b2df5c3dde378b7"
-  integrity sha512-dBsu5AR3ClDodz4BxCJJTmEevpfgo2c7QOuIPjiskQRvVZNH+rL+vjEh1GOLZC6RrXPSHj/F6ULsJ53RbCTlvA==
+"@bazel/concatjs@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-3.4.2.tgz#be75f0e7d4b3e820881a9eecb21b03eaebf86993"
+  integrity sha512-ab9ac8xfZDcv809PLa5vOdgGmJTRO/m6PCtpvAyyc1EMm4puM2e/ITuL4iq73tiX/2eBXvj/hU3uC4AmfYW5IQ==
   dependencies:
     protobufjs "6.8.8"
     source-map-support "0.5.9"
@@ -887,25 +887,25 @@
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.15.10.tgz#cf0cff1aec6d8e7bb23e1fc618d09fbd39b7a13f"
   integrity sha512-0v+OwCQ6fsGFa50r6MXWbUkSGuWOoZ22K4pMSdtWiL5LKFIE4kfmMmtQS+M7/ICNwk2EIYob+NRreyi/DGUz5A==
 
-"@bazel/protractor@^3.4.1":
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-3.4.1.tgz#4c9860045fe00bce7d6d6ba692b7f3cb8804db19"
-  integrity sha512-GmVBCBL+DXlla5qHsVfzxGfSQ2abGrJTPNSflaCdD8XGX/yvE/zeXFNuav/6bkdRpRZnOEksKH5TED3OP59KiQ==
+"@bazel/protractor@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-3.4.2.tgz#0d6c990214a03978c0bf002cabeb4b1baa13e60a"
+  integrity sha512-sF/b85xpD3I62ksyhIspUOoRbQNgR0w5PfjaawnIf2WjzmXnyf3pKvr/mRT/JB+mZenOS6EcTu43XIzA2o1/+A==
 
-"@bazel/rollup@^3.4.1":
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-3.4.1.tgz#4ffdf93433a268f3c4a4a8c914e71b1fc876ad4a"
-  integrity sha512-E5iNbL4r6FDo8UhhZ/PFTtN6VAjbSx+nwrvwHw580uBjQCUiApBdluabIXfhBFChHKrVBpL1du5eekQD+GqKLQ==
+"@bazel/rollup@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-3.4.2.tgz#9293d0951704b4cd791679fde51753627b8d6eda"
+  integrity sha512-oTV/FuLsGXgG23pkCs88qf+KVEOQwBff2Lsup3aeY6o4hpHKIDaLyVdvtGDvNR5GUt/EkFpX8LjIe1IfSCZ3CQ==
 
-"@bazel/terser@^3.4.1":
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-3.4.1.tgz#cc1c8c91924f305bfdffbde83be5b7bb515a67e5"
-  integrity sha512-kKVCi0CnH0+EzU1nDXsS2Am2XL7ZgITC210cDgt5o7jtmZj3usXtNEET3mogo5Lj7sEUvqw58VS5Ty05z57+VQ==
+"@bazel/terser@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-3.4.2.tgz#23a9ece621ffd900f9e4e15b336d1a0cbc94964d"
+  integrity sha512-ml1qWyxfd+psbNub/S5yn3mChWjY2atktyxZgncCu6aEuPJ3tvln5G+0CGG1l6eSoDuhvpHUhoz2Q0sTb9lvlw==
 
-"@bazel/typescript@^3.4.1":
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.4.1.tgz#ec52292b240157cd2d874ff7ea7857da8416c00c"
-  integrity sha512-OKpfjFRhudsaUBL3xH1oAbat+bwdRyfAOTn2qgMQSO3vR4ZBBVYk7GVMJzWamLkbDS0aY5ws5wLfDScJSKD2ww==
+"@bazel/typescript@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.4.2.tgz#183cb14d1f4149cc67ed2723c4b8a7366da5ec36"
+  integrity sha512-JtLdPOC7rytALJBxawxTCnxVopGstk2eXFs56zHBy+JWSeqrnwujeWZyK5qZHzpag02/JtIQ/ZKkM/DQtrXC8Q==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"

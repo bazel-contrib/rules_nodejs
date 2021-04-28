@@ -527,7 +527,7 @@ def ts_project_macro(
 
             An example can be found in the rules_nodejs repo under `packages/typescript/test/ts_project/ngc`.
 
-            > To use the `ngc` program from Angular versions prior to 11, you'll need a fix for 
+            > To use the `ngc` program from Angular versions prior to 11, you'll need a fix for
             > https://github.com/angular/angular/issues/36290
             > To apply the fix, you can use the patch-package package to apply this patch:
             > https://gist.github.com/alexeagle/ba44b2601bd7c953d29c6e8ec44d1ef9
