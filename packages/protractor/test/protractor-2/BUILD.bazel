@@ -82,3 +82,13 @@ protractor_web_test_suite(
         ":ts_spec",
     ],
 )
+
+protractor_web_test_suite(
+    name = "test_suite_with_configured_server",
+    configuration = ":conf.js",
+    on_prepare = ":on-prepare.js",
+    server = select({
+        "//conditions:default": ":devserver",
+    }),
+    deps = [":ts_spec"],
+)
