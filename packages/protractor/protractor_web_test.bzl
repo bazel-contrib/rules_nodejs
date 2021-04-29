@@ -110,6 +110,15 @@ def _protractor_web_test_impl(ctx):
     )
 
     runfiles = [configuration] + configuration_sources + on_prepare_sources
+    server_files = depset()
+
+    # If a server has been specified, add it to the runfiles together with it's required runfiles. This is necessary
+    # as the test executable references the server executable as per `TMPL_server` and executes it.
+    if ctx.executable.server:
+        server_files = depset(
+            [ctx.executable.server],
+            transitive = [ctx.attr.server[DefaultInfo].default_runfiles.files],
+        )
 
     ctx.actions.write(
         output = ctx.outputs.script,
@@ -166,7 +175,7 @@ ${{COMMAND}}
         files = depset([ctx.outputs.script]),
         runfiles = ctx.runfiles(
             files = runfiles,
-            transitive_files = depset(transitive = [files, node_modules]),
+            transitive_files = depset(transitive = [files, node_modules, server_files]),
             # Propagate protractor_bin and its runfiles
             collect_data = True,
             collect_default = True,
@@ -269,8 +278,6 @@ def protractor_web_test(
     # Our binary dependency must be in data[] for collect_data to pick it up
     # FIXME: maybe we can just ask :protractor_bin_name for its runfiles attr
     web_test_data = data + [":" + protractor_bin_name]
-    if server:
-        web_test_data += [server]
 
     _protractor_web_test(
         name = name,
