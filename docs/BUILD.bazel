@@ -16,7 +16,7 @@ load("//tools/stardoc:index.bzl", "rules_nodejs_docs", "stardoc")
 
 stardoc(
     name = "builtins",
-    out = "builtins.md",
+    out = "builtins.md_",
     input = "//:index.for_docs.bzl",
     tags = ["fix-windows"],
     deps = [
@@ -27,7 +27,7 @@ stardoc(
 
 stardoc(
     name = "providers",
-    out = "_providers.md",
+    out = "providers.md_",
     input = "//:providers.bzl",
     tags = ["fix-windows"],
     deps = [
@@ -54,13 +54,13 @@ rules_nodejs_docs(
     includes = glob(["_includes/*"]),
     layouts = glob(["_layouts/*"]),
     readmes = {
-        "Built-ins": ":builtins.md",
+        "Built-ins": ":builtins.md_",
         "Concatjs": "//packages/concatjs:README.md",
         "Cypress": "//packages/cypress:README.md",
         "Jasmine": "//packages/jasmine:README.md",
         "Labs": "//packages/labs:README.md",
         "Protractor": "//packages/protractor:README.md",
-        "Providers": ":_providers.md",
+        "Providers": ":providers.md_",
         "Rollup": "//packages/rollup:README.md",
         "Terser": "//packages/terser:README.md",
         "TypeScript": "//packages/typescript:README.md",
