@@ -28,6 +28,7 @@ nodejs_binary(
         "@npm//karma-chrome-launcher",
         "@npm//karma-firefox-launcher",
         "@npm//karma-jasmine",
+        "@npm//karma-junit-reporter",
         "@npm//karma-requirejs",
         "@npm//karma-sourcemap-loader",
         "@npm//requirejs",
