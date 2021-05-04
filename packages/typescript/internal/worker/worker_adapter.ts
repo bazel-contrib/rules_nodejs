@@ -41,7 +41,7 @@ const reportWatchStatusChanged: ts.WatchStatusReporter = (diagnostic) => {
 function createWatchProgram(
     options: ts.CompilerOptions, tsconfigPath: string, setTimeout: ts.System['setTimeout']) {
   const host = createWatchCompilerHost(
-      tsconfigPath, options, {...ts.sys, setTimeout},
+      tsconfigPath, options, {...ts.sys, setTimeout, write: worker.debug},
       ts.createSemanticDiagnosticsBuilderProgram, reportDiagnostic,
       reportWatchStatusChanged);
 
