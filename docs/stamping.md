@@ -1,5 +1,5 @@
 ---
-title: Home
+title: Stamping
 layout: default
 toc: true
 ---
