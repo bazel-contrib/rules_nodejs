@@ -317,9 +317,11 @@ function hasRootBuildFile(pkg, rootPath) {
 }
 function getDirectDependencySet(pkgJsonPath) {
     const pkgJson = JSON.parse(stripBom(fs.readFileSync(pkgJsonPath, { encoding: 'utf8' })));
-    const dependencies = Object.keys(pkgJson.dependencies || {});
-    const devDependencies = Object.keys(pkgJson.devDependencies || {});
-    return new Set([...dependencies, ...devDependencies]);
+    return new Set([
+        ...Object.keys(pkgJson.dependencies || {}),
+        ...Object.keys(pkgJson.devDependencies || {}),
+        ...Object.keys(pkgJson.optionalDependencies || {}),
+    ]);
 }
 exports.getDirectDependencySet = getDirectDependencySet;
 function findPackages(p, dependencies) {
