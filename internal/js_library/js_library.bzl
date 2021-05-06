@@ -18,10 +18,12 @@ load(
     "//:providers.bzl",
     "DeclarationInfo",
     "ExternalNpmPackageInfo",
+    "JSEcmaScriptModuleInfo",
     "JSModuleInfo",
     "JSNamedModuleInfo",
     "LinkablePackageInfo",
     "declaration_info",
+    "js_ecma_script_module_info",
     "js_module_info",
     "js_named_module_info",
 )
@@ -164,6 +166,7 @@ def _impl(ctx):
 
     files_depsets = [files_depset]
     npm_sources_depsets = [files_depset]
+    direct_ecma_script_module_depsets = [files_depset]
     direct_sources_depsets = [files_depset]
     direct_named_module_sources_depsets = [named_module_files_depset]
     typings_depsets = [typings_depset]
@@ -173,6 +176,9 @@ def _impl(ctx):
         if ExternalNpmPackageInfo in dep:
             npm_sources_depsets.append(dep[ExternalNpmPackageInfo].sources)
         else:
+            if JSEcmaScriptModuleInfo in dep:
+                direct_ecma_script_module_depsets.append(dep[JSEcmaScriptModuleInfo].direct_sources)
+                direct_sources_depsets.append(dep[JSEcmaScriptModuleInfo].direct_sources)
             if JSModuleInfo in dep:
                 js_files_depsets.append(dep[JSModuleInfo].direct_sources)
                 direct_sources_depsets.append(dep[JSModuleInfo].direct_sources)
@@ -196,6 +202,10 @@ def _impl(ctx):
             ),
         ),
         AmdNamesInfo(names = ctx.attr.amd_names),
+        js_ecma_script_module_info(
+            sources = depset(transitive = direct_ecma_script_module_depsets),
+            deps = ctx.attr.deps,
+        ),
         js_module_info(
             sources = depset(transitive = js_files_depsets),
             deps = ctx.attr.deps,
