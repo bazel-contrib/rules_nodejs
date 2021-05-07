@@ -235,6 +235,7 @@ def concatjs_devserver_macro(name, args = [], visibility = None, tags = [], test
     native.alias(
         name = "%s.MF" % name,
         actual = "%s_launcher.MF" % name,
+        tags = tags,
         visibility = visibility,
     )
 
