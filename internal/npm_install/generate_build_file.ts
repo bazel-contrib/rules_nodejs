@@ -526,10 +526,11 @@ export function getDirectDependencySet(pkgJsonPath: string): Set<string> {
     stripBom(fs.readFileSync(pkgJsonPath, {encoding: 'utf8'}))
   );
 
-  const dependencies: string[] = Object.keys(pkgJson.dependencies || {});
-  const devDependencies: string[] = Object.keys(pkgJson.devDependencies || {});
-
-  return new Set([...dependencies, ...devDependencies]);
+  return new Set([
+    ...Object.keys(pkgJson.dependencies || {}),
+    ...Object.keys(pkgJson.devDependencies || {}),
+    ...Object.keys(pkgJson.optionalDependencies || {}),
+  ]);
 }
 
 /**
