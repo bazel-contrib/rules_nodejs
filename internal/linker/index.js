@@ -50,6 +50,30 @@ function gracefulLstat(path) {
         }
     });
 }
+function gracefulReadlink(path) {
+    try {
+        return fs.readlinkSync(path);
+    }
+    catch (e) {
+        if (e.code === 'ENOENT') {
+            return null;
+        }
+        throw e;
+    }
+}
+function gracefulReaddir(path) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            return yield fs.promises.readdir(path);
+        }
+        catch (e) {
+            if (e.code === 'ENOENT') {
+                return [];
+            }
+            throw e;
+        }
+    });
+}
 function unlink(moduleName) {
     return __awaiter(this, void 0, void 0, function* () {
         const stat = yield gracefulLstat(moduleName);
@@ -69,11 +93,12 @@ function unlink(moduleName) {
 function deleteDirectory(p) {
     return __awaiter(this, void 0, void 0, function* () {
         log_verbose("Deleting children of", p);
-        for (let entry of yield fs.promises.readdir(p)) {
+        for (let entry of yield gracefulReaddir(p)) {
             const childPath = path.join(p, entry);
             const stat = yield gracefulLstat(childPath);
             if (stat === null) {
-                throw Error(`File does not exist, but is listed as directory entry: ${childPath}`);
+                log_verbose(`File does not exist, but is listed as directory entry: ${childPath}`);
+                continue;
             }
             if (stat.isDirectory()) {
                 yield deleteDirectory(childPath);
@@ -277,11 +302,17 @@ function main(args, runfiles) {
                     stats = yield gracefulLstat(p);
                 }
                 if (runfiles.manifest && execroot && stats !== null && stats.isSymbolicLink()) {
-                    const symlinkPath = fs.readlinkSync(p).replace(/\\/g, '/');
-                    if (path.relative(symlinkPath, target) != '' &&
-                        !path.relative(execroot, symlinkPath).startsWith('..')) {
-                        log_verbose(`Out-of-date symlink for ${p} to ${symlinkPath} detected. Target should be ${target}. Unlinking.`);
-                        yield unlink(p);
+                    const symlinkPathRaw = gracefulReadlink(p);
+                    if (symlinkPathRaw !== null) {
+                        const symlinkPath = symlinkPathRaw.replace(/\\/g, '/');
+                        if (path.relative(symlinkPath, target) != '' &&
+                            !path.relative(execroot, symlinkPath).startsWith('..')) {
+                            log_verbose(`Out-of-date symlink for ${p} to ${symlinkPath} detected. Target should be ${target}. Unlinking.`);
+                            yield unlink(p);
+                        }
+                        else {
+                            log_verbose(`The symlink at ${p} no longer exists, so no need to unlink it.`);
+                        }
                     }
                 }
                 return symlink(target, p);
