@@ -110,12 +110,12 @@ def _protractor_web_test_impl(ctx):
     )
 
     runfiles = [configuration] + configuration_sources + on_prepare_sources
-    server_files = depset()
+    server_runfiles = depset()
 
     # If a server has been specified, add it to the runfiles together with it's required runfiles. This is necessary
     # as the test executable references the server executable as per `TMPL_server` and executes it.
     if ctx.executable.server:
-        server_files = depset(
+        server_runfiles = depset(
             [ctx.executable.server],
             transitive = [ctx.attr.server[DefaultInfo].default_runfiles.files],
         )
@@ -175,7 +175,7 @@ ${{COMMAND}}
         files = depset([ctx.outputs.script]),
         runfiles = ctx.runfiles(
             files = runfiles,
-            transitive_files = depset(transitive = [files, node_modules, server_files]),
+            transitive_files = depset(transitive = [files, node_modules, server_runfiles]),
             # Propagate protractor_bin and its runfiles
             collect_data = True,
             collect_default = True,
