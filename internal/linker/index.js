@@ -111,24 +111,25 @@ function symlink(target, p) {
         }
     });
 }
-function resolveExternalWorkspacePath(workspace, startCwd, isExecroot, execroot, runfiles) {
+function resolveWorkspaceNodeModules(workspace, startCwd, isExecroot, execroot, runfiles) {
     return __awaiter(this, void 0, void 0, function* () {
+        const targetManifestPath = `${workspace}/node_modules`;
         if (isExecroot) {
-            return `${execroot}/external/${workspace}`;
+            return `${execroot}/external/${targetManifestPath}`;
         }
         if (!execroot) {
-            return path.resolve(`${startCwd}/../${workspace}`);
+            return path.resolve(`${startCwd}/../${targetManifestPath}`);
         }
-        const fromManifest = runfiles.lookupDirectory(workspace);
+        const fromManifest = runfiles.lookupDirectory(targetManifestPath);
         if (fromManifest) {
             return fromManifest;
         }
         else {
-            const maybe = path.resolve(`${execroot}/external/${workspace}`);
+            const maybe = path.resolve(`${execroot}/external/${targetManifestPath}`);
             if (yield exists(maybe)) {
                 return maybe;
             }
-            return path.resolve(`${startCwd}/../${workspace}`);
+            return path.resolve(`${startCwd}/../${targetManifestPath}`);
         }
     });
 }
@@ -289,9 +290,8 @@ function main(args, runfiles) {
         for (const packagePath of Object.keys(roots)) {
             const workspace = roots[packagePath];
             if (workspace) {
-                const workspacePath = yield resolveExternalWorkspacePath(workspace, startCwd, isExecroot, execroot, runfiles);
-                log_verbose(`resolved ${workspace} workspace path to ${workspacePath}`);
-                const workspaceNodeModules = `${workspacePath}/node_modules`;
+                const workspaceNodeModules = yield resolveWorkspaceNodeModules(workspace, startCwd, isExecroot, execroot, runfiles);
+                log_verbose(`resolved ${workspace} workspace node modules path to ${workspaceNodeModules}`);
                 if (packagePath) {
                     if (yield exists(workspaceNodeModules)) {
                         yield mkdirp(packagePath);
@@ -309,7 +309,7 @@ function main(args, runfiles) {
                     }
                     else {
                         log_verbose(`no npm workspace node_modules folder under ${packagePath} to link to; creating node_modules directories in ${process.cwd()} for ${packagePath} 1p deps`);
-                        yield mkdirp('${packagePath}/node_modules');
+                        yield mkdirp(`${packagePath}/node_modules`);
                         if (!isExecroot) {
                             const runfilesPackagePath = `${startCwd}/${packagePath}`;
                             yield mkdirp(`${runfilesPackagePath}/node_modules`);
