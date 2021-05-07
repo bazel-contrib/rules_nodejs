@@ -8,6 +8,7 @@ architect(
     args = [
         "frontend-lib:build",
         "--",
+        # Our custom ng-packagr.js file reads this argument and inserts it into the configuration object
         "$(@D)",
     ],
     data = glob(
