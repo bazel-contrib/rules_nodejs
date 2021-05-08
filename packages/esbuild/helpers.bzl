@@ -40,6 +40,28 @@ def resolve_entry_point(f, inputs, srcs):
 
     fail("Could not find corresponding entry point for %s. Add the %s.js to your deps or %s.ts to your srcs" % (f.path, no_ext, no_ext))
 
+def desugar_entry_point_names(entry_point, entry_points):
+    """Users can specify entry_point (sugar) or entry_points (long form).
+
+    This function allows our code to treat it like they always used the long form.
+
+    It also validates that exactly one of these attributes should be specified.
+
+    Args:
+        entry_point: the simple argument for specifying a single entry
+        entry_points: the long form argument for specifing one or more entry points
+
+    Returns:
+        the array of entry poitns
+    """
+    if entry_point and entry_points:
+        fail("Cannot specify both entry_point and entry_points")
+    if not entry_point and not entry_points:
+        fail("One of entry_point or entry_points must be specified")
+    if entry_point:
+        return [entry_point]
+    return entry_points
+
 def filter_files(input, endings = ALLOWED_EXTENSIONS):
     """Filters a list of files for specific endings
 

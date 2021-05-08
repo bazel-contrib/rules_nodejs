@@ -5,7 +5,7 @@ esbuild rule
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect")
-load(":helpers.bzl", "filter_files", "generate_path_mapping", "resolve_entry_point", "write_jsconfig_file")
+load(":helpers.bzl", "desugar_entry_point_names", "filter_files", "generate_path_mapping", "resolve_entry_point", "write_jsconfig_file")
 
 def _esbuild_impl(ctx):
     # For each dep, JSEcmaScriptModuleInfo is used if found, then JSModuleInfo and finally
@@ -38,18 +38,21 @@ def _esbuild_impl(ctx):
                 package_name = key.split(":")[0]
                 path_alias_mappings.update(generate_path_mapping(package_name, value[1].replace(ctx.bin_dir.path + "/", "")))
 
+    entry_points = desugar_entry_point_names(ctx.file.entry_point, ctx.files.entry_points)
+
     deps_inputs = depset(transitive = deps_depsets).to_list()
-    inputs = filter_files(ctx.files.entry_point) + ctx.files.srcs + deps_inputs
+    inputs = filter_files(entry_points) + ctx.files.srcs + deps_inputs
 
     metafile = ctx.actions.declare_file("%s_metadata.json" % ctx.attr.name)
     outputs = [metafile]
 
-    entry_point = resolve_entry_point(ctx.file.entry_point, inputs, ctx.files.srcs)
-
     args = ctx.actions.args()
     args.use_param_file(param_file_arg = "--esbuild_flags=%s", use_always = True)
 
-    args.add("--bundle", entry_point.path)
+    # the entry point files to bundle
+    for entry_point in entry_points:
+        args.add(resolve_entry_point(entry_point, inputs, ctx.files.srcs))
+    args.add("--bundle")
 
     if len(ctx.attr.sourcemap) > 0:
         args.add_joined(["--sourcemap", ctx.attr.sourcemap], join_with = "=")
@@ -126,7 +129,7 @@ def _esbuild_impl(ctx):
         inputs = depset(inputs),
         outputs = outputs,
         arguments = [launcher_args, args],
-        progress_message = "%s Javascript %s [esbuild]" % ("Bundling" if not ctx.attr.output_dir else "Splitting", entry_point.short_path),
+        progress_message = "%s Javascript %s [esbuild]" % ("Bundling" if not ctx.attr.output_dir else "Splitting", " ".join([entry_point.short_path for entry_point in entry_points])),
         execution_requirements = execution_requirements,
         mnemonic = "esbuild",
         env = env,
@@ -168,9 +171,19 @@ See https://esbuild.github.io/api/#define for more details
             doc = "A list of direct dependencies that are required to build the bundle",
         ),
         "entry_point": attr.label(
-            mandatory = True,
             allow_single_file = True,
-            doc = "The bundle's entry point (e.g. your main.js or app.js or index.js)",
+            doc = """The bundle's entry point (e.g. your main.js or app.js or index.js)
+
+This is a shortcut for the `entry_points` attribute with a single entry.
+Specify either this attribute or `entry_point`, but not both.
+""",
+        ),
+        "entry_points": attr.label_list(
+            allow_files = True,
+            doc = """The bundle's entry points (e.g. your main.js or app.js or index.js)
+
+Specify either this attribute or `entry_point`, but not both.
+""",
         ),
         "external": attr.string_list(
             default = [],
@@ -183,7 +196,7 @@ See https://esbuild.github.io/api/#external for more details
             values = ["iife", "cjs", "esm", ""],
             mandatory = False,
             doc = """The output format of the bundle, defaults to iife when platform is browser
-and cjs when platform is node. If performing code splitting, defaults to esm.
+and cjs when platform is node. If performing code splitting or multiple entry_points are specified, defaults to esm.
 
 See https://esbuild.github.io/api/#format for more details
         """,
@@ -229,9 +242,9 @@ file is named 'foo.js', you should set this to 'foo.css'.""",
         ),
         "output_dir": attr.bool(
             default = False,
-            doc = """If true, esbuild produces an output directory containing all the output files from code splitting
+            doc = """If true, esbuild produces an output directory containing all the output files from code splitting for multiple entry points
 
-See https://esbuild.github.io/api/#splitting for more details
+See https://esbuild.github.io/api/#splitting and https://esbuild.github.io/api/#entry-points for more details
             """,
         ),
         "output_map": attr.output(
@@ -308,7 +321,8 @@ def esbuild_macro(name, output_dir = False, **kwargs):
         entry_point = Label("@build_bazel_rules_nodejs//packages/esbuild:launcher.js"),
     )
 
-    if output_dir == True:
+    entry_points = kwargs.get("entry_points", None)
+    if output_dir == True or entry_points:
         esbuild(
             name = name,
             output_dir = True,
