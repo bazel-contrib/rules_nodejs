@@ -50,7 +50,7 @@ if (projFiles.indexOf('.bazelrc') < 0) {
 if (projFiles.indexOf('.bazelversion') < 0) {
   fail('project should have .bazelversion');
 }
-let wkspContent = read('some_project/WORKSPACE.bazel');
+let wkspContent = read('some_project/WORKSPACE');
 if (wkspContent.indexOf('npm_install(') < 0) {
   fail('should use npm by default');
 }
@@ -58,7 +58,7 @@ if (wkspContent.indexOf('npm_install(') < 0) {
 
 exitCode = main(['configure_pkgMgr', '--packageManager=yarn'], captureError);
 if (exitCode != 0) fail('should be success');
-wkspContent = read('configure_pkgMgr/WORKSPACE.bazel');
+wkspContent = read('configure_pkgMgr/WORKSPACE');
 if (wkspContent.indexOf('yarn_install(') < 0) {
   fail('should use yarn when requested');
 }
@@ -66,7 +66,7 @@ if (wkspContent.indexOf('yarn_install(') < 0) {
 process.env['_'] = '/usr/bin/yarn';
 exitCode = main(['default_to_yarn']);
 if (exitCode != 0) fail('should be success');
-wkspContent = read('default_to_yarn/WORKSPACE.bazel');
+wkspContent = read('default_to_yarn/WORKSPACE');
 if (wkspContent.indexOf('yarn_install(') < 0) {
   fail('should use yarn by default');
 }

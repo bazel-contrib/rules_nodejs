@@ -90,6 +90,7 @@ function main(argv, error = console.error, log = console.log) {
 
   log(`Creating Bazel workspace ${wkspName}...`);
   fs.mkdirSync(wkspDir);
+  fs.mkdirSync(path.join(wkspDir, 'tools'));
 
   function write(workspaceRelativePath, content) {
     fs.writeFileSync(
@@ -108,7 +109,12 @@ function main(argv, error = console.error, log = console.log) {
   if (args['typescript']) {
     devDependencies['@bazel/typescript'] = 'latest';
     devDependencies['typescript'] = 'latest';
-    write('tsconfig.json', '');
+    write('tsconfig.json', `\
+{
+    // If building without sandboxing, we need to prevent TypeScript from descending into
+    // Bazel's external folder which contains third-party Bazel dependencies.
+    "exclude": ["external/*"]
+}`);
     rootBuildContent += '# Allow any ts_library rules in this workspace to reference the config\n' +
         '# Note: if you move the tsconfig.json file to a subdirectory, you can add an alias() here instead\n' +
         '#   so that ts_library rules still use it by default.\n' +
@@ -133,6 +139,7 @@ yarn_install(
       `# The npm_install rule runs yarn anytime the package.json or package-lock.json file changes.
 # It also extracts any Bazel rules distributed in an npm package.
 load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
+
 npm_install(
     # Name this npm so that Bazel Label references look like @npm//package
     name = "npm",
@@ -140,6 +147,29 @@ npm_install(
     package_lock_json = "//:package-lock.json",
 )`;
 
+  let bazelDepsContent = `# Third-party dependencies fetched by Bazel
+# Unlike WORKSPACE, the content of this file is unordered.
+# We keep them separate to make the WORKSPACE file more maintainable.
+
+# Install the nodejs "bootstrap" package
+# This provides the basic tools for running and packaging nodejs programs in Bazel
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+def fetch_dependencies():
+    http_archive(
+        name = "build_bazel_rules_nodejs",
+        sha256 = "65067dcad93a61deb593be7d3d9a32a4577d09665536d8da536d731da5cd15e2",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.4.2/rules_nodejs-3.4.2.tar.gz"],
+    )
+
+    # rules_nodejs doesn't depend on skylib, but it's a useful dependency anyway.
+    http_archive(
+        name = "bazel_skylib",
+        urls = [
+            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
+        ],
+        sha256 = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c",
+    )`
   let workspaceContent = `# Bazel workspace created by @bazel/create 0.0.0-PLACEHOLDER
 
 # Declares that this directory is the root of a Bazel workspace.
@@ -152,22 +182,23 @@ workspace(
     managed_directories = {"@npm": ["node_modules"]},
 )
 
-# Install the nodejs "bootstrap" package
-# This provides the basic tools for running and packaging nodejs programs in Bazel
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-http_archive(
-    name = "build_bazel_rules_nodejs",
-    sha256 = "65067dcad93a61deb593be7d3d9a32a4577d09665536d8da536d731da5cd15e2",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.4.2/rules_nodejs-3.4.2.tar.gz"],
-)
+load("//tools:bazel_deps.bzl", "fetch_dependencies")
+
+fetch_dependencies()
 
 ${pkgMgr === 'yarn' ? yarnInstallCmd : npmInstallCmd}`;
 
-  write('WORKSPACE.bazel', workspaceContent);
-  write('.bazelignore', `node_modules
+  write('tools/BUILD.bazel', '# Currently there are no targets in this Bazel package')
+  write('tools/bazel_deps.bzl', bazelDepsContent);
+  // Don't name it WORKSPACE.bazel since there's a bug with managed_directories
+  write('WORKSPACE', workspaceContent);
+  write('.bazelignore', `\
+# NB: semantics here are not the same as .gitignore
+# see https://github.com/bazelbuild/bazel/issues/8106
+# For example, every nested node_modules directory needs to be listed here.
+node_modules
 dist
-bazel-out
-`);
+bazel-out`);
   write(
       'package.json',
       JSON.stringify(
@@ -182,7 +213,8 @@ bazel-out
             }
           },
           null, 4));
-  write('.gitignore', `
+  write('.gitignore', `\
+.bazelrc.user
 dist
 bazel-out
 node_modules`);
