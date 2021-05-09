@@ -62,7 +62,6 @@ def _esbuild_impl(ctx):
     args.add("--preserve-symlinks")
     args.add_joined(["--platform", ctx.attr.platform], join_with = "=")
     args.add_joined(["--target", ctx.attr.target], join_with = "=")
-    args.add_joined(["--log-level", "info"], join_with = "=")
     args.add_joined(["--metafile", metafile.path], join_with = "=")
     args.add_all(ctx.attr.define, format_each = "--define:%s")
     args.add_all(ctx.attr.external, format_each = "--external:%s")
@@ -111,7 +110,19 @@ def _esbuild_impl(ctx):
     args.add_joined(["--tsconfig", jsconfig_file.path], join_with = "=")
     inputs.append(jsconfig_file)
 
-    args.add_all([ctx.expand_location(arg) for arg in ctx.attr.args])
+    log_level_flag = "--log-level"
+    has_log_level_flag = False
+    for arg in ctx.attr.args:
+        if arg.startswith(log_level_flag):
+            has_log_level_flag = True
+
+        args.add(ctx.expand_location(arg))
+
+    # by default the log level is "info" and includes an output file summary
+    # under bazel this is slightly redundant and may lead to spammy logs
+    # unless the user overrides the log level, set it to only show warnings and errors
+    if not has_log_level_flag:
+        args.add_joined([log_level_flag, "warning"], join_with = "=")
 
     env = {}
     if ctx.attr.max_threads > 0:
