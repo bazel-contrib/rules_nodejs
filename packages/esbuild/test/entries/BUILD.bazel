@@ -1,0 +1,36 @@
+load("//:index.bzl", "nodejs_test")
+load("//packages/esbuild/test:tests.bzl", "esbuild")
+load("//packages/typescript:index.bzl", "ts_library")
+
+ts_library(
+    name = "index",
+    srcs = ["index.ts"],
+    module_name = "lib",
+)
+
+ts_library(
+    name = "lib",
+    srcs = [
+        "a.ts",
+        "b.ts",
+    ],
+    deps = [":index"],
+)
+
+esbuild(
+    name = "bundle",
+    entry_points = [
+        "a.ts",
+        "b.ts",
+    ],
+    deps = [":lib"],
+)
+
+nodejs_test(
+    name = "bundle_test",
+    data = [
+        "bundle.spec.js",
+        ":bundle",
+    ],
+    entry_point = ":bundle.spec.js",
+)
