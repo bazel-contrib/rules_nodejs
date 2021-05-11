@@ -39,6 +39,9 @@ describe('pkg_npm', () => {
   it('copies declaration files from ts_library', () => {
     expect(readFromPkg('foo.d.ts')).toContain('export declare const a: string;');
   });
+  it('copies ESM files from ts_library', () => {
+    expect(readFromPkg('foo.mjs')).toContain('export const a = \'\';');
+  });
   it('copies data dependencies', () => {
     expect(readFromPkg('data.json')).toEqual('[]');
   });
