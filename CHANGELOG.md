@@ -1,3 +1,26 @@
+# [3.5.0](https://github.com/bazelbuild/rules_nodejs/compare/3.4.2...3.5.0) (2021-05-11)
+
+
+### Bug Fixes
+
+* **builtin:** account for racy deletion of symlink in linker ([#2662](https://github.com/bazelbuild/rules_nodejs/issues/2662)) ([e9a683d](https://github.com/bazelbuild/rules_nodejs/commit/e9a683d))
+* **builtin:** include optionalDependencies in strictly visible packages ([#2657](https://github.com/bazelbuild/rules_nodejs/issues/2657)) ([2a1ed31](https://github.com/bazelbuild/rules_nodejs/commit/2a1ed31))
+* **builtin:** linker incorrectly resolves workspace `node_modules` for windows ([#2659](https://github.com/bazelbuild/rules_nodejs/issues/2659)) ([7cf7d73](https://github.com/bazelbuild/rules_nodejs/commit/7cf7d73))
+* **concatjs:** devserver not passing through tags to all targets ([#2646](https://github.com/bazelbuild/rules_nodejs/issues/2646)) ([8abc8e0](https://github.com/bazelbuild/rules_nodejs/commit/8abc8e0))
+* **docs:** correct title of stamping docs ([4bea5b2](https://github.com/bazelbuild/rules_nodejs/commit/4bea5b2))
+* **protractor:** unable to specify `server` as configurable attribute ([#2643](https://github.com/bazelbuild/rules_nodejs/issues/2643)) ([4965db6](https://github.com/bazelbuild/rules_nodejs/commit/4965db6))
+
+
+### Features
+
+* **builtin:** add js_library JSEcmaScriptModuleInfo support ([#2658](https://github.com/bazelbuild/rules_nodejs/issues/2658)) ([5ad1596](https://github.com/bazelbuild/rules_nodejs/commit/5ad1596))
+* **builtin:** allow bundling ESM output with the pkg_npm rule ([#2648](https://github.com/bazelbuild/rules_nodejs/issues/2648)) ([911529f](https://github.com/bazelbuild/rules_nodejs/commit/911529f))
+* **concatjs:** enable junit report for karma_web_test ([#2630](https://github.com/bazelbuild/rules_nodejs/issues/2630)) ([28e8d23](https://github.com/bazelbuild/rules_nodejs/commit/28e8d23))
+* **esbuild:** add support for multiple entry points ([#2663](https://github.com/bazelbuild/rules_nodejs/issues/2663)) ([b4f322a](https://github.com/bazelbuild/rules_nodejs/commit/b4f322a))
+* **esbuild:** default log-level flag to warning, unless overridden ([#2664](https://github.com/bazelbuild/rules_nodejs/issues/2664)) ([8ffea3e](https://github.com/bazelbuild/rules_nodejs/commit/8ffea3e))
+
+
+
 ## [3.4.2](https://github.com/bazelbuild/rules_nodejs/compare/3.4.1...3.4.2) (2021-04-28)
 
 
