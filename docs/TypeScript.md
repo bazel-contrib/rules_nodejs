@@ -706,7 +706,7 @@ so that they're declared as inputs for the Angular compiler to read them.
 
 An example can be found in the rules_nodejs repo under `packages/typescript/test/ts_project/ngc`.
 
-&gt; To use the `ngc` program from Angular versions prior to 11, you'll need a fix for 
+&gt; To use the `ngc` program from Angular versions prior to 11, you'll need a fix for
 &gt; https://github.com/angular/angular/issues/36290
 &gt; To apply the fix, you can use the patch-package package to apply this patch:
 &gt; https://gist.github.com/alexeagle/ba44b2601bd7c953d29c6e8ec44d1ef9
