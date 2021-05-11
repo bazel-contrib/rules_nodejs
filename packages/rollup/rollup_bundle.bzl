@@ -254,7 +254,8 @@ def _rollup_bundle(ctx):
     for dep in ctx.attr.deps:
         if JSEcmaScriptModuleInfo in dep:
             deps_depsets.append(dep[JSEcmaScriptModuleInfo].sources)
-        elif JSModuleInfo in dep:
+
+        if JSModuleInfo in dep:
             deps_depsets.append(dep[JSModuleInfo].sources)
         elif hasattr(dep, "files"):
             deps_depsets.append(dep.files)
