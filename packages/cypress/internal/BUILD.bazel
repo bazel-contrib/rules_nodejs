@@ -1,0 +1,11 @@
+exports_files(
+    [
+        "cypress_repositories.bzl",
+        "cypress_web_test.bzl",
+        "plugins/base.js",
+        "plugins/index.js.tpl",
+        "run-cypress.js",
+        "BUILD.bazel",
+    ],
+    visibility = ["//visibility:public"],
+)

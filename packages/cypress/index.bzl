@@ -29,36 +29,36 @@ or using yarn
 yarn add -D @bazel/cypress cypress
 ```
 
-Then, load and invoke `cypress_repository` within your `WORKSPACE` file.
+Then, load and invoke `cypress_repositories` within your `WORKSPACE` file.
 
 ```python
 # Assuming your external repository for node_modules is named @npm
 
-load("@npm//@bazel/cypress:index.bzl", "cypress_repository")
+load("@npm//@bazel/cypress:index.bzl", "cypress_repositories")
 
 # The name you pass here names the external repository you can load cypress_web_test from
-cypress_repository(name = "cypress")
+cypress_repositories(name = "cypress", version = "MATCH_VERSION_IN_PACKAGE_JSON")
 ```
 
 ### macOS install requirements
-On macOS, `cypress_repository` generates an external repository containing files whose names contain spaces. In order to make these files compatible with bazel you will need to add the following flag to your `.bazelrc` file:
+On macOS, `cypress_repositories` generates an external repository containing files whose names contain spaces. In order to make these files compatible with bazel you will need to add the following flag to your `.bazelrc` file:
 ```python
-# Required for cypress_repository on macOS
+# Required for cypress_repositories on macOS
 build --experimental_inprocess_symlink_creation
 ```
 
 ### windows install requirements
-At this point in time, `cypress_repository` is incompatible with bazel sandboxing on Windows. This may change in the future, but for now using cypress on windows requires windows sandboxing be disabled (it is disabled by default)
+At this point in time, `cypress_repositories` is incompatible with bazel sandboxing on Windows. This may change in the future, but for now using cypress on windows requires windows sandboxing be disabled (it is disabled by default)
 
 ## Example use of cypress_web_test
 This example assumes you've named your external repository for node_modules as `npm` and for cypress as `cypress`
 ```python
-load("@cypress//:index.bzl", "cypress_web_test")
+load("@npm//@bazel/cypress//:index.bzl", "cypress_web_test")
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 
 # You must create a cypress plugin in order to boot a server to serve your application. It can be written as a javascript file or in typescript using ts_library or ts_project.
 ts_library(
-    name = "plugins_file",
+    name = "plugin_file",
     testonly = True,
     srcs = ["plugin.ts"],
     tsconfig = ":tsconfig.json",
@@ -93,14 +93,24 @@ cypress_web_test(
     # Any runtime dependencies you need to boot your server or run your tests
     data = [],
     # Your cypress plugin used to configure cypress and boot your server
-    plugins_file = ":plugins_file",
+    plugin_file = ":plugin_file",
 )
 ```
 """
 
 load(
-    "@build_bazel_rules_nodejs//packages/cypress:internal/cypress_repository.bzl",
-    _cypress_repository = "cypress_repository",
+    "@build_bazel_rules_nodejs//packages/cypress/internal:cypress_repositories.bzl",
+    _cypress_repositories = "cypress_repositories",
+)
+load(
+    "@build_bazel_rules_nodejs//packages/cypress/internal:cypress_web_test.bzl",
+    _cypress_web_test = "cypress_web_test",
+)
+load(
+    "@build_bazel_rules_nodejs//packages/cypress/internal/toolchain:cypress_toolchain.bzl",
+    _cypress_toolchain = "cypress_toolchain",
 )
 
-cypress_repository = _cypress_repository
+cypress_repositories = _cypress_repositories
+cypress_web_test = _cypress_web_test
+cypress_toolchain = _cypress_toolchain

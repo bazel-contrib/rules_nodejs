@@ -1,16 +1,14 @@
-load("@cypress//:index.bzl", "cypress_web_test")
-load("//packages/typescript:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//packages/cypress:index.bzl", "cypress_web_test")
+load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_library")
 
 ts_library(
-    name = "plugins_file",
+    name = "plugin_file",
     testonly = True,
     srcs = ["plugin.ts"],
     tags = ["cypress"],
     tsconfig = ":tsconfig.json",
     deps = [
         "@cypress_deps//:node_modules",
-        "@cypress_deps//@types/node",
-        "@cypress_deps//express",
     ],
 )
 
@@ -22,8 +20,6 @@ ts_library(
     tsconfig = ":tsconfig.json",
     deps = [
         "@cypress_deps//:node_modules",
-        "@cypress_deps//@types",
-        "@cypress_deps//cypress",
     ],
 )
 
@@ -34,6 +30,10 @@ cypress_web_test(
         ":hello_spec",
     ],
     config_file = "cypress.json",
-    data = ["@cypress_deps//rxjs"],
-    plugins_file = ":plugins_file",
+    cypress_npm_package = "@cypress_deps//cypress",
+    data = [
+        "@cypress_deps//rxjs",
+    ],
+    plugin_file = ":plugin_file",
+    tags = ["cypress"],
 )

@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
-    "types": []
+    "types": [
+      "node"
+    ]
   }
 }

@@ -40,12 +40,12 @@ def _trim_package_node_modules(package_name):
         segments.append(n)
     return "/".join(segments)
 
-def _compute_node_modules_roots(ctx):
+def _compute_node_modules_roots(ctx, data):
     """Computes the node_modules root (if any) from data attribute."""
     node_modules_roots = {}
 
     # Add in roots from third-party deps
-    for d in ctx.attr.data:
+    for d in data:
         if ExternalNpmPackageInfo in d:
             path = d[ExternalNpmPackageInfo].path
             workspace = d[ExternalNpmPackageInfo].workspace
@@ -56,7 +56,7 @@ def _compute_node_modules_roots(ctx):
             node_modules_roots[path] = workspace
 
     # Add in roots for multi-linked first party deps
-    for dep in ctx.attr.data:
+    for dep in data:
         for k, v in getattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME, {}).items():
             map_key_split = k.split(":")
             package_name = map_key_split[0]
@@ -65,12 +65,12 @@ def _compute_node_modules_roots(ctx):
                 node_modules_roots[package_path] = ""
     return node_modules_roots
 
-def _write_require_patch_script(ctx, node_modules_root):
+def _write_require_patch_script(ctx, data, node_modules_root):
     # Generates the JavaScript snippet of module roots mappings, with each entry
     # in the form:
     #   {module_name: /^mod_name\b/, module_root: 'path/to/mod_name'}
     module_mappings = []
-    for d in ctx.attr.data:
+    for d in data:
         if hasattr(d, "runfiles_module_mappings"):
             for [mn, mr] in d.runfiles_module_mappings.items():
                 escaped = mn.replace("/", "\\/").replace(".", "\\.")
@@ -145,13 +145,14 @@ def _to_execroot_path(ctx, file):
 def _join(*elements):
     return "/".join([f for f in elements if f])
 
-def _nodejs_binary_impl(ctx):
+def _nodejs_binary_impl(ctx, data = [], runfiles = [], expanded_args = []):
     node_modules_manifest = write_node_modules_manifest(ctx, link_workspace_root = ctx.attr.link_workspace_root)
     node_modules_depsets = []
+    data = ctx.attr.data + data
 
     # Also include files from npm fine grained deps as inputs.
     # These deps are identified by the ExternalNpmPackageInfo provider.
-    for d in ctx.attr.data:
+    for d in data:
         if ExternalNpmPackageInfo in d:
             node_modules_depsets.append(d[ExternalNpmPackageInfo].sources)
 
@@ -164,7 +165,7 @@ def _nodejs_binary_impl(ctx):
     # transitive depset()s
     sources_depsets = []
 
-    for d in ctx.attr.data:
+    for d in data:
         if JSModuleInfo in d:
             sources_depsets.append(d[JSModuleInfo].sources)
 
@@ -176,14 +177,14 @@ def _nodejs_binary_impl(ctx):
             sources_depsets.append(d.files)
     sources = depset(transitive = sources_depsets)
 
-    node_modules_roots = _compute_node_modules_roots(ctx)
+    node_modules_roots = _compute_node_modules_roots(ctx, data)
 
     if "" in node_modules_roots:
         node_modules_root = node_modules_roots[""] + "/node_modules"
     else:
         # there are no fine grained deps but we still need a node_modules_root even if it is a non-existant one
         node_modules_root = "build_bazel_rules_nodejs/node_modules"
-    _write_require_patch_script(ctx, node_modules_root)
+    _write_require_patch_script(ctx, data, node_modules_root)
 
     _write_loader_script(ctx)
 
@@ -193,7 +194,7 @@ def _nodejs_binary_impl(ctx):
 
     # Add all env vars from the ctx attr
     for [key, value] in ctx.attr.env.items():
-        env_vars += "export %s=%s\n" % (key, expand_location_into_runfiles(ctx, value, ctx.attr.data))
+        env_vars += "export %s=%s\n" % (key, expand_location_into_runfiles(ctx, value, data))
 
     # While we can derive the workspace from the pwd when running locally
     # because it is in the execroot path `execroot/my_wksp`, on RBE the
@@ -250,7 +251,7 @@ fi
 
     is_builtin = ctx.attr._node.label.workspace_name in ["nodejs_%s" % p for p in BUILT_IN_NODE_PLATFORMS]
 
-    runfiles = []
+    runfiles = runfiles[:]
     runfiles.extend(node_tool_files)
     runfiles.extend(ctx.files._bash_runfile_helper)
     runfiles.append(ctx.outputs.loader_script)
@@ -259,7 +260,7 @@ fi
 
     # First replace any instances of "$(rlocation " with "$$(rlocation " to preserve
     # legacy uses of "$(rlocation"
-    expanded_args = [preserve_legacy_templated_args(a) for a in ctx.attr.templated_args]
+    expanded_args = expanded_args + [preserve_legacy_templated_args(a) for a in ctx.attr.templated_args]
 
     # chdir has to include rlocation lookup for windows
     # that means we have to generate a script so there's an entry in the runfiles manifest
@@ -281,7 +282,7 @@ fi
 
     # Next expand predefined source/output path variables:
     # $(execpath), $(rootpath) & legacy $(location)
-    expanded_args = [expand_location_into_runfiles(ctx, a, ctx.attr.data) for a in expanded_args]
+    expanded_args = [expand_location_into_runfiles(ctx, a, data) for a in expanded_args]
 
     # Finally expand predefined variables & custom variables
     rule_dir = _join(ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package)
@@ -363,7 +364,7 @@ fi
         # when downstream usage is ready to rely on linker
         NodeRuntimeDepsInfo(
             deps = depset(ctx.files.entry_point, transitive = [node_modules, sources]),
-            pkgs = ctx.attr.data,
+            pkgs = data,
         ),
         # indicates that the this binary should be instrumented by coverage
         # see https://docs.bazel.build/versions/master/skylark/lib/coverage_common.html
@@ -621,25 +622,21 @@ _NODEJS_EXECUTABLE_OUTPUTS = {
     "require_patch_script": "%{name}_require_patch.js",
 }
 
-# The name of the declared rule appears in
-# bazel query --output=label_kind
-# So we make these match what the user types in their BUILD file
-# and duplicate the definitions to give two distinct symbols.
-nodejs_binary = rule(
-    implementation = _nodejs_binary_impl,
-    attrs = _NODEJS_EXECUTABLE_ATTRS,
-    doc = "Runs some JavaScript code in NodeJS.",
-    executable = True,
-    outputs = _NODEJS_EXECUTABLE_OUTPUTS,
-    toolchains = [
+nodejs_binary_kwargs = {
+    "attrs": _NODEJS_EXECUTABLE_ATTRS,
+    "doc": "Runs some JavaScript code in NodeJS.",
+    "executable": True,
+    "implementation": _nodejs_binary_impl,
+    "outputs": _NODEJS_EXECUTABLE_OUTPUTS,
+    "toolchains": [
         "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
         "@bazel_tools//tools/sh:toolchain_type",
     ],
-)
+}
 
-nodejs_test = rule(
-    implementation = _nodejs_binary_impl,
-    attrs = dict(_NODEJS_EXECUTABLE_ATTRS, **{
+nodejs_test_kwargs = dict(
+    nodejs_binary_kwargs,
+    attrs = dict(nodejs_binary_kwargs["attrs"], **{
         "expected_exit_code": attr.int(
             doc = "The expected exit code for the test. Defaults to 0.",
             default = 0,
@@ -679,9 +676,12 @@ The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
 """,
     test = True,
-    outputs = _NODEJS_EXECUTABLE_OUTPUTS,
-    toolchains = [
-        "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
-        "@bazel_tools//tools/sh:toolchain_type",
-    ],
 )
+
+# The name of the declared rule appears in
+# bazel query --output=label_kind
+# So we make these match what the user types in their BUILD file
+# and duplicate the definitions to give two distinct symbols.
+nodejs_binary = rule(**nodejs_binary_kwargs)
+
+nodejs_test = rule(**nodejs_test_kwargs)

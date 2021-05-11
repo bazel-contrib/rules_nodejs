@@ -1,74 +1,22 @@
-const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 const init = require('cypress/lib/cli').init;
 const {join} = require('path');
-const {readFileSync} = require('fs');
 
-const [node, entry, configFilePath, pluginsFilePath, cypressTarPath, cypressBin, ...args] =
-    process.argv;
-
-const pluginsFile = runfiles.resolveWorkspaceRelative(pluginsFilePath).replace(process.cwd(), '.');
-const configFile = runfiles.resolveWorkspaceRelative(configFilePath).replace(process.cwd(), '.');
+const [node, entry, configFilePath, pluginsFilePath, cypressBin, ...args] = process.argv;
 
 async function invokeCypressWithCommand(command) {
   process.env.HOME = process.env['TEST_TMPDIR'];
 
-  if (cypressTarPath) {
-    const resolvedArchivePath = join(cypressTarPath.replace('external/', '../'));
-    await untarCypress(resolvedArchivePath, join(process.env['TEST_TMPDIR']))
-  }
+  // NOTE: Use join since cypressBin is a relative path.
+  process.env.CYPRESS_RUN_BINARY = join(process.cwd(), cypressBin);
 
   init([
     node,
     entry,
     command,
-    '--config-file',
-    configFile,
-    '--config',
-    `pluginsFile=${pluginsFile}`,
+    `--config-file=${configFilePath}`,
+    `--config=pluginsFile=${pluginsFilePath}`,
     ...args,
   ]);
-}
-
-
-
-function untarCypress(cypressTarPath, outputPath) {
-  return new Promise((resolve, reject) => {
-    const nodeModulesPath = join(
-        process.cwd(), cypressBin.replace('external/', '../').split('node_modules')[0],
-        'node_modules');
-
-    const tar = require(require.resolve('tar', {
-      paths: [
-        join(nodeModulesPath, '@bazel', 'cypress', 'node_modules'),
-        nodeModulesPath,
-      ]
-    }));
-
-
-    tar.x(
-        {
-          cwd: outputPath,
-          file: cypressTarPath,
-          noMtime: true,
-        },
-        err => {
-          if (err) {
-            return reject(err);
-          }
-
-          try {
-            const {cypressExecutable} =
-                JSON.parse(readFileSync(join(outputPath, 'cypress-install', 'bazel_cypress.json')));
-
-            process.env.CYPRESS_RUN_BINARY = join(outputPath, cypressExecutable);
-            process.env.CYPRESS_CACHE_FOLDER = outputPath;
-          } catch (err) {
-            return reject(err)
-          }
-
-          return resolve();
-        })
-  });
 }
 
 async function main() {

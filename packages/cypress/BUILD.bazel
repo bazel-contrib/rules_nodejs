@@ -19,25 +19,23 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(
-    [
-        "internal/plugins/index.template.js",
-        "internal/run-cypress.js",
-    ],
-    visibility = ["//packages/cypress/test:__subpackages__"],
-)
-
 codeowners(
     teams = ["@mrmeku"],
 )
 
 bzl_library(
     name = "bzl",
-    srcs = glob(["**/*.bzl"]),
+    srcs = [
+        ":index.bzl",
+        "//packages/cypress/internal:cypress_repositories.bzl",
+        "//packages/cypress/internal:cypress_web_test.bzl",
+        "//packages/cypress/internal/toolchain:cypress_toolchain.bzl",
+        "@bazel_tools//tools:bzl_srcs",
+    ],
     deps = [
-        "@build_bazel_rules_nodejs//:bzl",
-        "@build_bazel_rules_nodejs//internal/common:bzl",
-        "@build_bazel_rules_nodejs//internal/node:bzl",
+        "//:bzl",
+        "//internal/common:bzl",
+        "//internal/node:bzl",
     ],
 )
 
@@ -61,26 +59,18 @@ pkg_npm(
     srcs = [
         "index.bzl",
         "package.json",
-        "//packages/cypress:internal/cypress_repository.bzl",
-        "//packages/cypress:internal/install-cypress.js",
-        "//packages/cypress:internal/plugins/base.js",
-        "//packages/cypress:internal/plugins/index.template.js",
-        "//packages/cypress:internal/run-cypress.js",
-        "//packages/cypress:internal/template.cypress_web_test.bzl",
+        "//packages/cypress/internal:BUILD.bazel",
+        "//packages/cypress/internal:cypress_repositories.bzl",
+        "//packages/cypress/internal:cypress_web_test.bzl",
+        "//packages/cypress/internal:plugins/base.js",
+        "//packages/cypress/internal:plugins/index.js.tpl",
+        "//packages/cypress/internal:run-cypress.js",
+        "//packages/cypress/internal/toolchain:BUILD.bazel",
+        "//packages/cypress/internal/toolchain:cypress_toolchain.bzl",
     ],
-    build_file_content = """exports_files([
-    "internal/plugins/base.js",
-    "internal/plugins/index.template.js",
-    "internal/run-cypress.js",
-    "plugins/base.js",
-])""",
+    build_file_content = "",
     substitutions = {
-        "@build_bazel_rules_nodejs//packages/cypress:internal/cypress_repository.bzl": "//packages/cypress:internal/cypress_repository.bzl",
-        "@build_bazel_rules_nodejs//packages/cypress:internal/install-cypress.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/install-cypress.js",
-        "@build_bazel_rules_nodejs//packages/cypress:internal/plugins/base.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/base.js",
-        "@build_bazel_rules_nodejs//packages/cypress:internal/plugins/index.template.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/index.template.js",
-        "@build_bazel_rules_nodejs//packages/cypress:internal/run-cypress.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/run-cypress.js",
-        "TEMPLATED_node_modules_workspace_name//tar": "TEMPLATED_node_modules_workspace_name//@bazel/cypress",
+        "@build_bazel_rules_nodejs//packages/cypress/internal": "//@bazel/cypress/internal",
     },
     deps = [
         ":README.md",
