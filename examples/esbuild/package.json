@@ -1,8 +1,8 @@
 {
     "private": true,
     "devDependencies": {
-        "@bazel/esbuild": "^3.4.2",
-        "@bazel/typescript": "^3.4.2",
+        "@bazel/esbuild": "^3.5.0",
+        "@bazel/typescript": "^3.5.0",
         "@types/node": "12.6.3",
         "tslib": "1.9.0",
         "typescript": "3.5.3"

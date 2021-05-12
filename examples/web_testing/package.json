@@ -1,15 +1,15 @@
 {
   "devDependencies": {
-    "@bazel/concatjs": "^3.4.2",
-    "@bazel/typescript": "^3.4.2",
+    "@bazel/concatjs": "^3.5.0",
+    "@bazel/typescript": "^3.5.0",
     "@types/jasmine": "2.8.2",
     "@types/node": "11.11.1",
     "karma": "~4.1.0",
     "karma-chrome-launcher": "2.2.0",
     "karma-firefox-launcher": "1.1.0",
     "karma-jasmine": "2.0.1",
-    "karma-junit-reporter": "2.0.1",
     "karma-json-result-reporter": "1.0.0",
+    "karma-junit-reporter": "2.0.1",
     "karma-requirejs": "1.1.0",
     "karma-sourcemap-loader": "0.3.7",
     "requirejs": "2.3.6",
