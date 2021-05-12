@@ -112,10 +112,10 @@ def npm_package_bin(
         **kwargs):
     """Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
 
-    It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
-
     This is like a genrule() except that it runs our launcher script that first
     links the node_modules tree before running the program.
+    This allows all Node programs to run correctly, and doesn't require Bazel-specific patching of the
+    `require` function to teach the runtime about Bazel's filesystem layout (runfiles).
 
     By default, Bazel runs actions with a working directory set to your workspace root.
     Use the `chdir` attribute to change the working directory before the program runs.
