@@ -11,15 +11,14 @@ This example demonstrates the Google-internal toolchain, which is fast but not v
 This example is a monorepo, meant to show many different features and integrations that we expect are generally useful for enterprise use cases.
 
 - **Angular CLI**: you can use the `ng` command to run build, serve, test, and e2e
-- **Angular Libraries**: to maximize build incrementality, each Angular module is compiled as a separate step. This lets us re-use Angular libraries without having to publish them as npm packages. See `src/todos` for a typical `NgModule` compiled as a library for use in the application, using the `ts_library` rule in the `BUILD.bazel` file.
-- **TypeScript Libraries**: see `src/lib` for a trivial example of a pure-TS library that's consumed in the application, using the `ts_library` rule in the `BUILD.bazel` file.
+- **Angular Libraries**: to maximize build incrementality, each Angular module is compiled as a separate step. This lets us re-use Angular libraries without having to publish them as npm packages. See `src/todos` for a typical `NgModule` compiled as a library for use in the application, using the `ts_project` rule in the `BUILD.bazel` file.
+- **TypeScript Libraries**: see `src/lib` for a trivial example of a pure-TS library that's consumed in the application, using the `ts_project` rule in the `BUILD.bazel` file.
 - **Sass**: we use Sass for all styling. Angular components import Sass files, and these are built by Bazel as independent processes calling the modern Sass compiler (written in Dart).
 - **Material design**: see `src/material` where we collect the material modules we use.
 - **Redux-style state management**: see `src/reducers` where we use the [NgRx Store](https://ngrx.io/guide/store).
 - **Lazy loading**: in production mode, the application is served in chunks. Run `ng serve --prod`
 - **Differential loading**: in production mode, we load a pair of `<script>` tags. Modern browsers will load code in the ES2015 syntax, which is smaller and requires fewer polyfills. Older browsers will load ES5 syntax.
 - **Docker**: see below where we package up the production app for deployment on Kubernetes.
-- **Server Side Rendering**: with the help of Angular Universal you can render your application on the server
 - **Progressive Web App**: support for service worker and the app can be installed on phones and desktops (also has 90+ Lighthouse score)
 
 This example is deployed at https://bazel.angular.io/example
@@ -78,7 +77,7 @@ $ bazel test //e2e/...
 ```
 
 In this example, there is a unit test for the `hello-world` component which uses
-the `karma_web_test_suite` rule. There are also protractor e2e tests for both the
+the `@npm//karma` and `web_test_suite` rule. There are also protractor e2e tests for both the
 `prodserver` and `devserver` which use the `protractor_web_test_suite` rule.
 
 Note that Bazel will only re-run the tests whose inputs changed since the last run.
@@ -94,15 +93,6 @@ bundlers can be integrated with Bazel.
 $ ng serve --prod
 # or
 $ bazel run //src:prodserver
-```
-
-You can also use server side rendering.
-
-```bash
-$ yarn server-ssr
-# or
-$ bazel run //src:universal_server
-```
 
 ### Code splitting
 
@@ -114,14 +104,6 @@ Note: code splitting is _not_ supported in development mode yet so the
 `//src:devserver` target does not serve a code split bundle. The dynamic
 `import()` statements will resolve to modules that are served in the initial
 JS payload.
-
-### Prerendering
-
-The production build has a number of routes prerendered to `index.html` files. 
-This is similar to the process used in Angular Universal. The `ng_prerender` macro in the `tools` directory is
-used to run the application during the build, and output the `index.html` files for the requested routes.
-
-A smoke test is also included with `ng_prerender_test` macro, which checks key elements in the prerendered output. 
 
 ## Npm dependencies
 
@@ -154,8 +136,10 @@ The application is currently live at http://35.197.115.230/
 To run it under docker:
 
 ```
+
 $ bazel run src:nodejs_image -- --norun
 $ docker run --rm -p 8080:8080 bazel/src:nodejs_image
+
 ```
 
 Deploy to production:
@@ -171,12 +155,23 @@ Deploy to production:
 Tips:
 
 ```
+
 # Run the binary without docker
-$ bazel run src:nodejs_image.binary
- # What's in the image?
-$ bazel build src:nodejs_image && file-roller dist/bin/src/nodejs_image-layer.tar
- # Tear down all running docker containers
+
+\$ bazel run src:nodejs_image.binary
+
+# What's in the image?
+
+\$ bazel build src:nodejs_image && file-roller dist/bin/src/nodejs_image-layer.tar
+
+# Tear down all running docker containers
+
 $ docker rm -f $(docker ps -aq)
- # Hop into the running image on kubernetes
-$ kubectl exec angular-bazel-example-prod-3285254973-ncv3g  -it -- /bin/bash
+
+# Hop into the running image on kubernetes
+
+\$ kubectl exec angular-bazel-example-prod-3285254973-ncv3g -it -- /bin/bash
+
+```
+
 ```

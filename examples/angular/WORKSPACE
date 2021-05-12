@@ -53,7 +53,7 @@ http_archive(
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 
 node_repositories(
-    node_version = "12.13.0",
+    node_version = "12.14.1",
 )
 
 # Setup the Node.js toolchain & install our npm dependencies into @npm
@@ -68,7 +68,7 @@ load("@npm//@bazel/protractor:package.bzl", "npm_bazel_protractor_dependencies")
 
 npm_bazel_protractor_dependencies()
 
-# Load karma_web_test dependencies
+# Load web_test_suite
 http_archive(
     name = "io_bazel_rules_webtesting",
     sha256 = "e9abb7658b6a129740c0b3ef6f5a2370864e102a5ba5ffca2cea565829ed825a",
@@ -86,6 +86,11 @@ browser_repositories(
     chromium = True,
     firefox = True,
 )
+
+# Setup esbuild repositories
+load("@build_bazel_rules_nodejs//toolchains/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
+
+esbuild_repositories()
 
 # Setup the rules_sass toolchain
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")

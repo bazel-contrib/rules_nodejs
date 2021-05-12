@@ -4,7 +4,7 @@ import {format} from 'date-fns';
 
 @Component({
   selector: 'hello-world',
-  templateUrl: 'hello-world.component.html',
+  templateUrl: './hello-world.component.html',
   styleUrls: ['./hello-world.component.scss', './secondary-styles.scss']
 })
 export class HelloWorldComponent {

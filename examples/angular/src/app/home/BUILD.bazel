@@ -1,12 +1,11 @@
-load("//tools:angular_ts_library.bzl", "ng_ts_library")
+load("//tools:angular_ts_project.bzl", "ng_ts_project")
 
 package(default_visibility = ["//:__subpackages__"])
 
-ng_ts_library(
+ng_ts_project(
     name = "home",
     srcs = ["home.ts"],
     angular_assets = ["home.html"],
-    tsconfig = "//src:tsconfig.json",
     deps = [
         "@npm//@angular/core",
         "@npm//@angular/router",

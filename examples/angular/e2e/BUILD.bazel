@@ -1,20 +1,19 @@
 load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("//tools:typescript.bzl", "ts_test_project")
 
-ts_library(
+ts_test_project(
     name = "e2e",
-    testonly = 1,
-    srcs = glob(["src/*.ts"]),
-    tsconfig = "//src:tsconfig-test",
-    deps = [
-        "@npm//@types/jasmine",
-        "@npm//jasmine",
-        "@npm//protractor",
-    ],
+    srcs = glob(["**/*.ts"]),
+    tsconfig = {},
+    deps = ["@npm//protractor"],
 )
 
 protractor_web_test_suite(
     name = "prodserver_test",
+    srcs = [
+        "src/app.e2e-spec.js",
+        "src/app.po.js",
+    ],
     on_prepare = ":protractor.on-prepare.js",
     server = "//src:prodserver",
     deps = [":e2e"],
@@ -22,6 +21,10 @@ protractor_web_test_suite(
 
 protractor_web_test_suite(
     name = "devserver_test",
+    srcs = [
+        "src/app.e2e-spec.js",
+        "src/app.po.js",
+    ],
     on_prepare = ":protractor.on-prepare.js",
     server = "//src:devserver",
     deps = [":e2e"],

@@ -1,5 +1,8 @@
 {
     "compilerOptions": {
+        "module": "es2020",
+        "moduleResolution": "node",
+
         // Allow uses of these JS APIs
         "lib": [
             "dom",
@@ -8,13 +11,26 @@
             "es2015.iterable",
             "es2015.promise"
         ],
+
         // Permit decorator syntax
         "experimentalDecorators": true,
-        // Don't scan the node_modules/@types folder for ambient types.
-        // This would force us to have all the types in the dependencies of
-        // each library.
-        // Instead we'll be explicit about declaring ambient type dependencies
-        // using the ///<reference types=""/> syntax.
-        "types": []
+        "declaration": true,
+        "declarationMap": true,
+
+        // No @types by default. Will be added as-needed by extensions
+        "types": [],
+
+        "rootDirs": [
+            ".",
+
+            // Add all possible bazel-out directories
+            // See https://github.com/microsoft/TypeScript/issues/37257
+            "../bazel-out/darwin-dbg/bin/src",
+            "../bazel-out/darwin-fastbuild/bin/src",
+            "../bazel-out/k8-dbg/bin/src",
+            "../bazel-out/k8-fastbuild/bin/src",
+            "../bazel-out/x64_windows-dbg/bin/src",
+            "../bazel-out/x64_windows-fastbuild/bin/src"
+        ]
     }
 }

@@ -16,10 +16,14 @@ import { ServiceWorkerService } from './service-worker.service';
 @NgModule({
   declarations: [AppComponent],
   imports: [
-    AppRoutingModule, BrowserModule, BrowserAnimationsModule, MaterialModule, HomeModule,
+    BrowserAnimationsModule,
+    BrowserModule,
+    ServiceWorkerModule.register('ngsw-worker.js'),
+  
+    AppRoutingModule,
+    MaterialModule,
+    HomeModule,
     StoreModule.forRoot({todoReducer}),
-    BrowserModule.withServerTransition({ appId: 'angular-bazel-example' }),
-    ServiceWorkerModule.register('ngsw-worker.js')
   ],
   providers:[ServiceWorkerService],
   exports: [AppComponent],

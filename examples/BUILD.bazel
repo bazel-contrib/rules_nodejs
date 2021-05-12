@@ -19,7 +19,6 @@ example_integration_test(
     timeout = "long",
     npm_packages = {
         "//packages/angular:npm_package": "@bazel/angular",
-        "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
