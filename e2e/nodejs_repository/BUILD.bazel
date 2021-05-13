@@ -1,0 +1,24 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+
+# Dummy test target that imports various targets from the
+# "@nodejs" repository. If a target of the repository is
+# misconfigured, Bazel will complain about missing input files.
+nodejs_test(
+    name = "test",
+    data = [
+        "index.spec.js",
+        "@nodejs//:node",
+        "@nodejs//:node_bin",
+        "@nodejs//:node_files",
+        "@nodejs//:npm",
+        "@nodejs//:npm_bin",
+        "@nodejs//:npm_files",
+        "@nodejs//:npm_node_repositories",
+        "@nodejs//:npx_bin",
+        "@nodejs//:yarn",
+        "@nodejs//:yarn_bin",
+        "@nodejs//:yarn_files",
+        "@nodejs//:yarn_node_repositories",
+    ],
+    entry_point = ":index.spec.js",
+)
