@@ -430,8 +430,8 @@ def _prepare_node(repository_ctx):
     npx_bin_label = ("%s/lib/node_modules/npm/bin/npx-cli.js" % node_package) if not is_windows else ("%s/npx.cmd" % node_package)
 
     # Use the yarn.js script as the bin for oxs & linux so there are no symlink issues with `%s/bin/npm`
-    yarn_bin = ("%s/bin/yarn.js" % yarn_path) if not is_windows else ("%s/yarn.cmd" % yarn_path)
-    yarn_bin_label = ("%s/bin/yarn.js" % yarn_package) if not is_windows else ("%s/yarn.cmd" % yarn_package)
+    yarn_bin = ("%s/bin/yarn.js" % yarn_path) if not is_windows else ("%s/bin/yarn.cmd" % yarn_path)
+    yarn_bin_label = ("%s/bin/yarn.js" % yarn_package) if not is_windows else ("%s/bin/yarn.cmd" % yarn_package)
     yarn_script = "%s/bin/yarn.js" % yarn_path
 
     # Ensure that the "vendored" binaries are resolved
