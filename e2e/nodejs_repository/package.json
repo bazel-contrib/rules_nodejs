@@ -1,0 +1,6 @@
+{
+  "dependencies": {},
+  "scripts": {
+    "test": "bazel test ..."
+  }
+}
