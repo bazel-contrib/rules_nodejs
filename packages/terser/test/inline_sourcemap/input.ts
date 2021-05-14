@@ -3,5 +3,5 @@ export class MyClass {
   constructor(something: string) {
     console.log(something);
   }
-  field: string|undefined;
+  field: string | undefined;
 }

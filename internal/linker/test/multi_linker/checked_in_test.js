@@ -1,4 +1,4 @@
-/* THIS FILE GENERATED FROM .ts; see BUILD.bazel */ /* clang-format off */"use strict";
+/* THIS FILE GENERATED FROM .ts; see BUILD.bazel */"use strict";
 describe('linker', () => {
     it('should link nested node modules', () => {
         const semverVersion = require(require.resolve('semver/package.json')).version;

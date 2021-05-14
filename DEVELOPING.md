@@ -85,11 +85,6 @@ rules](./docs/changing-rules.md) instead of building your own release products.
 
 Start from a clean checkout at master/HEAD.
 
-Note: if you are using a new clone, you'll need to configure `git-clang-format` to be able to commit the release:
-
-1. `git config clangFormat.binary node_modules/.bin/clang-format`
-1. `git config clangFormat.style file`
-
 Googlers: you should npm login using the go/npm-publish service: `$ npm login --registry https://wombat-dressing-room.appspot.com`
 
 Check if there are any breaking changes since the last tag - if so, this will be a major. Check if there were new features added since the last tag - if so, this will be a minor.

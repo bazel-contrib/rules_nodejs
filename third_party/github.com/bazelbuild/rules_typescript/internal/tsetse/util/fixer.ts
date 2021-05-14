@@ -1,6 +1,6 @@
-import * as ts from 'typescript';
-import {Fix, IndividualChange} from '../failure';
-import {debugLog} from './ast_tools';
+import * as ts from "typescript";
+import { Fix, IndividualChange } from "../failure";
+import { debugLog } from "./ast_tools";
 
 /**
  * A Fixer turns Nodes (that are supposed to have been matched before) into a
@@ -9,7 +9,7 @@ import {debugLog} from './ast_tools';
  * of implementing a Fixer.
  */
 export interface Fixer {
-  getFixForFlaggedNode(node: ts.Node): Fix|undefined;
+  getFixForFlaggedNode(node: ts.Node): Fix | undefined;
 }
 
 /**
@@ -18,8 +18,10 @@ export interface Fixer {
  * Fixer instead.
  */
 export function buildReplacementFixer(
-    potentialReplacementGenerator: (node: ts.Node) =>
-        ({replaceWith: string} | undefined)): Fixer {
+  potentialReplacementGenerator: (
+    node: ts.Node
+  ) => { replaceWith: string } | undefined
+): Fixer {
   return {
     getFixForFlaggedNode: (n: ts.Node): Fix | undefined => {
       const partialFix = potentialReplacementGenerator(n);
@@ -27,14 +29,16 @@ export function buildReplacementFixer(
         return;
       }
       return {
-        changes: [{
-          sourceFile: n.getSourceFile(),
-          start: n.getStart(),
-          end: n.getEnd(),
-          replacement: partialFix.replaceWith,
-        }],
+        changes: [
+          {
+            sourceFile: n.getSourceFile(),
+            start: n.getStart(),
+            end: n.getEnd(),
+            replacement: partialFix.replaceWith,
+          },
+        ],
       };
-    }
+    },
   };
 }
 
@@ -51,35 +55,42 @@ export function buildReplacementFixer(
  * that).
  */
 export function maybeAddNamedImport(
-    source: ts.SourceFile, importWhat: string, fromFile: string,
-    importAs?: string, tazeComment?: string): IndividualChange|undefined {
+  source: ts.SourceFile,
+  importWhat: string,
+  fromFile: string,
+  importAs?: string,
+  tazeComment?: string
+): IndividualChange | undefined {
   const importStatements = source.statements.filter(ts.isImportDeclaration);
-  const importSpecifier =
-      importAs ? `${importWhat} as ${importAs}` : importWhat;
+  const importSpecifier = importAs
+    ? `${importWhat} as ${importAs}`
+    : importWhat;
 
   for (const iDecl of importStatements) {
     const parsedDecl = maybeParseImportNode(iDecl);
     if (!parsedDecl || parsedDecl.fromFile !== fromFile) {
       // Not an import from the right file, or couldn't understand the import.
-      continue;  // Jump to the next import.
+      continue; // Jump to the next import.
     }
     if (ts.isNamespaceImport(parsedDecl.namedBindings)) {
       debugLog(() => `... but it's a wildcard import`);
-      continue;  // Jump to the next import.
+      continue; // Jump to the next import.
     }
 
     // Else, bindings is a NamedImports. We can now search whether the right
     // symbol is there under the right name.
-    const foundRightImport = parsedDecl.namedBindings.elements.some(
-        iSpec => iSpec.propertyName ?
-            iSpec.name.getText() === importAs &&  // import {foo as bar}
-                iSpec.propertyName.getText() === importWhat :
-            iSpec.name.getText() === importWhat);  // import {foo}
+    const foundRightImport = parsedDecl.namedBindings.elements.some((iSpec) =>
+      iSpec.propertyName
+        ? iSpec.name.getText() === importAs && // import {foo as bar}
+          iSpec.propertyName.getText() === importWhat
+        : iSpec.name.getText() === importWhat
+    ); // import {foo}
 
     if (foundRightImport) {
       debugLog(
-          () => `"${iDecl.getFullText()}" imports ${importWhat} as we want.`);
-      return;  // Our request is already imported under the right name.
+        () => `"${iDecl.getFullText()}" imports ${importWhat} as we want.`
+      );
+      return; // Our request is already imported under the right name.
     }
 
     // Else, insert our symbol in the list of imports from that file.
@@ -94,12 +105,13 @@ export function maybeAddNamedImport(
 
   // If we get here, we didn't find anything imported from the wanted file, so
   // we'll need the full import string. Add it after the last import,
-  // and let clang-format handle the rest.
-  const newImportStatement = `import {${importSpecifier}} from '${fromFile}';` +
-      (tazeComment ? `  ${tazeComment}\n` : `\n`);
-  const insertionPosition = importStatements.length ?
-      importStatements[importStatements.length - 1].getEnd() + 1 :
-      0;
+  // and let the formatter handle the rest.
+  const newImportStatement =
+    `import {${importSpecifier}} from '${fromFile}';` +
+    (tazeComment ? `  ${tazeComment}\n` : `\n`);
+  const insertionPosition = importStatements.length
+    ? importStatements[importStatements.length - 1].getEnd() + 1
+    : 0;
   return {
     start: insertionPosition,
     end: insertionPosition,
@@ -116,11 +128,14 @@ export function maybeAddNamedImport(
  * that).
  */
 export function maybeAddNamespaceImport(
-    source: ts.SourceFile, fromFile: string, importAs: string,
-    tazeComment?: string): IndividualChange|undefined {
+  source: ts.SourceFile,
+  fromFile: string,
+  importAs: string,
+  tazeComment?: string
+): IndividualChange | undefined {
   const importStatements = source.statements.filter(ts.isImportDeclaration);
 
-  const hasTheRightImport = importStatements.some(iDecl => {
+  const hasTheRightImport = importStatements.some((iDecl) => {
     const parsedDecl = maybeParseImportNode(iDecl);
     if (!parsedDecl || parsedDecl.fromFile !== fromFile) {
       // Not an import from the right file, or couldn't understand the import.
@@ -130,7 +145,7 @@ export function maybeAddNamespaceImport(
 
     if (ts.isNamedImports(parsedDecl.namedBindings)) {
       debugLog(() => `... but it's a named import`);
-      return false;  // irrelevant to our namespace imports
+      return false; // irrelevant to our namespace imports
     }
     // Else, bindings is a NamespaceImport.
     if (parsedDecl.namedBindings.name.getText() !== importAs) {
@@ -142,16 +157,16 @@ export function maybeAddNamespaceImport(
   });
 
   if (!hasTheRightImport) {
-    const insertionPosition = importStatements.length ?
-        importStatements[importStatements.length - 1].getEnd() + 1 :
-        0;
+    const insertionPosition = importStatements.length
+      ? importStatements[importStatements.length - 1].getEnd() + 1
+      : 0;
     return {
       start: insertionPosition,
       end: insertionPosition,
       sourceFile: source,
-      replacement: tazeComment ?
-          `import * as ${importAs} from '${fromFile}';  ${tazeComment}\n` :
-          `import * as ${importAs} from '${fromFile}';\n`,
+      replacement: tazeComment
+        ? `import * as ${importAs} from '${fromFile}';  ${tazeComment}\n`
+        : `import * as ${importAs} from '${fromFile}';\n`,
     };
   }
   return;
@@ -162,15 +177,17 @@ export function maybeAddNamespaceImport(
  * parts, undefined if the import declaration is valid but not understandable by
  * the checker.
  */
-function maybeParseImportNode(iDecl: ts.ImportDeclaration): {
-  namedBindings: ts.NamedImportBindings|ts.NamespaceImport,
-  fromFile: string
-}|undefined {
+function maybeParseImportNode(iDecl: ts.ImportDeclaration):
+  | {
+      namedBindings: ts.NamedImportBindings | ts.NamespaceImport;
+      fromFile: string;
+    }
+  | undefined {
   if (!iDecl.importClause) {
     // something like import "./file";
     debugLog(
-        () =>
-            `Ignoring import without imported symbol: ${iDecl.getFullText()}`);
+      () => `Ignoring import without imported symbol: ${iDecl.getFullText()}`
+    );
     return;
   }
   if (iDecl.importClause.name || !iDecl.importClause.namedBindings) {
@@ -187,6 +204,6 @@ function maybeParseImportNode(iDecl: ts.ImportDeclaration): {
   }
   return {
     namedBindings: iDecl.importClause.namedBindings,
-    fromFile: iDecl.moduleSpecifier.text
+    fromFile: iDecl.moduleSpecifier.text,
   };
 }

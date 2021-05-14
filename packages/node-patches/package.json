@@ -6,8 +6,7 @@
   "scripts": {
     "test": "c8 mocha -r source-map-support/register test/fs/*.js test/subprocess/test.js",
     "compile": "tsc -p tsconfig.json",
-    "pretest": "npm run compile",
-    "fix": "git-clang-format"
+    "pretest": "npm run compile"
   },
   "keywords": [],
   "author": "Ryan Day <ryaneday@google.com>",

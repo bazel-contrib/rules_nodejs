@@ -3,5 +3,5 @@
   constructor(s: string) {
     console.log(s);
   }
-  field: string|undefined;
+  field: string | undefined;
 }

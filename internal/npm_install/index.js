@@ -1,4 +1,4 @@
-/* THIS FILE GENERATED FROM .ts; see BUILD.bazel */ /* clang-format off */'use strict';
+/* THIS FILE GENERATED FROM .ts; see BUILD.bazel */'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.printIndexBzl = exports.printPackageBin = exports.parsePackage = exports.getDirectDependencySet = exports.main = void 0;
 const fs = require("fs");

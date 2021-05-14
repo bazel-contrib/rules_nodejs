@@ -31,14 +31,14 @@ def checked_in_ts_project(name, src, checked_in_js = None, **kwargs):
         **kwargs
     )
 
-    # Don't trigger clang-format on the output js
+    # Don't trigger prettier on the output js
     # Make sure we don't add any lines though, since that would
     # break the sourcemap
     native.genrule(
         name = "_%s_skip_formatting" % name,
         srcs = [name],
         outs = ["_%s_no_format.js" % name],
-        cmd = """echo -n "/* THIS FILE GENERATED FROM .ts; see BUILD.bazel */ /* clang-format off */" > $@; cat $< >> $@""",
+        cmd = """echo -n "/* THIS FILE GENERATED FROM .ts; see BUILD.bazel */" > $@; cat $< >> $@""",
     )
 
     # Assert that we kept the index.js up-to-date when changing the TS code
