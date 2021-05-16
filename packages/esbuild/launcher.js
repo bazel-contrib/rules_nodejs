@@ -12,6 +12,7 @@ function getFlag(flag, required = true) {
 }
 
 const esbuild = getFlag('--esbuild');
+const cwd = getFlag('--cwd');
 const params_file_path = getFlag('--esbuild_flags');
 
 let flags = [];
@@ -22,4 +23,4 @@ try {
   process.exit(1);
 }
 
-spawn(esbuild, flags, {detached: true, stdio: 'inherit'});
+spawn(esbuild, flags, {cwd, detached: true, stdio: 'inherit'});

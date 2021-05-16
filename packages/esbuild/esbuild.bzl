@@ -135,6 +135,9 @@ def _esbuild_impl(ctx):
     launcher_args = ctx.actions.args()
     launcher_args.add("--esbuild=%s" % ctx.executable.tool.path)
 
+    if ctx.attr.cwd:
+        launcher_args.add("--cwd=%s" % ctx.attr.cwd)
+
     run_node(
         ctx = ctx,
         inputs = depset(inputs),
@@ -174,6 +177,16 @@ esbuild(
 ```
 
 See https://esbuild.github.io/api/#define for more details
+            """,
+        ),
+        "cwd": attr.string(
+            default = ".",
+            doc = """The working directory to spawn.
+            That path is assumed to be relative to the root of the repository.
+            The path will be used by the subprocess to spawn the process at the path instead of at the root of the
+            repository.
+            
+            This is use by ESBuild to resolve files relative to the current working directory.
             """,
         ),
         "deps": attr.label_list(
