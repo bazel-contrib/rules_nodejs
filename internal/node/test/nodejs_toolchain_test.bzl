@@ -32,7 +32,7 @@ fi
 
 _ATTRS = {
     "platform": attr.string(
-        values = ["linux_amd64", "linux_arm64", "linux_s390x", "darwin_amd64", "darwin_arm64", "windows_amd64"],
+        values = ["linux_amd64", "linux_arm64", "linux_s390x", "linux_ppc64le", "darwin_amd64", "darwin_arm64", "windows_amd64"],
     ),
 }
 
