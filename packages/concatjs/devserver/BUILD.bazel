@@ -71,6 +71,14 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+filegroup(
+    name = "devserver_linux_ppc64le",
+    srcs = ["devserver-linux_ppc64le"],
+    # Don't build on CI
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
 config_setting(
     name = "darwin_x64",
     constraint_values = [
@@ -111,6 +119,14 @@ config_setting(
     ],
 )
 
+config_setting(
+    name = "linux_ppc64le",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:ppc",
+    ],
+)
+
 filegroup(
     name = "devserver",
     srcs = select({
@@ -119,6 +135,7 @@ filegroup(
         ":linux_s390x": [":devserver_linux_s390x"],
         ":linux_x64": [":devserver_linux_amd64"],
         ":windows_x64": [":devserver_windows_amd64"],
+        ":linux_ppc64le": [":devserver_linux_ppc64le"],
     }),
     # Don't build on CI
     tags = ["manual"],
