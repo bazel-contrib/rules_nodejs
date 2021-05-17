@@ -237,6 +237,7 @@ data attribute.
 })
 
 def _apply_patches(repository_ctx, patches):
+    package_json_dir = repository_ctx.path(repository_ctx.attr.package_json).dirname
     bash_exe = repository_ctx.os.environ["BAZEL_SH"] if "BAZEL_SH" in repository_ctx.os.environ else "bash"
 
     patch_tool = repository_ctx.attr.patch_tool
@@ -256,9 +257,7 @@ def _apply_patches(repository_ctx, patches):
         st = repository_ctx.execute(
             [bash_exe, "-c", command],
             quiet = repository_ctx.attr.quiet,
-            # Working directory is _ which is where all files are copied to and
-            # where the install is run; patches should be relative to workspace root.
-            working_directory = "_",
+            working_directory = str(package_json_dir),
         )
         if st.return_code:
             fail("Error applying patch %s:\n%s%s" %
