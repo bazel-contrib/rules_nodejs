@@ -187,9 +187,9 @@ for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
     # Supply custom linker arguments for first-party dependencies
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
     # Captures stdout of the node process to the file specified
-    --bazel_capture_stdout=*) STDOUT_CAPTURE="${ARG#--bazel_capture_stdout=}" ;;
+    --bazel_capture_stdout=*) STDOUT_CAPTURE="${PWD}/${ARG#--bazel_capture_stdout=}" ;;
     # Captures stderr of the node process to the file specified
-    --bazel_capture_stderr=*) STDERR_CAPTURE="${ARG#--bazel_capture_stderr=}" ;;
+    --bazel_capture_stderr=*) STDERR_CAPTURE="${PWD}/${ARG#--bazel_capture_stderr=}" ;;
     # Captures the exit code of the node process to the file specified
     --bazel_capture_exit_code=*) EXIT_CODE_CAPTURE="${ARG#--bazel_capture_exit_code=}" ;;
     # Disable the node_loader.js monkey patches for require()

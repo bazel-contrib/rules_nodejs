@@ -25,6 +25,7 @@ npm_package_bin(
     args = ["/".join([".."] * _package_segments + ["$@"])],
     chdir = package_name(),
     data = ["_package.json"],
+    stdout = "do_copy.log",
     tool = ":tool_cp",
 )
 
