@@ -12,3 +12,4 @@ function mkdirp(p) {
 
 mkdirp(dirname(dest));
 fs.copyFileSync('_package.json', dest);
+console.log('Copied _package.json ->', dest);
