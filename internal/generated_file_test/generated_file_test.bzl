@@ -16,6 +16,7 @@ def generated_file_test(name, generated, src, substring_search = False, src_dbg 
             anywhere within the generated file. Note that the .update rule is not generated in substring mode.
         src_dbg: if the build uses `--compilation_mode dbg` then some rules will produce different output.
             In this case you can specify what the dbg version of the output should look like
+        visibility: visibility for both test target & update target
         **kwargs: extra arguments passed to the underlying nodejs_test
     """
     data = [src, generated]
