@@ -1,0 +1,12 @@
+import { getId as getId$3 } from '@typescript/module-dynamic';
+import { getId as getId$1 } from '@typescript/module-one';
+import { getId as getId$2 } from '@typescript/module-two';
+
+const getId = () => 'relative-module';
+
+const ID = `Full ID: ${getId$1()} - ${getId$2()} - ${getId$3()} - ${getId()}`;
+
+console.log(ID);
+
+export { ID };
+

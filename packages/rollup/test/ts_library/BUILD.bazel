@@ -1,0 +1,39 @@
+load("//:index.bzl", "generated_file_test")
+load("//packages/rollup:index.bzl", "rollup_bundle")
+load("//packages/typescript:index.bzl", "ts_library")
+
+exports_files(["tsconfig.json"])
+
+ts_library(
+    name = "main",
+    srcs = [":main.ts"],
+    tsconfig = ":tsconfig.json",
+    deps = [
+        "//packages/rollup/test/ts_library/generated-module",
+        "//packages/rollup/test/ts_library/module-dynamic",
+        "//packages/rollup/test/ts_library/module-one",
+        "//packages/rollup/test/ts_library/module-two",
+        "//packages/rollup/test/ts_library/relative-module",
+    ],
+)
+
+rollup_bundle(
+    name = "bundle",
+    entry_point = "main.ts",
+    format = "esm",
+    sourcemap = "hidden",
+    deps = [":main"],
+)
+
+genrule(
+    name = "strip_bundle_comments",
+    srcs = ["bundle.js"],
+    outs = ["bundle.stripped.js"],
+    cmd = "cat $(location :bundle.js) | sed \"s#// .*##\" > $@",
+)
+
+generated_file_test(
+    name = "bundle_test",
+    src = "bundle.golden.txt",
+    generated = ":bundle.stripped.js",
+)
