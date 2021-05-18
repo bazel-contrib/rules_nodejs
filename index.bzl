@@ -88,11 +88,7 @@ BAZEL_VERSION = "4.0.0"
 # accidentally forcing users to update their LTS-supported bazel.
 # These are the versions used when testing nested workspaces with
 # bazel_integration_test.
-SUPPORTED_BAZEL_VERSIONS = [
-    BAZEL_VERSION,
-    "3.6.0",
-    "2.2.0",
-]
+SUPPORTED_BAZEL_VERSIONS = [BAZEL_VERSION]
 
 def check_rules_nodejs_version(minimum_version_string):
     """
