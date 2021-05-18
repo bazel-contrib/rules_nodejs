@@ -18,6 +18,6 @@ ts_project(
 js_library(
     name = "questions",
     package_name = "@rnj/questions",
-    visibility = ["//packages/esbuild/test/typescript/ts_as_srcs:__pkg__"],
+    visibility = ["//packages/esbuild/test/ts_library/ts_as_srcs:__pkg__"],
     deps = [":lib"],
 )

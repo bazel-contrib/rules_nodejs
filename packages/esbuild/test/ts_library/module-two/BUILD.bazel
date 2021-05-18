@@ -7,5 +7,5 @@ ts_library(
     package_name = "@typescript/module-two",
     srcs = [":index.ts"],
     module_name = "@typescript/module-two",
-    tsconfig = "//packages/esbuild/test/typescript:tsconfig.json",
+    tsconfig = "//packages/esbuild/test/ts_library:tsconfig.json",
 )

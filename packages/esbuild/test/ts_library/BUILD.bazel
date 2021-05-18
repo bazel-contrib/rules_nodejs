@@ -9,11 +9,11 @@ ts_library(
     srcs = [":main.ts"],
     tsconfig = ":tsconfig.json",
     deps = [
-        "//packages/esbuild/test/typescript/generated-module",
-        "//packages/esbuild/test/typescript/module-dynamic",
-        "//packages/esbuild/test/typescript/module-one",
-        "//packages/esbuild/test/typescript/module-two",
-        "//packages/esbuild/test/typescript/relative-module",
+        "//packages/esbuild/test/ts_library/generated-module",
+        "//packages/esbuild/test/ts_library/module-dynamic",
+        "//packages/esbuild/test/ts_library/module-one",
+        "//packages/esbuild/test/ts_library/module-two",
+        "//packages/esbuild/test/ts_library/relative-module",
     ],
 )
 

@@ -6,7 +6,7 @@ package(default_visibility = ["//packages/esbuild/test:__subpackages__"])
 ts_library(
     name = "compile",
     srcs = [":index.ts"],
-    tsconfig = "//packages/esbuild/test/typescript:tsconfig.json",
+    tsconfig = "//packages/esbuild/test/ts_library:tsconfig.json",
 )
 
 js_library(
