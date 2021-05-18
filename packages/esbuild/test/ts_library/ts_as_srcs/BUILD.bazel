@@ -12,7 +12,7 @@ esbuild(
     minify = True,
     platform = "node",
     deps = [
-        "//packages/esbuild/test/typescript/ts_as_srcs/questions",
+        "//packages/esbuild/test/ts_library/ts_as_srcs/questions",
     ],
 )
 

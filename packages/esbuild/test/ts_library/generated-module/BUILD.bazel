@@ -11,5 +11,5 @@ genrule(
 ts_library(
     name = "generated-module",
     srcs = ["lib.ts"],
-    tsconfig = "//packages/esbuild/test/typescript:tsconfig.json",
+    tsconfig = "//packages/esbuild/test/ts_library:tsconfig.json",
 )
