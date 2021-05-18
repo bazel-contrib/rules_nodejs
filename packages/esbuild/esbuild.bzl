@@ -3,7 +3,7 @@ esbuild rule
 """
 
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect")
 load(":helpers.bzl", "desugar_entry_point_names", "filter_files", "generate_path_mapping", "resolve_entry_point", "write_jsconfig_file")
 
@@ -28,8 +28,8 @@ def _esbuild_impl(ctx):
         if DefaultInfo in dep:
             deps_depsets.append(dep[DefaultInfo].data_runfiles.files)
 
-        if NpmPackageInfo in dep:
-            deps_depsets.append(dep[NpmPackageInfo].sources)
+        if ExternalNpmPackageInfo in dep:
+            deps_depsets.append(dep[ExternalNpmPackageInfo].sources)
 
         # Collect the path alias mapping to resolve packages correctly
         if hasattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME):
