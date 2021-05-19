@@ -7,7 +7,7 @@ toc: true
 # Bazel JavaScript rules
 
 Bazel is Google's build system.
-It powers our development at large scale by caching intermediate build artifacts,
+It powers development at large scale by caching intermediate build artifacts,
 allowing build and test to be incremental and massively parallelizable.
 Read more at [https://bazel.build](https://bazel.build)
 
@@ -16,31 +16,27 @@ This JavaScript support lets you build and test code that targets a JavaScript r
 
 ## Scope of the project
 
-This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development. If you would like to request a new rule, please open a [feature request](https://github.com/bazelbuild/rules_nodejs/issues/new), describe your use case, why it's important, and why you can't do it within the existing rules. Then the maintainers can decide if it is within the scope of the project and will have a large enough impact to warrant the time required to implement.  
+This repository contains three layers:
+
+1. A toolchain that fetches a hermetic node, npm, and yarn (independent of what's on the developer's machine), installs dependencies using one of these tools, and generates `BUILD` files so that Bazel can refer to those dependencies
+2. "Built-in" rules distributed by a `.tgz` archive, which give the basic ability to run Node.js programs
+3. Custom rules that are distributed on [npm](http://npmjs.com/~bazel) that more tightly integrate particular JS tooling options with Bazel
+ 
+If you would like to request a new rule, please open a [feature request](https://github.com/bazelbuild/rules_nodejs/issues/new), describe your use case, why it's important, and why you can't do it within the existing rules. Then the maintainers can decide if it is within the scope of the project and will have a large enough impact to warrant the time required to implement.  
 
 If you would like to write a rule outside the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.
 
 ## Design
 
-Most bazel rules include package management. That is, the `WORKSPACE` file installs both your dependencies and toolchain at the same time. For example, in Java, Gradle and Maven they each install both a build tool and a package at the same time. 
+Our goal is to make Bazel be a minimal layering on top of existing npm tooling, and to have maximal compatibility with those tools.
 
-In nodejs, there are a variety of package managers and build tools which can interoperate. Also, there is a well-known package installation location (`node_modules` directory in your project). Command-line and other tools look in this directory to find packages. So we must either download packages twice (risking version skew between them) or point all tools to Bazel's `external` directory with `NODE_PATH` which would be very inconvenient.
+This means you won't find a "Webpack vs. Rollup" debate here. You can run whatever tools you like under Bazel. In fact, we recommend running the same tools you're currently using, so that your Bazel migration only changes one thing at a time.
 
-Instead, our philosophy is: in the NodeJS ecosystem, Bazel is only a build tool. It is up to the user to install packages into their `node_modules` directory, though the build tool can verify the contents.
+In many cases, there are trade-offs. We try not to make these decisions for you, so instead of paving one "best" way to do things like many JS tooling options, we provide multiple ways. This increases complexity in understanding and using these rules, but also avoids choosing a wrong "winner". For example, you could install the dependencies yourself, or have Bazel manage its own copy of the dependencies, or have Bazel symlink to the ones in the project.
 
-## Hermeticity and reproducibility
-
-Bazel generally guarantees builds are correct with respect to their inputs. For example, this means that given the same source tree, you can re-build the same artifacts as an earlier release of your program. In the nodejs rules, Bazel is not the package manager, so some responsibility falls to the developer to avoid builds that use the wrong dependencies. This problem exists with any build system in the JavaScript ecosystem.
-
-Both NPM and Yarn have a lockfile, which ensures that dependencies only change when the lockfile changes. Users are *strongly encouraged* to use the locking mechanism in their package manager.
-
-References:
-
-- npm: <https://docs.npmjs.com/files/package-lock.json>
-- yarn: <https://yarnpkg.com/lang/en/docs/yarn-lock/>
-
-Note that <https://github.com/bazelbuild/rules_nodejs/issues/1> will take the guarantee further: by using the lockfile as an input to Bazel, the nodejs rules can verify the integrity of the dependencies. This would make it impossible for a build to be non-reproducible, so long as you have the same lockfile.
-
+The JS ecosystem is also full of false equivalence arguments. The first question we often get is "What's better, Webpack or Bazel?".
+This is understandable, since most JS tooling is forced to provide a single turn-key experience with an isolated ecosystem of plugins, and humans love a head-to-head competition.
+Instead Bazel just orchestrates calling these tools.
 
 ## Quickstart
 
