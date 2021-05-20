@@ -1300,4 +1300,10 @@ NODE_VERSIONS = {
     "16.1.0-linux_s390x": ("node-v16.1.0-linux-s390x.tar.xz", "node-v16.1.0-linux-s390x", "b2feb1fa7472faeb1eb7b325c5ce424a83603819b2576459bc2e6c64fc77478c"),
     "16.1.0-linux_amd64": ("node-v16.1.0-linux-x64.tar.xz", "node-v16.1.0-linux-x64", "94d14ed1871a69e3dedd3a54d8c547c978b49566892616a227bf8be2f171a8a8"),
     "16.1.0-windows_amd64": ("node-v16.1.0-win-x64.zip", "node-v16.1.0-win-x64", "ef72a4063b62fe853a09956fbc7a139f94312a9f14a43e1d6ff2263105115490"),
+    # 16.2.0
+    "16.2.0-darwin_amd64": ("node-v16.2.0-darwin-x64.tar.gz", "node-v16.2.0-darwin-x64", "3fc49b69de9491b45491f880217f8220d489b28ba3c1fff53e849dcf3ad77343"),
+    "16.2.0-linux_arm64": ("node-v16.2.0-linux-arm64.tar.xz", "node-v16.2.0-linux-arm64", "364ceac78235a052f17f3c0a8e11819b8a04ec5ec6b2f09e21647a7b33cbf97b"),
+    "16.2.0-linux_s390x": ("node-v16.2.0-linux-s390x.tar.xz", "node-v16.2.0-linux-s390x", "4727a501fc17b3c4402120cd64bd3e46d9f0b24bf9eefd6c12724c06712ebfe7"),
+    "16.2.0-linux_amd64": ("node-v16.2.0-linux-x64.tar.xz", "node-v16.2.0-linux-x64", "e134c8738761ab908aac3b62efa4865d8a7c73e40cc7758c6e99244921696216"),
+    "16.2.0-windows_amd64": ("node-v16.2.0-win-x64.zip", "node-v16.2.0-win-x64", "8cf1fb277154b82d2774143be2575e1690af1b5c05e2a1b9a54b50b4efc73e8e"),
 }
