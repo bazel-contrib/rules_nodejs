@@ -149,8 +149,14 @@ def _esbuild_impl(ctx):
         tools = [ctx.executable.tool],
     )
 
+    outputs_depset = depset(outputs)
+
     return [
-        DefaultInfo(files = depset(outputs)),
+        DefaultInfo(files = outputs_depset),
+        JSModuleInfo(
+            direct_sources = outputs_depset,
+            sources = outputs_depset,
+        ),
     ]
 
 esbuild = rule(
