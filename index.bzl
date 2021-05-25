@@ -34,6 +34,10 @@ load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/pkg_npm:pkg_npm.bzl", _pkg_npm = "pkg_npm_macro")
 load("//internal/pkg_web:pkg_web.bzl", _pkg_web = "pkg_web")
+load(
+    "//internal/providers:tree_artifacts.bzl",
+    _directory_file_path = "directory_file_path",
+)
 
 check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary
@@ -46,6 +50,7 @@ copy_to_bin = _copy_to_bin
 params_file = _params_file
 generated_file_test = _generated_file_test
 js_library = _js_library
+directory_file_path = _directory_file_path
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
 
 # Allows us to avoid a transitive dependency on bazel_skylib from leaking to users

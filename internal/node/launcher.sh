@@ -357,6 +357,9 @@ else
   register_source_map_support=$(rlocation build_bazel_rules_nodejs/third_party/github.com/source-map-support/register.js)
   LAUNCHER_NODE_OPTIONS+=( "--require" "${register_source_map_support}" )
 fi
+if [[ -n "TEMPLATED_entry_point_main" ]]; then
+  MAIN="${MAIN}/"TEMPLATED_entry_point_main
+fi
 
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
 # a binary fails to run. Otherwise any failure would make such a test
