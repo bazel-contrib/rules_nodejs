@@ -1,3 +1,22 @@
+## [3.5.1](https://github.com/bazelbuild/rules_nodejs/compare/3.5.0...3.5.1) (2021-05-25)
+
+
+### Bug Fixes
+
+* **builtin:** generated nodejs repository for windows references non-existent file ([c1663c5](https://github.com/bazelbuild/rules_nodejs/commit/c1663c5))
+* **builtin:** write stdout/stderr to correct path under chdir ([#2681](https://github.com/bazelbuild/rules_nodejs/issues/2681)) ([36311bb](https://github.com/bazelbuild/rules_nodejs/commit/36311bb)), closes [#2680](https://github.com/bazelbuild/rules_nodejs/issues/2680)
+* **esbuild:** prefer finding entry_point files in deps rather than srcs ([#2692](https://github.com/bazelbuild/rules_nodejs/issues/2692)) ([dd4c4f3](https://github.com/bazelbuild/rules_nodejs/commit/dd4c4f3))
+* **esbuild:** provide JSModuleInfo of output bundle ([#2685](https://github.com/bazelbuild/rules_nodejs/issues/2685)) ([233254d](https://github.com/bazelbuild/rules_nodejs/commit/233254d))
+* **esbuild:** update update script file paths after removal of _README.md ([#2695](https://github.com/bazelbuild/rules_nodejs/issues/2695)) ([25a5ac4](https://github.com/bazelbuild/rules_nodejs/commit/25a5ac4))
+* make generated_file_test `.update`'s visibility same as test rule ([#2677](https://github.com/bazelbuild/rules_nodejs/issues/2677)) ([30bc86c](https://github.com/bazelbuild/rules_nodejs/commit/30bc86c))
+
+
+### Features
+
+* **builtin:** document how nodejs_binary#entry_point can use a direc… ([#2579](https://github.com/bazelbuild/rules_nodejs/issues/2579)) ([ceddd1d](https://github.com/bazelbuild/rules_nodejs/commit/ceddd1d))
+
+
+
 # [3.5.0](https://github.com/bazelbuild/rules_nodejs/compare/3.4.2...3.5.0) (2021-05-11)
 
 
