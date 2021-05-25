@@ -180,7 +180,7 @@
         <h1 id="bazel-javascript-rules">Bazel JavaScript rules</h1>
 
 <p>Bazel is Google’s build system.
-It powers our development at large scale by caching intermediate build artifacts,
+It powers development at large scale by caching intermediate build artifacts,
 allowing build and test to be incremental and massively parallelizable.
 Read more at <a href="https://bazel.build">https://bazel.build</a></p>
 
@@ -188,32 +188,29 @@ Read more at <a href="https://bazel.build">https://bazel.build</a></p>
 
 <h2 id="scope-of-the-project">Scope of the project</h2>
 
-<p>This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development. If you would like to request a new rule, please open a <a href="https://github.com/bazelbuild/rules_nodejs/issues/new">feature request</a>, describe your use case, why it’s important, and why you can’t do it within the existing rules. Then the maintainers can decide if it is within the scope of the project and will have a large enough impact to warrant the time required to implement.</p>
+<p>This repository contains three layers:</p>
+
+<ol>
+  <li>A toolchain that fetches a hermetic node, npm, and yarn (independent of what’s on the developer’s machine), installs dependencies using one of these tools, and generates <code class="language-plaintext highlighter-rouge">BUILD</code> files so that Bazel can refer to those dependencies</li>
+  <li>“Built-in” rules distributed by a <code class="language-plaintext highlighter-rouge">.tgz</code> archive, which give the basic ability to run Node.js programs</li>
+  <li>Custom rules that are distributed on <a href="http://npmjs.com/~bazel">npm</a> that more tightly integrate particular JS tooling options with Bazel</li>
+</ol>
+
+<p>If you would like to request a new rule, please open a <a href="https://github.com/bazelbuild/rules_nodejs/issues/new">feature request</a>, describe your use case, why it’s important, and why you can’t do it within the existing rules. Then the maintainers can decide if it is within the scope of the project and will have a large enough impact to warrant the time required to implement.</p>
 
 <p>If you would like to write a rule outside the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.</p>
 
 <h2 id="design">Design</h2>
 
-<p>Most bazel rules include package management. That is, the <code class="language-plaintext highlighter-rouge">WORKSPACE</code> file installs both your dependencies and toolchain at the same time. For example, in Java, Gradle and Maven they each install both a build tool and a package at the same time.</p>
+<p>Our goal is to make Bazel be a minimal layering on top of existing npm tooling, and to have maximal compatibility with those tools.</p>
 
-<p>In nodejs, there are a variety of package managers and build tools which can interoperate. Also, there is a well-known package installation location (<code class="language-plaintext highlighter-rouge">node_modules</code> directory in your project). Command-line and other tools look in this directory to find packages. So we must either download packages twice (risking version skew between them) or point all tools to Bazel’s <code class="language-plaintext highlighter-rouge">external</code> directory with <code class="language-plaintext highlighter-rouge">NODE_PATH</code> which would be very inconvenient.</p>
+<p>This means you won’t find a “Webpack vs. Rollup” debate here. You can run whatever tools you like under Bazel. In fact, we recommend running the same tools you’re currently using, so that your Bazel migration only changes one thing at a time.</p>
 
-<p>Instead, our philosophy is: in the NodeJS ecosystem, Bazel is only a build tool. It is up to the user to install packages into their <code class="language-plaintext highlighter-rouge">node_modules</code> directory, though the build tool can verify the contents.</p>
+<p>In many cases, there are trade-offs. We try not to make these decisions for you, so instead of paving one “best” way to do things like many JS tooling options, we provide multiple ways. This increases complexity in understanding and using these rules, but also avoids choosing a wrong “winner”. For example, you could install the dependencies yourself, or have Bazel manage its own copy of the dependencies, or have Bazel symlink to the ones in the project.</p>
 
-<h2 id="hermeticity-and-reproducibility">Hermeticity and reproducibility</h2>
-
-<p>Bazel generally guarantees builds are correct with respect to their inputs. For example, this means that given the same source tree, you can re-build the same artifacts as an earlier release of your program. In the nodejs rules, Bazel is not the package manager, so some responsibility falls to the developer to avoid builds that use the wrong dependencies. This problem exists with any build system in the JavaScript ecosystem.</p>
-
-<p>Both NPM and Yarn have a lockfile, which ensures that dependencies only change when the lockfile changes. Users are <em>strongly encouraged</em> to use the locking mechanism in their package manager.</p>
-
-<p>References:</p>
-
-<ul>
-  <li>npm: <a href="https://docs.npmjs.com/files/package-lock.json">https://docs.npmjs.com/files/package-lock.json</a></li>
-  <li>yarn: <a href="https://yarnpkg.com/lang/en/docs/yarn-lock/">https://yarnpkg.com/lang/en/docs/yarn-lock/</a></li>
-</ul>
-
-<p>Note that <a href="https://github.com/bazelbuild/rules_nodejs/issues/1">https://github.com/bazelbuild/rules_nodejs/issues/1</a> will take the guarantee further: by using the lockfile as an input to Bazel, the nodejs rules can verify the integrity of the dependencies. This would make it impossible for a build to be non-reproducible, so long as you have the same lockfile.</p>
+<p>The JS ecosystem is also full of false equivalence arguments. The first question we often get is “What’s better, Webpack or Bazel?”.
+This is understandable, since most JS tooling is forced to provide a single turn-key experience with an isolated ecosystem of plugins, and humans love a head-to-head competition.
+Instead Bazel just orchestrates calling these tools.</p>
 
 <h2 id="quickstart">Quickstart</h2>
 
@@ -372,7 +369,6 @@ That’s because Bazel creates a directory where inputs and outputs both conveni
         <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#scope-of-the-project">Scope of the project</a></li>
 <li class="toc-entry toc-h2"><a href="#design">Design</a></li>
-<li class="toc-entry toc-h2"><a href="#hermeticity-and-reproducibility">Hermeticity and reproducibility</a></li>
 <li class="toc-entry toc-h2"><a href="#quickstart">Quickstart</a></li>
 <li class="toc-entry toc-h2"><a href="#next-steps">Next steps</a></li>
 </ul>
