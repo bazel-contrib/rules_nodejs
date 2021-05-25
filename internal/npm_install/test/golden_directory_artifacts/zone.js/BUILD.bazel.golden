@@ -1,0 +1,34 @@
+
+package(default_visibility = ["//visibility:public"])
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+filegroup(
+    name = "zone.js__files",
+    srcs = ["//:node_modules/zone.js"],
+)
+js_library(
+    name = "zone.js",
+    package_name = "$node_modules_dir$",
+    package_path = "",
+    srcs = [":zone.js__files"],
+    deps = [
+        "//zone.js:zone.js__contents",
+    ],
+)
+js_library(
+    name = "zone.js__contents",
+    package_name = "$node_modules_dir$",
+    package_path = "",
+    srcs = [":zone.js__files"],
+    visibility = ["//:__subpackages__"],
+)
+alias(
+    name = "zone.js__typings",
+    actual = "zone.js__contents",
+)
+load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+npm_umd_bundle(
+    name = "zone.js__umd",
+    package_name = "zone.js",
+    entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/zone.js": "dist/zone.js" },
+    package = ":zone.js",
+)

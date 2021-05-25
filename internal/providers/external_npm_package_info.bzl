@@ -22,6 +22,7 @@ ExternalNpmPackageInfo = provider(
     doc = "Provides information about one or more external npm packages",
     fields = {
         "direct_sources": "Depset of direct source files in these external npm package(s)",
+        "has_directories": "True if any sources are directory artifacts",
         "path": "The local workspace path that these external npm deps should be linked at. If empty, they will be linked at the root.",
         "sources": "Depset of direct & transitive source files in these external npm package(s) and transitive dependencies",
         "workspace": "The workspace name that these external npm package(s) are provided from",
@@ -37,9 +38,14 @@ def _node_modules_aspect_impl(target, ctx):
 
     # map of 'path' to [workspace, sources_depsets]
     paths = {}
+
+    # if any deps have has_directories then has_directories will be true
+    has_directories = False
+
     if hasattr(ctx.rule.attr, "deps"):
         for dep in ctx.rule.attr.deps:
             if ExternalNpmPackageInfo in dep:
+                has_directories = has_directories or dep[ExternalNpmPackageInfo].has_directories
                 path = dep[ExternalNpmPackageInfo].path
                 workspace = dep[ExternalNpmPackageInfo].workspace
                 sources_depsets = []
@@ -56,6 +62,7 @@ def _node_modules_aspect_impl(target, ctx):
                 sources = depset(transitive = path_entry[1]),
                 workspace = path_entry[0],
                 path = path,
+                has_directories = has_directories,
             )])
     return providers
 

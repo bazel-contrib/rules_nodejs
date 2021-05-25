@@ -1,0 +1,21 @@
+load("@npm_directory_artifacts//typescript:index.bzl", "tsc")
+
+tsc(
+    name = "main_lib",
+    outs = [
+        "main.js",
+    ],
+    args = [
+        "-p",
+        "$(execpath tsconfig.json)",
+        "--outDir",
+        # $(RULEDIR) is a shorthand for the dist/bin directory where Bazel requires we write outputs
+        "$(RULEDIR)",
+    ],
+    data = [
+        "main.ts",
+        "tsconfig.json",
+        "@npm_directory_artifacts//@types/node",
+    ],
+    tags = ["requires-runfiles"],
+)

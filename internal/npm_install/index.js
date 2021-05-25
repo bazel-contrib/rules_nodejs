@@ -9,17 +9,19 @@ function log_verbose(...m) {
         console.error('[generate_build_file.ts]', ...m);
 }
 const PUBLIC_VISIBILITY = '//visibility:public';
+let NODE_MODULES_PACKAGE_NAME = '$node_modules$';
 let config = {
+    exports_directories_only: false,
     generate_local_modules_build_files: false,
     included_files: [],
-    deps: {},
+    links: {},
     package_json: 'package.json',
     package_lock: 'yarn.lock',
     package_path: '',
     rule_type: 'yarn_install',
     strict_visibility: true,
-    workspace: '',
     workspace_root_prefix: '',
+    workspace: '',
 };
 function generateBuildFileHeader(visibility = PUBLIC_VISIBILITY) {
     return `# Generated file from ${config.rule_type} rule.
@@ -51,6 +53,9 @@ function main() {
     config = require('./generate_config.json');
     config.workspace_root_base = (_a = config.workspace_root_prefix) === null || _a === void 0 ? void 0 : _a.split('/')[0];
     config.limited_visibility = `@${config.workspace}//:__subpackages__`;
+    if (config.exports_directories_only) {
+        NODE_MODULES_PACKAGE_NAME = '$node_modules_dir$';
+    }
     const deps = getDirectDependencySet(config.package_json);
     const pkgs = findPackages('node_modules', deps);
     flattenDependencies(pkgs);
@@ -88,9 +93,12 @@ function flattenDependencies(pkgs) {
 function generateRootBuildFile(pkgs) {
     let pkgFilesStarlark = '';
     if (pkgs.length) {
-        const list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__files",
-        "//${pkg._dir}:${pkg._name}__nested_node_modules",`)
-            .join('\n        ');
+        let list = '';
+        list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__files",`).join('\n        ');
+        if (!config.exports_directories_only) {
+            list += '\n        ';
+            list += pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__nested_node_modules",`).join('\n        ');
+        }
         pkgFilesStarlark = `
     # direct sources listed for strict deps support
     srcs = [
@@ -107,11 +115,16 @@ function generateRootBuildFile(pkgs) {
     ],`;
     }
     let exportsStarlark = '';
-    pkgs.forEach(pkg => {
-        pkg._files.forEach(f => {
-            exportsStarlark += `    "node_modules/${pkg._dir}/${f}",\n`;
+    if (config.exports_directories_only) {
+        pkgs.forEach(pkg => exportsStarlark += `    "node_modules/${pkg._dir}",\n`);
+    }
+    else {
+        pkgs.forEach(pkg => {
+            pkg._files.forEach(f => {
+                exportsStarlark += `    "node_modules/${pkg._dir}/${f}",\n`;
+            });
         });
-    });
+    }
     let buildFile = generateBuildFileHeader() + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 exports_files([
@@ -123,7 +136,7 @@ ${exportsStarlark}])
 # See https://github.com/bazelbuild/bazel/issues/5153.
 js_library(
     name = "node_modules",
-    package_name = "$node_modules$",
+    package_name = "${NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
 )
 
@@ -147,7 +160,9 @@ function generatePackageBuildFiles(pkg) {
     if (isPkgDirASymlink && !buildFilePath && !config.generate_local_modules_build_files) {
         console.log(`[yarn_install/npm_install]: package ${nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${fs.realpathSync(nodeModulesPkgDir)}`);
     }
-    let buildFile = printPackage(pkg);
+    let buildFile = config.exports_directories_only ?
+        printPackageExperimentalDirectoryArtifacts(pkg) :
+        printPackage(pkg);
     if (buildFilePath) {
         buildFile = buildFile + '\n' +
             fs.readFileSync(path.join('node_modules', pkg._dir, buildFilePath), 'utf-8');
@@ -293,12 +308,18 @@ function listFiles(rootDir, subDir = '') {
         }
         catch (e) {
             if (isSymbolicLink) {
+                if (config.exports_directories_only) {
+                    fs.unlinkSync(fullPath);
+                }
                 return files;
             }
             throw e;
         }
         const isDirectory = stat.isDirectory();
         if (isDirectory && isSymbolicLink) {
+            if (config.exports_directories_only) {
+                fs.unlinkSync(fullPath);
+            }
             return files;
         }
         return isDirectory ? files.concat(listFiles(rootDir, relPath)) : files.concat(relPath);
@@ -532,6 +553,71 @@ function findFile(pkg, m) {
     }
     return undefined;
 }
+function printPackageExperimentalDirectoryArtifacts(pkg) {
+    function starlarkFiles(attr, files, comment = '') {
+        return `
+    ${comment ? comment + '\n    ' : ''}${attr} = [
+        ${files.map((f) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
+    ],`;
+    }
+    const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
+    const depsStarlark = deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
+    let result = `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+
+# Generated targets for npm package "${pkg._dir}"
+${printJson(pkg)}
+
+# Files that are part of the npm package
+filegroup(
+    name = "${pkg._name}__files",
+    srcs = ["//:node_modules/${pkg._dir}"],
+)
+
+# The primary target for this package for use in rule deps
+js_library(
+    name = "${pkg._name}",
+    package_name = "${NODE_MODULES_PACKAGE_NAME}",
+    package_path = "${config.package_path}",
+    # direct sources listed for strict deps support
+    srcs = [":${pkg._name}__files"],
+    # nested node_modules for this package plus flattened list of direct and transitive dependencies
+    # hoisted to root by the package manager
+    deps = [
+        ${depsStarlark}
+    ],
+)
+
+# Target is used as dep for main targets to prevent circular dependencies errors
+js_library(
+    name = "${pkg._name}__contents",
+    package_name = "${NODE_MODULES_PACKAGE_NAME}",
+    package_path = "${config.package_path}",
+    srcs = [":${pkg._name}__files"],
+    visibility = ["//:__subpackages__"],
+)
+
+# For ts_library backward compat which uses @npm//typescript:typescript__typings
+alias(
+    name = "${pkg._name}__typings",
+    actual = "${pkg._name}__contents",
+)
+`;
+    let mainEntryPoint = resolvePkgMainFile(pkg);
+    if (mainEntryPoint && !findFile(pkg, `${pkg._name}.umd.js`)) {
+        result +=
+            `load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+
+npm_umd_bundle(
+    name = "${pkg._name}__umd",
+    package_name = "${pkg._moduleName}",
+    entry_point = { "@${config.workspace}//:node_modules/${pkg._dir}": "${mainEntryPoint}" },
+    package = ":${pkg._name}",
+)
+
+`;
+    }
+    return result;
+}
 function printPackage(pkg) {
     function starlarkFiles(attr, files, comment = '') {
         return `
@@ -595,7 +681,7 @@ filegroup(
 # The primary target for this package for use in rule deps
 js_library(
     name = "${pkg._name}",
-    package_name = "$node_modules$",
+    package_name = "${NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",
     # direct sources listed for strict deps support
     srcs = [":${pkg._name}__files"],
@@ -609,7 +695,7 @@ js_library(
 # Target is used as dep for main targets to prevent circular dependencies errors
 js_library(
     name = "${pkg._name}__contents",
-    package_name = "$node_modules$",
+    package_name = "${NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",
     srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
     visibility = ["//:__subpackages__"],
@@ -618,7 +704,7 @@ js_library(
 # Typings files that are part of the npm package not including nested node_modules
 js_library(
     name = "${pkg._name}__typings",
-    package_name = "$node_modules$",
+    package_name = "${NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",${dtsStarlark}
 )
 
@@ -631,7 +717,7 @@ js_library(
 npm_umd_bundle(
     name = "${pkg._name}__umd",
     package_name = "${pkg._moduleName}",
-    entry_point = "//:node_modules/${pkg._dir}/${mainEntryPoint}",
+    entry_point = "@${config.workspace}//:node_modules/${pkg._dir}/${mainEntryPoint}",
     package = ":${pkg._name}",
 )
 
@@ -687,10 +773,13 @@ function printPackageBin(pkg) {
             data.push(...pkg._dynamicDependencies);
         }
         for (const [name, path] of executables.entries()) {
+            const entryPoint = config.exports_directories_only ?
+                `{ "@${config.workspace}//:node_modules/${pkg._dir}": "${path}" }` :
+                `"@${config.workspace}//:node_modules/${pkg._dir}/${path}"`;
             result += `# Wire up the \`bin\` entry \`${name}\`
 nodejs_binary(
     name = "${name}",
-    entry_point = "//:node_modules/${pkg._dir}/${path}",
+    entry_point = ${entryPoint},
     data = [${data.map(p => `"${p}"`).join(', ')}],${additionalAttributes(pkg, name)}
 )
 `;
@@ -712,6 +801,9 @@ function printIndexBzl(pkg) {
             data.push(...pkg._dynamicDependencies);
         }
         for (const [name, path] of executables.entries()) {
+            const entryPoint = config.exports_directories_only ?
+                `{ "@${config.workspace}//:node_modules/${pkg._dir}": "${path}" }` :
+                `"@${config.workspace}//:node_modules/${pkg._dir}/${path}"`;
             result = `${result}
 
 # Generated helper macro to call ${name}
@@ -721,7 +813,7 @@ def ${name.replace(/-/g, '_')}(**kwargs):
         npm_package_bin(tool = "@${config.workspace}//${pkg._dir}/bin:${name}", output_dir = output_dir, **kwargs)
     else:
         nodejs_binary(
-            entry_point = "@${config.workspace}//:node_modules/${pkg._dir}/${path}",
+            entry_point = ${entryPoint},
             data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),${additionalAttributes(pkg, name)}
             **kwargs
         )
@@ -729,7 +821,7 @@ def ${name.replace(/-/g, '_')}(**kwargs):
 # Just in case ${name} is a test runner, also make a test rule for it
 def ${name.replace(/-/g, '_')}_test(**kwargs):
     nodejs_test(
-      entry_point = "@${config.workspace}//:node_modules/${pkg._dir}/${path}",
+      entry_point = ${entryPoint},
       data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),${additionalAttributes(pkg, name)}
       **kwargs
     )
@@ -769,7 +861,7 @@ function printScope(scope, pkgs) {
 # Generated target for npm scope ${scope}
 js_library(
     name = "${scope}",
-    package_name = "$node_modules$",
+    package_name = "${NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
 )
 

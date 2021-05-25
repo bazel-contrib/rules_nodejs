@@ -176,6 +176,6 @@ load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_
 npm_umd_bundle(
     name = "zone.js__umd",
     package_name = "zone.js",
-    entry_point = "//:node_modules/zone.js/dist/zone.js",
+    entry_point = "@fine_grained_goldens_multi_linked//:node_modules/zone.js/dist/zone.js",
     package = ":zone.js",
 )

@@ -10,6 +10,27 @@ def npm_deps():
         data = [
             "//:patches/jest-haste-map+25.3.0.patch",
             "//internal/npm_install/test:postinstall.js",
+            "//tools/npm_packages/bazel_workspaces_consistent:BUILD.bazel",
+            "//tools/npm_packages/bazel_workspaces_consistent:index.bzl",
+            "//tools/npm_packages/bazel_workspaces_consistent:package.json",
+            "//:tools/npm_packages/hello/package.json",
+            "//:tools/npm_packages/hello/index.js",
+            "//:tools/npm_packages/node_resolve_index/index.js",
+            "//:tools/npm_packages/node_resolve_index_2/index.js",
+            "//:tools/npm_packages/node_resolve_index_2/package.json",
+            "//:tools/npm_packages/node_resolve_index_3/index.js",
+            "//:tools/npm_packages/node_resolve_index_3/package.json",
+            "//:tools/npm_packages/node_resolve_index_4/index.js",
+            "//:tools/npm_packages/node_resolve_index_4/package.json",
+            "//:tools/npm_packages/node_resolve_main/main.js",
+            "//:tools/npm_packages/node_resolve_main/package.json",
+            "//:tools/npm_packages/node_resolve_main_2/main.js",
+            "//:tools/npm_packages/node_resolve_main_2/package.json",
+            "//:tools/npm_packages/node_resolve_nested_main/package.json",
+            "//:tools/npm_packages/node_resolve_nested_main/nested/main.js",
+            "//:tools/npm_packages/node_resolve_nested_main/nested/package.json",
+            "//:tools/npm_packages/testy/index.js",
+            "//:tools/npm_packages/testy/package.json",
         ],
         environment = {
             "SOME_USER_ENV": "yarn is great!",
@@ -24,6 +45,52 @@ def npm_deps():
             "@test_multi_linker/lib-d": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
             "@test_multi_linker/lib-d2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
         },
+        package_json = "//:package.json",
+        yarn_lock = "//:yarn.lock",
+    )
+
+    yarn_install(
+        name = "npm_directory_artifacts",
+        data = [
+            "//:patches/jest-haste-map+25.3.0.patch",
+            "//internal/npm_install/test:postinstall.js",
+            "//tools/npm_packages/bazel_workspaces_consistent:BUILD.bazel",
+            "//tools/npm_packages/bazel_workspaces_consistent:index.bzl",
+            "//tools/npm_packages/bazel_workspaces_consistent:package.json",
+            "//:tools/npm_packages/hello/package.json",
+            "//:tools/npm_packages/hello/index.js",
+            "//:tools/npm_packages/node_resolve_index/index.js",
+            "//:tools/npm_packages/node_resolve_index_2/index.js",
+            "//:tools/npm_packages/node_resolve_index_2/package.json",
+            "//:tools/npm_packages/node_resolve_index_3/index.js",
+            "//:tools/npm_packages/node_resolve_index_3/package.json",
+            "//:tools/npm_packages/node_resolve_index_4/index.js",
+            "//:tools/npm_packages/node_resolve_index_4/package.json",
+            "//:tools/npm_packages/node_resolve_main/main.js",
+            "//:tools/npm_packages/node_resolve_main/package.json",
+            "//:tools/npm_packages/node_resolve_main_2/main.js",
+            "//:tools/npm_packages/node_resolve_main_2/package.json",
+            "//:tools/npm_packages/node_resolve_nested_main/package.json",
+            "//:tools/npm_packages/node_resolve_nested_main/nested/main.js",
+            "//:tools/npm_packages/node_resolve_nested_main/nested/package.json",
+            "//:tools/npm_packages/testy/index.js",
+            "//:tools/npm_packages/testy/package.json",
+        ],
+        environment = {
+            "SOME_USER_ENV": "yarn is great!",
+        },
+        links = {
+            "@test_multi_linker/lib-a": "//internal/linker/test/multi_linker/lib_a",
+            "@test_multi_linker/lib-a2": "//internal/linker/test/multi_linker/lib_a",
+            "@test_multi_linker/lib-b": "@//internal/linker/test/multi_linker/lib_b",
+            "@test_multi_linker/lib-b2": "@//internal/linker/test/multi_linker/lib_b",
+            "@test_multi_linker/lib-c": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_c",
+            "@test_multi_linker/lib-c2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_c",
+            "@test_multi_linker/lib-d": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
+            "@test_multi_linker/lib-d2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
+        },
+        symlink_node_modules = False,
+        exports_directories_only = True,
         package_json = "//:package.json",
         yarn_lock = "//:yarn.lock",
     )
@@ -205,6 +272,39 @@ def npm_deps():
     )
 
     yarn_install(
+        name = "fine_grained_deps_yarn_directory_artifacts",
+        data = [
+            "//:tools/npm_packages/local_module/yarn/index.js",
+            "//:tools/npm_packages/local_module/yarn/package.json",
+            "//internal/npm_install/test:postinstall.js",
+        ],
+        environment = {
+            "SOME_USER_ENV": "yarn is great!",
+        },
+        exports_directories_only = True,
+        package_json = "//:tools/fine_grained_deps_yarn/package.json",
+        symlink_node_modules = False,
+        yarn_lock = "//:tools/fine_grained_deps_yarn/yarn.lock",
+    )
+
+    npm_install(
+        name = "fine_grained_deps_npm_directory_artifacts",
+        data = [
+            "//:tools/npm_packages/local_module/npm/index.js",
+            "//:tools/npm_packages/local_module/npm/package.json",
+            "//internal/npm_install/test:postinstall.js",
+        ],
+        environment = {
+            "SOME_USER_ENV": "npm is cool!",
+        },
+        exports_directories_only = True,
+        npm_command = "install",
+        package_json = "//:tools/fine_grained_deps_npm/package.json",
+        package_lock_json = "//:tools/fine_grained_deps_npm/package-lock.json",
+        symlink_node_modules = False,
+    )
+
+    yarn_install(
         name = "fine_grained_no_bin",
         package_json = "//:tools/fine_grained_no_bin/package.json",
         symlink_node_modules = False,
@@ -255,6 +355,46 @@ filegroup(
     "//@some-scope/some-target-b2:BUILD.bazel",
   ],
 )""",
+        package_json = "//:tools/fine_grained_goldens/package.json",
+        symlink_node_modules = False,
+        yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
+    )
+
+    yarn_install(
+        name = "fine_grained_directory_artifacts_goldens",
+        links = {
+            "@some-scope/some-target-b": "@//some/target/b",
+            "@some-scope/some-target-b2": "@//some/target/b",
+            "some-target-a": "//some/target/a",
+            "some-target-a2": "//some/target/a",
+        },
+        manual_build_file_contents = """
+filegroup(
+  name = "golden_files",
+  srcs = [
+    "//:BUILD.bazel",
+    "//:manual_build_file_contents",
+    "//:WORKSPACE",
+    "//@angular/core:BUILD.bazel",
+    "//@gregmagolan:BUILD.bazel",
+    "//@gregmagolan/test-a/bin:BUILD.bazel",
+    "//@gregmagolan/test-a:BUILD.bazel",
+    "//@gregmagolan/test-a:index.bzl",
+    "//@gregmagolan/test-b:BUILD.bazel",
+    "//ajv:BUILD.bazel",
+    "//jasmine/bin:BUILD.bazel",
+    "//jasmine:BUILD.bazel",
+    "//jasmine:index.bzl",
+    "//rxjs:BUILD.bazel",
+    "//unidiff:BUILD.bazel",
+    "//zone.js:BUILD.bazel",
+    "//some-target-a:BUILD.bazel",
+    "//some-target-a2:BUILD.bazel",
+    "//@some-scope/some-target-b:BUILD.bazel",
+    "//@some-scope/some-target-b2:BUILD.bazel",
+  ],
+)""",
+        exports_directories_only = True,
         package_json = "//:tools/fine_grained_goldens/package.json",
         symlink_node_modules = False,
         yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",

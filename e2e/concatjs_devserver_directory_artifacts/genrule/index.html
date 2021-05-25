@@ -1,0 +1,16 @@
+<html>
+<head>
+    <title>Devserver example</title>
+</head>
+<body>
+    <!-- Scripts loaded through the additional_root_paths. -->
+    <script src="/say-hello.js"></script>
+    <script src="/tslib.js"></script>
+
+    <!-- Bundle that comes from concatjs. Specified with serving_path. -->
+    <script src="/bundle.js"></script>
+
+    <!-- Script that is imported relatively to the package directory. -->
+    <script src="/test/show-host.js"></script>
+</body>
+</html>

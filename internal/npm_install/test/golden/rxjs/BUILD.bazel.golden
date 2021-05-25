@@ -4323,6 +4323,6 @@ load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_
 npm_umd_bundle(
     name = "rxjs__umd",
     package_name = "rxjs",
-    entry_point = "//:node_modules/rxjs/_esm5/index.js",
+    entry_point = "@fine_grained_goldens//:node_modules/rxjs/_esm5/index.js",
     package = ":rxjs",
 )

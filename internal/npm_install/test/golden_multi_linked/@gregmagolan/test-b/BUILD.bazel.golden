@@ -49,6 +49,6 @@ load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_
 npm_umd_bundle(
     name = "test-b__umd",
     package_name = "@gregmagolan/test-b",
-    entry_point = "//:node_modules/@gregmagolan/test-b/main.js",
+    entry_point = "@fine_grained_goldens_multi_linked//:node_modules/@gregmagolan/test-b/main.js",
     package = ":test-b",
 )

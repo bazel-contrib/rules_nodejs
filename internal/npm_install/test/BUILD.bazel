@@ -8,6 +8,11 @@ filegroup(
 )
 
 filegroup(
+    name = "goldens_directory_artifacts",
+    srcs = glob(["golden_directory_artifacts/**"]),
+)
+
+filegroup(
     name = "goldens_multi_linked",
     srcs = glob(["golden_multi_linked/**"]),
 )
@@ -19,8 +24,10 @@ jasmine_node_test(
         "package.spec.json",
         ":check.js",
         ":goldens",
+        ":goldens_directory_artifacts",
         ":goldens_multi_linked",
         "//internal/npm_install:compile_generate_build_file",
+        "@fine_grained_directory_artifacts_goldens//:golden_files",
         "@fine_grained_goldens//:golden_files",
         "@fine_grained_goldens_multi_linked//:golden_files",
         "@npm//unidiff",
@@ -35,8 +42,10 @@ nodejs_binary(
     data = [
         ":check.js",
         ":goldens",
+        ":goldens_directory_artifacts",
         ":goldens_multi_linked",
         ":update_golden.js",
+        "@fine_grained_directory_artifacts_goldens//:golden_files",
         "@fine_grained_goldens//:golden_files",
         "@fine_grained_goldens_multi_linked//:golden_files",
         "@npm//jasmine",
@@ -123,6 +132,8 @@ sh_test(
 ) for pkgmgr in [
     "yarn",
     "npm",
+    "yarn_directory_artifacts",
+    "npm_directory_artifacts",
 ]]
 
 # Test what happens when only certain NPM packages are in our dependencies.
@@ -151,6 +162,8 @@ sh_test(
 ) for pkgmgr in [
     "yarn",
     "npm",
+    "yarn_directory_artifacts",
+    "npm_directory_artifacts",
 ]]
 
 # A target to run that ensures yarn_install works for the case that there is

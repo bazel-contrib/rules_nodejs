@@ -44,6 +44,65 @@ repository so all files that the package manager depends on must be listed.
         doc = """Environment variables to set before calling the package manager.""",
         default = {},
     ),
+    "exports_directories_only": attr.bool(
+        default = False,
+        doc = """Export only top-level package directory artifacts from node_modules.
+
+Turning this on will decrease the time it takes for Bazel to setup runfiles and sandboxing when
+there are a large number of npm dependencies as inputs to an action.
+
+This breaks compatibility for label that reference files within npm packages such as `@npm//:node_modules/prettier/bin-prettier.js`.
+To reference files within npm packages, you can use the `directory_file_path` rule and/or `DirectoryFilePathInfo` provider.
+Note, some rules still need upgrading to support consuming `DirectoryFilePathInfo` where needed.
+
+NB: This feature requires runfiles be enabled due to an issue in Bazel which we are still investigating.
+    On Windows runfiles are off by default and must be enabled with the `--enable_runfiles` flag when
+    using this feature.
+
+NB: `ts_library` does not support directory artifact npm deps due to internal dependency on having all input sources files explicitly specified
+
+NB: `protractor_web_test` and `protractor_web_test_suite` do not support directory artifact npm deps
+
+For the `nodejs_binary` & `nodejs_test` `entry_point` attribute (which often needs to reference a file within
+an npm package) you can set the entry_point to a dict with a single entry, where the key corresponds to the directory artifact
+label and the value corresponds to the path within that directory to the entry point.
+
+For example,
+
+```
+nodejs_binary(
+    name = "prettier",
+    data = ["@npm//prettier"],
+    entry_point = "@npm//:node_modules/prettier/bin-prettier.js",
+)
+```
+
+becomes,
+
+```
+nodejs_binary(
+    name = "prettier",
+    data = ["@npm//prettier"],
+    entry_point = { "@npm//:node_modules/prettier": "bin-prettier.js" },
+)
+```
+
+For other labels that are passed to `$(rootpath)`, `$(execpath)`, or `$(location)` you can simply break these apart into
+the directory artifact label that gets passed to the expander & path part to follows it.
+
+For example,
+
+```
+$(rootpath @npm//:node_modules/prettier/bin-prettier.js")
+```
+
+becomes,
+
+```
+$(rootpath @npm//:node_modules/prettier)/bin-prettier.js
+```
+""",
+    ),
     "generate_local_modules_build_files": attr.bool(
         default = True,
         doc = """Enables the BUILD files auto generation for local modules installed with `file:` (npm) or `link:` (yarn)
@@ -69,6 +128,9 @@ When False, the rule will not auto generate BUILD files for `node_modules` that 
     ),
     "included_files": attr.string_list(
         doc = """List of file extensions to be included in the npm package targets.
+
+NB: This option has no effect when exports_directories_only is True as all files are
+automatically included in the export directory artifact targets for each npm package.
 
 For example, [".js", ".d.ts", ".proto", ".json", ""].
 
@@ -279,6 +341,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
         validated_links[k] = v
     generate_config_json = json.encode(
         struct(
+            exports_directories_only = repository_ctx.attr.exports_directories_only,
             generate_local_modules_build_files = generate_local_modules_build_files,
             included_files = repository_ctx.attr.included_files,
             links = validated_links,
