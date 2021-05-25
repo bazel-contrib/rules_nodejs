@@ -46,6 +46,10 @@ load(
     _NodeRuntimeDepsInfo = "NodeRuntimeDepsInfo",
     _run_node = "run_node",
 )
+load(
+    "//internal/providers:tree_artifacts.bzl",
+    _DirectoryFilePathInfo = "DirectoryFilePathInfo",
+)
 
 DeclarationInfo = _DeclarationInfo
 declaration_info = _declaration_info
@@ -88,3 +92,4 @@ to create a NodeContextInfo.
 
 NodeRuntimeDepsInfo = _NodeRuntimeDepsInfo
 run_node = _run_node
+DirectoryFilePathInfo = _DirectoryFilePathInfo
