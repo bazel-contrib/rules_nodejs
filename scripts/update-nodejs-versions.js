@@ -8,6 +8,7 @@ const MIN_VERSION = [8, 0, 0];
 const MAX_VERSION = [16, 99, 99];
 
 const REPOSITORY_TYPES = {
+  "darwin-arm64.tar.gz": "darwin_arm64",
   "darwin-x64.tar.gz": "darwin_amd64",
   "linux-x64.tar.xz": "linux_amd64",
   "linux-arm64.tar.xz": "linux_arm64",
