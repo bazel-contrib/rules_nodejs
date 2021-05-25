@@ -45,13 +45,17 @@ def _impl(ctx):
 
     sources = ctx.attr.package[ExternalNpmPackageInfo].sources.to_list()
 
-    # Only pass .js and package.json files as inputs to browserify.
-    # The latter is required for module resolution in some cases.
-    inputs = [
-        f
-        for f in sources
-        if f.path.endswith(".js") or f.path.endswith(".json")
-    ]
+    if ctx.attr.package[ExternalNpmPackageInfo].has_directories:
+        # If sources contain directories then we cannot filter by extension
+        inputs = sources
+    else:
+        # Only pass .js and package.json files as inputs to browserify.
+        # The latter is required for module resolution in some cases.
+        inputs = [
+            f
+            for f in sources
+            if f.path.endswith(".js") or f.path.endswith(".json")
+        ]
 
     ctx.actions.run(
         progress_message = "Generated UMD bundle for %s npm package [browserify]" % ctx.attr.package_name,

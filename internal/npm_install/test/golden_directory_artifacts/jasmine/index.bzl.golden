@@ -1,0 +1,17 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
+def jasmine(**kwargs):
+    output_dir = kwargs.pop("output_dir", False)
+    if "outs" in kwargs or output_dir:
+        npm_package_bin(tool = "@fine_grained_directory_artifacts_goldens//jasmine/bin:jasmine", output_dir = output_dir, **kwargs)
+    else:
+        nodejs_binary(
+            entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/jasmine": "bin/jasmine.js" },
+            data = ["@fine_grained_directory_artifacts_goldens//jasmine:jasmine"] + kwargs.pop("data", []),
+            **kwargs
+        )
+def jasmine_test(**kwargs):
+    nodejs_test(
+      entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/jasmine": "bin/jasmine.js" },
+      data = ["@fine_grained_directory_artifacts_goldens//jasmine:jasmine"] + kwargs.pop("data", []),
+      **kwargs
+    )

@@ -1,0 +1,35 @@
+
+package(default_visibility = ["//visibility:public"])
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+filegroup(
+    name = "rxjs__files",
+    srcs = ["//:node_modules/rxjs"],
+)
+js_library(
+    name = "rxjs",
+    package_name = "$node_modules_dir$",
+    package_path = "",
+    srcs = [":rxjs__files"],
+    deps = [
+        "//rxjs:rxjs__contents",
+        "//tslib:tslib__contents",
+    ],
+)
+js_library(
+    name = "rxjs__contents",
+    package_name = "$node_modules_dir$",
+    package_path = "",
+    srcs = [":rxjs__files"],
+    visibility = ["//:__subpackages__"],
+)
+alias(
+    name = "rxjs__typings",
+    actual = "rxjs__contents",
+)
+load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+npm_umd_bundle(
+    name = "rxjs__umd",
+    package_name = "rxjs",
+    entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/rxjs": "_esm5/index.js" },
+    package = ":rxjs",
+)

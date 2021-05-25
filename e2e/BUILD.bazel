@@ -122,6 +122,21 @@ e2e_integration_test(
     },
 )
 
+e2e_integration_test(
+    name = "e2e_concatjs_devserver_directory_artifacts",
+    bazel_commands = [
+        "info",
+        # enable runfiles explicitly so it is on for Windows since directory
+        # artifacts requires runfiles
+        "test ... --enable_runfiles",
+    ],
+    npm_packages = {
+        "//packages/concatjs:npm_package": "@bazel/concatjs",
+        "//packages/protractor:npm_package": "@bazel/protractor",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+)
+
 [e2e_integration_test(
     name = "e2e_typescript_%s" % tsc_version.replace(".", "_"),
     npm_packages = {

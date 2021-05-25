@@ -1,0 +1,70 @@
+# Copyright 2017 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver")
+load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
+load("@npm//@bazel/typescript:index.bzl", "ts_project")
+load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
+
+html_insert_assets(
+    name = "inject",
+    outs = ["index.html"],
+    args = [
+        "--html=$(execpath index.tmpl.html)",
+        "--out=$@",
+        "--roots=$(RULEDIR)",
+        "--assets",
+        "$(execpath //:red-body-style.css)",
+    ],
+    data = [
+        "index.tmpl.html",
+        "//:red-body-style.css",
+    ],
+)
+
+concatjs_devserver(
+    name = "devserver",
+    static_files = [
+        "inject",
+        "//:red-body-style.css",
+    ],
+)
+
+ts_project(
+    name = "compile",
+    srcs = ["subpackage_e2e-spec.ts"],
+    declaration = True,
+    extends = "//:tsconfig.json",
+    tsconfig = ":tsconfig.json",
+    validate = False,
+    deps = [
+        "@npm//@types",
+        "@npm//protractor",
+    ],
+)
+
+js_library(
+    name = "lib",
+    named_module_srcs = [":compile"],
+    deps = [":compile"],
+)
+
+protractor_web_test_suite(
+    name = "devserver_test",
+    on_prepare = "//:protractor.on-prepare.js",
+    protractor_entry_point = {"@npm//:node_modules/protractor": "bin/protractor"},
+    server = ":devserver",
+    deps = [":lib"],
+)

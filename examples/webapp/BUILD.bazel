@@ -19,6 +19,7 @@ protractor_web_test_suite(
     name = "server_test",
     srcs = ["app.spec.js"],
     on_prepare = ":protractor.on-prepare.js",
+    protractor_entry_point = {"@npm_deps//:node_modules/protractor": "bin/protractor"},
     server = ":server",
 )
 

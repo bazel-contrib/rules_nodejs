@@ -154,6 +154,12 @@ example_integration_test(
 
 example_integration_test(
     name = "examples_webapp",
+    bazel_commands = [
+        "info",
+        # enable runfiles explicitly so it is on for Windows since directory
+        # artifacts requires runfiles
+        "test ... --enable_runfiles",
+    ],
     npm_packages = {
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",

@@ -242,7 +242,7 @@ def protractor_web_test(
         server = None,
         tags = [],
         peer_deps = _PROTRACTOR_PEER_DEPS,
-        protractor_entry_point = _PROTRACTOR_ENTRY_POINT,
+        protractor_entry_point = Label(_PROTRACTOR_ENTRY_POINT),
         **kwargs):
     """Runs a protractor test in a browser.
 
@@ -267,7 +267,7 @@ def protractor_web_test(
 
     nodejs_binary(
         name = protractor_bin_name,
-        entry_point = Label(protractor_entry_point),
+        entry_point = protractor_entry_point,
         data = srcs + deps + data + [Label(d) for d in peer_deps],
         testonly = 1,
         # TODO: make protractor binary not depend on monkey-patched require()

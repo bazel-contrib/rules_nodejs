@@ -1872,7 +1872,7 @@ It will also provide <a href="https://docs.bazel.build/versions/master/skylark/l
 
 <p>The name it will be imported by. Should match the “name” field in the package.json file.</p>
 
-<p>If package_name == “$node_modules$” this indictates that this js_library target is one or more external npm
+<p>If package_name is “$node_modules$” or “$node_modules_dir$” this indictates that this js_library target is one or more external npm
 packages in node_modules. This is a special case that used be covered by the internal only
 <code class="language-plaintext highlighter-rouge">external_npm_package</code> attribute. NB: ‘$’ is an illegal character
 for npm packages names so this reserved name will not conflict with any valid package_name values</p>

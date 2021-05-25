@@ -1,0 +1,8 @@
+
+package(default_visibility = ["//visibility:public"])
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+nodejs_binary(
+    name = "test",
+    entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/@gregmagolan/test-a": "@bin/test.js" },
+    data = ["//@gregmagolan/test-a:test-a"],
+)
