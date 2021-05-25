@@ -20,7 +20,7 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("//:providers.bzl", "ExternalNpmPackageInfo", "JSModuleInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "node_modules_aspect")
+load("//:providers.bzl", "DirectoryFilePathInfo", "ExternalNpmPackageInfo", "JSModuleInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
@@ -111,9 +111,9 @@ def _get_entry_point_file(ctx):
         fail("labels in entry_point must contain exactly one file")
     if len(ctx.files.entry_point) == 1:
         return ctx.files.entry_point[0]
-    if EntryPointInfo in ctx.attr.entry_point:
-        return ctx.attr.entry_point[EntryPointInfo].directory
-    fail("entry_point must either be a file, or produce EntryPointInfo")
+    if DirectoryFilePathInfo in ctx.attr.entry_point:
+        return ctx.attr.entry_point[DirectoryFilePathInfo].directory
+    fail("entry_point must either be a file, or provide DirectoryFilePathInfo")
 
 def _write_loader_script(ctx):
     entry_point_path = _ts_to_js(_to_manifest_path(ctx, _get_entry_point_file(ctx)))
@@ -318,8 +318,8 @@ fi
     # For now we need to look in both places
     substitutions["TEMPLATED_entry_point_execroot_path"] = "\"%s\"" % _ts_to_js(_to_execroot_path(ctx, _get_entry_point_file(ctx)))
     substitutions["TEMPLATED_entry_point_manifest_path"] = "$(rlocation \"%s\")" % _ts_to_js(_to_manifest_path(ctx, _get_entry_point_file(ctx)))
-    if EntryPointInfo in ctx.attr.entry_point:
-        substitutions["TEMPLATED_entry_point_main"] = ctx.attr.entry_point[EntryPointInfo].entry_point
+    if DirectoryFilePathInfo in ctx.attr.entry_point:
+        substitutions["TEMPLATED_entry_point_main"] = ctx.attr.entry_point[DirectoryFilePathInfo].path
     else:
         substitutions["TEMPLATED_entry_point_main"] = ""
 
@@ -684,27 +684,4 @@ remote debugger.
         "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
         "@bazel_tools//tools/sh:toolchain_type",
     ],
-)
-
-EntryPointInfo = provider(
-    doc = "Tells runners about what JS file is the entry point, or main where node should begin evaluation",
-    fields = {
-        "directory": "a TreeArtifact (ctx.actions.declare_directory) containing the entry point",
-        "entry_point": "path relative to the directory, same as package.json's main/module fields",
-    },
-)
-
-def _directory_entry_point(ctx):
-    if not ctx.file.directory.is_directory:
-        fail("directory attribute must be created with Bazel declare_directory (TreeArtifact)")
-    return [EntryPointInfo(entry_point = ctx.attr.entry_point, directory = ctx.file.directory)]
-
-directory_entry_point = rule(
-    doc = """Provide EntryPointInfo to give an entry_point within a directory.
-        Otherwise there is no way to give a Bazel label for it.""",
-    implementation = _directory_entry_point,
-    attrs = {
-        "directory": attr.label(doc = "a directory containing the entry point", mandatory = True, allow_single_file = True),
-        "entry_point": attr.string(doc = "entry point for the program, same as package.json like main/module", mandatory = True),
-    },
 )

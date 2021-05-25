@@ -1,11 +1,7 @@
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "pkg_npm")
+load("@build_bazel_rules_nodejs//:index.bzl", "directory_file_path", "nodejs_binary", "pkg_npm")
 load("@npm//typescript:index.bzl", "tsc")
 load("//internal/common:assert.bzl", "assert_program_produces_stdout")
-
-# For now this is an internal API
-# TODO: decide if package.json is sufficient for all use cases
-load("//internal/node:node.bzl", "directory_entry_point")
 
 filegroup(
     name = "ts_sources",
@@ -72,10 +68,10 @@ assert_program_produces_stdout(
 # Without the pkg_npm, we should still be able to run the program.
 # But we need an adapter rule that gives us the equivalent of the "main" field
 
-directory_entry_point(
+directory_file_path(
     name = "entry_point_b",
     directory = "build",
-    entry_point = "b.js",
+    path = "b.js",
 )
 
 nodejs_binary(
