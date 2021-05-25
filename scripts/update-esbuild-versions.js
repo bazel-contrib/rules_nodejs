@@ -111,7 +111,7 @@ async function main() {
 
   // replace shasums in some manually edited files
   replaceFileContent('examples/esbuild/WORKSPACE', fileReplacements);
-  replaceFileContent('packages/esbuild/_README.md', fileReplacements);
+  replaceFileContent('packages/esbuild/index.docs.bzl', fileReplacements);
 }
 
 main();
