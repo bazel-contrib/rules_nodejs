@@ -41,7 +41,9 @@ def _esbuild_impl(ctx):
     entry_points = desugar_entry_point_names(ctx.file.entry_point, ctx.files.entry_points)
 
     deps_inputs = depset(transitive = deps_depsets).to_list()
-    inputs = filter_files(entry_points) + ctx.files.srcs + deps_inputs
+
+    # TODO(mattem): 4.0.0 breaking change, entry_points must exist in deps, and are not considered additional srcs
+    inputs = deps_inputs + ctx.files.srcs + filter_files(entry_points)
 
     metafile = ctx.actions.declare_file("%s_metadata.json" % ctx.attr.name)
     outputs = [metafile]
