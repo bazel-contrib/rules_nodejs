@@ -47,6 +47,26 @@ This prevents needing an aspect in rules that consume the typings, which improve
  A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle) 
 
 
+## DirectoryFilePathInfo
+
+**USAGE**
+
+<pre>
+DirectoryFilePathInfo(<a href="#DirectoryFilePathInfo-directory">directory</a>, <a href="#DirectoryFilePathInfo-path">path</a>)
+</pre>
+
+Joins a label pointing to a TreeArtifact with a path nested within that directory.
+
+**FIELDS**
+
+<h4 id="DirectoryFilePathInfo-directory">directory</h4>
+
+ a TreeArtifact (ctx.actions.declare_directory) 
+<h4 id="DirectoryFilePathInfo-path">path</h4>
+
+ path relative to the directory 
+
+
 ## ExternalNpmPackageInfo
 
 **USAGE**

@@ -217,6 +217,25 @@ This prevents needing an aspect in rules that consume the typings, which improve
 
 <p>A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle)</p>
 
+<h2 id="directoryfilepathinfo">DirectoryFilePathInfo</h2>
+
+<p><strong>USAGE</strong></p>
+
+<pre>
+DirectoryFilePathInfo(<a href="#DirectoryFilePathInfo-directory">directory</a>, <a href="#DirectoryFilePathInfo-path">path</a>)
+</pre>
+
+<p>Joins a label pointing to a TreeArtifact with a path nested within that directory.</p>
+
+<p><strong>FIELDS</strong></p>
+
+<h4 id="DirectoryFilePathInfo-directory">directory</h4>
+
+<p>a TreeArtifact (ctx.actions.declare_directory)</p>
+<h4 id="DirectoryFilePathInfo-path">path</h4>
+
+<p>path relative to the directory</p>
+
 <h2 id="externalnpmpackageinfo">ExternalNpmPackageInfo</h2>
 
 <p><strong>USAGE</strong></p>
@@ -588,6 +607,7 @@ mandatory: true
         </ul>
         <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#declarationinfo">DeclarationInfo</a></li>
+<li class="toc-entry toc-h2"><a href="#directoryfilepathinfo">DirectoryFilePathInfo</a></li>
 <li class="toc-entry toc-h2"><a href="#externalnpmpackageinfo">ExternalNpmPackageInfo</a></li>
 <li class="toc-entry toc-h2"><a href="#jsecmascriptmoduleinfo">JSEcmaScriptModuleInfo</a></li>
 <li class="toc-entry toc-h2"><a href="#jsmoduleinfo">JSModuleInfo</a></li>
