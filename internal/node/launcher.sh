@@ -125,8 +125,13 @@ else
 
   case "${machine}" in
     # The following paths must match up with _download_node in node_repositories
-    darwin) readonly node_toolchain="nodejs_darwin_amd64/bin/nodejs/bin/node" ;;
     windows) readonly node_toolchain="nodejs_windows_amd64/bin/nodejs/node.exe" ;;
+    darwin)
+      case "${unameArch}" in
+        x86_64*) readonly node_toolchain="nodejs_darwin_amd64/bin/nodejs/bin/node" ;;
+        *) readonly node_toolchain="nodejs_darwin_arm64/bin/nodejs/bin/node" ;;
+      esac
+      ;;
     *)
       case "${unameArch}" in
         aarch64*) readonly node_toolchain="nodejs_linux_arm64/bin/nodejs/bin/node" ;;

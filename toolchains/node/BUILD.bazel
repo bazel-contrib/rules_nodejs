@@ -26,6 +26,14 @@ platform(
 )
 
 platform(
+    name = "darwin_arm64",
+    constraint_values = [
+        "@platforms//os:osx",
+        "@platforms//cpu:aarch64",
+    ],
+)
+
+platform(
     name = "linux_amd64",
     constraint_values = [
         "@platforms//os:linux",
@@ -80,7 +88,8 @@ toolchain_type(
 alias(
     name = "toolchain",
     actual = select({
-        "@bazel_tools//src/conditions:darwin": "@nodejs_darwin_amd64_config//:toolchain",
+        "@bazel_tools//src/conditions:darwin_arm64": "@nodejs_darwin_arm64_config//:toolchain",
+        "@bazel_tools//src/conditions:darwin_x86_64": "@nodejs_darwin_amd64_config//:toolchain",
         "@bazel_tools//src/conditions:linux_aarch64": "@nodejs_linux_arm64_config//:toolchain",
         "@bazel_tools//src/conditions:linux_s390x": "@nodejs_linux_s390x_config//:toolchain",
         "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64_config//:toolchain",
@@ -94,7 +103,8 @@ alias(
 alias(
     name = "node_bin",
     actual = select({
-        "@bazel_tools//src/conditions:darwin": "@nodejs_darwin_amd64//:node_bin",
+        "@bazel_tools//src/conditions:darwin_arm64": "@nodejs_darwin_arm64//:node_bin",
+        "@bazel_tools//src/conditions:darwin_x86_64": "@nodejs_darwin_amd64//:node_bin",
         "@bazel_tools//src/conditions:linux_aarch64": "@nodejs_linux_arm64//:node_bin",
         "@bazel_tools//src/conditions:linux_s390x": "@nodejs_linux_s390x//:node_bin",
         "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64//:node_bin",
@@ -131,6 +141,16 @@ toolchain(
         "@platforms//cpu:x86_64",
     ],
     toolchain = "@nodejs_darwin_amd64_config//:toolchain",
+    toolchain_type = ":toolchain_type",
+)
+
+toolchain(
+    name = "node_darwin_arm64_toolchain",
+    target_compatible_with = [
+        "@platforms//os:osx",
+        "@platforms//cpu:aarch64",
+    ],
+    toolchain = "@nodejs_darwin_arm64_config//:toolchain",
     toolchain_type = ":toolchain_type",
 )
 
