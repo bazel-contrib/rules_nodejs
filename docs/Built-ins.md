@@ -1777,7 +1777,7 @@ Defaults to `[]`
 
 The name it will be imported by. Should match the "name" field in the package.json file.
 
-If package_name == "$node_modules$" this indictates that this js_library target is one or more external npm
+If package_name is “$node_modules$” or “$node_modules_dir$” this indictates that this js_library target is one or more external npm
 packages in node_modules. This is a special case that used be covered by the internal only
 `external_npm_package` attribute. NB: '$' is an illegal character
 for npm packages names so this reserved name will not conflict with any valid package_name values

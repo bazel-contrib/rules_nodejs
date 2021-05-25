@@ -1,0 +1,10 @@
+load("//packages/typescript:index.bzl", "ts_project")
+
+ts_project(
+    name = "tsconfig",
+    srcs = ["main.ts"],
+    tags = ["requires-runfiles"],
+    tsc = "@npm_directory_artifacts//typescript/bin:tsc",
+    typescript_package = "@npm_directory_artifacts//typescript",
+    deps = ["@npm_directory_artifacts//@types/node"],
+)

@@ -91,7 +91,7 @@ load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_
 npm_umd_bundle(
     name = "jasmine__umd",
     package_name = "jasmine",
-    entry_point = "//:node_modules/jasmine/lib/jasmine.js",
+    entry_point = "@fine_grained_goldens_multi_linked//:node_modules/jasmine/lib/jasmine.js",
     package = ":jasmine",
 )
 exports_files(["index.bzl"])

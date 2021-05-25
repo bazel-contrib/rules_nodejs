@@ -168,6 +168,7 @@ function main() {
       // and strip the /package.json and add /bin/terser in its place. This has now been
       // fixed upstream in https://github.com/terser/terser/pull/971 but this code should remain
       // so we support all versions of terser.
+      // NB: slice(0,-13) trims the '/pacakge.json' from the end of the resolved path.
       const terserNpmPath = require.resolve('terser/package.json').slice(0,-13);
       terserBinary = `${terserNpmPath}/bin/terser`;
       if (!fs.existsSync(terserBinary)) {

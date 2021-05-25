@@ -1,0 +1,35 @@
+
+package(default_visibility = ["//visibility:public"])
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+filegroup(
+    name = "unidiff__files",
+    srcs = ["//:node_modules/unidiff"],
+)
+js_library(
+    name = "unidiff",
+    package_name = "$node_modules_dir$",
+    package_path = "",
+    srcs = [":unidiff__files"],
+    deps = [
+        "//unidiff:unidiff__contents",
+        "//diff:diff__contents",
+    ],
+)
+js_library(
+    name = "unidiff__contents",
+    package_name = "$node_modules_dir$",
+    package_path = "",
+    srcs = [":unidiff__files"],
+    visibility = ["//:__subpackages__"],
+)
+alias(
+    name = "unidiff__typings",
+    actual = "unidiff__contents",
+)
+load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+npm_umd_bundle(
+    name = "unidiff__umd",
+    package_name = "unidiff",
+    entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/unidiff": "unidiff.js" },
+    package = ":unidiff",
+)

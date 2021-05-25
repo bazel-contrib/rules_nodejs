@@ -382,29 +382,37 @@ tasks:
     # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
     #- "@fine_grained_deps_yarn//typescript/bin:tsc"
     build_flags:
-    - "--build_tag_filters=-e2e,-examples,-fix-windows,-manual"
+    - "--build_tag_filters=-e2e,-examples,-manual,-fix-windows,-no-bazelci-windows,-requires-runfiles"
     build_targets:
     - "//..."
     test_flags:
     # Firefox not supported on Windows with rules_webtesting (if run it exit with success)
     # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
-    - "--test_tag_filters=-e2e,-examples,-fix-windows,-no-bazelci-windows,-manual,-browser:firefox-local,-cypress"
+    - "--test_tag_filters=-e2e,-examples,-fix-windows,-no-bazelci-windows,-requires-runfiles,-manual,-browser:firefox-local,-cypress"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_windows_amd64_test is a "manual" test that must be run
     # explicitly; it should pass when running on Windows with no --platform set.
     - "//internal/node/test:nodejs_toolchain_windows_amd64_test"
+  windows_runfiles_enabled:
+    name: windows_runfiles_enabled
+    platform: windows
+    test_flags:
+    - "--test_tag_filters=requires-runfiles"
+    - "--enable_runfiles"
+    test_targets:
+    - "//..."
   windows_e2e:
     name: windows_e2e
     platform: windows
     build_flags:
-    - "--build_tag_filters=e2e,-fix-windows"
+    - "--build_tag_filters=e2e,-fix-windows,-no-bazelci-windows,-requires-runfiles"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
     skip_use_bazel_version_for_test: true
     test_flags:
-    - "--test_tag_filters=e2e,-fix-windows,-no-bazelci-windows"
+    - "--test_tag_filters=e2e,-fix-windows,-no-bazelci-windows,-requires-runfiles"
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"
@@ -412,20 +420,20 @@ tasks:
     # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
     # Chrome fails to launch on Windows inside bazel-in-bazel with: [17:12:04] E/launcher -
     # spawn D:\...\external\io_bazel_rules_webtesting\third_party\chromedriver\chromedriver.out\chromedriver_win32\chromedriver.exe ENOENT
-    - "--test_arg=--test_tag_filters=-fix-windows,-manual,-browser:chromium-local,-browser:firefox-local"
+    - "--test_arg=--test_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles,-manual,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
   windows_examples:
     name: windows_examples
     platform: windows
     build_flags:
-    - "--build_tag_filters=examples,-fix-windows"
+    - "--build_tag_filters=examples,-fix-windows,-no-bazelci-windows,-requires-runfiles"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
     skip_use_bazel_version_for_test: true
     test_flags:
-    - "--test_tag_filters=examples,-manual,-fix-windows,-no-bazelci-windows,-cypress"
+    - "--test_tag_filters=examples,-manual,-fix-windows,-no-bazelci-windows,-requires-runfiles,-cypress"
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"
@@ -433,14 +441,15 @@ tasks:
     # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
     # Chrome fails to launch on Windows inside bazel-in-bazel with: [17:12:04] E/launcher -
     # spawn D:\...\external\io_bazel_rules_webtesting\third_party\chromedriver\chromedriver.out\chromedriver_win32\chromedriver.exe ENOENT
-    - "--test_arg=--test_tag_filters=-no-bazelci-windows,-fix-windows,-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_arg=--test_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles,-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
     test_targets:
     - "//..."
   windows_cross_compile_linux:
     name: windows_cross_compile_linux
     platform: windows
-    # Build on windows with the node --platform set to linux
     build_flags:
+    - "--build_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles"
+    # Build on windows with the node --platform set to linux
     - "--platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64"
     build_targets:
     - "//internal/..."
