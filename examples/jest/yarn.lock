@@ -832,10 +832,10 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@bazel/typescript@^3.5.0":
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.5.0.tgz#605493f4f0a5297df8a7fcccb86a1a80ea2090bb"
-  integrity sha512-BtGFp4nYFkQTmnONCzomk7dkmOwaINBL3piq+lykBlcc6UxLe9iCAnZpOyPypB1ReN3k3SRNAa53x6oGScQxMg==
+"@bazel/typescript@^3.5.1":
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.5.1.tgz#c6027d683adeefa2c3cebfa3ed5efa17c405a63b"
+  integrity sha512-dU5sGgaGdFWV1dJ1B+9iFbttgcKtmob+BvlM8mY7Nxq4j7/wVbgPjiVLOBeOD7kpzYep8JHXfhAokHt486IG+Q==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
