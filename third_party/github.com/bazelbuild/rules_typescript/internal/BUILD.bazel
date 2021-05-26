@@ -44,10 +44,13 @@ _TSC_WRAPPED_SRCS = glob(
 )
 
 _TSC_WRAPPED_JS = [k[:-3] + ".js" for k in _TSC_WRAPPED_SRCS]
+
 _TSC_WRAPPED_TYPINGS = [k[:-3] + ".d.ts" for k in _TSC_WRAPPED_SRCS]
+
 # Build our custom compiler using the vanilla one
 tsc(
     name = "tsc_wrapped",
+    outs = _TSC_WRAPPED_JS + _TSC_WRAPPED_TYPINGS,
     args = [
         "--declaration",
         "-p",
@@ -55,8 +58,6 @@ tsc(
         "--outDir",
         "$(RULEDIR)",
     ],
-    outs = _TSC_WRAPPED_JS + _TSC_WRAPPED_TYPINGS,
-    visibility = ["//visibility:public"],
     data = _TSC_WRAPPED_SRCS + [
         "//internal:tsconfig.json",
         "@npm//@types/node",
@@ -65,6 +66,7 @@ tsc(
         "@npm//tsutils",
         "@npm//typescript",
     ],
+    visibility = ["//visibility:public"],
 )
 
 # Other ts_library rules will use this custom compiler, which calls the
@@ -82,10 +84,10 @@ nodejs_binary(
         "@npm//typescript",
     ],
     entry_point = ":tsc_wrapped/tsc_wrapped.js",
-    visibility = ["//visibility:public"],
     # With RBE or --worker_sandboxing you'll see that when supports_workers=True it doesn't run_node
     # so it doesn't have the linker. Still needs our custom patches on require()
     templated_args = ["--bazel_patch_module_resolver"],
+    visibility = ["//visibility:public"],
 )
 
 ts_library(

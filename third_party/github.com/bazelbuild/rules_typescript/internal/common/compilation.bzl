@@ -15,9 +15,9 @@
 """Used for compilation by the different implementations of build_defs.bzl.
 """
 
+load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo")
 load(":common/json_marshal.bzl", "json_marshal")
 load(":common/module_mappings.bzl", "module_mappings_aspect")
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo")
 
 _DEBUG = False
 
@@ -33,6 +33,7 @@ _ADDITIONAL_D_TS = attr.label_list(
 JsInfo = provider()
 
 # Attributes shared by any typescript-compatible rule (ts_library, ng_module)
+# @unsorted-dict-items
 COMMON_ATTRIBUTES = {
     "data": attr.label_list(
         default = [],
@@ -450,6 +451,7 @@ def compile_ts(
         type_blacklisted_declarations = type_blacklisted_declarations,
     )
 
+    # @unsorted-dict-items
     return {
         "providers": [
             DefaultInfo(
@@ -483,6 +485,7 @@ def compile_ts(
         "module_name": getattr(ctx.attr, "module_name", None),
         # Expose the tags so that a Skylark aspect can access them.
         "tags": ctx.attr.tags if hasattr(ctx.attr, "tags") else ctx.rule.attr.tags,
+        # @unsorted-dict-items
         "typescript": {
             "devmode_manifest": devmode_manifest,
             "es5_sources": es5_sources,

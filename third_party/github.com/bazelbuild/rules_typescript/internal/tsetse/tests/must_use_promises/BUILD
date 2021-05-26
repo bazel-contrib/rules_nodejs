@@ -14,7 +14,6 @@
 
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
-
 licenses(["notice"])  # Apache 2.0
 
 error_message = "TS21225: All Promises in async functions must either be awaited or used in an expression."
