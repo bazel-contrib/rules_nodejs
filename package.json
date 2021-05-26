@@ -133,7 +133,7 @@
     },
     "husky": {
         "hooks": {
-            "pre-commit": "check-clang-format \"yarn format\"",
+            "pre-push": "check-clang-format \"yarn format\"",
             "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
         }
     }
