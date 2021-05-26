@@ -22,64 +22,40 @@ or using yarn
 yarn add -D @bazel/esbuild
 ```
 
-Add an `http_archive` fetching the esbuild binary for each platform that you need to support. 
+The esbuild binary is fetched from npm automatically and exposed via toolchains. Add the `esbuild_repositories` rule to the `WORKSPACE`:
 
 ```python
-_ESBUILD_VERSION = "0.12.1"  # reminder: update SHAs below when changing this value
-http_archive(
-    name = "esbuild_darwin",
-    urls = [
-        "https://registry.npmjs.org/esbuild-darwin-64/-/esbuild-darwin-64-%s.tgz" % _ESBUILD_VERSION,
-    ],
-    strip_prefix = "package",
-    build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "efb34692bfa34db61139eb8e46cd6cf767a42048f41c8108267279aaf58a948f",
-)
+load("@npm//@bazel/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
-http_archive(
-    name = "esbuild_windows",
-    urls = [
-        "https://registry.npmjs.org/esbuild-windows-64/-/esbuild-windows-64-%s.tgz" % _ESBUILD_VERSION,
-    ],
-    strip_prefix = "package",
-    build_file_content = """exports_files(["esbuild.exe"])""",
-    sha256 = "10439647b11c7fd1d9647fd98d022fe2188b4877d2d0b4acbe857f4e764b17a9",
-)
-
-http_archive(
-    name = "esbuild_linux",
-    urls = [
-        "https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-%s.tgz" % _ESBUILD_VERSION,
-    ],
-    strip_prefix = "package",
-    build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "de8409b90ec3c018ffd899b49ed5fc462c61b8c702ea0f9da013e0e1cd71549a",
-)
+esbuild_repositories()
 ```
 
-These can then be referenced on the `tool` attribute of the `esbuild` rule. 
+As esbuild is being fetched from `npm`, the load statement above can cause eager fetches of the `@npm` external repository.
+To work around this, it's possible to fetch the `@bazel/esbuild` package via an `http_archive`
 
 ```python
-esbuild(
-    name = "bundle",
-    ...
-    tool = select({
-        "@bazel_tools//src/conditions:darwin": "@esbuild_darwin//:bin/esbuild",
-        "@bazel_tools//src/conditions:windows": "@esbuild_windows//:esbuild.exe",
-        "@bazel_tools//src/conditions:linux_x86_64": "@esbuild_linux//:bin/esbuild",
-    }),
+http_archive(
+    name = "bazel_esbuild",
+    urls = [
+        "https://registry.npmjs.org/@bazel/esbuild/-/esbuild-4.0.0.tgz",
+    ],
+    strip_prefix = "package",
 )
+
+load("@bazel_esbuild//:esbuild_repositories.bzl", "esbuild_repositories")
+
+esbuild_repositories()
 ```
 
-It might be useful to wrap this locally in a macro for better reuseability, see `packages/esbuild/test/tests.bzl` for an example.
+## Overview
 
 The `esbuild` rule can take a JS or TS dependency tree and bundle it to a single file, or split across multiple files, outputting a directory. 
 
 ```python
 load("@npm//@bazel/esbuild:index.bzl", "esbuild")
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_project")
 
-ts_library(
+ts_project(
     name = "lib",
     srcs = ["a.ts"],
 )
@@ -97,9 +73,9 @@ To create a code split bundle, set `splitting = True` on the `esbuild` rule.
 
 ```python
 load("@npm//@bazel/esbuild:index.bzl", "esbuild")
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_project")
 
-ts_library(
+ts_project(
     name = "lib",
     srcs = ["a.ts"],
     deps = [
@@ -125,7 +101,7 @@ This will create an output directory containing all the code split chunks, along
 <pre>
 esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-entry_points">entry_points</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-launcher">launcher</a>,
         <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>, <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_css">output_css</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>,
-        <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>, <a href="#esbuild-tool">tool</a>)
+        <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>)
 </pre>
 
 Runs the esbuild bundler under Bazel
@@ -302,9 +278,56 @@ See https://esbuild.github.io/api/#target for more details
 
 Defaults to `"es2015"`
 
-<h4 id="esbuild-tool">tool</h4>
 
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*): An executable for the esbuild binary
+## configure_esbuild_toolchain
 
+**USAGE**
+
+<pre>
+configure_esbuild_toolchain(<a href="#configure_esbuild_toolchain-name">name</a>, <a href="#configure_esbuild_toolchain-binary">binary</a>, <a href="#configure_esbuild_toolchain-exec_compatible_with">exec_compatible_with</a>)
+</pre>
+
+Defines a toolchain for esbuild given the binary path and platform constraints
+
+**PARAMETERS**
+
+
+<h4 id="configure_esbuild_toolchain-name">name</h4>
+
+unique name for this toolchain, generally in the form "esbuild_platform_arch"
+
+
+
+<h4 id="configure_esbuild_toolchain-binary">binary</h4>
+
+label for the esbuild binary
+
+
+
+<h4 id="configure_esbuild_toolchain-exec_compatible_with">exec_compatible_with</h4>
+
+list of platform constraints
+
+
+
+
+## esbuild_repositories
+
+**USAGE**
+
+<pre>
+esbuild_repositories(<a href="#esbuild_repositories-name">name</a>)
+</pre>
+
+Helper for fetching and setting up the esbuild versions and toolchains
+
+**PARAMETERS**
+
+
+<h4 id="esbuild_repositories-name">name</h4>
+
+currently unused
+
+Defaults to `""`
 
 

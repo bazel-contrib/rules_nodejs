@@ -122,9 +122,9 @@ browser_repositories(
 )
 
 # Setup esbuild dependencies
-load("//packages/esbuild:esbuild_repo.bzl", "esbuild_dependencies")
+load("//packages/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
-esbuild_dependencies()
+esbuild_repositories()
 
 #
 # Dependencies to run stardoc & generating documentation

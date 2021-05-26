@@ -16,64 +16,40 @@ or using yarn
 yarn add -D @bazel/esbuild
 ```
 
-Add an `http_archive` fetching the esbuild binary for each platform that you need to support. 
+The esbuild binary is fetched from npm automatically and exposed via toolchains. Add the `esbuild_repositories` rule to the `WORKSPACE`:
 
 ```python
-_ESBUILD_VERSION = "0.12.1"  # reminder: update SHAs below when changing this value
-http_archive(
-    name = "esbuild_darwin",
-    urls = [
-        "https://registry.npmjs.org/esbuild-darwin-64/-/esbuild-darwin-64-%s.tgz" % _ESBUILD_VERSION,
-    ],
-    strip_prefix = "package",
-    build_file_content = \"""exports_files(["bin/esbuild"])\""",
-    sha256 = "efb34692bfa34db61139eb8e46cd6cf767a42048f41c8108267279aaf58a948f",
-)
+load("@npm//@bazel/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
-http_archive(
-    name = "esbuild_windows",
-    urls = [
-        "https://registry.npmjs.org/esbuild-windows-64/-/esbuild-windows-64-%s.tgz" % _ESBUILD_VERSION,
-    ],
-    strip_prefix = "package",
-    build_file_content = \"""exports_files(["esbuild.exe"])\""",
-    sha256 = "10439647b11c7fd1d9647fd98d022fe2188b4877d2d0b4acbe857f4e764b17a9",
-)
-
-http_archive(
-    name = "esbuild_linux",
-    urls = [
-        "https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-%s.tgz" % _ESBUILD_VERSION,
-    ],
-    strip_prefix = "package",
-    build_file_content = \"""exports_files(["bin/esbuild"])\""",
-    sha256 = "de8409b90ec3c018ffd899b49ed5fc462c61b8c702ea0f9da013e0e1cd71549a",
-)
+esbuild_repositories()
 ```
 
-These can then be referenced on the `tool` attribute of the `esbuild` rule. 
+As esbuild is being fetched from `npm`, the load statement above can cause eager fetches of the `@npm` external repository.
+To work around this, it's possible to fetch the `@bazel/esbuild` package via an `http_archive`
 
 ```python
-esbuild(
-    name = "bundle",
-    ...
-    tool = select({
-        "@bazel_tools//src/conditions:darwin": "@esbuild_darwin//:bin/esbuild",
-        "@bazel_tools//src/conditions:windows": "@esbuild_windows//:esbuild.exe",
-        "@bazel_tools//src/conditions:linux_x86_64": "@esbuild_linux//:bin/esbuild",
-    }),
+http_archive(
+    name = "bazel_esbuild",
+    urls = [
+        "https://registry.npmjs.org/@bazel/esbuild/-/esbuild-4.0.0.tgz",
+    ],
+    strip_prefix = "package",
 )
+
+load("@bazel_esbuild//:esbuild_repositories.bzl", "esbuild_repositories")
+
+esbuild_repositories()
 ```
 
-It might be useful to wrap this locally in a macro for better reuseability, see `packages/esbuild/test/tests.bzl` for an example.
+## Overview
 
 The `esbuild` rule can take a JS or TS dependency tree and bundle it to a single file, or split across multiple files, outputting a directory. 
 
 ```python
 load("//packages/esbuild:index.bzl", "esbuild")
-load("//packages/typescript:index.bzl", "ts_library")
+load("//packages/typescript:index.bzl", "ts_project")
 
-ts_library(
+ts_project(
     name = "lib",
     srcs = ["a.ts"],
 )
@@ -91,9 +67,9 @@ To create a code split bundle, set `splitting = True` on the `esbuild` rule.
 
 ```python
 load("//packages/esbuild:index.bzl", "esbuild")
-load("//packages/typescript:index.bzl", "ts_library")
+load("//packages/typescript:index.bzl", "ts_project")
 
-ts_library(
+ts_project(
     name = "lib",
     srcs = ["a.ts"],
     deps = [
@@ -116,5 +92,15 @@ load(
     "@build_bazel_rules_nodejs//packages/esbuild:esbuild.bzl",
     _esbuild = "esbuild",
 )
+load(
+    "@build_bazel_rules_nodejs//packages/esbuild:esbuild_repositories.bzl",
+    _esbuild_repositories = "esbuild_repositories",
+)
+load(
+    "@build_bazel_rules_nodejs//packages/esbuild/toolchain:toolchain.bzl",
+    _configure_esbuild_toolchain = "configure_esbuild_toolchain",
+)
 
 esbuild = _esbuild
+esbuild_repositories = _esbuild_repositories
+configure_esbuild_toolchain = _configure_esbuild_toolchain

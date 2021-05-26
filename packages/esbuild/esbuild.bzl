@@ -5,6 +5,7 @@ esbuild rule
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect")
+load("@build_bazel_rules_nodejs//packages/esbuild/toolchain:toolchain.bzl", "TOOLCHAIN")
 load(":helpers.bzl", "desugar_entry_point_names", "filter_files", "generate_path_mapping", "resolve_entry_point", "write_jsconfig_file")
 
 def _esbuild_impl(ctx):
@@ -135,7 +136,7 @@ def _esbuild_impl(ctx):
         execution_requirements = {"no-remote-exec": "1"}
 
     launcher_args = ctx.actions.args()
-    launcher_args.add("--esbuild=%s" % ctx.executable.tool.path)
+    launcher_args.add("--esbuild=%s" % ctx.toolchains[TOOLCHAIN].binary.path)
 
     run_node(
         ctx = ctx,
@@ -148,7 +149,7 @@ def _esbuild_impl(ctx):
         env = env,
         executable = "launcher",
         link_workspace_root = ctx.attr.link_workspace_root,
-        tools = [ctx.executable.tool],
+        tools = [ctx.toolchains[TOOLCHAIN].binary],
     )
 
     outputs_depset = depset(outputs)
@@ -307,15 +308,11 @@ edge16, node10, esnext). Default es2015.
 See https://esbuild.github.io/api/#target for more details
             """,
         ),
-        "tool": attr.label(
-            allow_single_file = True,
-            mandatory = True,
-            executable = True,
-            cfg = "exec",
-            doc = "An executable for the esbuild binary",
-        ),
     },
     implementation = _esbuild_impl,
+    toolchains = [
+        str(TOOLCHAIN),
+    ],
     doc = """Runs the esbuild bundler under Bazel
 
 For further information about esbuild, see https://esbuild.github.io/
