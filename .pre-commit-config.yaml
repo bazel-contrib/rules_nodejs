@@ -1,0 +1,19 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: local
+    hooks:
+      -   id: bazel-format
+          name: bazel format
+          description: Auto-formats starlark code
+          entry: buildifier --lint=off --mode=fix
+          files: '^(.*/)?(BUILD\.bazel|BUILD|WORKSPACE)$|\.BUILD$|\.bzl$'
+          exclude: '^third_party/'
+          language: system
+      -   id: bazel-lint
+          name: bazel lint
+          description: Checks for code style violations in starlark code
+          entry: buildifier --lint=warn -v --warnings=attr-cfg,attr-license,attr-non-empty,attr-output-default,attr-single-file,confusing-name,constant-glob,ctx-actions,ctx-args,depset-iteration,depset-union,dict-concatenation,duplicated-name,filetype,function-docstring,git-repository,http-archive,integer-division,load,load-on-top,module-docstring,name-conventions,native-build,native-package,out-of-order-load,output-group,package-name,package-on-top,positional-args,redefined-variable,repository-name,return-value,same-origin-load,string-iteration,unreachable,unsorted-dict-items,unused-variable
+          files: '^(.*/)?(BUILD\.bazel|BUILD|WORKSPACE)$|\.BUILD$|\.bzl$'
+          exclude: '^third_party/'
+          language: system

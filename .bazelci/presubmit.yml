@@ -1,5 +1,14 @@
 ---
 bazel: 4.0.0
+# Note, this will tell the user to do the wrong thing (manually run buildifer)
+# See https://github.com/bazelbuild/continuous-integration/issues/1161
+buildifier:
+  version: 4.0.1
+  # Keep this in sync with the list in .pre-commit-config.yaml
+  # https://github.com/bazelbuild/buildtools/issues/479 should fix this by giving us a config file
+  warnings: "attr-cfg,attr-license,attr-non-empty,attr-output-default,attr-single-file,confusing-name,constant-glob,ctx-actions,ctx-args,depset-iteration,depset-union,dict-concatenation,duplicated-name,filetype,function-docstring,git-repository,http-archive,integer-division,load,load-on-top,module-docstring,name-conventions,native-build,native-package,out-of-order-load,output-group,package-name,package-on-top,positional-args,redefined-variable,repository-name,return-value,same-origin-load,string-iteration,unreachable,unsorted-dict-items,unused-variable"
+  # Note, we ought to be able to exclude third_party from this check, but currently cannot:
+  # https://github.com/bazelbuild/continuous-integration/issues/1162
 tasks:
   ubuntu1604:
     name: ubuntu1604

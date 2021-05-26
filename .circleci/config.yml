@@ -115,24 +115,6 @@ jobs:
           paths:
             - ./rules_nodejs
 
-  # Cannot be run on BuildKite (BazelCI), see
-  # https://github.com/bazelbuild/continuous-integration/issues/338
-  lint:
-    <<: *job_defaults
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-
-      # Run the Buildifier to check our Bazel rules for format issues.
-      - run: 'yarn bazel:format-check ||
-              (echo "BUILD files not formatted. Please run ''yarn bazel:format --mode=fix''" ; exit 1)'
-
-      # Run the Buildifier to check our Bazel rules for lint issues.
-      # Note: The `--lint=warn` will auto fixe (re-write) the affected files. 
-      - run: 'yarn bazel:lint ||
-              (echo "BUILD files contain unresolved lint errors. Please fix manually the remaining errors." ; exit 1)'
-
   # Overlaps with testing we do on BuildKite. This is still here because:
   # - BuildKite doesn't have a public results UI; failures here let contributors fix their changes
   # - We hide the node,yarn,npm binaries here which we don't do on BuildKite
@@ -195,9 +177,6 @@ workflows:
   default_workflow:
     jobs:
       - setup
-      - lint:
-          requires:
-          - setup
       - test:
           requires:
           - setup
