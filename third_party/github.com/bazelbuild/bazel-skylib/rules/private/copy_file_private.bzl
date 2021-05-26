@@ -22,6 +22,7 @@ cmd.exe (on Windows). '_copy_xfile' marks the resulting file executable,
 # BEGIN LOCAL MOD
 def _hash_file(file):
     return str(hash(file.path))
+
 # END LOCAL MOD
 
 def copy_cmd(ctx, src, dst):
@@ -37,6 +38,7 @@ def copy_cmd(ctx, src, dst):
     # js_library will use copy_cmd multiple times for multiple files.
     bat = ctx.actions.declare_file("%s-%s-cmd.bat" % (ctx.label.name, _hash_file(src)))
     # END LOCAL MOD
+
     ctx.actions.write(
         output = bat,
         # Do not use lib/shell.bzl's shell.quote() method, because that uses
@@ -69,45 +71,48 @@ def copy_bash(ctx, src, dst):
         use_default_shell_env = True,
     )
 
-def _common_impl(ctx, is_executable):
-    if ctx.attr.is_windows:
+def _copy_file_impl(ctx):
+    if ctx.attr.allow_symlink:
+        ctx.actions.symlink(
+            output = ctx.outputs.out,
+            target_file = ctx.file.src,
+            is_executable = ctx.attr.is_executable,
+        )
+    elif ctx.attr.is_windows:
         copy_cmd(ctx, ctx.file.src, ctx.outputs.out)
     else:
         copy_bash(ctx, ctx.file.src, ctx.outputs.out)
 
     files = depset(direct = [ctx.outputs.out])
     runfiles = ctx.runfiles(files = [ctx.outputs.out])
-    if is_executable:
+    if ctx.attr.is_executable:
         return [DefaultInfo(files = files, runfiles = runfiles, executable = ctx.outputs.out)]
     else:
         return [DefaultInfo(files = files, runfiles = runfiles)]
 
-def _impl(ctx):
-    return _common_impl(ctx, False)
-
-def _ximpl(ctx):
-    return _common_impl(ctx, True)
-
+# @unsorted-dict-items
 _ATTRS = {
     "src": attr.label(mandatory = True, allow_single_file = True),
     "out": attr.output(mandatory = True),
     "is_windows": attr.bool(mandatory = True),
+    "is_executable": attr.bool(mandatory = True),
+    "allow_symlink": attr.bool(mandatory = True),
 }
 
 _copy_file = rule(
-    implementation = _impl,
+    implementation = _copy_file_impl,
     provides = [DefaultInfo],
     attrs = _ATTRS,
 )
 
 _copy_xfile = rule(
-    implementation = _ximpl,
+    implementation = _copy_file_impl,
     executable = True,
     provides = [DefaultInfo],
     attrs = _ATTRS,
 )
 
-def copy_file(name, src, out, is_executable = False, **kwargs):
+def copy_file(name, src, out, is_executable = False, allow_symlink = False, **kwargs):
     """Copies a file to another location.
 
     `native.genrule()` is sometimes used to copy files (often wishing to rename them). The 'copy_file' rule does this with a simpler interface than genrule.
@@ -122,27 +127,29 @@ def copy_file(name, src, out, is_executable = False, **kwargs):
       is_executable: A boolean. Whether to make the output file executable. When
           True, the rule's output can be executed using `bazel run` and can be
           in the srcs of binary and test rules that require executable sources.
+          WARNING: If `allow_symlink` is True, `src` must also be executable.
+      allow_symlink: A boolean. Whether to allow symlinking instead of copying.
+          When False, the output is always a hard copy. When True, the output
+          *can* be a symlink, but there is no guarantee that a symlink is
+          created (i.e., at the time of writing, we don't create symlinks on
+          Windows). Set this to True if you need fast copying and your tools can
+          handle symlinks (which most UNIX tools can).
       **kwargs: further keyword arguments, e.g. `visibility`
     """
+
+    copy_file_impl = _copy_file
     if is_executable:
-        _copy_xfile(
-            name = name,
-            src = src,
-            out = out,
-            is_windows = select({
-                "@bazel_tools//src/conditions:host_windows": True,
-                "//conditions:default": False,
-            }),
-            **kwargs
-        )
-    else:
-        _copy_file(
-            name = name,
-            src = src,
-            out = out,
-            is_windows = select({
-                "@bazel_tools//src/conditions:host_windows": True,
-                "//conditions:default": False,
-            }),
-            **kwargs
-        )
+        copy_file_impl = _copy_xfile
+
+    copy_file_impl(
+        name = name,
+        src = src,
+        out = out,
+        is_windows = select({
+            "@bazel_tools//src/conditions:host_windows": True,
+            "//conditions:default": False,
+        }),
+        is_executable = is_executable,
+        allow_symlink = allow_symlink,
+        **kwargs
+    )

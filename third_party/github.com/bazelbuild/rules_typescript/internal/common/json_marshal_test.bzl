@@ -1,11 +1,11 @@
 """Unit tests for json marshaling.
 
 Note, this cannot live next to the file it tests, because that file is in
-third_party bazel rules, and bazel doesn't support skylark testing yet.
+third_party bazel rules, and bazel doesn't support starlark testing yet.
 """
 
-load("//third_party/bazel_skylib/lib:unittest.bzl", "asserts", "unittest")
 load("//third_party/bazel_rules/rules_typescript/internal:common/json_marshal.bzl", "json_marshal")
+load("//third_party/bazel_skylib/lib:unittest.bzl", "asserts", "unittest")
 
 def _test_impl(ctx):
     env = unittest.begin(ctx)

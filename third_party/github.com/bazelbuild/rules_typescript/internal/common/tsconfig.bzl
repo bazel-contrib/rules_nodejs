@@ -87,6 +87,7 @@ def create_tsconfig(
         ]]
 
         node_modules_mappings = []
+
         # "node_modules" still checked for backward compat for ng_module
         if hasattr(ctx.attr, "_typescript_typings") or hasattr(ctx.attr, "node_modules"):
             node_modules_mappings.append("/".join([p for p in [
@@ -162,6 +163,7 @@ def create_tsconfig(
     }
 
     if getattr(ctx.attr, "use_angular_plugin", False):
+        # @unsorted-dict-items
         bazel_options["angularCompilerOptions"] = {
             # Needed for back-compat with explicit AOT bootstrap
             # which has imports from generated .ngfactory files
