@@ -1,6 +1,10 @@
 # For Developers
 
-We strongly encourage you to review the project's scope described in the `README.md` file before working on new features. For large changes, consider writing a design document using [this template](https://goo.gl/YCQttR).
+After cloning the repo, run `pre-commit install` so that your commits are automatically formatted for you. Otherwise you'll get yelled at later by our CI.
+
+> See https://pre-commit.com/#installation if you don't have `pre-commit` installed.
+
+It's a lot of work for us to review and accept Pull Requests. Sometimes things can't merge simply because it's too hard to determine if you change is breaking something else, or because the system you're touching is already being refactored by someone else. Before working on new features, we strongly encourage you to review the project's scope described in the `README.md` file. For large changes, consider writing a design document using [this template](https://goo.gl/YCQttR).
 
 ## Architecture
 
