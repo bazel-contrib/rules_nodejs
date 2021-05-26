@@ -14,7 +14,6 @@
 
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
-
 licenses(["notice"])  # Apache 2.0
 
 error_message = "error TS21226: Found a thenable.*"

@@ -45,6 +45,7 @@ def _impl(ctx):
 def _ximpl(ctx):
     return _common_impl(ctx, ctx.attr.is_windows, True)
 
+# @unsorted-dict-items
 _ATTRS = {
     "out": attr.output(mandatory = True),
     "content": attr.string_list(mandatory = False, allow_empty = True),
