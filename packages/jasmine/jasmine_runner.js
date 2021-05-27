@@ -61,7 +61,7 @@ function readArg() {
   return process.argv.splice(2, 1)[0];
 }
 
-function main(args) {
+async function main(args) {
   if (args.length < 2) {
     throw new Error('expected argument missing');
   }
@@ -133,7 +133,7 @@ function main(args) {
     // Patch the inner execute function to do our filtering first.
     const env = jasmine.getEnv();
     const originalExecute = env.execute.bind(env);
-    env.execute = () => {
+    env.execute = async () => {
       const allSpecs = getAllSpecs(env);
       // Partition the specs among the shards.
       // This ensures that the specs are evenly divided over the shards.
@@ -144,7 +144,7 @@ function main(args) {
       const end = allSpecs.length * (SHARD_INDEX + 1) / TOTAL_SHARDS;
       const enabledSpecs = allSpecs.slice(start, end);
       env.configure({specFilter: (s) => enabledSpecs.includes(s.id)});
-      originalExecute();
+      await originalExecute();
     };
     // Special case!
     // To allow us to test sharding, always run the specs in the order they are declared
@@ -154,7 +154,8 @@ function main(args) {
     }
   }
 
-  jrunner.execute();
+  await jrunner.execute();
+
   return 0;
 }
 
@@ -176,5 +177,12 @@ function getAllSpecs(jasmineEnv) {
 }
 
 if (require.main === module) {
-  process.exitCode = main(process.argv.slice(2));
+  (async () => {
+    try {
+      process.exitCode = await main(process.argv.slice(2));
+    } catch (error) {
+      console.error('[jasmine_runner.js] An error has been reported:', error);
+      process.exitCode = 1;
+    }
+  })();
 }
