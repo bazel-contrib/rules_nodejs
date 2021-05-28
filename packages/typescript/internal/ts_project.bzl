@@ -233,10 +233,11 @@ def _ts_project_impl(ctx):
         ])),
     ]
 
-    # Don't provide DeclarationInfo if there are no typings to provide.
+    # Only provide DeclarationInfo if there are some typings.
     # Improves error messaging if a ts_project needs declaration = True
-    if len(typings_outputs) or len(ctx.attr.deps):
-        providers.append(declaration_info(depset(typings_outputs), ctx.attr.deps))
+    typings_in_deps = [d for d in ctx.attr.deps if DeclarationInfo in d]
+    if len(typings_outputs) or len(typings_in_deps):
+        providers.append(declaration_info(depset(typings_outputs), typings_in_deps))
         providers.append(OutputGroupInfo(types = depset(typings_outputs)))
 
     return providers
