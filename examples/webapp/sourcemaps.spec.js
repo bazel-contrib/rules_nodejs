@@ -37,9 +37,9 @@ function find(text, s = 'ts1') {
 function asserts(pos) {
   // This doesn't work because the output dir is different from input
   // so it actually starts with a bunch of '/../..'
-  // expect(pos.source).toBe('index.mjs');
+  // expect(pos.source).toBe('index.js');
 
-  assert(pos.source.endsWith('index.mjs'));
+  assert(pos.source.endsWith('index.js'));
   assert(pos.line == 7);     // one-based
   assert(pos.column == 20);  // zero-based
 }
