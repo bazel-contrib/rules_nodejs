@@ -1,12 +1,12 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "npm_package_bin")
 load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
-load("//:index.bzl", "custom_ts_library")
+load("//:index.bzl", "custom_ts_project")
 
-# thin macro around ts_library that sets some implicit dependencies
+# thin macro around ts_project that sets some implicit dependencies
 # while passing though all other attributes
 # is used here to show how to generate stardoc for rules that consume rules_nodejs from source
-custom_ts_library(
+custom_ts_project(
     name = "main",
     srcs = ["main.ts"],
 )
@@ -30,7 +30,7 @@ bzl_library(
     ],
 )
 
-# generation of the docs for the custom_ts_library macro used above
+# generation of the docs for the custom_ts_project macro used above
 stardoc(
     name = "docs",
     out = "docs.md",

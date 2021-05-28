@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "lib": [
-      "ES2017"
+      "ES2017",
+      "dom"
     ],
     "types": []
   }
