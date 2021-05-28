@@ -1,4 +1,4 @@
-import indexfile from '../src/index';
+import indexfile from 'lib';
 
 test('it should work', () => {
   expect(indexfile).toBe('test');

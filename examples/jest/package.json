@@ -13,7 +13,7 @@
         "babel-plugin-istanbul": "5.1.2",
         "jest-cli": "24.9.0",
         "patch-package": "^6.2.0",
-        "typescript": "^3.8.3"
+        "typescript": "~4.2.0"
     },
     "scripts": {
         "postinstall": "patch-package",
