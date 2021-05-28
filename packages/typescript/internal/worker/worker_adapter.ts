@@ -42,7 +42,7 @@ function createWatchProgram(
     options: ts.CompilerOptions, tsconfigPath: string, setTimeout: ts.System['setTimeout']) {
   const host = createWatchCompilerHost(
       tsconfigPath, options, {...ts.sys, setTimeout},
-      ts.createEmitAndSemanticDiagnosticsBuilderProgram, reportDiagnostic,
+      ts.createSemanticDiagnosticsBuilderProgram, reportDiagnostic,
       reportWatchStatusChanged);
 
   // `createWatchProgram` creates an initial program, watches files, and updates
@@ -57,7 +57,7 @@ let workerRequestTimestamp: number|undefined;
 /**
  * The typescript compiler in watch mode.
  */
-let cachedWatchedProgram:|ts.WatchOfConfigFile<ts.EmitAndSemanticDiagnosticsBuilderProgram>|
+let cachedWatchedProgram:|ts.WatchOfConfigFile<ts.SemanticDiagnosticsBuilderProgram>|
     undefined;
 /**
  * Callback provided by ts.System which should be called at the point at which
@@ -68,7 +68,7 @@ let consolidateChangesCallback: ((...args: any[]) => void)|undefined;
 let cachedWatchProgramArgs: string|undefined;
 
 function getWatchProgram(args: string[]):
-    ts.WatchOfConfigFile<ts.EmitAndSemanticDiagnosticsBuilderProgram> {
+    ts.WatchOfConfigFile<ts.SemanticDiagnosticsBuilderProgram> {
   const newWatchArgs = args.join(' ');
 
   // Check to see if the watch program needs to be updated or if we can re-use the old one.
