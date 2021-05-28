@@ -7,18 +7,14 @@ SRCS = [
 ]
 
 ts_project(
-    name = "tsconfig",
+    name = "transpile",
     srcs = SRCS,
     root_dir = "subdir",
 )
 
 nodejs_test(
     name = "test",
-    data = [
-        ":tsconfig",
-    ],
+    data = [":transpile"],
     entry_point = "verify.js",
-    templated_args = [
-        "$(locations :tsconfig)",
-    ],
+    templated_args = ["$(locations :transpile)"],
 )

@@ -4,14 +4,14 @@ load("//packages/typescript:index.bzl", "ts_project")
 # This uses defaults for all attributes.
 # It will find `index.ts` and produce `index.js` & `index.d.ts`
 ts_project(
-    name = "tsconfig",
+    name = "transpile",
     srcs = ["index.ts"],
     declaration = True,
 )
 
 filegroup(
     name = "types",
-    srcs = [":tsconfig"],
+    srcs = [":transpile"],
     output_group = "types",
 )
 

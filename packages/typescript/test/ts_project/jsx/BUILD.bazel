@@ -8,7 +8,7 @@ SRCS = [
 ]
 
 ts_project(
-    name = "tsconfig",
+    name = "transpile",
     srcs = SRCS,
     allow_js = True,
     declaration = True,
@@ -20,19 +20,19 @@ ts_project(
 
 filegroup(
     name = "types",
-    srcs = [":tsconfig"],
+    srcs = [":transpile"],
     output_group = "types",
 )
 
 nodejs_test(
     name = "test",
     data = [
-        ":tsconfig",
+        ":transpile",
         ":types",
     ],
     entry_point = "verify-preserve.js",
     templated_args = [
         "$(locations :types)",
-        "$(locations :tsconfig)",
+        "$(locations :transpile)",
     ],
 )

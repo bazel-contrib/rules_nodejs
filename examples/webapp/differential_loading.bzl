@@ -12,7 +12,6 @@ def differential_loading(name, entry_point, srcs):
     ts_project(
         name = name + "_lib",
         srcs = srcs,
-        tsconfig = "tsconfig.json",
     )
 
     rollup_bundle(

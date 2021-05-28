@@ -4,23 +4,24 @@ load("//packages/typescript:index.bzl", "ts_project")
 package(default_visibility = ["//packages/typescript/test:__subpackages__"])
 
 ts_project(
-    name = "tsconfig",  # This will use ./tsconfig.json
+    name = "b",
     srcs = [":b.ts"],
     # just a test for the pass-through args attribute
     args = ["--emitBOM"],
     composite = True,
     extends = "//packages/typescript/test/ts_project:tsconfig-base.json",
-    deps = ["//packages/typescript/test/ts_project/a:tsconfig"],
+    deps = ["//packages/typescript/test/ts_project/a"],
 )
 
 ts_project(
-    name = "tsconfig-test",  # This will use ./tsconfig-test.json
+    name = "transpile_test",
     testonly = True,
     srcs = [":b.spec.ts"],
     composite = True,
     extends = "//packages/typescript/test/ts_project:tsconfig-base.json",
+    tsconfig = "tsconfig-test.json",
     deps = [
-        ":tsconfig",
+        ":b",
         "@npm//@types/jasmine",
         "@npm//@types/node",
     ],
@@ -29,5 +30,5 @@ ts_project(
 jasmine_node_test(
     name = "test",
     srcs = ["b.spec.js"],
-    data = [":tsconfig"],
+    data = [":b"],
 )

@@ -10,7 +10,7 @@ js_library(
 )
 
 ts_project(
-    name = "tsconfig",
+    name = "transpile",
     srcs = ["b.ts"],
     deps = ["lib_a"],
 )

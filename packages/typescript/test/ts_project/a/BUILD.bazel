@@ -10,6 +10,7 @@ ts_config(
 )
 
 ts_project(
+    name = "a",
     composite = True,
     tsconfig = "config",
     # Intentionally not syncing this option from tsconfig, to test validator suppression
