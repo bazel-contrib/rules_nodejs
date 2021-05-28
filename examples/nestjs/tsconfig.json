@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "target": "ES2015",
+        "module": "commonjs",
+        "rootDirs": [".", "bazel-out/k8-fastbuild/bin", "bazel-out/darwin-fastbuild/bin"],
+        "declaration": true
+    },
+    "exclude": ["external"]
+}
