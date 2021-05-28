@@ -26,7 +26,7 @@ const reportWatchStatusChanged = (diagnostic) => {
     worker.debug(ts.formatDiagnostic(diagnostic, formatHost));
 };
 function createWatchProgram(options, tsconfigPath, setTimeout) {
-    const host = createWatchCompilerHost(tsconfigPath, options, Object.assign(Object.assign({}, ts.sys), { setTimeout }), ts.createEmitAndSemanticDiagnosticsBuilderProgram, reportDiagnostic, reportWatchStatusChanged);
+    const host = createWatchCompilerHost(tsconfigPath, options, Object.assign(Object.assign({}, ts.sys), { setTimeout }), ts.createSemanticDiagnosticsBuilderProgram, reportDiagnostic, reportWatchStatusChanged);
     return ts.createWatchProgram(host);
 }
 let workerRequestTimestamp;
