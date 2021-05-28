@@ -1,6 +1,6 @@
 "ts_project rule"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "ExternalNpmPackageInfo", "declaration_info", "js_module_info", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "ExternalNpmPackageInfo", "declaration_info", "js_module_info", "js_named_module_info", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 load(":ts_config.bzl", "TsConfigInfo", "write_tsconfig")
@@ -36,6 +36,7 @@ _ATTRS = {
     "extends": attr.label(allow_files = [".json"]),
     "link_workspace_root": attr.bool(),
     "out_dir": attr.string(),
+    "produces_named_modules": attr.bool(),
     "root_dir": attr.string(),
     # NB: no restriction on extensions here, because tsc sometimes adds type-check support
     # for more file kinds (like require('some.json')) and also
@@ -239,6 +240,12 @@ def _ts_project_impl(ctx):
         providers.append(declaration_info(depset(typings_outputs), ctx.attr.deps))
         providers.append(OutputGroupInfo(types = depset(typings_outputs)))
 
+    if ctx.attr.produces_named_modules:
+        providers.append(js_named_module_info(
+            sources = depset(runtime_outputs),
+            deps = ctx.attr.deps,
+        ))
+
     return providers
 
 def _tsconfig_inputs(ctx):
@@ -358,6 +365,7 @@ def ts_project_macro(
         out_dir = None,
         root_dir = None,
         link_workspace_root = False,
+        produces_named_modules = False,
         **kwargs):
     """Compiles one TypeScript project using `tsc --project`
 
@@ -592,6 +600,21 @@ def ts_project_macro(
         link_workspace_root: Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
             If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
 
+        produces_named_modules: expresses your intent that all JS outputs will be in a "named module" format
+            such as named AMD, named UMD, or `goog.module`.
+
+            This causes the implementation to provide `JSNamedModuleInfo`, making it compatible with rules
+            such as those in the [concatjs package](http://npmjs.com/@bazel/concatjs)
+            which rely on named modules for faster bundling.
+
+            This requires that the TypeScript inputs declare a module name for each file.
+            See the [TypeScript documentation](https://www.typescriptlang.org/docs/handbook/triple-slash-directives.html#-amd-module-)
+            for this.
+
+            (Note, the `ts_library` rule automatically chose a module name for every .ts input and wrote
+            the amd-module into the resulting JavaScript. Under `ts_project` this responsibility falls to
+            the developer.)
+
         **kwargs: passed through to underlying rule, allows eg. visibility, tags
     """
 
@@ -630,7 +653,7 @@ def ts_project_macro(
             name = "_gen_tsconfig_%s" % name,
             config = tsconfig,
             files = [s for s in srcs if _is_ts_src(s, allow_js)],
-            extends = Label("//%s:%s" % (native.package_name(), name)).relative(extends) if extends else None,
+            extends = Label("%s//%s:%s" % (native.repository_name(), native.package_name(), name)).relative(extends) if extends else None,
             out = "tsconfig_%s.json" % name,
         )
 
@@ -732,5 +755,6 @@ Check the srcs attribute to see that some .ts files are present (or .js files wi
         tsc = tsc,
         link_workspace_root = link_workspace_root,
         supports_workers = supports_workers,
+        produces_named_modules = produces_named_modules,
         **kwargs
     )

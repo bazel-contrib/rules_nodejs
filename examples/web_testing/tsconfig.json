@@ -2,6 +2,11 @@
   "compilerOptions": {
     "strict": true,
     "lib": ["es2015.promise", "dom", "es5"],
-  }
+    "declaration": true,
+    "rootDirs": [".", "bazel-out/k8-fastbuild/bin", "bazel-out/darwin-fastbuild/bin", "bazel-out/x64_windows-fastbuild/bin"],
+    "module": "umd",
+    "moduleResolution": "node"
+  },
+  "exclude": ["external"]
 }
 

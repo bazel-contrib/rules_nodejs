@@ -1,22 +1,42 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("@npm//@bazel/concatjs:index.bzl", "karma_web_test_suite")
-load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_project")
 
-ts_library(
-    name = "lib",
+ts_project(
+    name = "compile",
     srcs = ["decrement.ts"],
+    extends = "tsconfig.json",
+    produces_named_modules = True,
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+        },
+    },
 )
 
-ts_config(
-    name = "tsconfig-test",
-    src = "tsconfig-test.json",
-    deps = [":tsconfig.json"],
+# workaround https://github.com/microsoft/TypeScript/issues/22208
+# on Windows, we can't use a relative import "./decrement" from the spec file
+# or else TypeScript will try to emit decrement.js on top of a read-only file.
+js_library(
+    name = "lib",
+    package_name = "decrement-lib",
+    deps = [":compile"],
 )
 
-ts_library(
+ts_project(
     name = "tests",
     testonly = 1,
     srcs = glob(["*.spec.ts"]),
-    tsconfig = ":tsconfig-test",
+    extends = "tsconfig.json",
+    produces_named_modules = True,
+    tsconfig = {
+        "compilerOptions": {
+            "types": [
+                "jasmine",
+                "node",
+            ],
+        },
+    },
     deps = [
         ":lib",
         "@npm//@types/jasmine",
@@ -24,11 +44,13 @@ ts_library(
     ],
 )
 
-ts_library(
+ts_project(
     name = "tests_setup",
     testonly = 1,
     srcs = ["setup_script.ts"],
-    tsconfig = ":tsconfig-test",
+    extends = "tsconfig.json",
+    produces_named_modules = True,
+    tsconfig = {},
     deps = [
         "@npm//@types/jasmine",
         "@npm//@types/node",

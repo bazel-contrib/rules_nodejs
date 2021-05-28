@@ -1,3 +1,4 @@
+/// <amd-module name="examples_webtesting/static_script.spec"/>
 const someGlobal = new Promise<string>((resolve, reject) => {
   const script = document.createElement('script');
   script.src = `base/examples_webtesting/static_script.js`;
