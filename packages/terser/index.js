@@ -159,41 +159,29 @@ function main() {
   const output = argv[outputArgIndex + 1];
   const residual = argv.slice(outputArgIndex + 2);
 
-  // Allow for user to override terser binary for testing.
+  // Allow for user to override terser binary via TERSER_BINARY for testing
   let terserBinary = process.env.TERSER_BINARY;
-  try {
-    // Node 12 and above will respect exports field in package.json, Terser 5 added these
-    // `process.version` returns vx.x.x, here we strip the `v` and get the major number
-    if (process.version.split('.')[0].replace('v', '') <= '10') {
-      // If necessary, get the new `terser` binary, added for >=4.3.0 <5
-      terserBinary = terserBinary || require.resolve('terser/bin/terser');
-    } else {
-      // Terser 5 with Node 12 or higher breaks compatiability with how Rules NodeJS supports
-      // getting the terser bin. An issue has been filed https://github.com/terser/terser/pull/971
-      // This is a temporary work around to allow us to proceed without downgrading
-      // or changing versions
-      // This gets the full path that to node_modules
-      // Then we hardcode the path to the bin directory since that's what we are looking for
-      // This will return a path like
-      // /private/var/tmp/_bazel_david.aghassi/a7bb26caa05a7d74fdb20e24a0f896f3/external/npm/_/node_modules
-      switch (os.platform()) {
-        case 'win32':
-          terserBinary = terserBinary ||
-              `${require.resolve('terser').split('\\terser\\')[0]}\\terser\\bin\\terser`;
-          break;
-        default:
-          terserBinary =
-              terserBinary || `${require.resolve('terser').split('/terser/')[0]}/terser/bin/terser`;
-      }
-    }
-  } catch (e) {
+  if (!terserBinary) {
     try {
-      // If necessary, get the old `uglifyjs` binary from <4.3.0
-      terserBinary = terserBinary || require.resolve('terser/bin/uglifyjs');
-    } catch (e) {
-      throw new Error('terser binary not found. Maybe you need to set the terser_bin attribute?')
+      // Node 12 and above will respect exports field in package.json, Terser 5 added these
+      // but did not add ./bin/terser as an export so we instead resolve to terser/package.json
+      // and strip the /package.json and add /bin/terser in its place. This has now been
+      // fixed upstream in https://github.com/terser/terser/pull/971 but this code should remain
+      // so we support all versions of terser.
+      const terserNpmPath = require.resolve('terser/package.json').slice(0,-13);
+      terserBinary = `${terserNpmPath}/bin/terser`;
+      if (!fs.existsSync(terserBinary)) {
+        // Try the old `uglifyjs` binary from <4.3.0
+        terserBinary = `${terserNpmPath}/bin/uglify`;
+      }
+    } catch (_) {
+      // fall through here; will check for valid terserBinary below
     }
   }
+  if (!terserBinary || !fs.existsSync(terserBinary)) {
+    throw new Error('terser binary not found. Maybe you need to set the terser_bin attribute?')
+  }
+
   // choose a default concurrency of the number of cores -1 but at least 1.
 
   log_verbose(`Running terser/index.js
