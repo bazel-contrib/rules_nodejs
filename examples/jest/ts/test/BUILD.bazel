@@ -1,11 +1,11 @@
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_project")
 load("@npm//jest-cli:index.bzl", "jest_test")
 
-ts_library(
+ts_project(
     name = "test_lib",
-    srcs = glob([
-        "**/*.ts",
-    ]),
+    srcs = ["index.test.ts"],
+    extends = "//:tsconfig.json",
+    tsconfig = {},
     deps = [
         "//ts/src",
         "@npm//@types",
