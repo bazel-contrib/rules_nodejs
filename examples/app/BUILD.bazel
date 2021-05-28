@@ -67,6 +67,7 @@ ts_project(
     testonly = 1,
     srcs = ["app.e2e-spec.ts"],
     extends = "tsconfig.json",
+    tsconfig = "tsconfig-test.json",
     deps = [
         "@npm//@types/jasmine",
         "@npm//@types/node",

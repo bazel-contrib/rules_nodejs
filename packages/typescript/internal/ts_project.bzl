@@ -477,7 +477,7 @@ def ts_project_macro(
             To support "chaining" of more than one extended config, this label could be a target that
             provdes `TsConfigInfo` such as `ts_config`.
 
-            By default, we assume the tsconfig file is named by adding `.json` to the `name` attribute.
+            By default, we assume the tsconfig file is "tsconfig.json" in the same folder as the ts_project rule.
 
             EXPERIMENTAL: generated tsconfig
 
@@ -641,7 +641,7 @@ def ts_project_macro(
 
     else:
         if tsconfig == None:
-            tsconfig = name + ".json"
+            tsconfig = "tsconfig.json"
 
         if validate:
             validate_options(

@@ -6,5 +6,5 @@ ts_project(
     composite = True,
     extends = "//packages/typescript/test/ts_project:tsconfig-base.json",
     tsconfig = "tsconfig.json",
-    deps = ["//packages/typescript/test/ts_project/b:tsconfig"],
+    deps = ["//packages/typescript/test/ts_project/b"],
 )

@@ -17,5 +17,5 @@ ts_project(
     name = "compile_ts",
     composite = True,
     declaration = True,
-    tsconfig = "tsconfig",
+    tsconfig = ":tsconfig",
 )
