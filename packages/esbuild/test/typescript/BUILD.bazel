@@ -19,10 +19,13 @@ ts_library(
 
 esbuild(
     name = "bundle",
-    args = [
-        "--keep-names",
-        "--resolve-extensions=.mjs,.js",
-    ],
+    args = {
+        "keepNames": True,
+        "resolveExtensions": [
+            ".mjs",
+            ".js",
+        ],
+    },
     entry_point = "main.ts",
     format = "esm",
     deps = [":main"],

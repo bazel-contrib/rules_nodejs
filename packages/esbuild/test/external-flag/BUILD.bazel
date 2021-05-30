@@ -14,7 +14,9 @@ ts_library(
 
 esbuild(
     name = "bundle",
-    args = ["--keep-names"],
+    args = {
+        "keepNames": True,
+    },
     entry_point = "main.ts",
     external = [
         "fs",

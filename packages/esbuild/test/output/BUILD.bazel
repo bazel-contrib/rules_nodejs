@@ -14,7 +14,9 @@ ts_library(
 
 esbuild(
     name = "bundle_different_output",
-    args = ["--keep-names"],
+    args = {
+        "keepNames": True,
+    },
     entry_point = "main.ts",
     output = "different_output.js",
     deps = [":main"],

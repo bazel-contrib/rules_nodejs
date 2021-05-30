@@ -2,11 +2,11 @@
 esbuild rule
 """
 
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "params_file")
 load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//packages/esbuild/toolchain:toolchain.bzl", "TOOLCHAIN")
-load(":helpers.bzl", "desugar_entry_point_names", "filter_files", "generate_path_mapping", "resolve_entry_point", "write_jsconfig_file")
+load(":helpers.bzl", "desugar_entry_point_names", "filter_files", "generate_path_mapping", "resolve_entry_point", "write_args_file", "write_jsconfig_file")
 
 def _esbuild_impl(ctx):
     # For each dep, JSEcmaScriptModuleInfo is used if found, then JSModuleInfo and finally
@@ -45,52 +45,54 @@ def _esbuild_impl(ctx):
 
     # TODO(mattem): 4.0.0 breaking change, entry_points must exist in deps, and are not considered additional srcs
     inputs = deps_inputs + ctx.files.srcs + filter_files(entry_points)
+    outputs = []
 
-    metafile = ctx.actions.declare_file("%s_metadata.json" % ctx.attr.name)
-    outputs = [metafile]
-
-    args = ctx.actions.args()
-    args.use_param_file(param_file_arg = "--esbuild_flags=%s", use_always = True)
-
-    # the entry point files to bundle
-    for entry_point in entry_points:
-        args.add(resolve_entry_point(entry_point, inputs, ctx.files.srcs))
-    args.add("--bundle")
+    args = dict({
+        "bundle": True,
+        "define": dict([
+            [k, ctx.expand_location(v)]
+            for k, v in ctx.attr.define.items()
+        ]),
+        # the entry point files to bundle
+        "entryPoints": [
+            resolve_entry_point(entry_point, inputs, ctx.files.srcs).path
+            for entry_point in entry_points
+        ],
+        "external": ctx.attr.external,
+        # by default the log level is "info" and includes an output file summary
+        # under bazel this is slightly redundant and may lead to spammy logs
+        # Also disable the log limit and show all logs
+        "logLevel": "warning",
+        "logLimit": 0,
+        "metafile": True,
+        "platform": ctx.attr.platform,
+        "preserveSymlinks": True,
+        "sourcesContent": ctx.attr.sources_content,
+        "target": ctx.attr.target,
+    })
 
     if len(ctx.attr.sourcemap) > 0:
-        args.add_joined(["--sourcemap", ctx.attr.sourcemap], join_with = "=")
+        args.update({"sourcemap": ctx.attr.sourcemap})
     else:
-        args.add("--sourcemap")
-
-    args.add("--preserve-symlinks")
-    args.add_joined(["--platform", ctx.attr.platform], join_with = "=")
-    args.add_joined(["--target", ctx.attr.target], join_with = "=")
-    args.add_joined(["--metafile", metafile.path], join_with = "=")
-    args.add_all(ctx.attr.define, format_each = "--define:%s")
-    args.add_all(ctx.attr.external, format_each = "--external:%s")
-
-    # disable the log limit and show all logs
-    args.add_joined(["--log-limit", "0"], join_with = "=")
+        args.update({"sourcemap": True})
 
     if ctx.attr.minify:
-        args.add("--minify")
+        args.update({"minify": True})
     else:
         # by default, esbuild will tree-shake 'pure' functions
         # disable this unless also minifying
-        args.add_joined(["--tree-shaking", "ignore-annotations"], join_with = "=")
-
-    if ctx.attr.sources_content:
-        args.add("--sources-content=true")
-    else:
-        args.add("--sources-content=false")
+        args.update({"treeShaking": "ignore-annotations"})
 
     if ctx.attr.output_dir:
         js_out = ctx.actions.declare_directory("%s" % ctx.attr.name)
         outputs.append(js_out)
 
-        args.add("--splitting")
-        args.add_joined(["--format", "esm"], join_with = "=")
-        args.add_joined(["--outdir", js_out.path], join_with = "=")
+        # disable the log limit and show all logs
+        args.update({
+            "format": "esm",
+            "outdir": js_out.path,
+            "splitting": True,
+        })
     else:
         js_out = ctx.outputs.output
         outputs.append(js_out)
@@ -105,29 +107,18 @@ def _esbuild_impl(ctx):
             outputs.append(ctx.outputs.output_css)
 
         if ctx.attr.format:
-            args.add_joined(["--format", ctx.attr.format], join_with = "=")
+            args.update({"format": ctx.attr.format})
 
-        args.add_joined(["--outfile", js_out.path], join_with = "=")
+        args.update({"outfile": js_out.path})
 
     jsconfig_file = write_jsconfig_file(ctx, path_alias_mappings)
-    args.add_joined(["--tsconfig", jsconfig_file.path], join_with = "=")
     inputs.append(jsconfig_file)
+    args.update({"tsconfig": jsconfig_file.path})
 
-    log_level_flag = "--log-level"
-    has_log_level_flag = False
-    for arg in ctx.attr.args:
-        if arg.startswith(log_level_flag):
-            has_log_level_flag = True
+    env = {
+        "ESBUILD_BINARY_PATH": ctx.toolchains[TOOLCHAIN].binary.path,
+    }
 
-        args.add(ctx.expand_location(arg))
-
-    # by default the log level is "info" and includes an output file summary
-    # under bazel this is slightly redundant and may lead to spammy logs
-    # unless the user overrides the log level, set it to only show warnings and errors
-    if not has_log_level_flag:
-        args.add_joined([log_level_flag, "warning"], join_with = "=")
-
-    env = {}
     if ctx.attr.max_threads > 0:
         env["GOMAXPROCS"] = str(ctx.attr.max_threads)
 
@@ -135,14 +126,28 @@ def _esbuild_impl(ctx):
     if "no-remote-exec" in ctx.attr.tags:
         execution_requirements = {"no-remote-exec": "1"}
 
+    # setup the args passed to the launcher
     launcher_args = ctx.actions.args()
-    launcher_args.add("--esbuild=%s" % ctx.toolchains[TOOLCHAIN].binary.path)
+
+    args_file = write_args_file(ctx, args)
+    inputs.append(args_file)
+    launcher_args.add("--esbuild_args=%s" % args_file.path)
+
+    # add metafile
+    meta_file = ctx.actions.declare_file("%s_metadata.json" % ctx.attr.name)
+    outputs.append(meta_file)
+    launcher_args.add("--metafile=%s" % meta_file.path)
+
+    # add reference to the users args file, these are merged within the launcher
+    if ctx.attr.args_file:
+        inputs.append(ctx.file.args_file)
+        launcher_args.add("--user_args=%s" % ctx.file.args_file.path)
 
     run_node(
         ctx = ctx,
         inputs = depset(inputs),
         outputs = outputs,
-        arguments = [launcher_args, args],
+        arguments = [launcher_args],
         progress_message = "%s Javascript %s [esbuild]" % ("Bundling" if not ctx.attr.output_dir else "Splitting", " ".join([entry_point.short_path for entry_point in entry_points])),
         execution_requirements = execution_requirements,
         mnemonic = "esbuild",
@@ -155,7 +160,9 @@ def _esbuild_impl(ctx):
     outputs_depset = depset(outputs)
 
     return [
-        DefaultInfo(files = outputs_depset),
+        DefaultInfo(
+            files = outputs_depset,
+        ),
         JSModuleInfo(
             direct_sources = outputs_depset,
             sources = outputs_depset,
@@ -164,21 +171,26 @@ def _esbuild_impl(ctx):
 
 esbuild = rule(
     attrs = {
-        "args": attr.string_list(
-            default = [],
-            doc = """A list of extra arguments that are included in the call to esbuild.
-    $(location ...) can be used to resolve the path to a Bazel target.""",
+        "args": attr.string_dict(
+            default = {},
+            doc = """A dict of extra arguments that are included in the call to esbuild, where the key is the argument name.
+Values are subject to $(location ...) expansion""",
         ),
-        "define": attr.string_list(
-            default = [],
-            doc = """A list of global identifier replacements.
+        "args_file": attr.label(
+            allow_single_file = True,
+            mandatory = False,
+            doc = "A JSON file containing additional arguments that are passed to esbuild. Note: only one of args or args_file may be set",
+        ),
+        "define": attr.string_dict(
+            default = {},
+            doc = """A dict of global identifier replacements. Values are subject to $(location ...) expansion.
 Example:
 ```python
 esbuild(
     name = "bundle",
-    define = [
-        "process.env.NODE_ENV=\\"production\\""
-    ],
+    define = {
+        "process.env.NODE_ENV": "production"
+    },
 )
 ```
 
@@ -337,12 +349,36 @@ def esbuild_macro(name, output_dir = False, **kwargs):
         entry_point = Label("@build_bazel_rules_nodejs//packages/esbuild:launcher.js"),
     )
 
+    srcs = kwargs.pop("srcs", [])
+    deps = kwargs.pop("deps", []) + ["@esbuild_npm//esbuild"]
     entry_points = kwargs.get("entry_points", None)
+
+    args = kwargs.pop("args", {})
+    args_file = kwargs.pop("args_file", None)
+
+    if args and args_file:
+        fail("Both 'args' and 'args_file' attributes set, these are mutually exclusive")
+
+    if args:
+        if type(args) != type(dict()):
+            fail("Expected 'args' to be of type dict")
+
+        args_file = "%s.user.args.json" % name
+        params_file(
+            name = "%s_args" % name,
+            out = args_file,
+            args = [json.encode(args)],
+            data = deps + srcs,
+        )
+
     if output_dir == True or entry_points:
         esbuild(
             name = name,
+            srcs = srcs,
             output_dir = True,
+            args_file = args_file,
             launcher = _launcher,
+            deps = deps,
             **kwargs
         )
     else:
@@ -357,8 +393,11 @@ def esbuild_macro(name, output_dir = False, **kwargs):
 
         esbuild(
             name = name,
+            srcs = srcs,
+            args_file = args_file,
             output = output,
             output_map = output_map,
             launcher = _launcher,
+            deps = deps,
             **kwargs
         )

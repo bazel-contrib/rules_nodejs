@@ -99,7 +99,7 @@ This will create an output directory containing all the code split chunks, along
 **USAGE**
 
 <pre>
-esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-entry_points">entry_points</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-launcher">launcher</a>,
+esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-args_file">args_file</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-entry_points">entry_points</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-launcher">launcher</a>,
         <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>, <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_css">output_css</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>,
         <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>)
 </pre>
@@ -119,27 +119,33 @@ For further information about esbuild, see https://esbuild.github.io/
 
 <h4 id="esbuild-args">args</h4>
 
-(*List of strings*): A list of extra arguments that are included in the call to esbuild.
-    $(location ...) can be used to resolve the path to a Bazel target.
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): A dict of extra arguments that are included in the call to esbuild, where the key is the argument name.
+Values are subject to $(location ...) expansion
 
-Defaults to `[]`
+Defaults to `{}`
+
+<h4 id="esbuild-args_file">args_file</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A JSON file containing additional arguments that are passed to esbuild. Note: only one of args or args_file may be set
+
+Defaults to `None`
 
 <h4 id="esbuild-define">define</h4>
 
-(*List of strings*): A list of global identifier replacements.
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): A dict of global identifier replacements. Values are subject to $(location ...) expansion.
 Example:
 ```python
 esbuild(
     name = "bundle",
-    define = [
-        "process.env.NODE_ENV=\"production\""
-    ],
+    define = {
+        "process.env.NODE_ENV": "production"
+    },
 )
 ```
 
 See https://esbuild.github.io/api/#define for more details
 
-Defaults to `[]`
+Defaults to `{}`
 
 <h4 id="esbuild-deps">deps</h4>
 

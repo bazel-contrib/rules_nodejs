@@ -14,10 +14,16 @@ ts_library(
 
 esbuild(
     name = "bundle",
-    args = ["--keep-names"],
-    define = [
-        "process.env.NODE_ENV=\"defined_in_bundle\"",
+    srcs = [
+        "shim.js",
     ],
+    args = {
+        "inject": ["$(execpath :shim.js)"],
+        "keepNames": True,
+    },
+    define = {
+        "process.env.NODE_ENV": "\"defined_in_bundle\"",
+    },
     entry_point = "main.ts",
     deps = [":main"],
 )

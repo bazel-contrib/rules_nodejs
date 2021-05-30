@@ -14,14 +14,18 @@ ts_library(
 
 esbuild(
     name = "bundle_default",
-    args = ["--keep-names"],
+    args = {
+        "keepNames": True,
+    },
     entry_point = "main.ts",
     deps = [":main"],
 )
 
 esbuild(
     name = "bundle_inline",
-    args = ["--keep-names"],
+    args = {
+        "keepNames": True,
+    },
     entry_point = "main.ts",
     sourcemap = "inline",
     deps = [":main"],
@@ -29,7 +33,9 @@ esbuild(
 
 esbuild(
     name = "bundle_external",
-    args = ["--keep-names"],
+    args = {
+        "keepNames": True,
+    },
     entry_point = "main.ts",
     sourcemap = "external",
     deps = [":main"],
@@ -37,7 +43,9 @@ esbuild(
 
 esbuild(
     name = "bundle_both",
-    args = ["--keep-names"],
+    args = {
+        "keepNames": True,
+    },
     entry_point = "main.ts",
     sourcemap = "both",
     deps = [":main"],
