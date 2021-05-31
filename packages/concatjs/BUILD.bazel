@@ -63,11 +63,18 @@ bzl_library(
 stardoc(
     name = "docs",
     testonly = True,
-    out = "README.md",
+    out = "README.md_",
     input = "index.docs.bzl",
     tags = ["fix-windows"],
-    visibility = ["//docs:__pkg__"],
     deps = [":bzl"],
+)
+
+genrule(
+    name = "docs_scrub_platform",
+    srcs = ["README.md_"],
+    outs = ["README.md"],
+    cmd = "sed -e 's#devserver:devserver_.*_amd64#devserver:devserver_[platform]#' <$< >$@",
+    visibility = ["//docs:__pkg__"],
 )
 
 copy_file(

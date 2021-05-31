@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//tools/stardoc:index.bzl", "rules_nodejs_docs", "stardoc")
+load("//:index.bzl", "generated_file_test")
+load("//tools/stardoc:index.bzl", "stardoc")
 
 stardoc(
     name = "builtins",
@@ -35,39 +36,28 @@ stardoc(
     ],
 )
 
-rules_nodejs_docs(
-    name = "docs",
-    assets = glob(["images/*"]),
-    config = "_config.yml",
-    css = "//docs/css",
-    docs = [
-        "search.md",
-        "install.md",
-        "repositories.md",
-        "debugging.md",
-        "dependencies.md",
-        "stamping.md",
-        "index.md",
-        "examples.md",
-        "changing-rules.md",
-    ],
-    includes = glob(["_includes/*"]),
-    layouts = glob(["_layouts/*"]),
-    readmes = {
-        "Built-ins": ":builtins.md_",
-        "Concatjs": "//packages/concatjs:README.md",
-        "Cypress": "//packages/cypress:README.md",
-        "Jasmine": "//packages/jasmine:README.md",
-        "Labs": "//packages/labs:README.md",
-        "Protractor": "//packages/protractor:README.md",
-        "Providers": ":providers.md_",
-        "Rollup": "//packages/rollup:README.md",
-        "Terser": "//packages/terser:README.md",
-        "TypeScript": "//packages/typescript:README.md",
-        "esbuild": "//packages/esbuild:README.md",
-    },
-    tags = [
-        "fix-windows",
-        "manual",
-    ],
-)
+_READMES = {
+    "Built-ins": ":builtins.md_",
+    "Concatjs": "//packages/concatjs:README.md",
+    "Cypress": "//packages/cypress:README.md",
+    "Jasmine": "//packages/jasmine:README.md",
+    "Labs": "//packages/labs:README.md",
+    "Protractor": "//packages/protractor:README.md",
+    "Providers": ":providers.md_",
+    "Rollup": "//packages/rollup:README.md",
+    "Terser": "//packages/terser:README.md",
+    "TypeScript": "//packages/typescript:README.md",
+    "esbuild": "//packages/esbuild:README.md",
+}
+
+[
+    generated_file_test(
+        name = "check_" + k.lower(),
+        src = k + ".md",
+        generated = v,
+    )
+    for [
+        k,
+        v,
+    ] in _READMES.items()
+]

@@ -127,7 +127,6 @@
         "update-esbuild-versions": "node ./scripts/update-esbuild-versions.js > packages/esbuild/esbuild_repo.bzl",
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
-        "stardoc": "bazel build --noincompatible_strict_action_env //docs && cp -f dist/bin/docs/*.md ./docs && cp -f dist/bin/docs/docs-out/*.html ./docs && cp -f dist/bin/docs/docs-out/css/*.css ./docs/css",
         "version": "conventional-changelog -p angular -i CHANGELOG.md -s && node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage version.bzl docs/install.md packages/create/index.js README.md CHANGELOG.md e2e/*/WORKSPACE examples/*/WORKSPACE",
         "postinstall": "patch-package && node internal/npm_install/test/postinstall.js"
     },

@@ -21,6 +21,3 @@ load(
 )
 
 esbuild = _esbuild_macro
-
-# DO NOT ADD MORE rules here unless they appear in the generated docsite.
-# Run yarn stardoc to re-generate the docsite.

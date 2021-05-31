@@ -48,4 +48,3 @@ npm_package_bin = _npm_bin
 pkg_web = _pkg_web
 generated_file_test = _generated_file_test
 js_library = _js_library
-# ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn stardoc to verify

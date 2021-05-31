@@ -1,9 +1,3 @@
----
-title: Stamping
-layout: default
-toc: true
----
-
 # Stamping
 
 Bazel is generally only a build tool, and is unaware of your version control system.

@@ -161,5 +161,3 @@ load("//packages/typescript/internal:ts_project.bzl", _ts_project = "ts_project_
 ts_library = _ts_library
 ts_config = _ts_config
 ts_project = _ts_project
-# DO NOT ADD MORE rules here unless they appear in the generated docsite.
-# Run yarn stardoc to re-generate the docsite.

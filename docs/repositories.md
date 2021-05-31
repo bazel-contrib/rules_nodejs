@@ -1,8 +1,3 @@
----
-title: Generated Repositories
-layout: default
-toc: true
----
 # Generated Repositories
 
 rules_nodejs produces several repositories for you to reference.
