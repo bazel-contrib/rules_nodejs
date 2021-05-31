@@ -1,3 +1,0 @@
-# Tell GitHub code review that the .html files aren't interesting
-# See https://github.com/github/linguist#generated-code
-*.html linguist-generated

@@ -118,6 +118,3 @@ load(
 )
 
 esbuild = _esbuild
-
-# DO NOT ADD MORE rules here unless they appear in the generated docsite.
-# Run yarn stardoc to re-generate the docsite.
