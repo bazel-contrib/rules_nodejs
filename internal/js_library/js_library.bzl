@@ -345,6 +345,7 @@ def js_library(
             It can also be used for user-managed npm dependencies if node_modules is layed out outside of bazel.
             For example,
 
+            ```starlark
             js_library(
                 name = "node_modules",
                 srcs = glob(
@@ -369,6 +370,7 @@ def js_library(
                 # rules that use these npm dependencies
                 package_name = "$node_modules$",
             )
+            ```
 
             See `examples/user_managed_deps` for a working example of user-managed npm dependencies.
         package_path: The directory in the workspace to link to.
