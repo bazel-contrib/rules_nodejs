@@ -2,6 +2,9 @@
   "compilerOptions": {
     "strict": true,
     "lib": ["es2015.promise", "dom", "es5"],
-  }
+    "module": "umd",
+    "moduleResolution": "node"
+  },
+  "exclude": ["external"]
 }
 
