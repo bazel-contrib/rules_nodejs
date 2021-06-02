@@ -135,14 +135,18 @@ def write_jsconfig_file(ctx, path_alias_mappings):
     # declare the jsconfig_file
     jsconfig_file = ctx.actions.declare_file("%s.config.json" % ctx.attr.name)
 
-    # write the config file
-    ctx.actions.write(
-        output = jsconfig_file,
-        content = struct(compilerOptions = struct(
+    jsconfig = struct(
+        compilerOptions = struct(
             rootDirs = ["."],
             baseUrl = base_url_path,
             paths = path_alias_mappings,
-        )).to_json(),
+        ),
+    )
+
+    # write the config file
+    ctx.actions.write(
+        output = jsconfig_file,
+        content = json.encode(jsconfig),
     )
 
     return jsconfig_file

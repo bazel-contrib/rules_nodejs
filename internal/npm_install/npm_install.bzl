@@ -277,18 +277,20 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
         if not v.startswith("@"):
             fail("link target must be label of form '@wksp//path/to:target', '@//path/to:target' or '//path/to:target'")
         validated_links[k] = v
-    generate_config_json = struct(
-        generate_local_modules_build_files = generate_local_modules_build_files,
-        included_files = repository_ctx.attr.included_files,
-        links = validated_links,
-        package_json = str(repository_ctx.path(repository_ctx.attr.package_json)),
-        package_lock = str(repository_ctx.path(lock_file)),
-        package_path = repository_ctx.attr.package_path,
-        rule_type = rule_type,
-        strict_visibility = repository_ctx.attr.strict_visibility,
-        workspace = repository_ctx.attr.name,
-        workspace_root_prefix = _workspace_root_prefix(repository_ctx),
-    ).to_json()
+    generate_config_json = json.encode(
+        struct(
+            generate_local_modules_build_files = generate_local_modules_build_files,
+            included_files = repository_ctx.attr.included_files,
+            links = validated_links,
+            package_json = str(repository_ctx.path(repository_ctx.attr.package_json)),
+            package_lock = str(repository_ctx.path(lock_file)),
+            package_path = repository_ctx.attr.package_path,
+            rule_type = rule_type,
+            strict_visibility = repository_ctx.attr.strict_visibility,
+            workspace = repository_ctx.attr.name,
+            workspace_root_prefix = _workspace_root_prefix(repository_ctx),
+        ),
+    )
     repository_ctx.file("generate_config.json", generate_config_json)
     result = repository_ctx.execute(
         [node, "index.js"],
