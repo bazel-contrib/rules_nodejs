@@ -128,6 +128,6 @@ def write_tsconfig(name, config, files, out, extends = None):
         name = name,
         files = files,
         extends = extends,
-        content = [amended_config.to_json()],
+        content = [json.encode(amended_config)],
         out = out,
     )

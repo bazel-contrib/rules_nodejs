@@ -267,7 +267,7 @@ def _validate_options_impl(ctx):
     marker = ctx.actions.declare_file("%s.optionsvalid.d.ts" % ctx.label.name)
 
     arguments = ctx.actions.args()
-    arguments.add_all([ctx.file.tsconfig.path, marker.path, ctx.attr.target, struct(
+    config = struct(
         allow_js = ctx.attr.allow_js,
         declaration = ctx.attr.declaration,
         declaration_map = ctx.attr.declaration_map,
@@ -277,7 +277,8 @@ def _validate_options_impl(ctx):
         source_map = ctx.attr.source_map,
         incremental = ctx.attr.incremental,
         ts_build_info_file = ctx.attr.ts_build_info_file,
-    ).to_json()])
+    )
+    arguments.add_all([ctx.file.tsconfig.path, marker.path, ctx.attr.target, json.encode(config)])
 
     inputs = _tsconfig_inputs(ctx)
 
