@@ -19,5 +19,10 @@ load(
     "@build_bazel_rules_nodejs//packages/esbuild:esbuild.bzl",
     _esbuild_macro = "esbuild_macro",
 )
+load(
+    "@build_bazel_rules_nodejs//packages/esbuild/toolchain:toolchain.bzl",
+    _configure_esbuild_toolchain = "configure_esbuild_toolchain",
+)
 
 esbuild = _esbuild_macro
+configure_esbuild_toolchain = _configure_esbuild_toolchain

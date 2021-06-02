@@ -1,5 +1,5 @@
 load("//:index.bzl", "generated_file_test", "js_library", "nodejs_binary", "npm_package_bin")
-load("//packages/esbuild/test:tests.bzl", "esbuild")
+load("//packages/esbuild:index.bzl", "esbuild")
 
 js_library(
     name = "lib",

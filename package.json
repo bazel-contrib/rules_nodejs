@@ -124,7 +124,7 @@
         "bazel:update-deleted-packages": "sed -i.bak \"/--deleted_packages/s#=.*#=$(find {examples,e2e}/*/* \\( -name BUILD -or -name BUILD.bazel \\) | xargs -n 1 dirname | paste -sd, -)#\" .bazelrc && rm .bazelrc.bak",
         "update-codeowners": "./scripts/update_codeowners.sh",
         "update-nodejs-versions": "node ./scripts/update-nodejs-versions.js > internal/node/node_versions.bzl",
-        "update-esbuild-versions": "node ./scripts/update-esbuild-versions.js > packages/esbuild/esbuild_repo.bzl",
+        "update-esbuild-versions": "node ./scripts/update-esbuild-versions.js",
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "version": "conventional-changelog -p angular -i CHANGELOG.md -s && node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage version.bzl docs/install.md packages/create/index.js README.md CHANGELOG.md e2e/*/WORKSPACE examples/*/WORKSPACE",

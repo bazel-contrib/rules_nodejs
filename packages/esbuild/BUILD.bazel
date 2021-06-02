@@ -27,8 +27,11 @@ codeowners(
 
 bzl_library(
     name = "bzl",
-    srcs = glob(["**/*.bzl"]),
+    srcs = glob(["**/*.bzl"]) + [
+        "@bazel_tools//tools:bzl_srcs",
+    ],
     deps = [
+        "//packages/esbuild/toolchain:bzl",
         "@bazel_skylib//lib:paths",
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
@@ -51,20 +54,28 @@ copy_file(
     out = ":npm_version_check.js",
 )
 
-pkg_npm(
-    name = "npm_package",
+filegroup(
+    name = "srcs",
     srcs = [
         "esbuild.bzl",
+        "esbuild_packages.bzl",
+        "esbuild_repositories.bzl",
         "helpers.bzl",
         "index.bzl",
         "launcher.js",
         "package.json",
     ],
-    build_file_content = """exports_files(["launcher.js"])
-    """,
+)
+
+pkg_npm(
+    name = "npm_package",
+    srcs = [
+        ":srcs",
+        "//packages/esbuild/toolchain:srcs",
+    ],
+    build_file_content = """exports_files(["launcher.js"])""",
     substitutions = dict({
-        "@build_bazel_rules_nodejs//packages/esbuild:esbuild.bzl": "//@bazel/esbuild:esbuild.bzl",
-        "@build_bazel_rules_nodejs//packages/esbuild:launcher.js": "//@bazel/esbuild:launcher.js",
+        "@build_bazel_rules_nodejs//packages/esbuild": "//@bazel/esbuild",
     }),
     deps = [
         ":README.md",
