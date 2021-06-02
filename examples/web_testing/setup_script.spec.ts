@@ -1,3 +1,4 @@
+/// <amd-module name="examples_webtesting/setup_script.spec"/>
 describe('setup script', () => {
   it('should load before the spec', async () => {
     expect((window as any).setupGlobal).toBe('setupGlobalValue');

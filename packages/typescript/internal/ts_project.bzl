@@ -631,7 +631,7 @@ def ts_project_macro(
             name = "_gen_tsconfig_%s" % name,
             config = tsconfig,
             files = [s for s in srcs if _is_ts_src(s, allow_js)],
-            extends = Label("//%s:%s" % (native.package_name(), name)).relative(extends) if extends else None,
+            extends = Label("%s//%s:%s" % (native.repository_name(), native.package_name(), name)).relative(extends) if extends else None,
             out = "tsconfig_%s.json" % name,
         )
 

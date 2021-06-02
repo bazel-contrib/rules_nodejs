@@ -1,4 +1,5 @@
-import {decrement} from './decrement';
+/// <amd-module name="examples_webtesting/decrement.spec"/>
+import {decrement} from 'decrement-lib/decrement';
 
 describe('decrementing', () => {
   it('should do that', () => {

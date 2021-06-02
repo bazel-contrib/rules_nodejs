@@ -1,3 +1,5 @@
+/// <amd-module name="examples_webtesting/setup_script"/>
+
 // Setup global value that the test expect to be present.
 (window as any).setupGlobal = 'setupGlobalValue';
 
