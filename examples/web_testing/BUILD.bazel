@@ -1,22 +1,38 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("@npm//@bazel/concatjs:index.bzl", "karma_web_test_suite")
-load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_project")
 
-ts_library(
-    name = "lib",
+ts_project(
+    name = "compile",
     srcs = ["decrement.ts"],
+    extends = "tsconfig.json",
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+        },
+    },
 )
 
-ts_config(
-    name = "tsconfig-test",
-    src = "tsconfig-test.json",
-    deps = [":tsconfig.json"],
+js_library(
+    name = "lib",
+    package_name = "decrement-lib",
+    named_module_srcs = [":compile"],
+    deps = [":compile"],
 )
 
-ts_library(
-    name = "tests",
+ts_project(
+    name = "compile_tests",
     testonly = 1,
     srcs = glob(["*.spec.ts"]),
-    tsconfig = ":tsconfig-test",
+    extends = "tsconfig.json",
+    tsconfig = {
+        "compilerOptions": {
+            "types": [
+                "jasmine",
+                "node",
+            ],
+        },
+    },
     deps = [
         ":lib",
         "@npm//@types/jasmine",
@@ -24,15 +40,29 @@ ts_library(
     ],
 )
 
-ts_library(
-    name = "tests_setup",
+js_library(
+    name = "tests",
+    testonly = 1,
+    named_module_srcs = [":compile_tests"],
+    deps = ["lib"],
+)
+
+ts_project(
+    name = "compile_tests_setup",
     testonly = 1,
     srcs = ["setup_script.ts"],
-    tsconfig = ":tsconfig-test",
+    extends = "tsconfig.json",
+    tsconfig = {},
     deps = [
         "@npm//@types/jasmine",
         "@npm//@types/node",
     ],
+)
+
+js_library(
+    name = "tests_setup",
+    testonly = 1,
+    named_module_srcs = [":compile_tests_setup"],
 )
 
 karma_web_test_suite(
