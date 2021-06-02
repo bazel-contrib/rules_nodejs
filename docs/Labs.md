@@ -38,7 +38,7 @@ ts_proto_library(<a href="#ts_proto_library-name">name</a>, <a href="#ts_proto_l
 
 <h4 id="ts_proto_library-proto">proto</h4>
 
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*)  The dependencies of this attribute must provide: ProtoInfo
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*)  The dependencies of this attribute must provide: Unknown Provider
 
 
 
