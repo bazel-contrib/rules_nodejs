@@ -17,7 +17,6 @@ load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install
 # https://github.com/bazelbuild/rules_nodejs/issues/438 and
 # https://github.com/bazelbuild/rules_nodejs/issues/428
 node_repositories(
-    node_version = "10.3.0",
     yarn_version = "1.9.2",
 )
 
