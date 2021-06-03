@@ -1,24 +1,35 @@
 load("@yarn//@bazel/cypress:index.bzl", "cypress_web_test")
-load("@yarn//@bazel/typescript:index.bzl", "ts_library")
+load("@yarn//@bazel/typescript:index.bzl", "ts_project")
 
-# You must create a cypress plugin in order to boot a server to serve your application. It can be written as a javascript file or in typescript using ts_library or ts_project.
-ts_library(
+# You must create a cypress plugin in order to boot a server to serve your application.
+# It can be written as a javascript file or in typescript using ts_project.
+ts_project(
     name = "plugin_file",
     testonly = True,
     srcs = ["plugin.ts"],
-    tsconfig = ":tsconfig.json",
+    extends = ":tsconfig.json",
+    tsconfig = {
+        "compilerOptions": {
+            "types": ["node"],
+        },
+    },
     deps = [
         "@yarn//@types/node",
         "@yarn//express",
     ],
 )
 
-# You can write your cypress tests a javascript files or in typescript using ts_library or ts_project.
-ts_library(
+# You can write your cypress tests a javascript files or in typescript.
+ts_project(
     name = "hello_spec",
     testonly = True,
     srcs = ["hello.spec.ts"],
-    tsconfig = ":tsconfig.json",
+    extends = ":tsconfig.json",
+    tsconfig = {
+        "compilerOptions": {
+            "types": ["cypress"],
+        },
+    },
     deps = [
         "@yarn//cypress",
     ],
