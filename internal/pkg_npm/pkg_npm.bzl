@@ -378,10 +378,9 @@ def pkg_npm_macro(name, tgz = None, **kwargs):
         native.genrule(
             name = "%s.tar" % name,
             outs = [tgz],
-            cmd = "$(location :%s.pack) | xargs -I {} cp {} $@" % name,
             # NOTE(mattem): on windows, it seems to output a buch of other stuff on stdout when piping, so pipe to tail
             # and grab the last line
-            cmd_bat = "$(location :%s.pack) | tail -1 | xargs -I {} cp {} $@" % name,
+            cmd = "$(location :%s.pack) 2>/dev/null | tail -1 | xargs -I {} cp {} $@" % name,
             srcs = [
                 name,
             ],
