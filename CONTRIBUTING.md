@@ -1,5 +1,18 @@
 Want to contribute? Great! First, read this page (including the small print at the end).
 
+## Formatting
+
+Starlark files should be formatted by buildifier.
+We suggest using a pre-commit hook to automate this.
+First [install pre-commit](https://pre-commit.com/#installation),
+then run
+
+```shell
+pre-commit install
+```
+
+Otherwise the Buildkite CI will yell at you about formatting/linting violations.
+
 ### Before you contribute
 
 **Before we can use your code, you must sign the

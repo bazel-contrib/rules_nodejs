@@ -1,23 +1,13 @@
+# See CONTRIBUTING.md for instructions.
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
--   repo: local
+  - repo: https://github.com/keith/pre-commit-buildifier
+    rev: 4.0.1.1
     hooks:
-
-      -   id: bazel-format
-          name: bazel format
-          description: Auto-formats starlark code
-          entry: buildifier --lint=off --mode=fix
-          files: '^(.*/)?(BUILD\.bazel|BUILD|WORKSPACE)$|\.BUILD$|\.bzl$'
-          # Ideally we'd exclude third_party, but the CI enforcement doesn't support it, see
-          # https://github.com/bazelbuild/continuous-integration/issues/1162
-          # exclude: '^third_party/'
-          language: system
-
-      -   id: bazel-lint
-          name: bazel lint
-          description: Checks for code style violations in starlark code
-          # Keep this list in sync with .bazelci/presubmit.yml
-          entry: buildifier --lint=warn --mode=fix -v --warnings=attr-cfg,attr-license,attr-non-empty,attr-output-default,attr-single-file,confusing-name,constant-glob,ctx-actions,ctx-args,depset-iteration,depset-union,dict-concatenation,duplicated-name,filetype,function-docstring,git-repository,http-archive,integer-division,load,load-on-top,module-docstring,name-conventions,native-build,native-package,out-of-order-load,output-group,package-name,package-on-top,positional-args,redefined-variable,repository-name,return-value,same-origin-load,string-iteration,unreachable,unsorted-dict-items,unused-variable
-          files: '^(.*/)?(BUILD\.bazel|BUILD|WORKSPACE)$|\.BUILD$|\.bzl$'
-          language: system
+      - id: buildifier
+        args: &args
+          # Keep this argument in sync with .bazelci/presubmit.yml
+          - --warnings=attr-cfg,attr-license,attr-non-empty,attr-output-default,attr-single-file,confusing-name,constant-glob,ctx-actions,ctx-args,depset-iteration,depset-union,dict-concatenation,duplicated-name,filetype,function-docstring,git-repository,http-archive,integer-division,load,load-on-top,module-docstring,name-conventions,native-build,native-package,out-of-order-load,output-group,package-name,package-on-top,positional-args,redefined-variable,repository-name,return-value,same-origin-load,string-iteration,unreachable,unsorted-dict-items,unused-variable
+      - id: buildifier-lint
+        args: *args
