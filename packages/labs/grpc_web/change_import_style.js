@@ -17,17 +17,24 @@ const path = require('path');
 
 function main() {
   const args = minimist(process.argv.slice(2));
+  const input_dts_path = args.input_file_path.replace(/\.js$/, '.d.ts');
+  const output_dts_path = args.output_umd_path.replace(/\.js$/, '.d.ts');
 
   /**
    * Proto files with RPC service definitions will produce an extra file. During a bazel aspect we
    * have to declare our outputs without knowing the contents of the proto file so we generate an
    * empty stub for files without service definitions.
    */
-  if (!fs.existsSync(args.input_file_path)) {
-    fs.writeFileSync(args.input_file_path, '', 'utf8');
-    fs.writeFileSync(args.input_file_path.replace('.js', '.d.ts'), '', 'utf8');
+  if (args.input_file_path.endsWith('_grpc_web_pb.js') &&
+      !fs.existsSync(args.input_file_path)) {
     fs.writeFileSync(args.output_umd_path, '', 'utf8');
+    fs.writeFileSync(output_dts_path, '', 'utf8');
     fs.writeFileSync(args.output_es6_path, '', 'utf8');
+    return;
+  }
+
+  if (input_dts_path != output_dts_path) {
+    fs.copyFileSync(input_dts_path, output_dts_path);
   }
 
   const initialContents = fs.readFileSync(args.input_file_path, 'utf8');
