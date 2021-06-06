@@ -542,7 +542,10 @@ def ts_project_macro(
 
             For example, `typescript_require_path = "typescript"`
 
-        validate: boolean; whether to check that the tsconfig settings match the attributes.
+        validate: boolean; whether to check that the tsconfig JSON settings match the attributes on this target.
+            
+            Set this to `False` to skip running our validator, in case you have a legitimate reason for these to differ,
+            e.g. you have a setting enabled just for the editor but you want different behavior when Bazel runs `tsc`.
 
         supports_workers: Experimental! Use only with caution.
 
