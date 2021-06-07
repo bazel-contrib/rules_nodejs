@@ -16,7 +16,7 @@ workspace(
     name = "build_bazel_rules_nodejs",
     managed_directories = {
         "@angular_deps": ["packages/angular/node_modules"],
-        # cypress_deps must be a managed directory to ensure it is downloaded before cypress_repository is run.
+        # cypress_deps must be a managed directory to ensure it is downloaded before cypress_repositories is run.
         "@cypress_deps": ["packages/cypress/test/node_modules"],
         "@internal_test_multi_linker_sub_deps": ["internal/linker/test/multi_linker/sub/node_modules"],
         "@npm": ["node_modules"],
@@ -100,13 +100,14 @@ ts_setup_dev_workspace()
 #
 # Install @bazel/cypress dependencies
 #
-load("//packages/cypress:index.bzl", "cypress_repository")
+load("//packages/cypress:index.bzl", "cypress_repositories")
 
-cypress_repository(
+cypress_repositories(
     name = "cypress",
-    cypress_bin = "@cypress_deps//:node_modules/cypress/bin/cypress",
-    # Currently cypress cannot be installed on our Linux/Windows CI machines
-    fail_on_error = False,
+    darwin_sha256 = "101a0ced77fb74b356800cb3a3919f5288d23cc63fdd39a0c500673159e954fc",
+    linux_sha256 = "d8ea8d16fed33fdae8f17178bcae076aaf532fa7ccb48f377df1f143e60abd59",
+    version = "7.3.0",
+    windows_sha256 = "8a8809e4fd22fe7bfc3103c39df3f4fce9db0964450ce927558e9a09558cb26c",
 )
 
 # Setup the rules_webtesting toolchain

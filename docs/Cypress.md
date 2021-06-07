@@ -21,36 +21,36 @@ or using yarn
 yarn add -D @bazel/cypress cypress
 ```
 
-Then, load and invoke `cypress_repository` within your `WORKSPACE` file.
+Then, load and invoke `cypress_repositories` within your `WORKSPACE` file.
 
 ```python
 # Assuming your external repository for node_modules is named @npm
 
-load("@npm//@bazel/cypress:index.bzl", "cypress_repository")
+load("@npm//@bazel/cypress:index.bzl", "cypress_repositories")
 
 # The name you pass here names the external repository you can load cypress_web_test from
-cypress_repository(name = "cypress")
+cypress_repositories(name = "cypress", version = "MATCH_VERSION_IN_PACKAGE_JSON")
 ```
 
 ### macOS install requirements
-On macOS, `cypress_repository` generates an external repository containing files whose names contain spaces. In order to make these files compatible with bazel you will need to add the following flag to your `.bazelrc` file:
+On macOS, `cypress_repositories` generates an external repository containing files whose names contain spaces. In order to make these files compatible with bazel you will need to add the following flag to your `.bazelrc` file:
 ```python
-# Required for cypress_repository on macOS
+# Required for cypress_repositories on macOS
 build --experimental_inprocess_symlink_creation
 ```
 
 ### windows install requirements
-At this point in time, `cypress_repository` is incompatible with bazel sandboxing on Windows. This may change in the future, but for now using cypress on windows requires windows sandboxing be disabled (it is disabled by default)
+At this point in time, `cypress_repositories` is incompatible with bazel sandboxing on Windows. This may change in the future, but for now using cypress on windows requires windows sandboxing be disabled (it is disabled by default)
 
 ## Example use of cypress_web_test
 This example assumes you've named your external repository for node_modules as `npm` and for cypress as `cypress`
 ```python
-load("@cypress//:index.bzl", "cypress_web_test")
+load("@npm//@bazel/cypress//:index.bzl", "cypress_web_test")
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 
 # You must create a cypress plugin in order to boot a server to serve your application. It can be written as a javascript file or in typescript using ts_library or ts_project.
 ts_library(
-    name = "plugins_file",
+    name = "plugin_file",
     testonly = True,
     srcs = ["plugin.ts"],
     tsconfig = ":tsconfig.json",
@@ -85,50 +85,336 @@ cypress_web_test(
     # Any runtime dependencies you need to boot your server or run your tests
     data = [],
     # Your cypress plugin used to configure cypress and boot your server
-    plugins_file = ":plugins_file",
+    plugin_file = ":plugin_file",
 )
 ```
 
 
-## cypress_repository
+## cypress_toolchain
 
 **USAGE**
 
 <pre>
-cypress_repository(<a href="#cypress_repository-name">name</a>, <a href="#cypress_repository-cypress_bin">cypress_bin</a>, <a href="#cypress_repository-fail_on_error">fail_on_error</a>, <a href="#cypress_repository-quiet">quiet</a>, <a href="#cypress_repository-repo_mapping">repo_mapping</a>)
+cypress_toolchain(<a href="#cypress_toolchain-name">name</a>, <a href="#cypress_toolchain-cypress_bin">cypress_bin</a>, <a href="#cypress_toolchain-cypress_bin_path">cypress_bin_path</a>, <a href="#cypress_toolchain-cypress_files">cypress_files</a>)
 </pre>
 
+Defines a cypress toolchain.
+
+For usage see https://docs.bazel.build/versions/master/toolchains.html#defining-toolchains.
 
 
 **ATTRIBUTES**
 
 
-<h4 id="cypress_repository-name">name</h4>
+<h4 id="cypress_toolchain-name">name</h4>
 
-(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this repository.
+(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
 
 
-<h4 id="cypress_repository-cypress_bin">cypress_bin</h4>
+<h4 id="cypress_toolchain-cypress_bin">cypress_bin</h4>
 
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): bazel target of the cypress binary
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A hermetically downloaded cypress executable binary for the target platform.
 
-Defaults to `@npm//:node_modules/cypress/bin/cypress`
+Defaults to `None`
 
-<h4 id="cypress_repository-fail_on_error">fail_on_error</h4>
+<h4 id="cypress_toolchain-cypress_bin_path">cypress_bin_path</h4>
 
-(*Boolean*): If the repository rule should allow errors
+(*String*): Path to an existing cypress executable for the target platform.
 
-Defaults to `True`
+Defaults to `""`
 
-<h4 id="cypress_repository-quiet">quiet</h4>
+<h4 id="cypress_toolchain-cypress_files">cypress_files</h4>
 
-(*Boolean*): If stdout and stderr should be printed to the terminal
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A hermetically downloaded cypress filegroup of all cypress binary files for the target platform. Must be set when cypress_bin is set.
 
-Defaults to `True`
+Defaults to `None`
 
-<h4 id="cypress_repository-repo_mapping">repo_mapping</h4>
 
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
+## cypress_web_test
 
+**USAGE**
+
+<pre>
+cypress_web_test(<a href="#cypress_web_test-name">name</a>, <a href="#cypress_web_test-chdir">chdir</a>, <a href="#cypress_web_test-config_file">config_file</a>, <a href="#cypress_web_test-configuration_env_vars">configuration_env_vars</a>, <a href="#cypress_web_test-cypress_npm_package">cypress_npm_package</a>, <a href="#cypress_web_test-data">data</a>,
+                 <a href="#cypress_web_test-default_env_vars">default_env_vars</a>, <a href="#cypress_web_test-entry_point">entry_point</a>, <a href="#cypress_web_test-env">env</a>, <a href="#cypress_web_test-expected_exit_code">expected_exit_code</a>, <a href="#cypress_web_test-link_workspace_root">link_workspace_root</a>,
+                 <a href="#cypress_web_test-plugin_file">plugin_file</a>, <a href="#cypress_web_test-srcs">srcs</a>, <a href="#cypress_web_test-templated_args">templated_args</a>)
+</pre>
+
+
+Identical to `nodejs_binary`, except this can be used with `bazel test` as well.
+When the binary returns zero exit code, the test passes; otherwise it fails.
+
+`nodejs_test` is a convenient way to write a novel kind of test based on running
+your own test runner. For example, the `ts-api-guardian` library has a way to
+assert the public API of a TypeScript program, and uses `nodejs_test` here:
+https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl
+
+If you just want to run a standard test using a test runner from npm, use the generated
+*_test target created by npm_install/yarn_install, such as `mocha_test`.
+Some test runners like Karma and Jasmine have custom rules with added features, e.g. `jasmine_node_test`.
+
+By default, Bazel runs tests with a working directory set to your workspace root.
+Use the `chdir` attribute to change the working directory before the program starts.
+
+To debug a Node.js test, we recommend saving a group of flags together in a "config".
+Put this in your `tools/bazel.rc` so it's shared with your team:
+```python
+# Enable debugging tests with --config=debug
+test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test_strategy=exclusive --test_timeout=9999 --nocache_test_results
+```
+
+Now you can add `--config=debug` to any `bazel test` command line.
+The runtime will pause before executing the program, allowing you to connect a
+remote debugger.
+
+
+**ATTRIBUTES**
+
+
+<h4 id="cypress_web_test-name">name</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
+
+
+<h4 id="cypress_web_test-chdir">chdir</h4>
+
+(*String*): Working directory to run the binary or test in, relative to the workspace.
+By default, Bazel always runs in the workspace root.
+Due to implementation details, this argument must be underneath this package directory.
+
+To run in the directory containing the `nodejs_binary` / `nodejs_test`, use
+
+    chdir = package_name()
+
+(or if you're in a macro, use `native.package_name()`)
+
+WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+which are workspace-relative.
+You may need `../../` segments to re-relativize such paths to the new working directory.
+
+Defaults to `""`
+
+<h4 id="cypress_web_test-config_file">config_file</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*): cypress.json configuration file. See https://docs.cypress.io/guides/references/configuration
+
+
+<h4 id="cypress_web_test-configuration_env_vars">configuration_env_vars</h4>
+
+(*List of strings*): Pass these configuration environment variables to the resulting binary.
+Chooses a subset of the configuration environment variables (taken from `ctx.var`), which also
+includes anything specified via the --define flag.
+Note, this can lead to different outputs produced by this rule.
+
+Defaults to `[]`
+
+<h4 id="cypress_web_test-cypress_npm_package">cypress_npm_package</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): The cypress npm package. If you installed cypress as a peer dependency, this should not need to be set.
+
+Defaults to `//cypress:cypress`
+
+<h4 id="cypress_web_test-data">data</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Runtime dependencies which may be loaded during execution.
+
+Defaults to `[]`
+
+<h4 id="cypress_web_test-default_env_vars">default_env_vars</h4>
+
+(*List of strings*): Default environment variables that are added to `configuration_env_vars`.
+
+This is separate from the default of `configuration_env_vars` so that a user can set `configuration_env_vars`
+without losing the defaults that should be set in most cases.
+
+The set of default  environment variables is:
+
+- `VERBOSE_LOGS`: use by some rules & tools to turn on debug output in their logs
+- `NODE_DEBUG`: used by node.js itself to print more logs
+- `RUNFILES_LIB_DEBUG`: print diagnostic message from Bazel runfiles.bash helper
+
+Defaults to `["VERBOSE_LOGS", "NODE_DEBUG", "RUNFILES_LIB_DEBUG"]`
+
+<h4 id="cypress_web_test-entry_point">entry_point</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Entry point JS file which bootstraps the cypress cli
+
+Defaults to `@npm//@bazel/cypress/internal:run-cypress.js`
+
+<h4 id="cypress_web_test-env">env</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Specifies additional environment variables to set when the target is executed, subject to location
+expansion.
+
+Defaults to `{}`
+
+<h4 id="cypress_web_test-expected_exit_code">expected_exit_code</h4>
+
+(*Integer*): The expected exit code for the test. Defaults to 0.
+
+Defaults to `0`
+
+<h4 id="cypress_web_test-link_workspace_root">link_workspace_root</h4>
+
+(*Boolean*): Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+
+Defaults to `False`
+
+<h4 id="cypress_web_test-plugin_file">plugin_file</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Your cypress plugin file. See https://docs.cypress.io/guides/tooling/plugins-guide
+
+Defaults to `@npm//@bazel/cypress:internal/plugins/base.js`
+
+<h4 id="cypress_web_test-srcs">srcs</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): A list of test files. See https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests#Test-files
+
+Defaults to `[]`
+
+<h4 id="cypress_web_test-templated_args">templated_args</h4>
+
+(*List of strings*): Arguments which are passed to every execution of the program.
+        To pass a node startup option, prepend it with `--node_options=`, e.g.
+        `--node_options=--preserve-symlinks`.
+
+Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+
+1. Subject to predefined source/output path variables substitutions.
+
+The predefined variables `execpath`, `execpaths`, `rootpath`, `rootpaths`, `location`, and `locations` take
+label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths denoted by that label.
+
+See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables for more info.
+
+NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
+args and genrule bazel substitions. This will be fixed in a future major release.
+See docs string of `expand_location_into_runfiles` macro in `internal/common/expand_into_runfiles.bzl`
+for more info.
+
+The recommended approach is to now use `$(rootpath)` where you previously used $(location).
+
+To get from a `$(rootpath)` to the absolute path that `$$(rlocation $(location))` returned you can either use
+`$$(rlocation $(rootpath))` if you are in the `templated_args` of a `nodejs_binary` or `nodejs_test`:
+
+BUILD.bazel:
+```python
+nodejs_test(
+    name = "my_test",
+    data = [":bootstrap.js"],
+    templated_args = ["--node_options=--require=$$(rlocation $(rootpath :bootstrap.js))"],
+)
+```
+
+or if you're in the context of a .js script you can pass the $(rootpath) as an argument to the script
+and use the javascript runfiles helper to resolve to the absolute path:
+
+BUILD.bazel:
+```python
+nodejs_test(
+    name = "my_test",
+    data = [":some_file"],
+    entry_point = ":my_test.js",
+    templated_args = ["$(rootpath :some_file)"],
+)
+```
+
+my_test.js
+```python
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
+const args = process.argv.slice(2);
+const some_file = runfiles.resolveWorkspaceRelative(args[0]);
+```
+
+NB: Bazel will error if it sees the single dollar sign $(rlocation path) in `templated_args` as it will try to
+expand `$(rlocation)` since we now expand predefined & custom "make" variables such as `$(COMPILATION_MODE)`,
+`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`. See https://docs.bazel.build/versions/master/be/make-variables.html.
+
+To prevent expansion of `$(rlocation)` write it as `$$(rlocation)`. Bazel understands `$$` to be
+the string literal `$` and the expansion results in `$(rlocation)` being passed as an arg instead
+of being expanded. `$(rlocation)` is then evaluated by the bash node launcher script and it calls
+the `rlocation` function in the runfiles.bash helper. For example, the templated arg
+`$$(rlocation $(rootpath //:some_file))` is expanded by Bazel to `$(rlocation ./some_file)` which
+is then converted in bash to the absolute path of `//:some_file` in runfiles by the runfiles.bash helper
+before being passed as an argument to the program.
+
+NB: nodejs_binary and nodejs_test will preserve the legacy behavior of `$(rlocation)` so users don't
+need to update to `$$(rlocation)`. This may be changed in the future.
+
+2. Subject to predefined variables & custom variable substitutions.
+
+Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
+See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+
+Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
+See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+
+Predefined genrule variables are not supported in this context.
+
+Defaults to `[]`
+
+
+## cypress_repositories
+
+**USAGE**
+
+<pre>
+cypress_repositories(<a href="#cypress_repositories-name">name</a>, <a href="#cypress_repositories-version">version</a>, <a href="#cypress_repositories-linux_urls">linux_urls</a>, <a href="#cypress_repositories-linux_sha256">linux_sha256</a>, <a href="#cypress_repositories-darwin_urls">darwin_urls</a>, <a href="#cypress_repositories-darwin_sha256">darwin_sha256</a>,
+                     <a href="#cypress_repositories-windows_urls">windows_urls</a>, <a href="#cypress_repositories-windows_sha256">windows_sha256</a>)
+</pre>
+
+    Repository rule used to install cypress binary.
+
+**PARAMETERS**
+
+
+<h4 id="cypress_repositories-name">name</h4>
+
+Name of the external workspace where the cypress binary lives
+
+
+
+<h4 id="cypress_repositories-version">version</h4>
+
+Version of cypress binary to use. Should match package.json
+
+
+
+<h4 id="cypress_repositories-linux_urls">linux_urls</h4>
+
+(Optional) URLs at which the cypress binary for linux distros of linux can be downloaded. If omitted, https://cdn.cypress.io/desktop will be used.
+
+Defaults to `[]`
+
+<h4 id="cypress_repositories-linux_sha256">linux_sha256</h4>
+
+(Optional) SHA-256 of the linux cypress binary
+
+Defaults to `""`
+
+<h4 id="cypress_repositories-darwin_urls">darwin_urls</h4>
+
+(Optional) URLs at which the cypress binary for darwin distros of linux can be downloaded. If omitted, https://cdn.cypress.io/desktop will be used.
+
+Defaults to `[]`
+
+<h4 id="cypress_repositories-darwin_sha256">darwin_sha256</h4>
+
+(Optional) SHA-256 of the darwin cypress binary
+
+Defaults to `""`
+
+<h4 id="cypress_repositories-windows_urls">windows_urls</h4>
+
+(Optional) URLs at which the cypress binary for windows distros of linux can be downloaded. If omitted, https://cdn.cypress.io/desktop will be used.
+
+Defaults to `[]`
+
+<h4 id="cypress_repositories-windows_sha256">windows_sha256</h4>
+
+(Optional) SHA-256 of the windows cypress binary
+
+Defaults to `""`
 
 
