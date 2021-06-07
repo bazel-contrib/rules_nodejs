@@ -34,10 +34,13 @@ ts_library(
 
 esbuild(
     name = "default",
-    args = [
-        "--keep-names",
-        "--resolve-extensions=.mjs,.js",
-    ],
+    args = {
+        "keepNames": True,
+        "resolveExtensions": [
+            ".mjs",
+            ".js",
+        ],
+    },
     entry_point = "main.ts",
     deps = [
         ":main",
@@ -46,10 +49,13 @@ esbuild(
 
 esbuild(
     name = "with_css",
-    args = [
-        "--keep-names",
-        "--resolve-extensions=.mjs,.js",
-    ],
+    args = {
+        "keepNames": True,
+        "resolveExtensions": [
+            ".mjs",
+            ".js",
+        ],
+    },
     entry_point = "main.ts",
     output_css = "with_css.css",
     deps = [

@@ -7,5 +7,6 @@ describe('esbuild define', () => {
   it('defines variables', () => {
     const bundle = readFileSync(location, {encoding: 'utf8'});
     expect(bundle).toContain(`nodeEnv = "defined_in_bundle"`);
+    expect(bundle).toContain(`cwd: () => "rules_nodejs"`);
   });
 })

@@ -76,6 +76,7 @@ pkg_npm(
     build_file_content = """exports_files(["launcher.js"])""",
     substitutions = dict({
         "@build_bazel_rules_nodejs//packages/esbuild": "//@bazel/esbuild",
+        "package_path = \"packages/esbuild\",": "package_path = \"external/\" + pkg_label.workspace_name + \"/@bazel/esbuild\",",
     }),
     deps = [
         ":README.md",

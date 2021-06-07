@@ -3,7 +3,9 @@ load("//packages/esbuild:index.bzl", "esbuild")
 
 esbuild(
     name = "bundle",
-    args = ["--keep-names"],
+    args = {
+        "keepNames": True,
+    },
     entry_point = "main.js",
     format = "esm",
     deps = [

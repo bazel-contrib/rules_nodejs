@@ -1,6 +1,6 @@
 const https = require('https');
 const { exec } = require('shelljs');
-const { mkdirSync, rmdirSync, createWriteStream, readFileSync, writeFileSync } = require('fs');
+const { mkdirSync, createWriteStream, readFileSync, writeFileSync } = require('fs');
 const { join } = require('path');
 const { tmpdir } = require('os');
 
@@ -80,6 +80,10 @@ async function main() {
 
   replacements.push([/_VERSION = "(.+?)"/, version]);
   replaceFileContent('packages/esbuild/esbuild_packages.bzl', replacements);
+
+  // update package.json used for API wrapper
+  replaceFileContent('packages/esbuild/toolchain/package.json', [[/"esbuild": "(.+?)"/, version]]);
+  exec(`npm i --package-lock-only`, {silent: true, cwd: 'packages/esbuild/toolchain'});
 }
 
 main();

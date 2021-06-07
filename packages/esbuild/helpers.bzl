@@ -150,3 +150,12 @@ def write_jsconfig_file(ctx, path_alias_mappings):
     )
 
     return jsconfig_file
+
+def write_args_file(ctx, args):
+    args_file = ctx.actions.declare_file("%s.args.json" % ctx.attr.name)
+    ctx.actions.write(
+        output = args_file,
+        content = json.encode(args),
+    )
+
+    return args_file

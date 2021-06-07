@@ -16,12 +16,9 @@ ts_library(
 
 esbuild(
     name = "bundle",
-    args = [
-        # info log level may be helpful when splitting as esbuild will show each file emitted
-        # where as bazel will only list the output directory
-        "--log-level=info",
-        "--keep-names",
-    ],
+    args = {
+        "keepNames": True,
+    },
     entry_point = "main.ts",
     output_dir = True,
     deps = [":main"],
