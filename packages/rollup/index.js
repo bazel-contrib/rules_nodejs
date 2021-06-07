@@ -239,6 +239,6 @@ async function main(args) {
   }
 }
 
-if (require.main === module) {
-  main(process.argv.slice(2)).then(r => (process.exitCode = r));
+if (require.main == module) {
+  (async () => process.exitCode = await main(process.argv.slice(2)))();
 }

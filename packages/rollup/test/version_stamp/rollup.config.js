@@ -32,6 +32,7 @@ const DEBUG = process.env['COMPILATION_MODE'] === 'dbg';
 // Parse the stamp file produced by Bazel from the version control system
 let version = '<unknown>';
 
+// This undefined variable will be replaced with the full path during the build.
 const statuses = parseStatusFile(bazel_version_file);
 // Don't assume BUILD_SCM_VERSION exists
 if (statuses['BUILD_SCM_VERSION']) {
