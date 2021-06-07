@@ -34,13 +34,13 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 maven_install(
     name = "maven",
     artifacts = [
-        "org.jetbrains.kotlinx:kotlinx-html-js:0.6.12",
-        "org.jetbrains.kotlin:kotlin-stdlib-js:1.2.71",
+        "org.jetbrains.kotlinx:kotlinx-html-js:0.7.3",
+        "org.jetbrains.kotlin:kotlin-stdlib-js:1.4.31",
     ],
     fetch_sources = True,  # Fetch source jars. Defaults to False.
     maven_install_json = "@kotlin_example//:maven_install.json",
     repositories = [
-        "http://dl.bintray.com/kotlin/kotlinx.html/",
+        # "http://dl.bintray.com/kotlin/kotlinx.html/",
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
