@@ -11,8 +11,8 @@ load("@npm//http-server:index.bzl", "http_server")
 # Grab a Maven dependency
 kt_js_import(
     name = "kotlinx-html-js",
-    jars = ["@maven//:v1/http/dl.bintray.com/kotlin/kotlinx.html/org/jetbrains/kotlinx/kotlinx-html-js/0.6.12/kotlinx-html-js-0.6.12.jar"],
-    srcjar = "@maven//:v1/http/dl.bintray.com/kotlin/kotlinx.html/org/jetbrains/kotlinx/kotlinx-html-js/0.6.12/kotlinx-html-js-0.6.12-sources.jar",
+    jars = ["@maven//:v1/https/repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-html-js/0.7.3/kotlinx-html-js-0.7.3.jar"],
+    srcjar = "@maven//:v1/https/repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-html-js/0.7.3/kotlinx-html-js-0.7.3-sources.jar",
 )
 
 # This will create hello.js
@@ -42,7 +42,7 @@ rollup_bundle(
         "@npm//@rollup/plugin-commonjs",
         "@npm//@rollup/plugin-node-resolve",
         "@npm//kotlin",
-        "@npm//kotlinx-html-js",
+        "@npm//kotlinx-html",
     ],
 )
 
