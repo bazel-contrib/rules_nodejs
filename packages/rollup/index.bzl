@@ -143,6 +143,7 @@ function parseStatusFile(p) {
   return results;
 }
 
+// This undefined variable will be replaced with the full path during the build.
 const statuses = parseStatusFile(bazel_version_file);
 // Parse the stamp file produced by Bazel from the version control system
 let version = '<unknown>';
