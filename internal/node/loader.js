@@ -26,8 +26,10 @@ process.env.PATH = [require('path').dirname(process.execPath), process.env.PATH]
 if (require.main === module) {
   // Set the actual entry point in the arguments list.
   // argv[0] == node, argv[1] == entry point.
-  // NB: 'TEMPLATED_entry_point' below is replaced during the build process.
-  var mainScript = process.argv[1] = 'TEMPLATED_entry_point';
+  // NB: 'TEMPLATED_entry_point_path' & 'TEMPLATED_entry_point' below are replaced during the build process.
+  var entryPointPath = 'TEMPLATED_entry_point_path';
+  var entryPointMain = 'TEMPLATED_entry_point_main';
+  var mainScript = process.argv[1] = entryPointMain ? `${entryPointPath}/${entryPointMain}` : entryPointPath;
   try {
     module.constructor._load(mainScript, this, /*isMain=*/true);
   } catch (e) {
