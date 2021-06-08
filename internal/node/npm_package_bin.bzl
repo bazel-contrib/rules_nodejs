@@ -48,8 +48,8 @@ def _inputs(ctx):
 def _impl(ctx):
     if ctx.attr.output_dir and ctx.outputs.outs:
         fail("Only one of output_dir and outs may be specified")
-    if not ctx.attr.output_dir and not len(ctx.outputs.outs) and not ctx.attr.stdout:
-        fail("One of output_dir, outs or stdout must be specified")
+    if not ctx.attr.output_dir and not len(ctx.outputs.outs) and not ctx.attr.stdout and not ctx.attr.stderr:
+        fail("One of output_dir, outs, stdout or stderr must be specified")
 
     args = ctx.actions.args()
     inputs = _inputs(ctx)
