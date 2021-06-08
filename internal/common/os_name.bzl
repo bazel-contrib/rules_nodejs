@@ -16,8 +16,9 @@
 """
 
 OS_ARCH_NAMES = [
-    ("darwin", "amd64"),
     ("windows", "amd64"),
+    ("darwin", "amd64"),
+    ("darwin", "arm64"),
     ("linux", "amd64"),
     ("linux", "arm64"),
     ("linux", "s390x"),
@@ -35,28 +36,33 @@ def os_name(rctx):
       A string describing the os for a repository rule
     """
     os_name = rctx.os.name.lower()
-    if os_name.startswith("mac os"):
+    if os_name.find("windows") != -1:
         return OS_NAMES[0]
-    elif os_name.find("windows") != -1:
-        return OS_NAMES[1]
-    elif os_name.startswith("linux"):
-        # This is not ideal, but bazel doesn't directly expose arch.
-        arch = rctx.execute(["uname", "-m"]).stdout.strip()
-        if arch == "aarch64":
-            return OS_NAMES[3]
-        elif arch == "s390x":
-            return OS_NAMES[4]
-        else:
-            return OS_NAMES[2]
-    else:
-        fail("Unsupported operating system: " + os_name)
 
-def is_darwin_os(rctx):
-    return os_name(rctx) == OS_NAMES[0]
+    # This is not ideal, but bazel doesn't directly expose arch.
+    arch = rctx.execute(["uname", "-m"]).stdout.strip()
+    if os_name.startswith("mac os"):
+        if arch == "x86_64":
+            return OS_NAMES[1]
+        elif arch == "arm64":
+            return OS_NAMES[2]
+    elif os_name.startswith("linux"):
+        if arch == "x86_64":
+            return OS_NAMES[3]
+        elif arch == "aarch64":
+            return OS_NAMES[4]
+        elif arch == "s390x":
+            return OS_NAMES[5]
+
+    fail("Unsupported operating system {} architecture {}".format(os_name, arch))
 
 def is_windows_os(rctx):
-    return os_name(rctx) == OS_NAMES[1]
+    return os_name(rctx) == OS_NAMES[0]
+
+def is_darwin_os(rctx):
+    name = os_name(rctx)
+    return name == OS_NAMES[1] or name == OS_NAMES[2]
 
 def is_linux_os(rctx):
     name = os_name(rctx)
-    return name == OS_NAMES[2] or name == OS_NAMES[3] or name == OS_NAMES[4]
+    return name == OS_NAMES[3] or name == OS_NAMES[4] or name == OS_NAMES[5]
