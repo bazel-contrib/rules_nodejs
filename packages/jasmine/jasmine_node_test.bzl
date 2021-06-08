@@ -19,7 +19,7 @@ than launching a test in Karma, for example.
 """
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo")
-load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_test")
+load("@build_bazel_rules_nodejs//internal/node:node.bzl", nodejs_test = "nodejs_test_macro")
 
 def _js_sources_impl(ctx):
     depsets = []

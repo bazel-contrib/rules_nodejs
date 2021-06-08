@@ -22,6 +22,7 @@ a `module_name` attribute can be `require`d by that name.
 
 load("//:providers.bzl", "DirectoryFilePathInfo", "ExternalNpmPackageInfo", "JSModuleInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
+load("//internal/common:maybe_directory_file_path.bzl", "maybe_directory_file_path")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:preserve_legacy_templated_args.bzl", "preserve_legacy_templated_args")
@@ -634,6 +635,19 @@ nodejs_binary_kwargs = {
     ],
 }
 
+# The name of the declared rule appears in
+# bazel query --output=label_kind
+# So we make these match what the user types in their BUILD file
+# and duplicate the definitions to give two distinct symbols.
+nodejs_binary = rule(**nodejs_binary_kwargs)
+
+def nodejs_binary_macro(name, **kwargs):
+    nodejs_binary(
+        name = name,
+        entry_point = maybe_directory_file_path(name, kwargs.pop("entry_point", None)),
+        **kwargs
+    )
+
 nodejs_test_kwargs = dict(
     nodejs_binary_kwargs,
     attrs = dict(nodejs_binary_kwargs["attrs"], **{
@@ -678,10 +692,11 @@ remote debugger.
     test = True,
 )
 
-# The name of the declared rule appears in
-# bazel query --output=label_kind
-# So we make these match what the user types in their BUILD file
-# and duplicate the definitions to give two distinct symbols.
-nodejs_binary = rule(**nodejs_binary_kwargs)
-
 nodejs_test = rule(**nodejs_test_kwargs)
+
+def nodejs_test_macro(name, **kwargs):
+    nodejs_test(
+        name = name,
+        entry_point = maybe_directory_file_path(name, kwargs.pop("entry_point", None)),
+        **kwargs
+    )

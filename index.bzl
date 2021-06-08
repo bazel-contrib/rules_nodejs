@@ -26,8 +26,8 @@ load("//internal/generated_file_test:generated_file_test.bzl", _generated_file_t
 load("//internal/js_library:js_library.bzl", _js_library = "js_library")
 load(
     "//internal/node:node.bzl",
-    _nodejs_binary = "nodejs_binary",
-    _nodejs_test = "nodejs_test",
+    _nodejs_binary = "nodejs_binary_macro",
+    _nodejs_test = "nodejs_test_macro",
 )
 load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories")
 load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
