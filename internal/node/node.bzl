@@ -22,6 +22,7 @@ a `module_name` attribute can be `require`d by that name.
 
 load("//:providers.bzl", "DirectoryFilePathInfo", "ExternalNpmPackageInfo", "JSModuleInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
+load("//internal/common:maybe_directory_file_path.bzl", "maybe_directory_file_path")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:preserve_legacy_templated_args.bzl", "preserve_legacy_templated_args")
@@ -637,6 +638,13 @@ nodejs_binary = rule(
     ],
 )
 
+def nodejs_binary_macro(name, **kwargs):
+    nodejs_binary(
+        name = name,
+        entry_point = maybe_directory_file_path(name, kwargs.pop("entry_point", None)),
+        **kwargs
+    )
+
 nodejs_test = rule(
     implementation = _nodejs_binary_impl,
     attrs = dict(_NODEJS_EXECUTABLE_ATTRS, **{
@@ -685,3 +693,10 @@ remote debugger.
         "@bazel_tools//tools/sh:toolchain_type",
     ],
 )
+
+def nodejs_test_macro(name, **kwargs):
+    nodejs_test(
+        name = name,
+        entry_point = maybe_directory_file_path(name, kwargs.pop("entry_point", None)),
+        **kwargs
+    )
