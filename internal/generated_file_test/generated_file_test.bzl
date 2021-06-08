@@ -26,6 +26,8 @@ def generated_file_test(name, generated, src, substring_search = False, src_dbg 
     else:
         src_dbg = src
 
+    tags = kwargs.pop("tags", [])
+
     loc = "$(rootpath %s)"
     nodejs_test(
         name = name,
@@ -37,6 +39,7 @@ def generated_file_test(name, generated, src, substring_search = False, src_dbg 
             loc % generated,
         ],
         data = data,
+        tags = tags,
         visibility = visibility,
         **kwargs
     )
@@ -48,5 +51,6 @@ def generated_file_test(name, generated, src, substring_search = False, src_dbg 
             entry_point = "@build_bazel_rules_nodejs//internal/generated_file_test:bundle.js",
             templated_args = ["--out", loc % src, loc % src_dbg, loc % generated],
             data = data,
+            tags = tags,
             visibility = visibility,
         )
