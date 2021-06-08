@@ -117,12 +117,17 @@ def _get_entry_point_file(ctx):
     fail("entry_point must either be a file, or provide DirectoryFilePathInfo")
 
 def _write_loader_script(ctx):
-    entry_point_path = _ts_to_js(_to_manifest_path(ctx, _get_entry_point_file(ctx)))
+    substitutions = {}
+    substitutions["TEMPLATED_entry_point_path"] = _ts_to_js(_to_manifest_path(ctx, _get_entry_point_file(ctx)))
+    if DirectoryFilePathInfo in ctx.attr.entry_point:
+        substitutions["TEMPLATED_entry_point_main"] = ctx.attr.entry_point[DirectoryFilePathInfo].path
+    else:
+        substitutions["TEMPLATED_entry_point_main"] = ""
 
     ctx.actions.expand_template(
         template = ctx.file._loader_template,
         output = ctx.outputs.loader_script,
-        substitutions = {"TEMPLATED_entry_point": entry_point_path},
+        substitutions = substitutions,
         is_executable = True,
     )
 
