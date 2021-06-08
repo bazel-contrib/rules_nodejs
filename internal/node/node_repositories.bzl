@@ -24,6 +24,8 @@ load("//internal/node:node_versions.bzl", "NODE_VERSIONS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("//toolchains/node:node_toolchain_configure.bzl", "node_toolchain_configure")
 
+_DEFAULT_NODE_VERSION = "12.13.0"
+
 # @unsorted-dict-items
 _YARN_VERSIONS = {
     "1.3.2": ("yarn-v1.3.2.tar.gz", "yarn-v1.3.2", "6cfe82e530ef0837212f13e45c1565ba53f5199eec2527b85ecbcd88bf26821d"),
@@ -172,7 +174,7 @@ and `{filename}` with the matching entry from the `node_repositories` attribute.
 """,
     ),
     "node_version": attr.string(
-        default = "12.13.0",
+        default = _DEFAULT_NODE_VERSION,
         doc = "the specific version of NodeJS to install or, if vendored_node is specified, the vendored version of node",
     ),
     "package_json": attr.label_list(
@@ -235,6 +237,7 @@ If this list is empty, we won't download yarn at all.
 
 BUILT_IN_NODE_PLATFORMS = [
     "darwin_amd64",
+    "darwin_arm64",
     "linux_amd64",
     "linux_arm64",
     "windows_amd64",
@@ -258,6 +261,15 @@ done
 SCRIPT_DIR="$(cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd)"
 """
 
+def _node_exists_for_platform(node_version, os_name):
+    "Whether a node binary is available for this platform"
+    if not node_version:
+        node_version = _DEFAULT_NODE_VERSION
+    node_major_version = int(node_version.split(".")[0])
+
+    # There is no Apple Silicon native version of node before 16
+    return node_major_version >= 16 or os_name != "darwin_arm64"
+
 def _download_node(repository_ctx):
     """Used to download a NodeJS runtime package.
 
@@ -276,6 +288,8 @@ def _download_node(repository_ctx):
     host_os = repository_ctx.name.split("nodejs_", 1)[1]
 
     node_version = repository_ctx.attr.node_version
+    if not _node_exists_for_platform(node_version, host_os):
+        return
     node_repositories = repository_ctx.attr.node_repositories
 
     # We insert our default value here, not on the attribute's default, so it isn't documented.
@@ -755,7 +769,8 @@ def node_repositories(**kwargs):
 
     Also register bazel toolchains, and make other convenience repositories.
 
-    Note, the documentation is generated from the node_repositories_rule, not this macro.
+    Args:
+      **kwargs: the documentation is generated from the node_repositories_rule, not this macro.
     """
 
     # 0.14.0: @bazel_tools//tools/bash/runfiles is required for nodejs
@@ -778,10 +793,11 @@ def node_repositories(**kwargs):
             name = node_repository_name,
             **kwargs
         )
+        target_tool = "@%s//:node_bin" % node_repository_name if _node_exists_for_platform(kwargs.get("node_version"), os_name) else "node"
         native.register_toolchains("@build_bazel_rules_nodejs//toolchains/node:node_%s_toolchain" % os_name)
         node_toolchain_configure(
             name = "%s_config" % node_repository_name,
-            target_tool = "@%s//:node_bin" % node_repository_name,
+            target_tool = target_tool,
         )
 
     # This "nodejs" repo is just for convinience so one does not have to target @nodejs_<os_name>//...
