@@ -89,7 +89,7 @@ Defaults to `["@npm//@bazel/protractor", "@npm//protractor"]`
 A label providing the protractor entry point
 Default to `:node_modules/protractor/bin/protractor`.
 
-Defaults to `"@npm//:node_modules/protractor/bin/protractor"`
+Defaults to `Label("@npm//:node_modules/protractor/bin/protractor")`
 
 <h4 id="protractor_web_test-kwargs">kwargs</h4>
 
