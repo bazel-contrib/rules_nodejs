@@ -1463,10 +1463,10 @@
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.15.10.tgz#cf0cff1aec6d8e7bb23e1fc618d09fbd39b7a13f"
   integrity sha512-0v+OwCQ6fsGFa50r6MXWbUkSGuWOoZ22K4pMSdtWiL5LKFIE4kfmMmtQS+M7/ICNwk2EIYob+NRreyi/DGUz5A==
 
-"@bazel/runfiles@^3.5.1":
-  version "3.5.1"
-  resolved "https://registry.yarnpkg.com/@bazel/runfiles/-/runfiles-3.5.1.tgz#4322861334c3fb755ef8135e6464e871d0c8a2b6"
-  integrity sha512-SnfQB42h8mpRap50p8KpNQlGtdBKP1uekDTd5YiqneOEdKlzhOG00yRfjyuiWgOVeNgm4MnvBvE8kH/josOCTQ==
+"@bazel/runfiles@^3.6.0":
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/@bazel/runfiles/-/runfiles-3.6.0.tgz#154d1d663db3e129de1954d56c1fede5a2ca0e11"
+  integrity sha512-b0Wq4agrfVY8kmtTHCmUsSTd5/5YurvBjzfJA1AAxO9uL+VzNmDyYaE+K5PDvYkGn/ZskYA4tipmjvDd6E0WbA==
 
 "@bcoe/v8-coverage@^0.2.3":
   version "0.2.3"
