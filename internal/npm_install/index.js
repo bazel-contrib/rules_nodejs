@@ -70,9 +70,9 @@ function generateBuildFiles(pkgs) {
     findScopes().forEach(scope => generateScopeBuildFiles(scope, pkgs));
     generateLinksBuildFiles(config.links);
 }
-function generateLinksBuildFiles(deps) {
-    for (const packageName of Object.keys(deps)) {
-        const target = deps[packageName];
+function generateLinksBuildFiles(links) {
+    for (const packageName of Object.keys(links)) {
+        const target = links[packageName];
         const basename = packageName.split('/').pop();
         const starlark = generateBuildFileHeader() +
             `load("@build_bazel_rules_nodejs//internal/linker:npm_link.bzl", "npm_link")
