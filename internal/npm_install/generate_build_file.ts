@@ -151,9 +151,9 @@ function generateBuildFiles(pkgs: Dep[]) {
   generateLinksBuildFiles(config.links)
 }
 
-function generateLinksBuildFiles(deps: {[key: string]: string}) {
-  for (const packageName of Object.keys(deps)) {
-    const target = deps[packageName];
+function generateLinksBuildFiles(links: {[key: string]: string}) {
+  for (const packageName of Object.keys(links)) {
+    const target = links[packageName];
     const basename = packageName.split('/').pop();
     const starlark = generateBuildFileHeader() +
         `load("@build_bazel_rules_nodejs//internal/linker:npm_link.bzl", "npm_link")
