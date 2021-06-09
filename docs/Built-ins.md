@@ -730,10 +730,11 @@ Defaults to `[]`
 **USAGE**
 
 <pre>
-npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#npm_install-included_files">included_files</a>,
-            <a href="#npm_install-links">links</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install-npm_command">npm_command</a>, <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>,
-            <a href="#npm_install-package_path">package_path</a>, <a href="#npm_install-patch_args">patch_args</a>, <a href="#npm_install-patch_tool">patch_tool</a>, <a href="#npm_install-post_install_patches">post_install_patches</a>, <a href="#npm_install-pre_install_patches">pre_install_patches</a>, <a href="#npm_install-quiet">quiet</a>,
-            <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
+npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-exports_directories_only">exports_directories_only</a>,
+            <a href="#npm_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#npm_install-included_files">included_files</a>, <a href="#npm_install-links">links</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>,
+            <a href="#npm_install-npm_command">npm_command</a>, <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>, <a href="#npm_install-patch_args">patch_args</a>, <a href="#npm_install-patch_tool">patch_tool</a>,
+            <a href="#npm_install-post_install_patches">post_install_patches</a>, <a href="#npm_install-pre_install_patches">pre_install_patches</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>,
+            <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
 </pre>
 
 Runs npm install during workspace setup.
@@ -779,6 +780,66 @@ Defaults to `[]`
 
 Defaults to `{}`
 
+<h4 id="npm_install-exports_directories_only">exports_directories_only</h4>
+
+(*Boolean*): Export only top-level package directory artifacts from node_modules.
+
+Turning this on will decrease the time it takes for Bazel to setup runfiles and sandboxing when
+there are a large number of npm dependencies as inputs to an action.
+
+This breaks compatibility for labels that reference files within npm packages such as `@npm//:node_modules/prettier/bin-prettier.js`.
+To reference files within npm packages, you can use the `directory_file_path` rule and/or `DirectoryFilePathInfo` provider.
+Note, some rules still need upgrading to support consuming `DirectoryFilePathInfo` where needed.
+
+NB: This feature requires runfiles be enabled due to an issue in Bazel which we are still investigating.
+    On Windows runfiles are off by default and must be enabled with the `--enable_runfiles` flag when
+    using this feature.
+
+NB: `ts_library` does not support directory npm deps due to internal dependency on having all input sources files explicitly specified.
+
+NB: `protractor_web_test` and `protractor_web_test_suite` do not support directory npm deps.
+
+For the `nodejs_binary` & `nodejs_test` `entry_point` attribute (which often needs to reference a file within
+an npm package) you can set the entry_point to a dict with a single entry, where the key corresponds to the directory
+label and the value corresponds to the path within that directory to the entry point.
+
+For example,
+
+```
+nodejs_binary(
+    name = "prettier",
+    data = ["@npm//prettier"],
+    entry_point = "@npm//:node_modules/prettier/bin-prettier.js",
+)
+```
+
+becomes,
+
+```
+nodejs_binary(
+    name = "prettier",
+    data = ["@npm//prettier"],
+    entry_point = { "@npm//:node_modules/prettier": "bin-prettier.js" },
+)
+```
+
+For labels that are passed to `$(rootpath)`, `$(execpath)`, or `$(location)` you can simply break these apart into
+the directory label that gets passed to the expander & path part to follows it.
+
+For example,
+
+```
+$(rootpath @npm//:node_modules/prettier/bin-prettier.js")
+```
+
+becomes,
+
+```
+$(rootpath @npm//:node_modules/prettier)/bin-prettier.js
+```
+
+Defaults to `False`
+
 <h4 id="npm_install-generate_local_modules_build_files">generate_local_modules_build_files</h4>
 
 (*Boolean*): Enables the BUILD files auto generation for local modules installed with `file:` (npm) or `link:` (yarn)
@@ -806,6 +867,9 @@ Defaults to `True`
 <h4 id="npm_install-included_files">included_files</h4>
 
 (*List of strings*): List of file extensions to be included in the npm package targets.
+
+NB: This option has no effect when exports_directories_only is True as all files are
+automatically included in the exported directory for each npm package.
 
 For example, [".js", ".d.ts", ".proto", ".json", ""].
 
@@ -1238,10 +1302,11 @@ Defaults to `{}`
 **USAGE**
 
 <pre>
-yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>, <a href="#yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</a>,
-             <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-links">links</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_path">package_path</a>,
-             <a href="#yarn_install-patch_args">patch_args</a>, <a href="#yarn_install-patch_tool">patch_tool</a>, <a href="#yarn_install-post_install_patches">post_install_patches</a>, <a href="#yarn_install-pre_install_patches">pre_install_patches</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>,
-             <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
+yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-exports_directories_only">exports_directories_only</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>,
+             <a href="#yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-links">links</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>,
+             <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_path">package_path</a>, <a href="#yarn_install-patch_args">patch_args</a>, <a href="#yarn_install-patch_tool">patch_tool</a>, <a href="#yarn_install-post_install_patches">post_install_patches</a>,
+             <a href="#yarn_install-pre_install_patches">pre_install_patches</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>,
+             <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
 </pre>
 
 Runs yarn install during workspace setup.
@@ -1287,6 +1352,66 @@ Defaults to `[]`
 
 Defaults to `{}`
 
+<h4 id="yarn_install-exports_directories_only">exports_directories_only</h4>
+
+(*Boolean*): Export only top-level package directory artifacts from node_modules.
+
+Turning this on will decrease the time it takes for Bazel to setup runfiles and sandboxing when
+there are a large number of npm dependencies as inputs to an action.
+
+This breaks compatibility for labels that reference files within npm packages such as `@npm//:node_modules/prettier/bin-prettier.js`.
+To reference files within npm packages, you can use the `directory_file_path` rule and/or `DirectoryFilePathInfo` provider.
+Note, some rules still need upgrading to support consuming `DirectoryFilePathInfo` where needed.
+
+NB: This feature requires runfiles be enabled due to an issue in Bazel which we are still investigating.
+    On Windows runfiles are off by default and must be enabled with the `--enable_runfiles` flag when
+    using this feature.
+
+NB: `ts_library` does not support directory npm deps due to internal dependency on having all input sources files explicitly specified.
+
+NB: `protractor_web_test` and `protractor_web_test_suite` do not support directory npm deps.
+
+For the `nodejs_binary` & `nodejs_test` `entry_point` attribute (which often needs to reference a file within
+an npm package) you can set the entry_point to a dict with a single entry, where the key corresponds to the directory
+label and the value corresponds to the path within that directory to the entry point.
+
+For example,
+
+```
+nodejs_binary(
+    name = "prettier",
+    data = ["@npm//prettier"],
+    entry_point = "@npm//:node_modules/prettier/bin-prettier.js",
+)
+```
+
+becomes,
+
+```
+nodejs_binary(
+    name = "prettier",
+    data = ["@npm//prettier"],
+    entry_point = { "@npm//:node_modules/prettier": "bin-prettier.js" },
+)
+```
+
+For labels that are passed to `$(rootpath)`, `$(execpath)`, or `$(location)` you can simply break these apart into
+the directory label that gets passed to the expander & path part to follows it.
+
+For example,
+
+```
+$(rootpath @npm//:node_modules/prettier/bin-prettier.js")
+```
+
+becomes,
+
+```
+$(rootpath @npm//:node_modules/prettier)/bin-prettier.js
+```
+
+Defaults to `False`
+
 <h4 id="yarn_install-frozen_lockfile">frozen_lockfile</h4>
 
 (*Boolean*): Use the `--frozen-lockfile` flag for yarn.
@@ -1329,6 +1454,9 @@ Defaults to `True`
 <h4 id="yarn_install-included_files">included_files</h4>
 
 (*List of strings*): List of file extensions to be included in the npm package targets.
+
+NB: This option has no effect when exports_directories_only is True as all files are
+automatically included in the exported directory for each npm package.
 
 For example, [".js", ".d.ts", ".proto", ".json", ""].
 
@@ -1777,7 +1905,7 @@ Defaults to `[]`
 
 The name it will be imported by. Should match the "name" field in the package.json file.
 
-If package_name is “$node_modules$” or “$node_modules_dir$” this indictates that this js_library target is one or more external npm
+If package_name == "$node_modules$" this indictates that this js_library target is one or more external npm
 packages in node_modules. This is a special case that used be covered by the internal only
 `external_npm_package` attribute. NB: '$' is an illegal character
 for npm packages names so this reserved name will not conflict with any valid package_name values
@@ -1788,6 +1916,7 @@ yarn & npm. When true, js_library will provide ExternalNpmPackageInfo.
 It can also be used for user-managed npm dependencies if node_modules is layed out outside of bazel.
 For example,
 
+```starlark
 js_library(
     name = "node_modules",
     srcs = glob(
@@ -1812,6 +1941,7 @@ js_library(
     # rules that use these npm dependencies
     package_name = "$node_modules$",
 )
+```
 
 See `examples/user_managed_deps` for a working example of user-managed npm dependencies.
 

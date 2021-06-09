@@ -314,6 +314,7 @@ Each line is a space-separated key/value pair.</p>
   <span class="k">return</span> <span class="nx">results</span><span class="p">;</span>
 <span class="p">}</span>
 
+<span class="c1">// This undefined variable will be replaced with the full path during the build.</span>
 <span class="kd">const</span> <span class="nx">statuses</span> <span class="o">=</span> <span class="nx">parseStatusFile</span><span class="p">(</span><span class="nx">bazel_version_file</span><span class="p">);</span>
 <span class="c1">// Parse the stamp file produced by Bazel from the version control system</span>
 <span class="kd">let</span> <span class="nx">version</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">&lt;unknown&gt;</span><span class="dl">'</span><span class="p">;</span>

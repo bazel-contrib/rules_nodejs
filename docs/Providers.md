@@ -72,7 +72,7 @@ Joins a label pointing to a TreeArtifact with a path nested within that director
 **USAGE**
 
 <pre>
-ExternalNpmPackageInfo(<a href="#ExternalNpmPackageInfo-direct_sources">direct_sources</a>, <a href="#ExternalNpmPackageInfo-path">path</a>, <a href="#ExternalNpmPackageInfo-sources">sources</a>, <a href="#ExternalNpmPackageInfo-workspace">workspace</a>)
+ExternalNpmPackageInfo(<a href="#ExternalNpmPackageInfo-direct_sources">direct_sources</a>, <a href="#ExternalNpmPackageInfo-has_directories">has_directories</a>, <a href="#ExternalNpmPackageInfo-path">path</a>, <a href="#ExternalNpmPackageInfo-sources">sources</a>, <a href="#ExternalNpmPackageInfo-workspace">workspace</a>)
 </pre>
 
 Provides information about one or more external npm packages
@@ -82,6 +82,9 @@ Provides information about one or more external npm packages
 <h4 id="ExternalNpmPackageInfo-direct_sources">direct_sources</h4>
 
  Depset of direct source files in these external npm package(s) 
+<h4 id="ExternalNpmPackageInfo-has_directories">has_directories</h4>
+
+ True if any sources are directories 
 <h4 id="ExternalNpmPackageInfo-path">path</h4>
 
  The local workspace path that these external npm deps should be linked at. If empty, they will be linked at the root. 
@@ -266,7 +269,7 @@ do the same.
 **USAGE**
 
 <pre>
-NpmPackageInfo(<a href="#NpmPackageInfo-direct_sources">direct_sources</a>, <a href="#NpmPackageInfo-path">path</a>, <a href="#NpmPackageInfo-sources">sources</a>, <a href="#NpmPackageInfo-workspace">workspace</a>)
+NpmPackageInfo(<a href="#NpmPackageInfo-direct_sources">direct_sources</a>, <a href="#NpmPackageInfo-has_directories">has_directories</a>, <a href="#NpmPackageInfo-path">path</a>, <a href="#NpmPackageInfo-sources">sources</a>, <a href="#NpmPackageInfo-workspace">workspace</a>)
 </pre>
 
 Provides information about one or more external npm packages
@@ -276,6 +279,9 @@ Provides information about one or more external npm packages
 <h4 id="NpmPackageInfo-direct_sources">direct_sources</h4>
 
  Depset of direct source files in these external npm package(s) 
+<h4 id="NpmPackageInfo-has_directories">has_directories</h4>
+
+ True if any sources are directories 
 <h4 id="NpmPackageInfo-path">path</h4>
 
  The local workspace path that these external npm deps should be linked at. If empty, they will be linked at the root. 

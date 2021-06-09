@@ -111,7 +111,7 @@ Defaults to `"@npm//@bazel/jasmine"`
 
 A label providing the `@bazel/jasmine` entry point.
 
-Defaults to `"@npm//@bazel/jasmine:jasmine_runner.js"`
+Defaults to `Label("@npm//@bazel/jasmine:jasmine_runner.js")`
 
 <h4 id="jasmine_node_test-kwargs">kwargs</h4>
 

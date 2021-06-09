@@ -889,7 +889,10 @@ so that they’re declared as inputs for the Angular compiler to read them.</p>
 
 <h4 id="ts_project-validate">validate</h4>
 
-<p>boolean; whether to check that the tsconfig settings match the attributes.</p>
+<p>boolean; whether to check that the tsconfig JSON settings match the attributes on this target.</p>
+
+<p>Set this to <code class="language-plaintext highlighter-rouge">False</code> to skip running our validator, in case you have a legitimate reason for these to differ,
+e.g. you have a setting enabled just for the editor but you want different behavior when Bazel runs <code class="language-plaintext highlighter-rouge">tsc</code>.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
