@@ -1,3 +1,27 @@
+# [3.6.0](https://github.com/bazelbuild/rules_nodejs/compare/3.5.1...3.6.0) (2021-06-09)
+
+
+### Bug Fixes
+
+* allow for only stderr to be set on npm_package_bin ([fa8f5b1](https://github.com/bazelbuild/rules_nodejs/commit/fa8f5b1))
+* **builtin:** add two missing locations where Mac M1 support needs to be declared ([2ad950f](https://github.com/bazelbuild/rules_nodejs/commit/2ad950f)), closes [#2733](https://github.com/bazelbuild/rules_nodejs/issues/2733)
+* **builtin:** propogate tags to both generated targets in generated_file_test ([c4403fc](https://github.com/bazelbuild/rules_nodejs/commit/c4403fc))
+* **builtin:** support directory_file_path entry_point in nodejs_binary & nodejs_test when --bazel_patch_module_resolver is set ([51676ef](https://github.com/bazelbuild/rules_nodejs/commit/51676ef))
+* **jasmine:** don't assume entry_point is a label as it may now be a dict ([3683466](https://github.com/bazelbuild/rules_nodejs/commit/3683466))
+* **jasmine:** unhanded promise rejection causes tests suit to pass ([3c4ef58](https://github.com/bazelbuild/rules_nodejs/commit/3c4ef58)), closes [3.7.0/lib/jasmine.js#L267](https://github.com/3.7.0/lib/jasmine.js/issues/L267) [#2688](https://github.com/bazelbuild/rules_nodejs/issues/2688)
+* **terser:** make terser resolve more robust by not assuming a single /terser/ segment in the path ([4709ffb](https://github.com/bazelbuild/rules_nodejs/commit/4709ffb))
+* **typescript:** fixed "output was not created" error for ts_project with supports_workers ([807b07b](https://github.com/bazelbuild/rules_nodejs/commit/807b07b))
+* **typescript:** repair error reporting when a ts_project is missing declaration=True ([cd08efe](https://github.com/bazelbuild/rules_nodejs/commit/cd08efe))
+
+
+### Features
+
+* add opt-in exports_directories_only mode to yarn_install and npm_install (defaults to False) ([3d182cf](https://github.com/bazelbuild/rules_nodejs/commit/3d182cf))
+* support dict style directory_file_path entry_point in nodejs_binary, nodejs_test & jasmine_node_test ([737674f](https://github.com/bazelbuild/rules_nodejs/commit/737674f))
+* support directory_file_path entry_point in npm_umd_bundle ([4e44178](https://github.com/bazelbuild/rules_nodejs/commit/4e44178))
+
+
+
 ## [3.5.1](https://github.com/bazelbuild/rules_nodejs/compare/3.5.0...3.5.1) (2021-05-25)
 
 
