@@ -109,7 +109,7 @@ which can use "Project References" to break up a large application.
 Create a `BUILD` file next to your sources:
 
 ```starlark
-load("//packages/typescript:index.bzl", "ts_project")
+load("@npm//@bazel/typescript:index.bzl", "ts_project")
 
 ts_project(
     name = "my_code",
