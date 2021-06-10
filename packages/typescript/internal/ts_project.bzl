@@ -231,6 +231,12 @@ def _ts_project_impl(ctx):
             for dep in ctx.attr.deps
             if TsConfigInfo in dep
         ])),
+        coverage_common.instrumented_files_info(
+            ctx,
+            source_attributes = ["srcs"],
+            dependency_attributes = ["deps"],
+            extensions = ["ts", "tsx"],
+        ),
     ]
 
     # Only provide DeclarationInfo if there are some typings.
