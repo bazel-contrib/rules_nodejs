@@ -39,6 +39,7 @@ def npm_bazel_labs_dependencies():
 
     yarn_install(
         name = "build_bazel_rules_typescript_grpc_web_compiletime_deps",
+        exports_directories_only = False,
         package_json = Label("//packages/labs/grpc_web:package.json"),
         yarn_lock = Label("//packages/labs/grpc_web:yarn.lock"),
         # Do not symlink node_modules as when used in downstream repos we should not create

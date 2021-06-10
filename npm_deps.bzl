@@ -32,6 +32,7 @@ def npm_deps():
             "//:tools/npm_packages/testy/index.js",
             "//:tools/npm_packages/testy/package.json",
         ],
+        exports_directories_only = False,
         environment = {
             "SOME_USER_ENV": "yarn is great!",
         },
@@ -107,6 +108,7 @@ def npm_deps():
             "@test_multi_linker/lib-d": "@//internal/linker/test/multi_linker/lib_d",
             "@test_multi_linker/lib-d2": "@//internal/linker/test/multi_linker/lib_d",
         },
+        exports_directories_only = False,
         package_json = "//internal/linker/test/multi_linker:package.json",
         package_path = "internal/linker/test/multi_linker",
         symlink_node_modules = False,
@@ -125,6 +127,7 @@ def npm_deps():
             "@test_multi_linker/lib-d": "@//internal/linker/test/multi_linker/lib_d",
             "@test_multi_linker/lib-d2": "@//internal/linker/test/multi_linker/lib_d",
         },
+        exports_directories_only = False,
         package_json = "//internal/linker/test/multi_linker/test_a:package.json",
         package_path = "internal/linker/test/multi_linker/test_a",
         symlink_node_modules = False,
@@ -133,6 +136,7 @@ def npm_deps():
 
     yarn_install(
         name = "internal_test_multi_linker_test_b_deps",
+        exports_directories_only = False,
         package_json = "//internal/linker/test/multi_linker/test_b:package.json",
         package_path = "internal/linker/test/multi_linker/test_b",
         symlink_node_modules = False,
@@ -141,6 +145,7 @@ def npm_deps():
 
     yarn_install(
         name = "internal_test_multi_linker_test_c_deps",
+        exports_directories_only = False,
         package_json = "//internal/linker/test/multi_linker/test_c:package.json",
         package_path = "internal/linker/test/multi_linker/test_c",
         symlink_node_modules = False,
@@ -149,6 +154,7 @@ def npm_deps():
 
     yarn_install(
         name = "internal_test_multi_linker_test_d_deps",
+        exports_directories_only = False,
         package_json = "//internal/linker/test/multi_linker/test_d:package.json",
         package_path = "internal/linker/test/multi_linker/test_d",
         symlink_node_modules = False,
@@ -159,6 +165,7 @@ def npm_deps():
         name = "internal_test_multi_linker_lib_b_deps",
         # transitive deps for this first party lib should not include dev dependencies
         args = ["--production"],
+        exports_directories_only = False,
         package_json = "//internal/linker/test/multi_linker/lib_b:package.json",
         package_path = "internal/linker/test/multi_linker/lib_b",
         symlink_node_modules = False,
@@ -169,6 +176,7 @@ def npm_deps():
         name = "internal_test_multi_linker_lib_c_deps",
         # transitive deps for this first party lib should not include dev dependencies
         args = ["--production"],
+        exports_directories_only = False,
         package_json = "//internal/linker/test/multi_linker/lib_c:lib/package.json",
         package_path = "internal/linker/test/multi_linker/lib_c/lib",
         symlink_node_modules = False,
@@ -187,6 +195,7 @@ def npm_deps():
             "@test_multi_linker/lib-d": "//internal/linker/test/multi_linker/lib_d",
             "@test_multi_linker/lib-d2": "//internal/linker/test/multi_linker/lib_d",
         },
+        exports_directories_only = False,
         package_json = "//internal/linker/test/multi_linker/sub:package.json",
         package_path = "internal/linker/test/multi_linker/sub/dev",
         symlink_node_modules = False,
@@ -197,6 +206,7 @@ def npm_deps():
         name = "internal_test_multi_linker_sub_deps",
         # transitive deps for this first party lib should not include dev dependencies
         args = ["--production"],
+        exports_directories_only = False,
         links = {
             "@test_multi_linker/lib-a": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_a",
             "@test_multi_linker/lib-a2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_a",
@@ -216,6 +226,7 @@ def npm_deps():
         name = "internal_test_multi_linker_onep_a_deps",
         # transitive deps for this first party lib should not include dev dependencies
         args = ["--production"],
+        exports_directories_only = False,
         package_json = "//internal/linker/test/multi_linker/onep_a:package.json",
         package_path = "internal/linker/test/multi_linker/onep_a",
         symlink_node_modules = False,
@@ -230,6 +241,7 @@ def npm_deps():
             "//:tools/npm_packages/local_module/yarn/package.json",
             "//internal/npm_install/test:postinstall.js",
         ],
+        exports_directories_only = False,
         environment = {
             "SOME_USER_ENV": "yarn is great!",
         },
@@ -257,6 +269,7 @@ def npm_deps():
         environment = {
             "SOME_USER_ENV": "npm is cool!",
         },
+        exports_directories_only = False,
         generate_local_modules_build_files = False,
         included_files = [
             "",
@@ -306,6 +319,7 @@ def npm_deps():
 
     yarn_install(
         name = "fine_grained_no_bin",
+        exports_directories_only = False,
         package_json = "//:tools/fine_grained_no_bin/package.json",
         symlink_node_modules = False,
         yarn_lock = "//:tools/fine_grained_no_bin/yarn.lock",
@@ -329,6 +343,7 @@ def npm_deps():
             "some-target-a": "//some/target/a",
             "some-target-a2": "//some/target/a",
         },
+        exports_directories_only = False,
         manual_build_file_contents = """
 filegroup(
   name = "golden_files",
@@ -402,6 +417,7 @@ filegroup(
 
     yarn_install(
         name = "internal_npm_install_test_patches_yarn",
+        exports_directories_only = False,
         package_json = "//internal/npm_install/test/patches_yarn:package.json",
         package_path = "internal/npm_install/test/patches_yarn",
         patch_args = ["-p0"],
@@ -414,6 +430,7 @@ filegroup(
 
     npm_install(
         name = "internal_npm_install_test_patches_npm",
+        exports_directories_only = False,
         package_json = "//internal/npm_install/test/patches_npm:package.json",
         package_lock_json = "//internal/npm_install/test/patches_npm:package-lock.json",
         package_path = "internal/npm_install/test/patches_npm",
@@ -468,6 +485,7 @@ filegroup(
     "//@some-scope/some-target-b2:BUILD.bazel",
   ],
 )""",
+        exports_directories_only = False,
         package_json = "//:tools/fine_grained_goldens/package.json",
         package_path = "tools/fine_grained_goldens",
         symlink_node_modules = False,
@@ -476,6 +494,7 @@ filegroup(
 
     npm_install(
         name = "npm_node_patches",
+        exports_directories_only = False,
         package_json = "//packages/node-patches:package.json",
         package_lock_json = "//packages/node-patches:package-lock.json",
     )
@@ -488,6 +507,7 @@ filegroup(
 
     yarn_install(
         name = "cypress_deps",
+        exports_directories_only = False,
         package_json = "//packages/cypress/test:package.json",
         yarn_lock = "//packages/cypress/test:yarn.lock",
     )
