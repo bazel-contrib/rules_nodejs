@@ -35,3 +35,10 @@ sh_test(
     name = "dummy_test",
     srcs = ["dummy_test.sh"],
 )
+
+genrule(
+    name = "test-rulesnodejs",
+    srcs = ["@npm//@babel/core"],
+    outs = ["out.txt"],
+    cmd = "echo \"$(location @npm//@babel/core)\" > $@",
+)
