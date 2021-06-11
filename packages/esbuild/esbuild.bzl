@@ -45,6 +45,9 @@ def _esbuild_impl(ctx):
 
     # TODO(mattem): 4.0.0 breaking change, entry_points must exist in deps, and are not considered additional srcs
     inputs = deps_inputs + ctx.files.srcs + filter_files(entry_points)
+
+    inputs = [d for d in inputs if not (d.path.endswith(".d.ts") or d.path.endswith(".tsbuildinfo"))]
+
     outputs = []
 
     args = dict({
