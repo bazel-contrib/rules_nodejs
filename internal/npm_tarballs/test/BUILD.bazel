@@ -5,7 +5,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 filegroup(
     name = "get_typescript",
     # the internal/node-patches package-lock.json depends on this version of typescript
-    srcs = ["@npm_typescript-3.5.3"],
+    srcs = ["@npm_typescript-4.3.2"],
     output_group = "direct",
 )
 

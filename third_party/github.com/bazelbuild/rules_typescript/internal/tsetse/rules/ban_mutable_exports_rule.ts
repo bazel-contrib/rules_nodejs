@@ -55,7 +55,7 @@ function checkFile(checker: Checker, file: ts.SourceFile) {
     }
 
     const isConst = (ts.getCombinedNodeFlags(decl) & ts.NodeFlags.Const) !== 0;
-    if (!isConst) {
+    if (!isConst && exp.declarations !== undefined) {
       // Note: show the failure at the exported symbol's declaration site,
       // not the dealiased 'sym', so that the error message shows at the
       // 'export' statement and not the variable declaration.

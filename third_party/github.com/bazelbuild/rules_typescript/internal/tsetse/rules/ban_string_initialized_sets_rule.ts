@@ -32,7 +32,8 @@ function checkNewExpression(checker: Checker, node: ts.NewExpression) {
   const ctorTypeSymbol =
       typeChecker.getTypeAtLocation(node.expression).getSymbol();
 
-  if (!ctorTypeSymbol || ctorTypeSymbol.getEscapedName() !== 'SetConstructor') {
+  if (!ctorTypeSymbol || ctorTypeSymbol.declarations === undefined ||
+      ctorTypeSymbol.getEscapedName() !== 'SetConstructor') {
     return;
   }
   const isES2015SetCtor = ctorTypeSymbol.declarations.some((decl) => {

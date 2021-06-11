@@ -12,7 +12,7 @@
     "rxjs": "7.1.0",
     "tslib": "2.2.0",
     "typeorm": "0.2.17",
-    "typescript": "3.9.9"
+    "typescript": "4.3.2"
   },
   "scripts": {
     "test": "bazel test ..."
