@@ -17,7 +17,7 @@ describe('main', () => {
   });
 
   it('runtime version of typescript should be correct', () => {
-    expect(ts.version).toEqual('3.1.6');
+    expect(ts.version).toEqual('4.3.2');
   });
 
   it('should successfully require built-in node module \'os\'', () => {

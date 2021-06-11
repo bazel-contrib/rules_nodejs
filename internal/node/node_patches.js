@@ -3,13 +3,13 @@
 
 var path = require('path');
 var util = require('util');
-var fs$2 = require('fs');
+var fs$1 = require('fs');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
 var path__default = /*#__PURE__*/_interopDefaultLegacy(path);
 var util__default = /*#__PURE__*/_interopDefaultLegacy(util);
-var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs$2);
+var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs$1);
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -18,7 +18,7 @@ function createCommonjsModule(fn) {
 	return fn(module, module.exports), module.exports;
 }
 
-var fs$1 = createCommonjsModule(function (module, exports) {
+var fs = createCommonjsModule(function (module, exports) {
 /**
  * @license
  * Copyright 2019 The Bazel Authors. All rights reserved.
@@ -55,6 +55,7 @@ var __asyncGenerator = (commonjsGlobal && commonjsGlobal.__asyncGenerator) || fu
     function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.escapeFunction = exports.isOutPath = exports.patcher = void 0;
 
 
 // using require here on purpose so we can override methods with any
@@ -62,7 +63,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // es modules
 
 // tslint:disable-next-line:no-any
-exports.patcher = (fs = fs__default['default'], roots) => {
+const patcher = (fs = fs__default['default'], roots) => {
     fs = fs || fs__default['default'];
     roots = roots || [];
     roots = roots.filter(root => fs.existsSync(root));
@@ -483,11 +484,12 @@ exports.patcher = (fs = fs__default['default'], roots) => {
         }
     }
 };
+exports.patcher = patcher;
 function isOutPath(root, str) {
     return !root || (!str.startsWith(root + path__default['default'].sep) && str !== root);
 }
 exports.isOutPath = isOutPath;
-exports.escapeFunction = (roots) => {
+const escapeFunction = (roots) => {
     // ensure roots are always absolute
     roots = roots.map(root => path__default['default'].resolve(root));
     function isEscape(linkTarget, linkPath) {
@@ -507,6 +509,7 @@ exports.escapeFunction = (roots) => {
     }
     return { isEscape, isOutPath };
 };
+exports.escapeFunction = escapeFunction;
 function once(fn) {
     let called = false;
     return (...args) => {
@@ -530,11 +533,14 @@ function once(fn) {
 }
 });
 
+var subprocess = createCommonjsModule(function (module, exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.patcher = void 0;
 // this does not actually patch child_process
 // but adds support to ensure the registered loader is included in all nested executions of nodejs.
 
 
-var patcher = (requireScriptName, nodeDir) => {
+const patcher = (requireScriptName, nodeDir) => {
     requireScriptName = path__default['default'].resolve(requireScriptName);
     nodeDir = nodeDir || path__default['default'].join(path__default['default'].dirname(requireScriptName), '_node_bin');
     const file = path__default['default'].basename(requireScriptName);
@@ -591,11 +597,12 @@ fi
         return v;
     });
 };
+exports.patcher = patcher;
+});
 
-var subprocess$1 = /*#__PURE__*/Object.defineProperty({
-	patcher: patcher
-}, '__esModule', {value: true});
-
+var src = createCommonjsModule(function (module, exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.subprocess = exports.fs = void 0;
 /**
  * @license
  * Copyright 2019 The Bazel Authors. All rights reserved.
@@ -614,13 +621,9 @@ var subprocess$1 = /*#__PURE__*/Object.defineProperty({
  */
 
 
-var fs = fs$1.patcher;
-var subprocess = subprocess$1.patcher;
-
-var src = /*#__PURE__*/Object.defineProperty({
-	fs: fs,
-	subprocess: subprocess
-}, '__esModule', {value: true});
+exports.fs = fs.patcher;
+exports.subprocess = subprocess.patcher;
+});
 
 /**
  * @license

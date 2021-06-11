@@ -4,7 +4,8 @@
     "dependencies": {
         "cypress": "7.3.0",
         "@types/node": "14.0.14",
-        "rxjs": "6.5.2",
-        "typescript": "4.2.4"
+        "rxjs": "^6.5.2",
+        "typescript": "4.3.2",
+        "tar": "6.0.5"
     }
 }

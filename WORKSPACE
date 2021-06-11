@@ -24,6 +24,13 @@ workspace(
     },
 )
 
+load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS", "node_repositories")
+
+# Node version used in the repository.
+node_repositories(
+    node_version = "12.14.1",
+)
+
 #
 # Install rules_nodejs dev dependencies
 #
@@ -157,7 +164,6 @@ bazel_skylib_workspace()
 #
 
 load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
-load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS")
 
 # Creates toolchain configuration for remote execution with BuildKite CI
 # for rbe_ubuntu1604

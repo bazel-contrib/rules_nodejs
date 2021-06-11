@@ -23,6 +23,6 @@
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
     "source-map-support": "^0.5.16",
-    "typescript": "~3.5.0"
+    "typescript": "~4.3.2"
   }
 }

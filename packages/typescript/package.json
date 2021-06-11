@@ -21,9 +21,9 @@
         "tsc_wrapped": "./internal/tsc_wrapped/tsc_wrapped.js",
         "ts_project_options_validator": "./internal/ts_project_options_validator.js"
     },
-    "//": "note that typescript doesn't follow semver, so technically anything 3.6 or higher might break us",
+    "//": "NOTE: Typescript does not follow SemVer. Usually the minor digit signifies a major version.",
     "peerDependencies": {
-        "typescript": ">=3.0.0 <4.3"
+        "typescript": ">=3.0.0 <4.4.0"
     },
     "dependencies": {
         "protobufjs": "6.8.8",
