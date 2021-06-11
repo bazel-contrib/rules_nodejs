@@ -208,14 +208,6 @@
 </span><span class="n">cypress_repository</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"cypress"</span><span class="p">)</span>
 </code></pre></div></div>
 
-<h3 id="macos-install-requirements">macOS install requirements</h3>
-<p>On macOS, <code class="language-plaintext highlighter-rouge">cypress_repository</code> generates an external repository containing files whose names contain spaces. In order to make these files compatible with bazel you will need to add the following flag to your <code class="language-plaintext highlighter-rouge">.bazelrc</code> file:</p>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Required for cypress_repository on macOS
-</span><span class="n">build</span> <span class="o">--</span><span class="n">experimental_inprocess_symlink_creation</span>
-</code></pre></div></div>
-
-<h3 id="windows-install-requirements">windows install requirements</h3>
-<p>At this point in time, <code class="language-plaintext highlighter-rouge">cypress_repository</code> is incompatible with bazel sandboxing on Windows. This may change in the future, but for now using cypress on windows requires windows sandboxing be disabled (it is disabled by default)</p>
 
 <h2 id="example-use-of-cypress_web_test">Example use of cypress_web_test</h2>
 <p>This example assumes you’ve named your external repository for node_modules as <code class="language-plaintext highlighter-rouge">npm</code> and for cypress as <code class="language-plaintext highlighter-rouge">cypress</code></p>

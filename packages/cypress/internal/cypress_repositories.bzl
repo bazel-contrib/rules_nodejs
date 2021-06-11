@@ -45,17 +45,16 @@ def cypress_repositories(
         urls = windows_urls + [
             "https://cdn.cypress.io/desktop/{}/win32-x64/cypress.zip".format(version),
         ],
-        strip_prefix = "Cypress",
         build_file_content = """
 filegroup(
     name = "files",
-    srcs = glob(["**"]),
+    srcs = ["Cypress"],
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "bin",
-    srcs = ["Cypress.exe"],
+    srcs = ["Cypress/Cypress.exe"],
     visibility = ["//visibility:public"],
 )
 """,
@@ -65,21 +64,20 @@ filegroup(
         name = "cypress_darwin".format(name),
         sha256 = darwin_sha256,
         # Cypress checks that the binary path matches **/Contents/MacOS/Cypress so we do not strip that particular prefix.
-        strip_prefix = "Cypress.app",
         urls = darwin_urls + [
             "https://cdn.cypress.io/desktop/{}/darwin-x64/cypress.zip".format(version),
         ],
         build_file_content = """
 filegroup(
     name = "files",
-    srcs = glob(["**"]),
+    srcs = ["Cypress.app"],
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "bin",
     # Cypress checks that the binary path matches **/Contents/MacOS/Cypress
-    srcs = ["Contents/MacOS/Cypress"],
+    srcs = ["Cypress.app/Contents/MacOS/Cypress"],
     visibility = ["//visibility:public"],
 )
 """,
@@ -88,20 +86,19 @@ filegroup(
     http_archive(
         name = "cypress_linux".format(name),
         sha256 = linux_sha256,
-        strip_prefix = "Cypress",
         urls = linux_urls + [
             "https://cdn.cypress.io/desktop/{}/linux-x64/cypress.zip".format(version),
         ],
         build_file_content = """
 filegroup(
     name = "files",
-    srcs = glob(["**"]),
+    srcs = ["Cypress"],
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "bin",
-    srcs = ["Cypress"],
+    srcs = ["Cypress/Cypress"],
     visibility = ["//visibility:public"],
 )
 """,
