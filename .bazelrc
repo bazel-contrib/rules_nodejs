@@ -17,7 +17,6 @@ build:release --stamp --workspace_status_command=./scripts/current_version.sh
 build --define=SOME_TEST_ENV=some_value
 test --define=SOME_TEST_ENV=some_value
 build --action_env=SOME_OTHER_ENV=some_other_value
-build --experimental_inprocess_symlink_creation
 
 ###############################
 # Remote Build Execution support
