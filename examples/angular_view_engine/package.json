@@ -4,7 +4,7 @@
     "description": "Demo of building Angular apps with Bazel",
     "license": "Apache-2.0",
     "engines": {
-        "node": ">=10.9.0 <13.0.0",
+        "node": ">=12 <=14",
         "yarn": ">=1.9.2 <2.0.0"
     },
     "dependencies": {

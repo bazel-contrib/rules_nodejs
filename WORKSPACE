@@ -24,6 +24,13 @@ workspace(
     },
 )
 
+load("//:index.bzl", "node_repositories")
+
+# Node version used in the repository.
+node_repositories(
+    node_version = "12.14.1",
+)
+
 #
 # Install rules_nodejs dev dependencies
 #
