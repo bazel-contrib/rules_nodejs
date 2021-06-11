@@ -6,17 +6,15 @@
         "@babel/core": "^7.6.0",
         "@babel/preset-env": "^7.6.0",
         "@bazel/typescript": "^3.6.0",
-        "@jest/core": "24.7.1",
-        "@jest/transform": "24.7.1",
-        "@types/jest": "^26.0.15",
-        "babel-jest": "24.7.1",
-        "babel-plugin-istanbul": "5.1.2",
-        "jest-cli": "24.9.0",
-        "patch-package": "^6.2.0",
+        "@jest/core": "27.0.4",
+        "@jest/transform": "27.0.2",
+        "@types/jest": "^26.0.23",
+        "babel-jest": "27.0.2",
+        "babel-plugin-istanbul": "6.0.0",
+        "jest-cli": "27.0.4",
         "typescript": "~4.2.0"
     },
     "scripts": {
-        "postinstall": "patch-package",
         "test": "bazel test ..."
     }
 }
