@@ -169,18 +169,17 @@ def _impl(ctx):
         # every single file on bin should be added here
         src_all_files.append(file)
 
-    files_depset = depset(src_all_files)
-    js_files_depset = depset(src_js_files)
-    named_module_files_depset = depset(src_named_module_files)
-    typings_depset = depset(src_typings)
+    # depset() wrapper of src_all_files
+    src_all_files_depset = depset(src_all_files)
 
-    files_depsets = [files_depset]
-    npm_sources_depsets = [files_depset]
-    direct_ecma_script_module_depsets = [files_depset]
-    direct_sources_depsets = [files_depset]
-    direct_named_module_sources_depsets = [named_module_files_depset]
-    direct_typings_depsets = [typings_depset]
-    direct_js_files_depsets = [js_files_depset]
+    # collections of depset()s from across srcs + dependencies
+    files_depsets = [src_all_files_depset]
+    npm_sources_depsets = [src_all_files_depset]
+    direct_ecma_script_module_depsets = []
+    direct_sources_depsets = [src_all_files_depset]
+    direct_named_module_sources_depsets = [depset(src_named_module_files)] if len(src_named_module_files) > 0 else []
+    direct_typings_depsets = [depset(src_typings)] if len(src_typings) > 0 else []
+    direct_js_files_depsets = [depset(src_js_files)] if len(src_js_files) > 0 else []
 
     for dep in ctx.attr.deps:
         if ExternalNpmPackageInfo in dep:
@@ -212,19 +211,34 @@ def _impl(ctx):
             ),
         ),
         AmdNamesInfo(names = ctx.attr.amd_names),
-        js_ecma_script_module_info(
-            sources = depset(transitive = direct_ecma_script_module_depsets),
-            deps = ctx.attr.deps,
-        ),
-        js_module_info(
-            sources = depset(transitive = direct_js_files_depsets),
-            deps = ctx.attr.deps,
-        ),
-        js_named_module_info(
-            sources = depset(transitive = direct_named_module_sources_depsets),
-            deps = ctx.attr.deps,
-        ),
     ]
+
+    if len(direct_ecma_script_module_depsets) > 0:
+        direct_ecma_script_module_depsets.insert(0, src_all_files_depset)
+        providers.append(
+            js_ecma_script_module_info(
+                sources = depset(transitive = direct_ecma_script_module_depsets),
+                deps = ctx.attr.deps,
+            ),
+        )
+
+    if len(direct_js_files_depsets) > 0:
+        direct_js_files_depsets.insert(0, src_all_files_depset)
+        providers.append(
+            js_module_info(
+                sources = depset(transitive = direct_js_files_depsets),
+                deps = ctx.attr.deps,
+            ),
+        )
+
+    if len(direct_named_module_sources_depsets) > 0:
+        direct_named_module_sources_depsets.insert(0, src_all_files_depset)
+        providers.append(
+            js_named_module_info(
+                sources = depset(transitive = direct_named_module_sources_depsets),
+                deps = ctx.attr.deps,
+            ),
+        )
 
     if ctx.attr.package_name == "$node_modules$" or ctx.attr.package_name == "$node_modules_dir$":
         # special case for external npm deps
@@ -244,7 +258,7 @@ def _impl(ctx):
             files = depset(transitive = direct_sources_depsets),
         ))
 
-    if len(src_typings) or len(direct_typings_depsets) > 1:
+    if len(direct_typings_depsets) > 0:
         # Don't provide DeclarationInfo if there are no src_typings to provide.
         # Improves error messaging downstream if DeclarationInfo is required.
         decls = depset(transitive = direct_typings_depsets)
