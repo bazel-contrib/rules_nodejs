@@ -122,13 +122,13 @@ def _link_path(ctx, all_files):
     return link_path
 
 def _impl(ctx):
-    input_files = ctx.files.srcs + ctx.files.named_module_srcs
-    all_files = []
-    typings = []
-    js_files = []
-    named_module_files = []
+    input_src_files = ctx.files.srcs + ctx.files.named_module_srcs
+    src_all_files = []
+    src_typings = []
+    src_js_files = []
+    src_named_module_files = []
 
-    for idx, f in enumerate(input_files):
+    for idx, f in enumerate(input_src_files):
         file = f
 
         # copy files into bin if needed
@@ -144,7 +144,7 @@ def _impl(ctx):
 
         # register js files
         if file.basename.endswith(".js") or file.basename.endswith(".js.map") or file.basename.endswith(".json"):
-            js_files.append(file)
+            src_js_files.append(file)
 
         # register typings
         if (
@@ -160,27 +160,27 @@ def _impl(ctx):
             # the tsconfig "lib" attribute
             len(file.path.split("/node_modules/")) < 3 and file.path.find("/node_modules/typescript/lib/lib.") == -1
         ):
-            typings.append(file)
+            src_typings.append(file)
 
         # ctx.files.named_module_srcs are merged after ctx.files.srcs
         if idx >= len(ctx.files.srcs):
-            named_module_files.append(file)
+            src_named_module_files.append(file)
 
         # every single file on bin should be added here
-        all_files.append(file)
+        src_all_files.append(file)
 
-    files_depset = depset(all_files)
-    js_files_depset = depset(js_files)
-    named_module_files_depset = depset(named_module_files)
-    typings_depset = depset(typings)
+    files_depset = depset(src_all_files)
+    js_files_depset = depset(src_js_files)
+    named_module_files_depset = depset(src_named_module_files)
+    typings_depset = depset(src_typings)
 
     files_depsets = [files_depset]
     npm_sources_depsets = [files_depset]
     direct_ecma_script_module_depsets = [files_depset]
     direct_sources_depsets = [files_depset]
     direct_named_module_sources_depsets = [named_module_files_depset]
-    typings_depsets = [typings_depset]
-    js_files_depsets = [js_files_depset]
+    direct_typings_depsets = [typings_depset]
+    direct_js_files_depsets = [js_files_depset]
 
     for dep in ctx.attr.deps:
         if ExternalNpmPackageInfo in dep:
@@ -190,13 +190,13 @@ def _impl(ctx):
                 direct_ecma_script_module_depsets.append(dep[JSEcmaScriptModuleInfo].direct_sources)
                 direct_sources_depsets.append(dep[JSEcmaScriptModuleInfo].direct_sources)
             if JSModuleInfo in dep:
-                js_files_depsets.append(dep[JSModuleInfo].direct_sources)
+                direct_js_files_depsets.append(dep[JSModuleInfo].direct_sources)
                 direct_sources_depsets.append(dep[JSModuleInfo].direct_sources)
             if JSNamedModuleInfo in dep:
                 direct_named_module_sources_depsets.append(dep[JSNamedModuleInfo].direct_sources)
                 direct_sources_depsets.append(dep[JSNamedModuleInfo].direct_sources)
             if DeclarationInfo in dep:
-                typings_depsets.append(dep[DeclarationInfo].declarations)
+                direct_typings_depsets.append(dep[DeclarationInfo].declarations)
                 direct_sources_depsets.append(dep[DeclarationInfo].declarations)
             if DefaultInfo in dep:
                 files_depsets.append(dep[DefaultInfo].files)
@@ -205,9 +205,9 @@ def _impl(ctx):
         DefaultInfo(
             files = depset(transitive = files_depsets),
             runfiles = ctx.runfiles(
-                files = all_files,
+                files = src_all_files,
                 transitive_files = depset(
-                    transitive = files_depsets + typings_depsets,
+                    transitive = files_depsets + direct_typings_depsets,
                 ),
             ),
         ),
@@ -217,7 +217,7 @@ def _impl(ctx):
             deps = ctx.attr.deps,
         ),
         js_module_info(
-            sources = depset(transitive = js_files_depsets),
+            sources = depset(transitive = direct_js_files_depsets),
             deps = ctx.attr.deps,
         ),
         js_named_module_info(
@@ -240,14 +240,14 @@ def _impl(ctx):
         providers.append(LinkablePackageInfo(
             package_name = ctx.attr.package_name,
             package_path = ctx.attr.package_path,
-            path = _link_path(ctx, all_files),
+            path = _link_path(ctx, src_all_files),
             files = depset(transitive = direct_sources_depsets),
         ))
 
-    if len(typings) or len(typings_depsets) > 1:
-        # Don't provide DeclarationInfo if there are no typings to provide.
+    if len(src_typings) or len(direct_typings_depsets) > 1:
+        # Don't provide DeclarationInfo if there are no src_typings to provide.
         # Improves error messaging downstream if DeclarationInfo is required.
-        decls = depset(transitive = typings_depsets)
+        decls = depset(transitive = direct_typings_depsets)
         providers.append(declaration_info(
             declarations = decls,
             deps = ctx.attr.deps,
