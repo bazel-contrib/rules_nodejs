@@ -8,7 +8,6 @@ def npm_deps():
     yarn_install(
         name = "npm",
         data = [
-            "//:patches/jest-haste-map+25.3.0.patch",
             "//internal/npm_install/test:postinstall.js",
             "//tools/npm_packages/bazel_workspaces_consistent:BUILD.bazel",
             "//tools/npm_packages/bazel_workspaces_consistent:index.bzl",
@@ -52,7 +51,6 @@ def npm_deps():
     yarn_install(
         name = "npm_directory_artifacts",
         data = [
-            "//:patches/jest-haste-map+25.3.0.patch",
             "//internal/npm_install/test:postinstall.js",
             "//tools/npm_packages/bazel_workspaces_consistent:BUILD.bazel",
             "//tools/npm_packages/bazel_workspaces_consistent:index.bzl",
