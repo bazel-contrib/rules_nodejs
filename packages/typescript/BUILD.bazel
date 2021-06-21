@@ -64,6 +64,7 @@ copy_file(
 
 pkg_npm(
     name = "npm_package",
+    package_name = "@bazel/typescript",
     srcs = [
         "index.bzl",
         "package.json",

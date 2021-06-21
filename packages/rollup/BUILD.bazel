@@ -74,6 +74,7 @@ copy_file(
 
 pkg_npm(
     name = "npm_package",
+    package_name = "@bazel/rollup",
     srcs = [
         "index.bzl",
         "index.js",
