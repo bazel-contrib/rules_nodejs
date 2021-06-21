@@ -129,6 +129,11 @@ See the section on stamping in the [README](stamping)
         NOTE: If this attribute is set, a valid `package.json` file must be included in the sources of this target
         """,
     ),
+    "validate": attr.bool(
+        doc = "Whether to check that the attributes match the package.json",
+        # TODO(4.0) flip default to True
+        default = False,
+    ),
     "vendor_external": attr.string_list(
         doc = """External workspaces whose contents should be vendored into this workspace.
         Avoids `external/foo` path segments in the resulting package.""",
@@ -245,6 +250,9 @@ def create_package(ctx, deps_files, nested_packages):
         args.add_all(["", ""])
 
     args.add_joined(ctx.attr.vendor_external, join_with = ",", omit_if_empty = False)
+    args.add(str(ctx.label))
+    args.add(ctx.attr.validate)
+    args.add(ctx.attr.package_name)
 
     ctx.actions.run(
         progress_message = "Assembling npm package %s" % package_dir.short_path,

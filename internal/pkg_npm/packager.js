@@ -93,7 +93,7 @@ function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
       [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, substitutionsArg,
-       volatileFile, infoFile, vendorExternalArg] = args;
+       volatileFile, infoFile, vendorExternalArg, target, validate, packageNameArg] = args;
 
   const substitutions = [
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
@@ -139,6 +139,21 @@ function main(args) {
         throw new Error(
             `${src} in 'srcs' does not reside in the base directory, ` +
             `generated file should belong in 'deps' instead.`);
+      }
+
+      if (validate === "true" && path.relative(baseDir, src) === "package.json") {
+        const packageJson = JSON.parse(fs.readFileSync(src));
+        if (packageJson['name'] !== packageNameArg) {
+          console.error(`ERROR: pkg_npm rule ${
+            target} was configured with attributes that don't match the package.json`);
+          console.error(` - attribute package_name=${packageNameArg} does not match package.json name=${packageJson['name']}`)
+          console.error('You can automatically fix this by running:');
+          console.error(
+              `    npx @bazel/buildozer 'set package_name "${packageJson['name']}"' ${target}`);
+          console.error('Or to suppress this error, run:');
+          console.error(`    npx @bazel/buildozer 'set validate False' ${target}`);
+          return 1;
+        }
       }
       copyWithReplace(src, path.join(outDir, path.relative(baseDir, src)), substitutions);
     }

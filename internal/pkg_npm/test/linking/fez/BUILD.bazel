@@ -18,6 +18,7 @@ pkg_npm(
 pkg_npm(
     name = "scoped_fez",
     package_name = "@scoped/fez",
+    validate = False,
     visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
     deps = [":fez_lib"],
 )
