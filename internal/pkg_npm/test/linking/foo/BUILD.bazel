@@ -36,6 +36,7 @@ pkg_npm(
 pkg_npm(
     name = "scoped_foo",
     package_name = "@scoped/foo",
+    validate = False,
     visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
     deps = [":scoped_foo_lib"],
 )
