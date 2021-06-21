@@ -19,5 +19,6 @@ pkg_npm(
         "main.js",
         "package.json",
     ],
+    validate = False,
     visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
 )

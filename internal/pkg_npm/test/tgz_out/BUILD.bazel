@@ -2,6 +2,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
 
 pkg_npm(
     name = "pkg",
+    package_name = "awesome-package",
     srcs = [
         "main.js",
         "package.json",

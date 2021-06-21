@@ -32,6 +32,7 @@ pkg_npm(
     name = "scoped_fub",
     package_name = "@scoped/fub",
     srcs = ["package.json"],
+    validate = False,
     visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
     deps = [":fub_lib"],
 )
