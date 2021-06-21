@@ -27,6 +27,7 @@ stardoc(
 
 pkg_npm(
     name = "npm_package",
+    package_name = "@bazel/labs",
     srcs = glob(["*.bzl"]) + [
         "package.json",
         "//packages/labs/grpc_web:package_contents",

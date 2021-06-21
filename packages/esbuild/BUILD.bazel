@@ -69,6 +69,7 @@ filegroup(
 
 pkg_npm(
     name = "npm_package",
+    package_name = "@bazel/esbuild",
     srcs = [
         ":srcs",
         "//packages/esbuild/toolchain:srcs",

@@ -12,6 +12,7 @@ ts_project(
 
 pkg_npm(
     name = "npm_package",
+    package_name = "@bazel/angular",
     srcs = [
         "README.md",
         "package.json",

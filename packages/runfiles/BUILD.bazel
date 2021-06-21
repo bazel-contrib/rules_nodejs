@@ -20,6 +20,7 @@ js_library(
 
 pkg_npm(
     name = "npm_package",
+    package_name = "@bazel/runfiles",
     srcs = [
         "README.md",
         "package.json",

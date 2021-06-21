@@ -1234,7 +1234,7 @@ Defaults to `""`
 
 (*Boolean*): Whether to check that the attributes match the package.json
 
-Defaults to `False`
+Defaults to `True`
 
 <h4 id="pkg_npm-vendor_external">vendor_external</h4>
 

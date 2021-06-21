@@ -52,6 +52,7 @@ copy_file(
 
 pkg_npm(
     name = "npm_package",
+    package_name = "@bazel/terser",
     srcs = [
         "index.bzl",
         "index.js",

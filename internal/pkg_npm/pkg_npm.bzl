@@ -131,8 +131,7 @@ See the section on stamping in the [README](stamping)
     ),
     "validate": attr.bool(
         doc = "Whether to check that the attributes match the package.json",
-        # TODO(4.0) flip default to True
-        default = False,
+        default = True,
     ),
     "vendor_external": attr.string_list(
         doc = """External workspaces whose contents should be vendored into this workspace.
