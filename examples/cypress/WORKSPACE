@@ -29,6 +29,14 @@ load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 yarn_install(
     name = "yarn",
+    # TODO(dan?): figure out why this fails:
+    # ERROR: /private/tmp/tmp-96111FZPjEFtem0Q1/BUILD.bazel:38:17:
+    # no such target '@yarn//:node_modules/cypress/bin/cypress':
+    # target 'node_modules/cypress/bin/cypress' not declared in package '';
+    # however, a source file of this name exists.
+    # (Perhaps add 'exports_files(["node_modules/cypress/bin/cypress"])' to /BUILD?)
+    # defined by /private/var/tmp/_bazel_buildkite/123/external/yarn/BUILD.bazel and referenced by '//:test'
+    exports_directories_only = False,
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )

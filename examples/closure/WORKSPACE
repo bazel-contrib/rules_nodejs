@@ -29,6 +29,10 @@ load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
+    # TODO(greg): when True, it fails on windows
+    # Action bundle.js failed due to Exec failed due to IOException:
+    # C:/users/b/_bazel_b/xw4pma5q/execroot/examples_closure/bazel-out/host/bin/external/npm/google-closure-compiler/bin/google-closure-compiler.bat.runfiles/npm/node_modules/ansi-styles (No such file or directory)
+    exports_directories_only = False,
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )
