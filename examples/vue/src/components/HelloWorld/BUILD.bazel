@@ -1,6 +1,5 @@
-load("@npm//@vue/cli-service:index.bzl", "vue_cli_service")
-load("@npm//webpack:index.bzl", "webpack")
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("@npm//webpack:index.bzl", "webpack")
 
 filegroup(
     name = "src",
@@ -12,52 +11,27 @@ pkg_npm(
     name = "HelloWorld_npm",
     package_name = "HelloWorld",
     srcs = ["package.json"],
-    deps = [":HelloWebpack"],
     visibility = ["//visibility:public"],
+    deps = [":HelloWebpack"],
 )
 
 webpack(
     name = "HelloWebpack",
-    data = ["HelloWorld.vue",
-	    "webpack.config.js", 
-	    "@npm//vue-loader", 
-	    "@npm//webpack-cli", 
-	    "@npm//vue-template-compiler",
-	    "@npm//vue-style-loader",
-	    "@npm//babel-loader",
-	    "@npm//css-loader",
-	    ],
     outs = ["dist"],
-    chdir = "src/components/HelloWorld",
-    args = ["build",
-	    "-o",
-            "../../../$(@D)/dist",
-            ],
-)
-
-vue_cli_service(
-    name = "HelloWorld",
-    outs = ["disti"],
     args = [
         "build",
-	"--mode",
-	"development",
-        "--name",
-        "HelloWorld",
-	"--target",
-	"lib",
-        "--dest",
-        "$(@D)/disti",
-        "--skip-plugins",
-        "eslint",
-	"src/components/HelloWorld/HelloWorld.vue"
+        "-o",
+        "../../../$(@D)/dist",
     ],
+    chdir = "src/components/HelloWorld",
     data = [
-        "package.json",
-	":src",
-        "@npm//vue",
-        "@npm//@vue/cli-plugin-babel",
-        "@npm//@vue/cli-plugin-eslint",
+        "HelloWorld.vue",
+        "webpack.config.js",
+        "@npm//babel-loader",
+        "@npm//css-loader",
+        "@npm//vue-loader",
+        "@npm//vue-style-loader",
+        "@npm//vue-template-compiler",
+        "@npm//webpack-cli",
     ],
-    visibility = ["//visibility:public"],
 )
