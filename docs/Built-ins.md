@@ -1072,7 +1072,7 @@ Defaults to `3600`
 
 <pre>
 pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-package_path">package_path</a>, <a href="#pkg_npm-srcs">srcs</a>,
-        <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-tgz">tgz</a>, <a href="#pkg_npm-vendor_external">vendor_external</a>)
+        <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-tgz">tgz</a>, <a href="#pkg_npm-validate">validate</a>, <a href="#pkg_npm-vendor_external">vendor_external</a>)
 </pre>
 
 The pkg_npm rule creates a directory containing a publishable npm artifact.
@@ -1229,6 +1229,12 @@ Defaults to `{}`
         NOTE: If this attribute is set, a valid `package.json` file must be included in the sources of this target
 
 Defaults to `""`
+
+<h4 id="pkg_npm-validate">validate</h4>
+
+(*Boolean*): Whether to check that the attributes match the package.json
+
+Defaults to `False`
 
 <h4 id="pkg_npm-vendor_external">vendor_external</h4>
 
