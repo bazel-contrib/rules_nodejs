@@ -5,12 +5,5 @@
   "main": "dist/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "dependencies": {
-    "vue-loader": "^15.9.7",
-    "webpack": "^5.40.0"
-  },
-  "devDependencies": {
-    "webpack-cli": "^4.7.2"
   }
 }
