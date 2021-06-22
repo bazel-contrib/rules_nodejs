@@ -1,9 +1,6 @@
-const commonjs = require('@rollup/plugin-commonjs');
-const {nodeResolve} = require('@rollup/plugin-node-resolve');
+// rollup.config.js
+import typescript from '@rollup/plugin-typescript';
 
-module.exports = {
-  plugins: [
-    nodeResolve(),
-    commonjs(),
-  ],
+export default {
+  plugins: [typescript({ allowJs: true })],
 };
