@@ -1,5 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_test")
 load("@npm//@vue/cli-service:index.bzl", "vue_cli_service")
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
 
 filegroup(
     name = "conf",
@@ -18,9 +19,10 @@ vue_cli_service(
         ":package.json",
         "vue.config.js",
         "//src",
-        "//src/components:HelloWorld"
+        "//src/components:HelloWorld_npm"
     ],
 )
+
 
 vue_cli_service(
     name = "build",
@@ -36,12 +38,12 @@ vue_cli_service(
         "babel.config.js",
         "vue.config.js",
         ":package.json",
-        "//src/components:HelloWorld",
         "//src",
         "@npm//vue",
         "@npm//@vue/cli-plugin-babel",
         # Shouldn't be needed since it's in skip-plugins ?
         "@npm//@vue/cli-plugin-eslint",
+        "//src/components:HelloWorld_npm"
     ],
 )
 

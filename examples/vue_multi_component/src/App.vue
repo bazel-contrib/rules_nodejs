@@ -7,7 +7,7 @@
 
 <script>
 
-import HelloWorld from 'src/components/dist/hello-world.common.js'
+import HelloWorld from 'HelloWorld'
 
 export default {
   name: 'App',

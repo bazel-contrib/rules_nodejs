@@ -1,4 +1,5 @@
 // vue.config.js
+css: { extract: false }
 module.exports = {
   configureWebpack: {
     resolve: {
