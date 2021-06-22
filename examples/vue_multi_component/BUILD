@@ -19,7 +19,7 @@ vue_cli_service(
         ":package.json",
         "vue.config.js",
         "//src",
-        "//src/components:HelloWorld_npm"
+        "//src/components/HelloWorld:HelloWorld_npm"
     ],
 )
 
