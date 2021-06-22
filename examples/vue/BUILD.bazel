@@ -43,7 +43,7 @@ vue_cli_service(
         "@npm//@vue/cli-plugin-babel",
         # Shouldn't be needed since it's in skip-plugins ?
         "@npm//@vue/cli-plugin-eslint",
-        "//src/components:HelloWorld_npm"
+        "//src/components/HelloWorld:HelloWorld_npm"
     ],
 )
 
