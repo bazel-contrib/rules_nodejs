@@ -13,7 +13,6 @@ pkg_npm(
     package_name = "HelloWorld",
     srcs = ["package.json"],
     deps = [":HelloWebpack"],
-    #substitutions = {"//src/": "//"},
     visibility = ["//visibility:public"],
 )
 
@@ -41,6 +40,8 @@ vue_cli_service(
     outs = ["disti"],
     args = [
         "build",
+	"--mode",
+	"development",
         "--name",
         "HelloWorld",
 	"--target",
