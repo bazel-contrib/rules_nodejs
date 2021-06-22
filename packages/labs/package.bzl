@@ -15,20 +15,19 @@ def npm_bazel_labs_dependencies():
     _maybe(
         http_archive,
         name = "com_github_grpc_grpc_web",
-        sha256 = "04460e28ffa80bfc797a8758da10ba40107347ef0af8e9cc065ade10398da4bb",
-        strip_prefix = "grpc-web-1.0.7",
+        sha256 = "8d9b1e9b839a5254aa79cb4068b05fdb6e1de5637c1b8551f95144159a4801f2",
+        strip_prefix = "grpc-web-1.2.0",
         urls = [
-            "https://github.com/grpc/grpc-web/archive/1.0.7.tar.gz",
+            "https://github.com/grpc/grpc-web/archive/1.2.0.tar.gz",
         ],
     )
 
-    _maybe(
-        http_archive,
+    http_archive(
         name = "rules_proto",
-        sha256 = "aa1ee19226f707d44bee44c720915199c20c84a23318bb0597ed4e5c873ccbd5",
-        strip_prefix = "rules_proto-40298556293ae502c66579620a7ce867d5f57311",
+        sha256 = "",
+        strip_prefix = "rules_proto-c0b62f2f46c85c16cb3b5e9e921f0d00e3101934",
         urls = [
-            "https://github.com/bazelbuild/rules_proto/archive/40298556293ae502c66579620a7ce867d5f57311.tar.gz",
+            "https://github.com/bazelbuild/rules_proto/archive/c0b62f2f46c85c16cb3b5e9e921f0d00e3101934.tar.gz",
         ],
     )
 

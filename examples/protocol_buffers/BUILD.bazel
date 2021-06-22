@@ -1,11 +1,9 @@
-load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver", "karma_web_test_suite")
 load("@npm//@bazel/labs:index.bzl", "ts_proto_library")
-load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//@bazel/terser:index.bzl", "terser_minified")
-load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_library")
-load("@npm//http-server:index.bzl", "http_server")
+load("@npm//@bazel/typescript:index.bzl", "ts_project")
 load("@rules_proto//proto:defs.bzl", "proto_library")
+load(":jest.bzl", "jest_test")
 
 proto_library(
     name = "tire_proto",
@@ -34,88 +32,65 @@ ts_proto_library(
     proto = ":car_proto",
 )
 
-ts_config(
-    name = "tsconfig-test",
-    src = "tsconfig-test.json",
-    deps = [":tsconfig.json"],
-)
-
-ts_library(
+ts_project(
     name = "test_lib",
     testonly = True,
     srcs = ["car.spec.ts"],
-    tsconfig = "//:tsconfig-test",
     deps = [
         ":car",
         ":tire",
-        "@npm//@types/jasmine",
+        "@npm//@types/google-protobuf",
+        "@npm//@types/jest",
         "@npm//@types/node",
+        "@npm//grpc-web",
     ],
 )
 
-karma_web_test_suite(
+jest_test(
     name = "test",
     srcs = [
-        "@npm//@bazel/labs/grpc_web:bootstrap_scripts",
+        "babel.config.js",
+        ":car.spec.js",
     ],
-    browsers = [
-        "@io_bazel_rules_webtesting//browsers:chromium-local",
-        "@io_bazel_rules_webtesting//browsers:firefox-local",
+    jest_config = ":jest.config.js",
+    deps = [
+        ":car",
+        ":tire",
+        "@npm//@babel/core",
+        "@npm//@babel/preset-env",
+        "@npm//babel-jest",
+        "@npm//google-protobuf",
     ],
-    tags = ["native"],
-    deps = ["test_lib"],
 )
 
-ts_library(
+ts_project(
     name = "app",
     srcs = ["app.ts"],
-    deps = [":car"],
-)
-
-concatjs_devserver(
-    name = "devserver",
-    entry_module = "examples_protocol_buffers/app",
-    scripts = ["@npm//@bazel/labs/grpc_web:bootstrap_scripts"],
-    deps = [":app"],
+    deps = [
+        ":car",
+        "@npm//@types/google-protobuf",
+        "@npm//grpc-web",
+    ],
 )
 
 # Test for production mode
 rollup_bundle(
     name = "bundle",
+    srcs = [
+        ":tsconfig.json",
+    ],
     config_file = "rollup.config.js",
     entry_point = ":app.ts",
     format = "iife",
     deps = [
         ":app",
-        "@npm//:node_modules",
-        "@npm//@rollup/plugin-commonjs",
-        "@npm//@rollup/plugin-node-resolve",
+        "@npm//@rollup/plugin-typescript",
     ],
 )
 
 terser_minified(
     name = "bundle.min",
     src = ":bundle",
-)
-
-http_server(
-    name = "prodserver",
-    data = [
-        "index.html",
-        ":bundle.min",
-    ],
-)
-
-ts_library(
-    name = "e2e",
-    testonly = 1,
-    srcs = ["app.e2e-spec.ts"],
-    tsconfig = ":tsconfig-test",
-    deps = [
-        "@npm//@types/jasmine",
-        "@npm//jasmine",
-        "@npm//protractor",
-    ],
 )
 
 proto_library(
@@ -125,20 +100,6 @@ proto_library(
         "tire.proto",
     ],
     visibility = ["//visibility:public"],
-)
-
-protractor_web_test_suite(
-    name = "prodserver_test",
-    on_prepare = ":protractor.on-prepare.js",
-    server = "//:prodserver",
-    deps = [":e2e"],
-)
-
-protractor_web_test_suite(
-    name = "devserver_test",
-    on_prepare = ":protractor.on-prepare.js",
-    server = "//:devserver",
-    deps = [":e2e"],
 )
 
 # Just a dummy test so that we have a test target for //... on certain bazelci platforms with bazel_integration_test

@@ -1,9 +1,0 @@
-{
-    "name": "grpc_web",
-    "version": "1.0.0",
-    "license": "MIT",
-    "dependencies": {
-        "minimist": "1.2.0"
-    }
-  }
-  

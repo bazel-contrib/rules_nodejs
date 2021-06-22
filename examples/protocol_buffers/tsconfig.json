@@ -1,14 +1,22 @@
 {
   "compilerOptions": {
     "strict": true,
-    "lib": ["es2015.promise", "dom", "es5"],
+    "lib": [
+      "es2015.promise",
+      "dom",
+      "es5"
+    ],
     // Include the output directory in rootDirs so that generated .d.ts files
     // can be used for type-checking in the editor, for example the car.proto
     // produces a car.d.ts.
-    "rootDirs": [".", "./dist/bin/examples/protocol_buffers"],
-    // Explicitly set types settings so typescript doesn't auto-discover types.
-    // If all types are discovered then all types need to be included as deps
-    // or typescript may error out with TS2688: Cannot find type definition file for 'foo'.
-    "types": []
- }
+    "rootDirs": [
+      ".",
+      "bazel-out/darwin-fastbuild/bin",
+      "bazel-out/k8-fastbuild/bin",
+      "bazel-out/x64_windows-fastbuild/bin",
+      "bazel-out/darwin-dbg/bin",
+      "bazel-out/k8-dbg/bin",
+      "bazel-out/x64_windows-dbg/bin",
+    ],
+  }
 }
