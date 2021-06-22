@@ -43,12 +43,10 @@ ts_proto_library(
 )
 ```
 
-You can now use the `test_ts_proto` target as a `dep` in other `ts_library` targets. However, you will need to include the following dependencies at runtime yourself:
+You can now use the `test_ts_proto` target as a `dep` in other `ts_project` targets. However, you will need to include the following dependencies at runtime yourself:
 
-- `google-protobuf`
+- `@types/google-protobuf`
 - `grpc-web`
-
-UMD versions of these runtime dependencies are provided by `//packages/labs/grpc_web:bootstrap_scripts` (for use within `concatjs_devserver` and `karma_web_test_suite`)
 
 See `//examples/protocol_buffers/BUILD.bazel` for an example.
 
@@ -72,11 +70,3 @@ To get code completion working for the generated protos in your IDE, add the fol
 }
 ```
 
-## Implementation Details
-A bazel aspect is used to generate `ts_library` compatible output for all transitive
-dependencies of the proto passed to `ts_proto_library`.
-
-In its current state (as of March 15, 2020) the `grpc` protoc plugin is not fully capable of
-producing typescript source files. It is however, capable of generating type declarations and
-`commonjs` implementations. To make these output's compatible with `ts_library` the generated
-`commonjs` output is transformed into both ES5 UMD module files and ES6 module files.

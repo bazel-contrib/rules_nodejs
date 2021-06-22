@@ -1,6 +1,5 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:index.bzl", "js_library", "nodejs_binary")
-load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -12,42 +11,9 @@ bzl_library(
 )
 
 nodejs_binary(
-    name = "change_import_style",
-    data = ["@build_bazel_rules_typescript_grpc_web_compiletime_deps//:node_modules"],
-    entry_point = ":change_import_style.js",
-    # TODO: figure out why this doesn't resolve minimist
-    templated_args = ["--bazel_patch_module_resolver"],
+    name = "post_process",
+    entry_point = ":post_process.js",
     visibility = ["//visibility:public"],
-)
-
-well_known_protos = [
-    "any_pb",
-    "api_pb",
-    "descriptor_pb",
-    "duration_pb",
-    "empty_pb",
-    "field_mask_pb",
-    "source_context_pb",
-    "struct_pb",
-    "timestamp_pb",
-    "type_pb",
-    "wrappers_pb",
-]
-
-[npm_umd_bundle(
-    name = "google-protobuf-%s__umd" % p,
-    package_name = "google-protobuf/google/protobuf/%s" % p,
-    entry_point = "@npm//:node_modules/google-protobuf/google-protobuf.js",
-    excluded = ["google-protobuf"],
-    package = "@npm//google-protobuf",
-) for p in well_known_protos]
-
-js_library(
-    name = "bootstrap_scripts",
-    named_module_srcs = [
-        "@npm//google-protobuf:google-protobuf__umd",
-        "@npm//grpc-web:grpc-web__umd",
-    ] + [":google-protobuf-%s__umd" % p for p in well_known_protos],
 )
 
 filegroup(
