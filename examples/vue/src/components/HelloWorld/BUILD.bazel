@@ -1,0 +1,37 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("@npm//webpack:index.bzl", "webpack")
+
+filegroup(
+    name = "src",
+    srcs = glob(["**/**"]),
+    visibility = ["//visibility:public"],
+)
+
+pkg_npm(
+    name = "HelloWorld_npm",
+    package_name = "HelloWorld",
+    srcs = ["package.json"],
+    visibility = ["//visibility:public"],
+    deps = [":HelloWebpack"],
+)
+
+webpack(
+    name = "HelloWebpack",
+    outs = ["dist"],
+    args = [
+        "build",
+        "-o",
+        "../../../$(@D)/dist",
+    ],
+    chdir = "src/components/HelloWorld",
+    data = [
+        "HelloWorld.vue",
+        "webpack.config.js",
+        "@npm//babel-loader",
+        "@npm//css-loader",
+        "@npm//vue-loader",
+        "@npm//vue-style-loader",
+        "@npm//vue-template-compiler",
+        "@npm//webpack-cli",
+    ],
+)
