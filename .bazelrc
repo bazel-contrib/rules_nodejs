@@ -25,7 +25,7 @@ build --action_env=SOME_OTHER_ENV=some_other_value
 ###############################
 
 # Load default settings for Remote Build Execution.
-import %workspace%/third_party/github.com/bazelbuild/bazel-toolchains/bazelrc/bazel-0.28.0.bazelrc
+import %workspace%/third_party/github.com/bazelbuild/bazel-toolchains/bazelrc/bazel-4.1.0.bazelrc
 
 # Remote instance, borrow the one used by Angular devs
 build:remote --remote_instance_name=projects/internal-200822/instances/default_instance
