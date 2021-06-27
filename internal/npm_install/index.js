@@ -20,7 +20,7 @@ let config = {
     package_path: '',
     rule_type: 'yarn_install',
     strict_visibility: true,
-    workspace_root_prefix: '',
+    workspace_rerooted_path: '',
     workspace: '',
 };
 function generateBuildFileHeader(visibility = PUBLIC_VISIBILITY) {
@@ -49,9 +49,7 @@ function createFileSymlinkSync(target, p) {
     fs.symlinkSync(target, p, 'file');
 }
 function main() {
-    var _a;
     config = require('./generate_config.json');
-    config.workspace_root_base = (_a = config.workspace_root_prefix) === null || _a === void 0 ? void 0 : _a.split('/')[0];
     config.limited_visibility = `@${config.workspace}//:__subpackages__`;
     if (config.exports_directories_only) {
         NODE_MODULES_PACKAGE_NAME = '$node_modules_dir$';
@@ -61,7 +59,7 @@ function main() {
     flattenDependencies(pkgs);
     generateBazelWorkspaces(pkgs);
     generateBuildFiles(pkgs);
-    writeFileSync('.bazelignore', `node_modules\n${config.workspace_root_base}`);
+    writeFileSync('.bazelignore', `node_modules\n${config.workspace_rerooted_path}`);
 }
 exports.main = main;
 function generateBuildFiles(pkgs) {

@@ -252,7 +252,17 @@ directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/i
 
 This can be used to make changes to installed packages after the package manager runs.
 
-File paths in patches should be relative to workspace root.""",
+File paths in patches should be relative to workspace root.
+
+Use with caution when `symlink_node_modules` enabled as the patches will run in your workspace and
+will modify files in your workspace.
+
+NB: If `symlink_node_modules` is enabled, the node_modules folder is re-used between executions of the
+    repository rule. Patches may be re-applied to files in this case and fail to apply. A marker file
+    `node_modules/.bazel-post-install-patches` is left in this mode when patches are applied. When the 
+    marker file is detected, patch file failures are treated as WARNINGS. For this reason, it is recommended
+    to patch npm packages with an npm tool such as https://www.npmjs.com/package/patch-package when
+    `symlink_node_modules` is enabled which handles re-apply patching logic more robustly.""",
     ),
     "pre_install_patches": attr.label_list(
         doc = """Patch files to apply before running package manager.
@@ -260,7 +270,9 @@ File paths in patches should be relative to workspace root.""",
 This can be used to make changes to package.json or other data files passed in before running the
 package manager.
 
-File paths in patches should be relative to workspace root.""",
+File paths in patches should be relative to workspace root.
+
+Not supported with `symlink_node_modules` enabled.""",
     ),
     "quiet": attr.bool(
         default = True,
@@ -298,7 +310,25 @@ data attribute.
     ),
 })
 
-def _apply_patches(repository_ctx, patches):
+def _apply_pre_install_patches(repository_ctx):
+    if len(repository_ctx.attr.pre_install_patches) == 0:
+        return
+    if repository_ctx.attr.symlink_node_modules:
+        fail("pre_install_patches cannot be used with symlink_node_modules enabled")
+    _apply_patches(repository_ctx, _WORKSPACE_REROOTED_PATH, repository_ctx.attr.pre_install_patches)
+
+def _apply_post_install_patches(repository_ctx):
+    if len(repository_ctx.attr.post_install_patches) == 0:
+        return
+    if repository_ctx.attr.symlink_node_modules:
+        print("\nWARNING: @%s post_install_patches with symlink_node_modules enabled will run in your workspace and potentially modify source files" % repository_ctx.name)
+    working_directory = _user_workspace_root(repository_ctx) if repository_ctx.attr.symlink_node_modules else _WORKSPACE_REROOTED_PATH
+    marker_file = None
+    if repository_ctx.attr.symlink_node_modules:
+        marker_file = "%s/node_modules/.bazel-post-install-patches" % repository_ctx.path(repository_ctx.attr.package_json).dirname
+    _apply_patches(repository_ctx, working_directory, repository_ctx.attr.post_install_patches, marker_file)
+
+def _apply_patches(repository_ctx, working_directory, patches, marker_file = None):
     bash_exe = repository_ctx.os.environ["BAZEL_SH"] if "BAZEL_SH" in repository_ctx.os.environ else "bash"
 
     patch_tool = repository_ctx.attr.patch_tool
@@ -306,25 +336,55 @@ def _apply_patches(repository_ctx, patches):
         patch_tool = "patch"
     patch_args = repository_ctx.attr.patch_args
 
-    for patchfile in patches:
-        command = "{patchtool} {patch_args} < {patchfile}".format(
-            patchtool = patch_tool,
-            patchfile = repository_ctx.path(patchfile),
-            patch_args = " ".join([
-                "'%s'" % arg
-                for arg in patch_args
-            ]),
-        )
+    for patch_file in patches:
+        if marker_file:
+            command = """{patch_tool} {patch_args} < {patch_file}
+CODE=$?
+if [ $CODE -ne 0 ]; then
+    CODE=1
+    if [ -f \"{marker_file}\" ]; then
+        CODE=2
+    fi
+fi
+echo '1' > \"{marker_file}\"
+exit $CODE""".format(
+                patch_tool = patch_tool,
+                patch_file = repository_ctx.path(patch_file),
+                patch_args = " ".join([
+                    "'%s'" % arg
+                    for arg in patch_args
+                ]),
+                marker_file = marker_file,
+            )
+        else:
+            command = "{patch_tool} {patch_args} < {patch_file}".format(
+                patch_tool = patch_tool,
+                patch_file = repository_ctx.path(patch_file),
+                patch_args = " ".join([
+                    "'%s'" % arg
+                    for arg in patch_args
+                ]),
+            )
+
+        if not repository_ctx.attr.quiet:
+            print("@%s appling patch file %s in %s" % (repository_ctx.name, patch_file, working_directory))
+            if marker_file:
+                print("@%s leaving patches marker file %s" % (repository_ctx.name, marker_file))
         st = repository_ctx.execute(
             [bash_exe, "-c", command],
             quiet = repository_ctx.attr.quiet,
             # Working directory is _ which is where all files are copied to and
             # where the install is run; patches should be relative to workspace root.
-            working_directory = "_",
+            working_directory = working_directory,
         )
         if st.return_code:
-            fail("Error applying patch %s:\n%s%s" %
-                 (str(patchfile), st.stderr, st.stdout))
+            # If return code is 2 (see bash snippet above) that means a marker file was found before applying patches;
+            # Treat patch failure as a warning in this case
+            if st.return_code == 2:
+                print("""\nWARNING: @%s failed to apply patch file %s in %s:\n%s%s
+This can happen with symlink_node_modules enabled since your workspace node_modules is re-used between executions of the repository rule.""" % (repository_ctx.name, patch_file, working_directory, st.stderr, st.stdout))
+            else:
+                fail("Error applying patch %s in %s:\n%s%s" % (str(patch_file), working_directory, st.stderr, st.stdout))
 
 def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_local_modules_build_files):
     repository_ctx.report_progress("Processing node_modules: installing Bazel packages and generating BUILD files")
@@ -350,7 +410,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
         rule_type = rule_type,
         strict_visibility = repository_ctx.attr.strict_visibility,
         workspace = repository_ctx.attr.name,
-        workspace_root_prefix = _workspace_root_prefix(repository_ctx),
+        workspace_rerooted_path = _WORKSPACE_REROOTED_PATH,
     ).to_json()
     repository_ctx.file("generate_config.json", generate_config_json)
     result = repository_ctx.execute(
@@ -375,24 +435,42 @@ def _add_scripts(repository_ctx):
         {},
     )
 
-def _workspace_root_path(repository_ctx, f):
-    segments = ["_"]
+# The directory in the external repository where we re-root the workspace by copying
+# package.json, lock file & data files to and running the package manager in the
+# folder of the package.json file.
+_WORKSPACE_REROOTED_PATH = "_"
+
+# Returns the root of the user workspace. No built-in way to get
+# this but we can derive it from the path of the package.json file
+# in the user workspace sources.
+def _user_workspace_root(repository_ctx):
+    package_json = repository_ctx.attr.package_json
+    segments = []
+    if package_json.package:
+        segments.extend(package_json.package.split("/"))
+    segments.extend(package_json.name.split("/"))
+    segments.pop()
+    user_workspace_root = repository_ctx.path(package_json).dirname
+    for i in segments:
+        user_workspace_root = user_workspace_root.dirname
+    return str(user_workspace_root)
+
+# Returns the path to a file within the re-rooted user workspace
+# under _WORKSPACE_REROOTED_PATH in this repo rule's external workspace
+def _rerooted_workspace_path(repository_ctx, f):
+    segments = [_WORKSPACE_REROOTED_PATH]
     if f.package:
         segments.append(f.package)
     segments.append(f.name)
     return "/".join(segments)
 
-def _workspace_root_prefix(repository_ctx):
-    package_json = repository_ctx.attr.package_json
-    segments = ["_"]
-    if package_json.package:
-        segments.append(package_json.package)
-    segments.extend(package_json.name.split("/"))
-    segments.pop()
-    return "/".join(segments) + "/"
+# Returns the path to the package.json directory within the re-rooted user workspace
+# under _WORKSPACE_REROOTED_PATH in this repo rule's external workspace
+def _rerooted_workspace_package_json_dir(repository_ctx):
+    return str(repository_ctx.path(_rerooted_workspace_path(repository_ctx, repository_ctx.attr.package_json)).dirname)
 
 def _copy_file(repository_ctx, f):
-    to = _workspace_root_path(repository_ctx, f)
+    to = _rerooted_workspace_path(repository_ctx, f)
 
     # ensure the destination directory exists
     to_segments = to.split("/")
@@ -417,7 +495,7 @@ def _copy_file(repository_ctx, f):
         fail("cp -f {} {} failed: \nSTDOUT:\n{}\nSTDERR:\n{}".format(repository_ctx.path(f), to, result.stdout, result.stderr))
 
 def _symlink_file(repository_ctx, f):
-    repository_ctx.symlink(f, _workspace_root_path(repository_ctx, f))
+    repository_ctx.symlink(f, _rerooted_workspace_path(repository_ctx, f))
 
 def _copy_data_dependencies(repository_ctx):
     """Add data dependencies to the repository."""
@@ -448,7 +526,7 @@ def _symlink_node_modules(repository_ctx):
         )
     else:
         repository_ctx.symlink(
-            repository_ctx.path(_workspace_root_prefix(repository_ctx) + "node_modules"),
+            repository_ctx.path(_rerooted_workspace_package_json_dir(repository_ctx) + "/node_modules"),
             repository_ctx.path("node_modules"),
         )
 
@@ -487,7 +565,7 @@ def _npm_install_impl(repository_ctx):
     if repository_ctx.attr.symlink_node_modules:
         root = str(repository_ctx.path(repository_ctx.attr.package_json).dirname)
     else:
-        root = str(repository_ctx.path(_workspace_root_prefix(repository_ctx)))
+        root = str(repository_ctx.path(_rerooted_workspace_package_json_dir(repository_ctx)))
 
     # The entry points for npm install for osx/linux and windows
     if not is_windows_host:
@@ -523,7 +601,7 @@ cd /D "{root}" && "{npm}" {npm_args}
     _copy_data_dependencies(repository_ctx)
     _add_scripts(repository_ctx)
     _add_node_repositories_info_deps(repository_ctx)
-    _apply_patches(repository_ctx, repository_ctx.attr.pre_install_patches)
+    _apply_pre_install_patches(repository_ctx)
 
     result = repository_ctx.execute(
         [node, "pre_process_package_json.js", repository_ctx.path(repository_ctx.attr.package_json), "npm"],
@@ -569,7 +647,7 @@ cd /D "{root}" && "{npm}" {npm_args}
         fail("remove_npm_absolute_paths failed: %s (%s)" % (result.stdout, result.stderr))
 
     _symlink_node_modules(repository_ctx)
-    _apply_patches(repository_ctx, repository_ctx.attr.post_install_patches)
+    _apply_post_install_patches(repository_ctx)
 
     _create_build_files(repository_ctx, "npm_install", node, repository_ctx.attr.package_lock_json, repository_ctx.attr.generate_local_modules_build_files)
 
@@ -639,7 +717,7 @@ def _yarn_install_impl(repository_ctx):
     if repository_ctx.attr.symlink_node_modules:
         root = str(repository_ctx.path(repository_ctx.attr.package_json).dirname)
     else:
-        root = str(repository_ctx.path(_workspace_root_prefix(repository_ctx)))
+        root = str(repository_ctx.path(_rerooted_workspace_package_json_dir(repository_ctx)))
 
     # The entry points for npm install for osx/linux and windows
     if not is_windows_host:
@@ -682,7 +760,7 @@ cd /D "{root}" && "{yarn}" {yarn_args}
     _copy_data_dependencies(repository_ctx)
     _add_scripts(repository_ctx)
     _add_node_repositories_info_deps(repository_ctx)
-    _apply_patches(repository_ctx, repository_ctx.attr.pre_install_patches)
+    _apply_pre_install_patches(repository_ctx)
 
     result = repository_ctx.execute(
         [node, "pre_process_package_json.js", repository_ctx.path(repository_ctx.attr.package_json), "yarn"],
@@ -708,7 +786,7 @@ cd /D "{root}" && "{yarn}" {yarn_args}
         fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
 
     _symlink_node_modules(repository_ctx)
-    _apply_patches(repository_ctx, repository_ctx.attr.post_install_patches)
+    _apply_post_install_patches(repository_ctx)
 
     _create_build_files(repository_ctx, "yarn_install", node, repository_ctx.attr.yarn_lock, repository_ctx.attr.generate_local_modules_build_files)
 
