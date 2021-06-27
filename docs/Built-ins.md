@@ -166,7 +166,7 @@ Defaults to `["https://nodejs.org/dist/v{version}/{filename}"]`
 
 (*String*): the specific version of NodeJS to install or, if vendored_node is specified, the vendored version of node
 
-Defaults to `"12.13.0"`
+Defaults to `"14.17.1"`
 
 <h4 id="node_repositories-package_json">package_json</h4>
 

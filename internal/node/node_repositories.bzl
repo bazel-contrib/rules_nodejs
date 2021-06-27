@@ -24,7 +24,7 @@ load("//internal/node:node_versions.bzl", "NODE_VERSIONS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("//toolchains/node:node_toolchain_configure.bzl", "node_toolchain_configure")
 
-_DEFAULT_NODE_VERSION = "12.13.0"
+_DEFAULT_NODE_VERSION = "14.17.1"
 
 # @unsorted-dict-items
 _YARN_VERSIONS = {
