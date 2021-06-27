@@ -773,15 +773,12 @@ def node_repositories(**kwargs):
       **kwargs: the documentation is generated from the node_repositories_rule, not this macro.
     """
 
-    # 0.14.0: @bazel_tools//tools/bash/runfiles is required for nodejs
-    # 0.17.1: allow @ in package names is required for fine grained deps
-    # 0.21.0: repository_ctx.report_progress API
-    # 2.1.0: bazelignore support in external workspaces
+    # Require that users update Bazel, so that we don't need to support older ones.
     check_bazel_version(
         message = """
-    A minimum Bazel version of 2.1.0 is required to use build_bazel_rules_nodejs.
+    Bazel current LTS version (4.0.0) is the minimum required to use rules_nodejs.
     """,
-        minimum_bazel_version = "2.1.0",
+        minimum_bazel_version = "4.0.0",
     )
 
     # This needs to be setup so toolchains can access nodejs for all different versions
