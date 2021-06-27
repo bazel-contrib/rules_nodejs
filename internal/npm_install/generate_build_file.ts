@@ -62,7 +62,7 @@ let config: any = {
   package_path: '',
   rule_type: 'yarn_install',
   strict_visibility: true,
-  workspace_root_prefix: '',
+  workspace_rerooted_path: '',
   workspace: '',
 };
 
@@ -113,7 +113,6 @@ function createFileSymlinkSync(target: string, p: string) {
  */
 export function main() {
   config = require('./generate_config.json')
-  config.workspace_root_base = config.workspace_root_prefix?.split('/')[0];
   config.limited_visibility = `@${config.workspace}//:__subpackages__`;
 
   if (config.exports_directories_only) {
@@ -136,7 +135,7 @@ export function main() {
   generateBuildFiles(pkgs)
 
   // write a .bazelignore file
-  writeFileSync('.bazelignore', `node_modules\n${config.workspace_root_base}`);
+  writeFileSync('.bazelignore', `node_modules\n${config.workspace_rerooted_path}`);
 }
 
 /**

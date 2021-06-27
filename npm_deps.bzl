@@ -410,6 +410,7 @@ filegroup(
         pre_install_patches = ["//internal/npm_install/test/patches_yarn:package_json.patch"],
         symlink_node_modules = False,
         yarn_lock = "//internal/npm_install/test/patches_yarn:yarn.lock",
+        quiet = False,
     )
 
     npm_install(
@@ -422,6 +423,31 @@ filegroup(
         post_install_patches = ["//internal/npm_install/test/patches_npm:semver+1.0.0.patch"],
         pre_install_patches = ["//internal/npm_install/test/patches_npm:package_json.patch"],
         symlink_node_modules = False,
+        quiet = False,
+    )
+
+    yarn_install(
+        name = "internal_npm_install_test_patches_yarn_symlinked",
+        package_json = "//internal/npm_install/test/patches_yarn_symlinked:package.json",
+        package_path = "internal/npm_install/test/patches_yarn_symlinked",
+        patch_args = ["-p0"],
+        patch_tool = "patch",
+        post_install_patches = ["//internal/npm_install/test/patches_yarn_symlinked:semver+1.0.0.patch"],
+        symlink_node_modules = True,
+        yarn_lock = "//internal/npm_install/test/patches_yarn_symlinked:yarn.lock",
+        quiet = False,
+    )
+
+    npm_install(
+        name = "internal_npm_install_test_patches_npm_symlinked",
+        package_json = "//internal/npm_install/test/patches_npm_symlinked:package.json",
+        package_lock_json = "//internal/npm_install/test/patches_npm_symlinked:package-lock.json",
+        package_path = "internal/npm_install/test/patches_npm_symlinked",
+        patch_args = ["-p0"],
+        patch_tool = "patch",
+        post_install_patches = ["//internal/npm_install/test/patches_npm_symlinked:semver+1.0.0.patch"],
+        symlink_node_modules = True,
+        quiet = False,
     )
 
     yarn_install(
