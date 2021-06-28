@@ -15,6 +15,8 @@
 """Helper function for repository rules
 """
 
+load(":check_version.bzl", "check_version")
+
 OS_ARCH_NAMES = [
     ("windows", "amd64"),
     ("darwin", "amd64"),
@@ -66,3 +68,17 @@ def is_darwin_os(rctx):
 def is_linux_os(rctx):
     name = os_name(rctx)
     return name == OS_NAMES[3] or name == OS_NAMES[4] or name == OS_NAMES[5]
+
+def node_exists_for_os(node_version, os_name):
+    "Whether a node binary is available for this platform"
+    is_16_or_greater = check_version(node_version, "16.0.0")
+
+    # There is no Apple Silicon native version of node before 16
+    return is_16_or_greater or os_name != "darwin_arm64"
+
+def assert_node_exists_for_host(rctx):
+    node_version = rctx.attr.node_version
+    if not node_exists_for_os(node_version, os_name(rctx)):
+        fail("No nodejs is available for {} at version {}".format(os_name(rctx), node_version) +
+             "\n    Consider upgrading by setting node_version in a call to node_repositories in WORKSPACE." +
+             "\n    Note that Node 16.x is the minimum published for Apple Silicon (M1 Macs)")
