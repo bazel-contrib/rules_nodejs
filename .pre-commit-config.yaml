@@ -8,6 +8,6 @@ repos:
       - id: buildifier
         args: &args
           # Keep this argument in sync with .bazelci/presubmit.yml
-          - --warnings=attr-cfg,attr-license,attr-non-empty,attr-output-default,attr-single-file,confusing-name,constant-glob,ctx-actions,ctx-args,depset-iteration,depset-union,dict-concatenation,duplicated-name,filetype,function-docstring,git-repository,http-archive,integer-division,load,load-on-top,module-docstring,name-conventions,native-build,native-package,out-of-order-load,output-group,package-name,package-on-top,positional-args,redefined-variable,repository-name,return-value,same-origin-load,string-iteration,unreachable,unsorted-dict-items,unused-variable
+          - --warnings=-bzl-visibility,-function-docstring-args,-function-docstring-return,-print,-unnamed-macro,-provider-params,-function-docstring-header,-no-effect,-uninitialized,-rule-impl-return
       - id: buildifier-lint
         args: *args

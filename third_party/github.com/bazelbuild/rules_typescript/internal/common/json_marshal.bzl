@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Marshal an arbitrary Skylark object to JSON."""
+"""Marshal an arbitrary Starlark object to JSON."""
 
 def json_marshal(data):
     """Serializes arbitrary data to JSON.

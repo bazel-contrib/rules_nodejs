@@ -126,8 +126,8 @@ def jasmine_node_test(
         all_data.extend(["@npm//jasmine", "@npm//jasmine-reporters", "@npm//c8"])
 
     # END-INTERNAL
-    all_data += [":%s_js_sources.MF" % name]
-    all_data += [Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")]
+    all_data.append(":%s_js_sources.MF" % name)
+    all_data.append(Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles"))
 
     # jasmine_runner.js consumes the first 3 args.
     # The remaining target templated_args will be passed through to jasmine or
