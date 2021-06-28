@@ -10,7 +10,7 @@
     "repository": "https://github.com/bazelbuild/rules_nodejs",
     "license": "Apache-2.0",
     "engines": {
-        "node": ">=12 <=14",
+        "node": ">=12 <=18",
         "yarn": ">=1.13.0"
     },
     "devDependencies": {

@@ -21,28 +21,20 @@ load("//internal/common:os_name.bzl", "is_windows_os", "os_name")
 
 def get_node_label(rctx):
     if is_windows_os(rctx):
-        label = Label("@nodejs_%s//:bin/node.cmd" % os_name(rctx))
-    else:
-        label = Label("@nodejs_%s//:bin/node" % os_name(rctx))
-    return label
+        return Label("@nodejs_%s//:bin/node.cmd" % os_name(rctx))
+    return Label("@nodejs_%s//:bin/node" % os_name(rctx))
 
 def get_npm_label(rctx):
     if is_windows_os(rctx):
-        label = Label("@nodejs_%s//:bin/npm.cmd" % os_name(rctx))
-    else:
-        label = Label("@nodejs_%s//:bin/npm" % os_name(rctx))
-    return label
+        return Label("@nodejs_%s//:bin/npm.cmd" % os_name(rctx))
+    return Label("@nodejs_%s//:bin/npm" % os_name(rctx))
 
 def get_npm_node_repositories_label(rctx):
     if is_windows_os(rctx):
-        label = Label("@nodejs_%s//:bin/npm_node_repositories.cmd" % os_name(rctx))
-    else:
-        label = Label("@nodejs_%s//:bin/npm_node_repositories" % os_name(rctx))
-    return label
+        return Label("@nodejs_%s//:bin/npm_node_repositories.cmd" % os_name(rctx))
+    return Label("@nodejs_%s//:bin/npm_node_repositories" % os_name(rctx))
 
 def get_yarn_label(rctx):
     if is_windows_os(rctx):
-        label = Label("@nodejs_%s//:bin/yarn.cmd" % os_name(rctx))
-    else:
-        label = Label("@nodejs_%s//:bin/yarn" % os_name(rctx))
-    return label
+        return Label("@nodejs_%s//:bin/yarn.cmd" % os_name(rctx))
+    return Label("@nodejs_%s//:bin/yarn" % os_name(rctx))
