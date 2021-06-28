@@ -124,7 +124,7 @@ module_mappings_aspect = aspect(
 def _module_mappings_runtime_aspect_impl(target, ctx):
     if target.label.workspace_root:
         # We need the workspace_name for the target being visited.
-        # Skylark doesn't have this - instead they have a workspace_root
+        # Starlark doesn't have this - instead they have a workspace_root
         # which looks like "external/repo_name" - so grab the second path segment.
         # TODO(alexeagle): investigate a better way to get the workspace name
         workspace_name = target.label.workspace_root.split("/")[1]

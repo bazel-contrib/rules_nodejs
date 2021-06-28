@@ -37,7 +37,7 @@ def create_tsconfig(
     """Creates an object representing the TypeScript configuration to run the compiler under Bazel.
 
     Args:
-      ctx: the skylark execution context
+      ctx: the starlark execution context
       files: Labels of all TypeScript compiler inputs
       srcs: Immediate sources being compiled, as opposed to transitive deps.
       devmode_manifest: path to the manifest file to write for --target=es5

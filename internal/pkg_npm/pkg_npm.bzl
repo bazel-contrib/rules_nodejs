@@ -189,7 +189,7 @@ def create_package(ctx, deps_files, nested_packages):
     scripts.
 
     Args:
-      ctx: the skylark rule context
+      ctx: the starlark rule context
       deps_files: list of files to include in the package which have been
                   specified as dependencies
       nested_packages: list of TreeArtifact outputs from other actions which are
