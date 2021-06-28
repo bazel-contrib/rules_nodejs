@@ -93,14 +93,14 @@ def _trim_package_node_modules(package_name):
     for n in package_name.split("/"):
         if n == "node_modules":
             break
-        segments += [n]
+        segments.append(n)
     return "/".join(segments)
 
 def _compute_node_modules_root(ctx):
     """Computes the node_modules root from the node_modules and deps attributes.
 
     Args:
-      ctx: the skylark execution context
+      ctx: the starlark execution context
 
     Returns:
       The node_modules root as a string

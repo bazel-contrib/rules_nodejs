@@ -163,22 +163,22 @@ def _outputs(ctx, label, srcs_files = []):
         # Temporary until all imports of ngfactory/ngsummary files are removed
         # TODO(alexeagle): clean up after Ivy launch
         if getattr(ctx.attr, "use_angular_plugin", False):
-            closure_js_files += [ctx.actions.declare_file(basename + ".ngfactory.mjs")]
-            closure_js_files += [ctx.actions.declare_file(basename + ".ngsummary.mjs")]
+            closure_js_files.append(ctx.actions.declare_file(basename + ".ngfactory.mjs"))
+            closure_js_files.append(ctx.actions.declare_file(basename + ".ngsummary.mjs"))
 
         if not is_dts:
             devmode_js_file = ctx.actions.declare_file(basename + ".js")
             devmode_js_files.append(devmode_js_file)
             transpilation_infos.append(struct(closure = closure_js_file, devmode = devmode_js_file))
-            declaration_files += [ctx.actions.declare_file(basename + ".d.ts")]
+            declaration_files.append(ctx.actions.declare_file(basename + ".d.ts"))
 
             # Temporary until all imports of ngfactory/ngsummary files are removed
             # TODO(alexeagle): clean up after Ivy launch
             if getattr(ctx.attr, "use_angular_plugin", False):
-                devmode_js_files += [ctx.actions.declare_file(basename + ".ngfactory.js")]
-                devmode_js_files += [ctx.actions.declare_file(basename + ".ngsummary.js")]
-                declaration_files += [ctx.actions.declare_file(basename + ".ngfactory.d.ts")]
-                declaration_files += [ctx.actions.declare_file(basename + ".ngsummary.d.ts")]
+                devmode_js_files.append(ctx.actions.declare_file(basename + ".ngfactory.js"))
+                devmode_js_files.append(ctx.actions.declare_file(basename + ".ngsummary.js"))
+                declaration_files.append(ctx.actions.declare_file(basename + ".ngfactory.d.ts"))
+                declaration_files.append(ctx.actions.declare_file(basename + ".ngsummary.d.ts"))
     return struct(
         closure_js = closure_js_files,
         devmode_js = devmode_js_files,
@@ -261,7 +261,7 @@ def compile_ts(
                 fail("srcs must contain only type declarations (.d.ts files), " +
                      "but %s contains %s" % (src.label, f.short_path), "srcs")
             if f.path.endswith(".d.ts"):
-                src_declarations += [f]
+                src_declarations.append(f)
                 continue
 
     outs = outputs(ctx, ctx.label, srcs_files)
@@ -442,7 +442,7 @@ def compile_ts(
     transitive_es6_sources_sets = [es6_sources]
     for dep in getattr(ctx.attr, "deps", []):
         if hasattr(dep, "typescript"):
-            transitive_es6_sources_sets += [dep.typescript.transitive_es6_sources]
+            transitive_es6_sources_sets.append(dep.typescript.transitive_es6_sources)
     transitive_es6_sources = depset(transitive = transitive_es6_sources_sets)
 
     declarations_provider = DeclarationInfo(
@@ -483,7 +483,7 @@ def compile_ts(
         # e.g. rollup_bundle under Bazel needs to convert this into a UMD global
         # name in the Rollup configuration.
         "module_name": getattr(ctx.attr, "module_name", None),
-        # Expose the tags so that a Skylark aspect can access them.
+        # Expose the tags so that a Bazel aspect can access them.
         "tags": ctx.attr.tags if hasattr(ctx.attr, "tags") else ctx.rule.attr.tags,
         # @unsorted-dict-items
         "typescript": {
