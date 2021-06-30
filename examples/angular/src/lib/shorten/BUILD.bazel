@@ -6,6 +6,7 @@ package(default_visibility = ["//:__subpackages__"])
 # with a main field to show how to create a first-party npm lib with a package.json
 ts_library(
     name = "shorten",
+    package_name = "@bazel/shorten",
     srcs = ["index.ts"],
     module_name = "@bazel/shorten",
 )

@@ -168,7 +168,7 @@ Historical note: this was the typescript.es5_sources output.
 **USAGE**
 
 <pre>
-LinkablePackageInfo(<a href="#LinkablePackageInfo-files">files</a>, <a href="#LinkablePackageInfo-package_name">package_name</a>, <a href="#LinkablePackageInfo-package_path">package_path</a>, <a href="#LinkablePackageInfo-path">path</a>, <a href="#LinkablePackageInfo-_tslibrary">_tslibrary</a>)
+LinkablePackageInfo(<a href="#LinkablePackageInfo-files">files</a>, <a href="#LinkablePackageInfo-package_name">package_name</a>, <a href="#LinkablePackageInfo-package_path">package_path</a>, <a href="#LinkablePackageInfo-path">path</a>)
 </pre>
 
 The LinkablePackageInfo provider provides information to the linker for linking pkg_npm built packages
@@ -202,9 +202,6 @@ or a source file path such as,
 
 `path/to/package` or
 `external/<external_wksp>/path/to/package` 
-<h4 id="LinkablePackageInfo-_tslibrary">_tslibrary</h4>
-
- For internal use only 
 
 
 ## NodeContextInfo

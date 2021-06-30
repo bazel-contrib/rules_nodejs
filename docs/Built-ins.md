@@ -1193,15 +1193,19 @@ Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
 
 <h4 id="pkg_npm-package_name">package_name</h4>
 
-(*String*): Optional package_name that this npm package may be imported as.
+(*String*): The package name that the linker will link this npm package as.
+
+If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
+If package_path is not set the this will be the root node_modules of the workspace.
 
 Defaults to `""`
 
 <h4 id="pkg_npm-package_path">package_path</h4>
 
-(*String*): The directory in the workspace to link to.
-If set, link this pkg_npm to the node_modules under the package path specified.
-If unset, the default is to link to the node_modules root of the workspace.
+(*String*): The package path in the workspace that the linker will link this npm package to.
+
+If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
+If package_path is not set the this will be the root node_modules of the workspace.
 
 Defaults to `""`
 

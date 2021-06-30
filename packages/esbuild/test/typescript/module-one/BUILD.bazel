@@ -4,6 +4,7 @@ package(default_visibility = ["//packages/esbuild/test:__subpackages__"])
 
 ts_library(
     name = "module-one",
+    package_name = "@typescript/module-one",
     srcs = [":index.ts"],
     module_name = "@typescript/module-one",
     tsconfig = "//packages/esbuild/test/typescript:tsconfig.json",

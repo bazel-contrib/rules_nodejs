@@ -2,12 +2,12 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("//packages/typescript:index.bzl", "ts_library")
 load("//packages/typescript/test/some_module:run_node_test.bzl", "ts_write_file")
 
-# We compile this library with the module name "sm" to make it possible to
-# use `import {} from 'sm';` both at type-check time (we include the mapping in
-# the paths map in tsconfig) as well as runtime (we patch the nodejs module
-# loader to discover the path in the runfiles).
+# We compile this library with the module_name and package_name "sm" to make it possible to use
+# `import {} from 'sm';` both at type-check time (we include the module_name mapping in the paths
+# map in tsconfig) as well as runtime (we link the module tonode_modules/package_name at runtime).
 ts_library(
     name = "some_module",
+    package_name = "sm",
     srcs = ["index.ts"],
     module_name = "sm",
 )

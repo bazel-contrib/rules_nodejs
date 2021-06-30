@@ -347,18 +347,13 @@ def _ts_library_impl(ctx):
         # once it is no longer needed.
     ])
 
-    if ctx.attr.module_name:
-        path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
+    if ctx.attr.package_name:
+        link_path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
         ts_providers["providers"].append(LinkablePackageInfo(
-            package_name = ctx.attr.module_name,
-            # TODO(4.0): ts_library doesn't support multi-linked first party deps yet.
-            # it can be added in 4.0 on the next set of breaking change when we
-            # also add the package_name attribute to separate turning on the linker
-            # from the module_name attribute
-            package_path = "",
-            path = path,
+            package_name = ctx.attr.package_name,
+            package_path = ctx.attr.package_path,
+            path = link_path,
             files = ts_providers["typescript"]["es5_sources"],
-            _tslibrary = True,
         ))
 
     return ts_providers_dict_to_struct(ts_providers)
@@ -434,7 +429,20 @@ This value will override the `target` option in the user supplied tsconfig.""",
         "internal_testing_type_check_dependencies": attr.bool(default = False, doc = "Testing only, whether to type check inputs that aren't srcs."),
         "link_workspace_root": attr.bool(
             doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
-    If source files need to be required then they can be copied to the bin_dir with copy_to_bin.""",
+
+If source files need to be required then they can be copied to the bin_dir with copy_to_bin.""",
+        ),
+        "package_name": attr.string(
+            doc = """The package name that the linker will link this ts_library output as.
+
+If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
+If package_path is not set the this will be the root node_modules of the workspace.""",
+        ),
+        "package_path": attr.string(
+            doc = """The package path in the workspace that the linker will link this ts_library output to.
+
+If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
+If package_path is not set the this will be the root node_modules of the workspace.""",
         ),
         "prodmode_module": attr.string(
             doc = """Set the typescript `module` compiler option for prodmode output.

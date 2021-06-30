@@ -103,12 +103,16 @@ PKG_NPM_ATTRS = dict(NODE_CONTEXT_ATTRS, **{
         allow_files = True,
     ),
     "package_name": attr.string(
-        doc = """Optional package_name that this npm package may be imported as.""",
+        doc = """The package name that the linker will link this npm package as.
+
+If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
+If package_path is not set the this will be the root node_modules of the workspace.""",
     ),
     "package_path": attr.string(
-        doc = """The directory in the workspace to link to.
-If set, link this pkg_npm to the node_modules under the package path specified.
-If unset, the default is to link to the node_modules root of the workspace.""",
+        doc = """The package path in the workspace that the linker will link this npm package to.
+
+If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
+If package_path is not set the this will be the root node_modules of the workspace.""",
     ),
     "srcs": attr.label_list(
         doc = """Files inside this directory which are simply copied into the package.""",
