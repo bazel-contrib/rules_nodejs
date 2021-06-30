@@ -811,7 +811,7 @@ index 32b640a..a787bbb 100755
  node_modules_aspect = _node_modules_aspect
  
 diff --git a/node_modules/@angular/bazel/src/ng_module.bzl b/node_modules/@angular/bazel/src/ng_module.bzl
-index a38f6a8..436d83b 100755
+index a38f6a8..0bd569d 100755
 --- a/node_modules/@angular/bazel/src/ng_module.bzl
 +++ b/node_modules/@angular/bazel/src/ng_module.bzl
 @@ -13,6 +13,7 @@ load(
@@ -826,18 +826,27 @@ index a38f6a8..436d83b 100755
          # once it is no longer needed.
      ])
  
-+    if ctx.attr.module_name:
++    if ctx.attr.package_name:
 +        path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
 +        ts_providers["providers"].append(LinkablePackageInfo(
-+            package_name = ctx.attr.module_name,
++            package_name = ctx.attr.package_name,
++            package_path = ctx.attr.package_path,
 +            path = path,
 +            files = ts_providers["typescript"]["es5_sources"],
-+            _tslibrary = True,
 +        ))
 +
      return ts_providers_dict_to_struct(ts_providers)
  
  local_deps_aspects = [node_modules_aspect, _collect_summaries_aspect]
+@@ -750,6 +760,8 @@ NG_MODULE_RULE_ATTRS = dict(dict(COMMON_ATTRIBUTES, **NG_MODULE_ATTRIBUTES), **{
+         default = Label("@npm//typescript:typescript__typings"),
+     ),
+     "entry_point": attr.label(allow_single_file = True),
++    "package_name": attr.string(),
++    "package_path": attr.string(),
+ 
+     # Default is %{name}_public_index
+     # The suffix points to the generated "bundle index" files that users import from
 diff --git a/node_modules/@angular/bazel/src/ng_package/ng_package.bzl b/node_modules/@angular/bazel/src/ng_package/ng_package.bzl
 index db33ad3..0079446 100755
 --- a/node_modules/@angular/bazel/src/ng_package/ng_package.bzl

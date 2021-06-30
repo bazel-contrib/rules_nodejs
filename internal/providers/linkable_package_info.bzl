@@ -40,9 +40,5 @@ or a source file path such as,
 `path/to/package` or
 `external/<external_wksp>/path/to/package`
 """,
-        # TODO(4.0): In a future major release, ts_library will get a package_name attribute to enable the linker
-        # and the _tslibrary special case can be removed.
-        # This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/issues/2450.
-        "_tslibrary": "For internal use only",
     },
 )

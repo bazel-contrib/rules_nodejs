@@ -10,6 +10,7 @@ ts_library(
 
 ts_library(
     name = "lib",
+    package_name = "lib",
     srcs = ["a.ts"],
     deps = [":index"],
 )
@@ -18,6 +19,12 @@ esbuild(
     name = "bundle",
     args = {
         "keepNames": True,
+        # ensure that esbuild prefers .mjs to .js if both are available
+        # since ts_library produces both
+        "resolveExtensions": [
+            ".mjs",
+            ".js",
+        ],
     },
     entry_point = "a.ts",
     deps = [":lib"],
@@ -27,6 +34,12 @@ esbuild(
     name = "bundle.min",
     args = {
         "keepNames": True,
+        # ensure that esbuild prefers .mjs to .js if both are available
+        # since ts_library produces both
+        "resolveExtensions": [
+            ".mjs",
+            ".js",
+        ],
     },
     entry_point = "a.ts",
     minify = True,
@@ -37,6 +50,12 @@ esbuild(
     name = "bundle.split",
     args = {
         "keepNames": True,
+        # ensure that esbuild prefers .mjs to .js if both are available
+        # since ts_library produces both
+        "resolveExtensions": [
+            ".mjs",
+            ".js",
+        ],
     },
     entry_point = "a.ts",
     output_dir = True,

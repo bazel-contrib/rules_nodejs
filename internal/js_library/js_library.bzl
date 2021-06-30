@@ -56,8 +56,18 @@ _ATTRS = {
         They will be copied into the package bin folder if needed.""",
         allow_files = True,
     ),
-    "package_name": attr.string(),
-    "package_path": attr.string(),
+    "package_name": attr.string(
+        doc = """The package name that the linker will link this js_library as.
+
+If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
+If package_path is not set the this will be the root node_modules of the workspace.""",
+    ),
+    "package_path": attr.string(
+        doc = """The package path in the workspace that the linker will link this js_library to.
+
+If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
+If package_path is not set the this will be the root node_modules of the workspace.""",
+    ),
     "srcs": attr.label_list(allow_files = True),
     "strip_prefix": attr.string(
         doc = "Path components to strip from the start of the package import path",

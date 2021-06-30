@@ -4,6 +4,7 @@ package(default_visibility = ["//:__subpackages__"])
 
 ng_module(
     name = "typography",
+    package_name = "@examples/angular/typography",
     srcs = glob(["*.ts"]),
     module_name = "@examples/angular/typography",
     tsconfig = "//src:tsconfig.json",
