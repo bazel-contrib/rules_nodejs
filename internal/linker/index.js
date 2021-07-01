@@ -145,7 +145,7 @@ function resolveWorkspaceNodeModules(workspace, startCwd, isExecroot, execroot, 
         if (!execroot) {
             return path.resolve(`${startCwd}/../${targetManifestPath}`);
         }
-        const fromManifest = runfiles.lookupDirectory(targetManifestPath);
+        const fromManifest = runfiles.resolve(targetManifestPath);
         if (fromManifest) {
             return fromManifest;
         }

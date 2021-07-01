@@ -75,21 +75,28 @@ class Runfiles {
             this.package = target.split(':')[0].replace(/^\/\//, '');
         }
     }
-    lookupDirectory(dir) {
+    /** Resolves the given path from the runfile manifest. */
+    _resolveFromManifest(searchPath) {
         if (!this.manifest)
             return undefined;
         let result;
         for (const [k, v] of this.manifest) {
             // Account for Bazel --legacy_external_runfiles
             // which pollutes the workspace with 'my_wksp/external/...'
-            if (k.startsWith(`${dir}/external`))
+            if (k.startsWith(`${searchPath}/external`))
                 continue;
-            // Entry looks like
-            // k: npm/node_modules/semver/LICENSE
-            // v: /path/to/external/npm/node_modules/semver/LICENSE
-            // calculate l = length(`/semver/LICENSE`)
-            if (k.startsWith(dir)) {
-                const l = k.length - dir.length;
+            // If the manifest entry fully matches, return the value path without
+            // considering other manifest entries. We already have an exact match.
+            if (k === searchPath) {
+                return v;
+            }
+            // Consider a case where `npm/node_modules` is resolved, and we have the following
+            // manifest: `npm/node_modules/semver/LICENSE /path/to/external/npm/node_modules/semver/LICENSE`
+            // To resolve the directory, we look for entries that either fully match, or refer to contents
+            // within the directory we are looking for. We can then subtract the child path to resolve the
+            // directory. e.g. in the case above we subtract `length(`/semver/LICENSE`)` from the entry value.
+            if (k.startsWith(`${searchPath}/`)) {
+                const l = k.length - searchPath.length;
                 const maybe = v.substring(0, v.length - l);
                 if (maybe.match(paths.BAZEL_OUT_REGEX)) {
                     return maybe;
@@ -166,7 +173,7 @@ class Runfiles {
     /** Helper for resolving a given module recursively in the runfiles. */
     _resolve(moduleBase, moduleTail) {
         if (this.manifest) {
-            const result = this.lookupDirectory(moduleBase);
+            const result = this._resolveFromManifest(moduleBase);
             if (result) {
                 if (moduleTail) {
                     const maybe = path__default['default'].join(result, moduleTail || '');
