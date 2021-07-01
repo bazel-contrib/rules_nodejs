@@ -14,7 +14,10 @@ ts_project(
 js_library(
     name = "bazel_runfiles",
     package_name = "@bazel/runfiles",
-    visibility = ["//internal/linker:__subpackages__"],
+    visibility = [
+        "//internal/linker:__subpackages__",
+        "//packages/runfiles/test:__pkg__",
+    ],
     deps = [":runfiles_lib"],
 )
 
