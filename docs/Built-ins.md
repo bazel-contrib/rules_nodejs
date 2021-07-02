@@ -1007,6 +1007,16 @@ This can be used to make changes to installed packages after the package manager
 
 File paths in patches should be relative to workspace root.
 
+Use with caution when `symlink_node_modules` enabled as the patches will run in your workspace and
+will modify files in your workspace.
+
+NB: If `symlink_node_modules` is enabled, the node_modules folder is re-used between executions of the
+    repository rule. Patches may be re-applied to files in this case and fail to apply. A marker file
+    `node_modules/.bazel-post-install-patches` is left in this mode when patches are applied. When the 
+    marker file is detected, patch file failures are treated as WARNINGS. For this reason, it is recommended
+    to patch npm packages with an npm tool such as https://www.npmjs.com/package/patch-package when
+    `symlink_node_modules` is enabled which handles re-apply patching logic more robustly.
+
 Defaults to `[]`
 
 <h4 id="npm_install-pre_install_patches">pre_install_patches</h4>
@@ -1017,6 +1027,8 @@ This can be used to make changes to package.json or other data files passed in b
 package manager.
 
 File paths in patches should be relative to workspace root.
+
+Not supported with `symlink_node_modules` enabled.
 
 Defaults to `[]`
 
@@ -1588,6 +1600,16 @@ This can be used to make changes to installed packages after the package manager
 
 File paths in patches should be relative to workspace root.
 
+Use with caution when `symlink_node_modules` enabled as the patches will run in your workspace and
+will modify files in your workspace.
+
+NB: If `symlink_node_modules` is enabled, the node_modules folder is re-used between executions of the
+    repository rule. Patches may be re-applied to files in this case and fail to apply. A marker file
+    `node_modules/.bazel-post-install-patches` is left in this mode when patches are applied. When the 
+    marker file is detected, patch file failures are treated as WARNINGS. For this reason, it is recommended
+    to patch npm packages with an npm tool such as https://www.npmjs.com/package/patch-package when
+    `symlink_node_modules` is enabled which handles re-apply patching logic more robustly.
+
 Defaults to `[]`
 
 <h4 id="yarn_install-pre_install_patches">pre_install_patches</h4>
@@ -1598,6 +1620,8 @@ This can be used to make changes to package.json or other data files passed in b
 package manager.
 
 File paths in patches should be relative to workspace root.
+
+Not supported with `symlink_node_modules` enabled.
 
 Defaults to `[]`
 
