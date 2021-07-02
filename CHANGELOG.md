@@ -1,3 +1,20 @@
+# [3.7.0](https://github.com/bazelbuild/rules_nodejs/compare/3.6.0...3.7.0) (2021-07-02)
+
+
+### Bug Fixes
+
+* **builtin:** don't expose any darwin_arm64 repo or toolchains if not supported by the node version ([004da08](https://github.com/bazelbuild/rules_nodejs/commit/004da08)), closes [#2779](https://github.com/bazelbuild/rules_nodejs/issues/2779)
+* **builtin:** fix npm_install & yarn_install post_install_patches when symlink_node_modules is enabled ([de90747](https://github.com/bazelbuild/rules_nodejs/commit/de90747))
+* **typescript:** collect coverage in ts_project ([045f91a](https://github.com/bazelbuild/rules_nodejs/commit/045f91a)), closes [#2762](https://github.com/bazelbuild/rules_nodejs/issues/2762)
+
+
+### Features
+
+* **builtin:** add validate attribute on pkg_npm ([5d30c5b](https://github.com/bazelbuild/rules_nodejs/commit/5d30c5b)), closes [#2782](https://github.com/bazelbuild/rules_nodejs/issues/2782)
+* **typescript:** support typescript 4.3 ([847ef5d](https://github.com/bazelbuild/rules_nodejs/commit/847ef5d))
+
+
+
 # [3.6.0](https://github.com/bazelbuild/rules_nodejs/compare/3.5.1...3.6.0) (2021-06-09)
 
 
