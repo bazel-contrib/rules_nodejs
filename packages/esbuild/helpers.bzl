@@ -5,7 +5,7 @@ Utility helper functions for the esbuild rule
 load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 
 TS_EXTENSIONS = ["ts", "tsx"]
-JS_EXTENSIONS = ["js", "mjs"]
+JS_EXTENSIONS = ["js", "jsx", "mjs"]
 ALLOWED_EXTENSIONS = JS_EXTENSIONS + TS_EXTENSIONS
 
 def strip_ext(f):
@@ -13,7 +13,7 @@ def strip_ext(f):
     return f.short_path[:-len(f.extension) - 1]
 
 def resolve_entry_point(f, inputs, srcs):
-    """Find a corresponding javascript entrypoint for a provided file
+    """Find a corresponding entrypoint for a provided file
 
     Args:
         f: The file where its basename is used to match the entrypoint
@@ -26,15 +26,13 @@ def resolve_entry_point(f, inputs, srcs):
 
     no_ext = strip_ext(f)
 
-    # check for the ts file in srcs
-    for i in srcs:
-        if i.extension in TS_EXTENSIONS:
+    for i in inputs:
+        if i.extension in ALLOWED_EXTENSIONS:
             if strip_ext(i) == no_ext:
                 return i
 
-    # check for a js files everywhere else
-    for i in inputs:
-        if i.extension in JS_EXTENSIONS:
+    for i in srcs:
+        if i.extension in ALLOWED_EXTENSIONS:
             if strip_ext(i) == no_ext:
                 return i
 

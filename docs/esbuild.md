@@ -101,7 +101,7 @@ This will create an output directory containing all the code split chunks, along
 <pre>
 esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-args_file">args_file</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-entry_points">entry_points</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-launcher">launcher</a>,
         <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>, <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_css">output_css</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>,
-        <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>)
+        <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-splitting">splitting</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>)
 </pre>
 
 Runs the esbuild bundler under Bazel
@@ -234,9 +234,7 @@ file is named 'foo.js', you should set this to 'foo.css'.
 
 <h4 id="esbuild-output_dir">output_dir</h4>
 
-(*Boolean*): If true, esbuild produces an output directory containing all the output files from code splitting for multiple entry points
-
-See https://esbuild.github.io/api/#splitting and https://esbuild.github.io/api/#entry-points for more details
+(*Boolean*): If true, esbuild produces an output directory containing all output files
 
 Defaults to `False`
 
@@ -266,6 +264,14 @@ Defaults to `""`
 (*Boolean*): If False, omits the `sourcesContent` field from generated source maps
 
 See https://esbuild.github.io/api/#sources-content for more details
+
+Defaults to `False`
+
+<h4 id="esbuild-splitting">splitting</h4>
+
+(*Boolean*): If true, esbuild produces an output directory containing all the output files from code splitting for multiple entry points
+
+See https://esbuild.github.io/api/#splitting and https://esbuild.github.io/api/#entry-points for more details
 
 Defaults to `False`
 
