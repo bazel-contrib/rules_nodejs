@@ -1,3 +1,71 @@
+# [4.0.0-beta.0](https://github.com/bazelbuild/rules_nodejs/compare/3.5.0...4.0.0-beta.0) (2021-07-02)
+
+
+### Bug Fixes
+
+* **builtin:** don't expose any darwin_arm64 repo or toolchains if not supported by the node version ([6748383](https://github.com/bazelbuild/rules_nodejs/commit/6748383)), closes [#2779](https://github.com/bazelbuild/rules_nodejs/issues/2779)
+* **builtin:** fix npm_install & yarn_install post_install_patches when symlink_node_modules is enabled ([5fce733](https://github.com/bazelbuild/rules_nodejs/commit/5fce733))
+* **builtin:** generated nodejs repository for windows references non-existent file ([4487698](https://github.com/bazelbuild/rules_nodejs/commit/4487698))
+* **builtin:** propogate tags to both generated targets in generated_file_test ([e980107](https://github.com/bazelbuild/rules_nodejs/commit/e980107))
+* **builtin:** runfile resolution incorrect if entry starts similarly ([3be2902](https://github.com/bazelbuild/rules_nodejs/commit/3be2902))
+* **builtin:** write stdout/stderr to correct path under chdir ([#2681](https://github.com/bazelbuild/rules_nodejs/issues/2681)) ([99760a5](https://github.com/bazelbuild/rules_nodejs/commit/99760a5)), closes [#2680](https://github.com/bazelbuild/rules_nodejs/issues/2680)
+* **esbuild:** prefer finding entry_point files in deps rather than srcs ([#2692](https://github.com/bazelbuild/rules_nodejs/issues/2692)) ([5f4bb15](https://github.com/bazelbuild/rules_nodejs/commit/5f4bb15))
+* **esbuild:** provide JSModuleInfo of output bundle ([#2685](https://github.com/bazelbuild/rules_nodejs/issues/2685)) ([82ef1a1](https://github.com/bazelbuild/rules_nodejs/commit/82ef1a1))
+* **esbuild:** update update script file paths after removal of _README.md ([#2695](https://github.com/bazelbuild/rules_nodejs/issues/2695)) ([f320ef0](https://github.com/bazelbuild/rules_nodejs/commit/f320ef0))
+* **jasmine:** don't assume entry_point is a label as it may now be a dict ([3fa2e5f](https://github.com/bazelbuild/rules_nodejs/commit/3fa2e5f))
+* **jasmine:** unhanded promise rejection causes tests suit to pass ([a511f3d](https://github.com/bazelbuild/rules_nodejs/commit/a511f3d)), closes [3.7.0/lib/jasmine.js#L267](https://github.com/3.7.0/lib/jasmine.js/issues/L267) [#2688](https://github.com/bazelbuild/rules_nodejs/issues/2688)
+* **terser:** make terser resolve more robust by not assuming a single /terser/ segment in the path ([95fc9ba](https://github.com/bazelbuild/rules_nodejs/commit/95fc9ba))
+* **typescript:** collect coverage in ts_project ([8e7bc1c](https://github.com/bazelbuild/rules_nodejs/commit/8e7bc1c)), closes [#2762](https://github.com/bazelbuild/rules_nodejs/issues/2762)
+* allow for only stderr to be set on npm_package_bin ([a04a7ef](https://github.com/bazelbuild/rules_nodejs/commit/a04a7ef))
+* **builtin:** add two missing locations where Mac M1 support needs to be declared ([ad20275](https://github.com/bazelbuild/rules_nodejs/commit/ad20275)), closes [#2733](https://github.com/bazelbuild/rules_nodejs/issues/2733)
+* **builtin:** support directory_file_path entry_point in nodejs_binary & nodejs_test when --bazel_patch_module_resolver is set ([50e6d1d](https://github.com/bazelbuild/rules_nodejs/commit/50e6d1d))
+* **typescript:** fixed "output was not created" error for ts_project with supports_workers ([9a3e5c9](https://github.com/bazelbuild/rules_nodejs/commit/9a3e5c9))
+* **typescript:** repair error reporting when a ts_project is missing declaration=True ([5f0be65](https://github.com/bazelbuild/rules_nodejs/commit/5f0be65))
+* make generated_file_test `.update`'s visibility same as test rule ([#2677](https://github.com/bazelbuild/rules_nodejs/issues/2677)) ([1ce9dce](https://github.com/bazelbuild/rules_nodejs/commit/1ce9dce))
+
+
+### chore
+
+* update Bazel minimum version to LTS ([a9c5966](https://github.com/bazelbuild/rules_nodejs/commit/a9c5966))
+* **builtin:** flip default for pkg_npm#validate ([16a099e](https://github.com/bazelbuild/rules_nodejs/commit/16a099e))
+
+
+### Code Refactoring
+
+* **typescript:** tsconfig default to tsconfig.json ([c6ae95c](https://github.com/bazelbuild/rules_nodejs/commit/c6ae95c))
+
+
+### Features
+
+* **esbuild:** allow for .ts, .tsx and .jsx entry points ([e3edb28](https://github.com/bazelbuild/rules_nodejs/commit/e3edb28))
+* **labs:** ts_proto_library directly exports commonjs ([5f26d0f](https://github.com/bazelbuild/rules_nodejs/commit/5f26d0f))
+* add package_name to ts_library ([d2d4d16](https://github.com/bazelbuild/rules_nodejs/commit/d2d4d16))
+* **builtin:** add validate attribute on pkg_npm ([39eea25](https://github.com/bazelbuild/rules_nodejs/commit/39eea25)), closes [#2782](https://github.com/bazelbuild/rules_nodejs/issues/2782)
+* **builtin:** document how nodejs_binary#entry_point can use a direc… ([#2579](https://github.com/bazelbuild/rules_nodejs/issues/2579)) ([fcdcf63](https://github.com/bazelbuild/rules_nodejs/commit/fcdcf63))
+* **cypress:** cypress executable toolchain ([#2668](https://github.com/bazelbuild/rules_nodejs/issues/2668)) ([f1f5ee6](https://github.com/bazelbuild/rules_nodejs/commit/f1f5ee6))
+* **esbuild:** add support for toolchains ([#2704](https://github.com/bazelbuild/rules_nodejs/issues/2704)) ([ae011bf](https://github.com/bazelbuild/rules_nodejs/commit/ae011bf))
+* **esbuild:** filter ts declaration files by default ([f83cf48](https://github.com/bazelbuild/rules_nodejs/commit/f83cf48))
+* **typescript:** support typescript 4.3 ([e576acd](https://github.com/bazelbuild/rules_nodejs/commit/e576acd))
+* add opt-in exports_directories_only mode to yarn_install and npm_install (defaults to False) ([a7200aa](https://github.com/bazelbuild/rules_nodejs/commit/a7200aa))
+* support dict style directory_file_path entry_point in nodejs_binary, nodejs_test & jasmine_node_test ([5fafe19](https://github.com/bazelbuild/rules_nodejs/commit/5fafe19))
+* support directory_file_path entry_point in npm_umd_bundle ([8bee1b3](https://github.com/bazelbuild/rules_nodejs/commit/8bee1b3))
+
+
+### Performance Improvements
+
+* **cypress:** export cypress as a directory symlink ([8ea7ff4](https://github.com/bazelbuild/rules_nodejs/commit/8ea7ff4))
+
+
+### BREAKING CHANGES
+
+* **builtin:** The `@bazel/runfiles` `lookupDirectory` method has been
+removed. Use the `resolve` method instead
+* for our 4.0, rules_nodejs requires the current LTS of Bazel. This is a policy restriction to save us time tracking down support issues on older versions of Bazel, not a technical one. You can patch this check out locally if you really need to continue using older Bazel, but this puts you on unsupported track.
+* **builtin:** Just follow the printed instructions to either set the right package_name or disable the validation
+* **typescript:** ts_project tsconfig attribute now defaults to just 'tsconfig.json' rather than '[name].json'
+
+
+
 # [3.6.0](https://github.com/bazelbuild/rules_nodejs/compare/3.5.1...3.6.0) (2021-06-09)
 
 
