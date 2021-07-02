@@ -2,19 +2,19 @@
 # yarn lockfile v1
 
 
-"@bazel/concatjs@^3.6.0":
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-3.6.0.tgz#1cd6f8dd3b2a812c86ca3a79f3ea00ca042c342e"
-  integrity sha512-DttRkpCXJnJtibZV0vhRSWZKJpwKCK7eL+uohCyPx7Xjxkzr0cSVQMGCisFv+A/PNA+/O0Wl4PZs9j1/Ml+DoQ==
+"@bazel/concatjs@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-3.7.0.tgz#f10649d97d93d96bfe815d6b0c620acad394f799"
+  integrity sha512-E+mA3huykyBMcRbhAOYbfmfMIOZD6QtXs6i+IhJQed8DYQLSYf9E2Jq8T/rFefFyZv+loJIAr4JhkAIO5vuFWg==
   dependencies:
     protobufjs "6.8.8"
     source-map-support "0.5.9"
     tsutils "2.27.2"
 
-"@bazel/typescript@^3.6.0":
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.6.0.tgz#4dda2e39505cde4a190f51118fbb82ea0e80fde6"
-  integrity sha512-cO58iHmSxM4mRHJLLbb3FfoJJxv0pMiVGFLORoiUy/EhLtyYGZ1e7ntf4GxEovwK/E4h/awjSUlQkzPThcukTg==
+"@bazel/typescript@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.7.0.tgz#a4d648a36f7ef4960c8a16222f853a4c285a522d"
+  integrity sha512-bkNHZaCWg4Jk+10wzhFDhB+RRZkfob/yydC4qRzUVxCDLPFICYgC0PWeLhf/ixEhVeHtS0Cmv74M+QziqKSdbw==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"

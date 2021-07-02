@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/runfiles@^3.6.0":
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/@bazel/runfiles/-/runfiles-3.6.0.tgz#154d1d663db3e129de1954d56c1fede5a2ca0e11"
-  integrity sha512-b0Wq4agrfVY8kmtTHCmUsSTd5/5YurvBjzfJA1AAxO9uL+VzNmDyYaE+K5PDvYkGn/ZskYA4tipmjvDd6E0WbA==
+"@bazel/runfiles@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@bazel/runfiles/-/runfiles-3.7.0.tgz#c00eeee9b7e7c3993f95cab5ad3cced17949869a"
+  integrity sha512-lAj01NxpnHvvyHY1TquaQADFex5hfqmDH5KR7US63rpEuDazaGCk1WxEE/3PzZPUq4kyT6PNPLhuNB+OW1lupQ==
 
 ansi-styles@^3.2.1:
   version "3.2.1"
