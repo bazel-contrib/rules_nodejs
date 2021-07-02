@@ -1154,6 +1154,16 @@ directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/i
 
 <p>File paths in patches should be relative to workspace root.</p>
 
+<p>Use with caution when <code class="language-plaintext highlighter-rouge">symlink_node_modules</code> enabled as the patches will run in your workspace and
+will modify files in your workspace.</p>
+
+<p>NB: If <code class="language-plaintext highlighter-rouge">symlink_node_modules</code> is enabled, the node_modules folder is re-used between executions of the
+    repository rule. Patches may be re-applied to files in this case and fail to apply. A marker file
+    <code class="language-plaintext highlighter-rouge">node_modules/.bazel-post-install-patches</code> is left in this mode when patches are applied. When the 
+    marker file is detected, patch file failures are treated as WARNINGS. For this reason, it is recommended
+    to patch npm packages with an npm tool such as https://www.npmjs.com/package/patch-package when
+    <code class="language-plaintext highlighter-rouge">symlink_node_modules</code> is enabled which handles re-apply patching logic more robustly.</p>
+
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="npm_install-pre_install_patches">pre_install_patches</h4>
@@ -1164,6 +1174,8 @@ directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/i
 package manager.</p>
 
 <p>File paths in patches should be relative to workspace root.</p>
+
+<p>Not supported with <code class="language-plaintext highlighter-rouge">symlink_node_modules</code> enabled.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
@@ -1217,7 +1229,7 @@ data attribute.</p>
 
 <pre>
 pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-package_path">package_path</a>, <a href="#pkg_npm-srcs">srcs</a>,
-        <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-tgz">tgz</a>, <a href="#pkg_npm-vendor_external">vendor_external</a>)
+        <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-tgz">tgz</a>, <a href="#pkg_npm-validate">validate</a>, <a href="#pkg_npm-vendor_external">vendor_external</a>)
 </pre>
 
 <p>The pkg_npm rule creates a directory containing a publishable npm artifact.</p>
@@ -1365,6 +1377,12 @@ If unset, the default is to link to the node_modules root of the workspace.</p>
 </code></pre></div></div>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
+
+<h4 id="pkg_npm-validate">validate</h4>
+
+<p>(<em>Boolean</em>): Whether to check that the attributes match the package.json</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
 <h4 id="pkg_npm-vendor_external">vendor_external</h4>
 
@@ -1699,6 +1717,16 @@ directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/i
 
 <p>File paths in patches should be relative to workspace root.</p>
 
+<p>Use with caution when <code class="language-plaintext highlighter-rouge">symlink_node_modules</code> enabled as the patches will run in your workspace and
+will modify files in your workspace.</p>
+
+<p>NB: If <code class="language-plaintext highlighter-rouge">symlink_node_modules</code> is enabled, the node_modules folder is re-used between executions of the
+    repository rule. Patches may be re-applied to files in this case and fail to apply. A marker file
+    <code class="language-plaintext highlighter-rouge">node_modules/.bazel-post-install-patches</code> is left in this mode when patches are applied. When the 
+    marker file is detected, patch file failures are treated as WARNINGS. For this reason, it is recommended
+    to patch npm packages with an npm tool such as https://www.npmjs.com/package/patch-package when
+    <code class="language-plaintext highlighter-rouge">symlink_node_modules</code> is enabled which handles re-apply patching logic more robustly.</p>
+
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="yarn_install-pre_install_patches">pre_install_patches</h4>
@@ -1709,6 +1737,8 @@ directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/i
 package manager.</p>
 
 <p>File paths in patches should be relative to workspace root.</p>
+
+<p>Not supported with <code class="language-plaintext highlighter-rouge">symlink_node_modules</code> enabled.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
