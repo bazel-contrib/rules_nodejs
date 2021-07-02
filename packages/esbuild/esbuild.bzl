@@ -86,15 +86,21 @@ def _esbuild_impl(ctx):
         # disable this unless also minifying
         args.update({"treeShaking": "ignore-annotations"})
 
+    if ctx.attr.splitting:
+        if not ctx.attr.output_dir:
+            fail("output_dir must be set to True when splitting is set to True")
+        args.update({
+            "format": "esm",
+            "splitting": True,
+        })
+
     if ctx.attr.output_dir:
         js_out = ctx.actions.declare_directory("%s" % ctx.attr.name)
         outputs.append(js_out)
 
         # disable the log limit and show all logs
         args.update({
-            "format": "esm",
             "outdir": js_out.path,
-            "splitting": True,
         })
     else:
         js_out = ctx.outputs.output
@@ -277,10 +283,7 @@ file is named 'foo.js', you should set this to 'foo.css'.""",
         ),
         "output_dir": attr.bool(
             default = False,
-            doc = """If true, esbuild produces an output directory containing all the output files from code splitting for multiple entry points
-
-See https://esbuild.github.io/api/#splitting and https://esbuild.github.io/api/#entry-points for more details
-            """,
+            doc = """If true, esbuild produces an output directory containing all output files""",
         ),
         "output_map": attr.output(
             mandatory = False,
@@ -310,6 +313,13 @@ See https://esbuild.github.io/api/#sourcemap for more details
 See https://esbuild.github.io/api/#sources-content for more details
             """,
         ),
+        "splitting": attr.bool(
+            default = False,
+            doc = """If true, esbuild produces an output directory containing all the output files from code splitting for multiple entry points
+
+See https://esbuild.github.io/api/#splitting and https://esbuild.github.io/api/#entry-points for more details
+            """,
+        ),
         "srcs": attr.label_list(
             allow_files = True,
             default = [],
@@ -334,14 +344,15 @@ For further information about esbuild, see https://esbuild.github.io/
     """,
 )
 
-def esbuild_macro(name, output_dir = False, **kwargs):
+def esbuild_macro(name, output_dir = False, splitting = False, **kwargs):
     """esbuild helper macro around the `esbuild_bundle` rule
 
     For a full list of attributes, see the `esbuild_bundle` rule
 
     Args:
         name: The name used for this rule and output files
-        output_dir: If `True`, produce a code split bundle in an output directory
+        output_dir: If `True`, produce an output directory
+        splitting: If `True`, produce a code split bundle in the output directory
         **kwargs: All other args from `esbuild_bundle`
     """
 
@@ -374,10 +385,11 @@ def esbuild_macro(name, output_dir = False, **kwargs):
             data = deps + srcs,
         )
 
-    if output_dir == True or entry_points:
+    if output_dir == True or entry_points or splitting == True:
         esbuild(
             name = name,
             srcs = srcs,
+            splitting = splitting,
             output_dir = True,
             args_file = args_file,
             launcher = _launcher,

@@ -21,6 +21,7 @@ esbuild(
     },
     entry_point = "main.ts",
     output_dir = True,
+    splitting = True,
     deps = [":main"],
 )
 

@@ -24,6 +24,7 @@ esbuild(
         "a.ts",
         "b.ts",
     ],
+    splitting = True,
     deps = [":lib"],
 )
 
