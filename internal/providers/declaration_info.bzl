@@ -29,7 +29,7 @@ Note: historically this was a subset of the string-typed "typescript" provider.
         "declarations": "A depset of typings files produced by this rule",
         "transitive_declarations": """A depset of typings files produced by this rule and all its transitive dependencies.
 This prevents needing an aspect in rules that consume the typings, which improves performance.""",
-        "type_blacklisted_declarations": """A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle)""",
+        "type_blocklisted_declarations": """A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle)""",
     },
 )
 
@@ -55,5 +55,5 @@ def declaration_info(declarations, deps = []):
         transitive_declarations = depset(transitive = transitive_depsets),
         # Downstream ts_library rules will fail if they don't find this field
         # Even though it is only for Google Closure Compiler externs generation
-        type_blacklisted_declarations = depset(),
+        type_blocklisted_declarations = depset(),
     )

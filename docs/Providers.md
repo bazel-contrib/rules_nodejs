@@ -15,7 +15,7 @@ Users should not load files under "/internal"
 **USAGE**
 
 <pre>
-DeclarationInfo(<a href="#DeclarationInfo-declarations">declarations</a>, <a href="#DeclarationInfo-transitive_declarations">transitive_declarations</a>, <a href="#DeclarationInfo-type_blacklisted_declarations">type_blacklisted_declarations</a>)
+DeclarationInfo(<a href="#DeclarationInfo-declarations">declarations</a>, <a href="#DeclarationInfo-transitive_declarations">transitive_declarations</a>, <a href="#DeclarationInfo-type_blocklisted_declarations">type_blocklisted_declarations</a>)
 </pre>
 
 The DeclarationInfo provider allows JS rules to communicate typing information.
@@ -36,7 +36,7 @@ Note: historically this was a subset of the string-typed "typescript" provider.
 
  A depset of typings files produced by this rule and all its transitive dependencies.
 This prevents needing an aspect in rules that consume the typings, which improves performance. 
-<h4 id="DeclarationInfo-type_blacklisted_declarations">type_blacklisted_declarations</h4>
+<h4 id="DeclarationInfo-type_blocklisted_declarations">type_blocklisted_declarations</h4>
 
  A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle) 
 

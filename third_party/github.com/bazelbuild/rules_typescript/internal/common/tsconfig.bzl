@@ -25,7 +25,7 @@ def create_tsconfig(
         srcs,
         devmode_manifest = None,
         tsickle_externs = None,
-        type_blacklisted_declarations = [],
+        type_blocklisted_declarations = [],
         out_dir = None,
         disable_strict_deps = False,
         allowed_deps = depset(),
@@ -42,7 +42,7 @@ def create_tsconfig(
       srcs: Immediate sources being compiled, as opposed to transitive deps.
       devmode_manifest: path to the manifest file to write for --target=es5
       tsickle_externs: path to write tsickle-generated externs.js.
-      type_blacklisted_declarations: types declared in these files will never be
+      type_blocklisted_declarations: types declared in these files will never be
           mentioned in generated .d.ts.
       out_dir: directory for generated output. Default is ctx.bin_dir
       disable_strict_deps: whether to disable the strict deps check
@@ -148,7 +148,7 @@ def create_tsconfig(
         "tsickleGenerateExterns": getattr(ctx.attr, "generate_externs", True),
         "tsickleExternsPath": tsickle_externs.path if tsickle_externs else "",
         "untyped": not getattr(ctx.attr, "tsickle_typed", False),
-        "typeBlackListPaths": [f.path for f in type_blacklisted_declarations],
+        "typeBlackListPaths": [f.path for f in type_blocklisted_declarations],
         # This is overridden by first-party javascript/typescript/tsconfig.bzl
         "ignoreWarningPaths": [],
         "es5Mode": devmode_manifest != None,
