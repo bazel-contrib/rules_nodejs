@@ -75,7 +75,7 @@ def jasmine_node_test(
 
     Detailed XML test results are found in the standard `bazel-testlogs`
     directory. This may be symlinked in your workspace.
-    See https://docs.bazel.build/versions/master/output_directories.html
+    See https://docs.bazel.build/versions/main/output_directories.html
 
     To debug the test, see debugging notes in `nodejs_test`.
 

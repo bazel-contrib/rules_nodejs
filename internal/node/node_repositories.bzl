@@ -15,7 +15,7 @@
 """Install NodeJS & Yarn
 
 This is a set of repository rules for setting up hermetic copies of NodeJS and Yarn.
-See https://docs.bazel.build/versions/master/skylark/repository_rules.html
+See https://docs.bazel.build/versions/main/skylark/repository_rules.html
 """
 
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")

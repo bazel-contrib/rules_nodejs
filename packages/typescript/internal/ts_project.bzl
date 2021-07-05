@@ -556,7 +556,7 @@ def ts_project_macro(
         supports_workers: Experimental! Use only with caution.
 
             Allows you to enable the Bazel Persistent Workers strategy for this project.
-            See https://docs.bazel.build/versions/master/persistent-workers.html
+            See https://docs.bazel.build/versions/main/persistent-workers.html
 
             This requires that the tsc binary support a `--watch` option.
 

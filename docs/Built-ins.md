@@ -389,14 +389,14 @@ Defaults to `False`
         To pass a node startup option, prepend it with `--node_options=`, e.g.
         `--node_options=--preserve-symlinks`.
 
-Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/main/be/make-variables.html.
 
 1. Subject to predefined source/output path variables substitutions.
 
 The predefined variables `execpath`, `execpaths`, `rootpath`, `rootpaths`, `location`, and `locations` take
 label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths denoted by that label.
 
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables for more info.
+See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_label_variables for more info.
 
 NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
 args and genrule bazel substitions. This will be fixed in a future major release.
@@ -439,7 +439,7 @@ const some_file = runfiles.resolveWorkspaceRelative(args[0]);
 
 NB: Bazel will error if it sees the single dollar sign $(rlocation path) in `templated_args` as it will try to
 expand `$(rlocation)` since we now expand predefined & custom "make" variables such as `$(COMPILATION_MODE)`,
-`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`. See https://docs.bazel.build/versions/master/be/make-variables.html.
+`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`. See https://docs.bazel.build/versions/main/be/make-variables.html.
 
 To prevent expansion of `$(rlocation)` write it as `$$(rlocation)`. Bazel understands `$$` to be
 the string literal `$` and the expansion results in `$(rlocation)` being passed as an arg instead
@@ -455,10 +455,10 @@ need to update to `$$(rlocation)`. This may be changed in the future.
 2. Subject to predefined variables & custom variable substitutions.
 
 Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_variables.
 
 Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
-See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables.
 
 Predefined genrule variables are not supported in this context.
 
@@ -643,14 +643,14 @@ Defaults to `False`
         To pass a node startup option, prepend it with `--node_options=`, e.g.
         `--node_options=--preserve-symlinks`.
 
-Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/main/be/make-variables.html.
 
 1. Subject to predefined source/output path variables substitutions.
 
 The predefined variables `execpath`, `execpaths`, `rootpath`, `rootpaths`, `location`, and `locations` take
 label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths denoted by that label.
 
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables for more info.
+See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_label_variables for more info.
 
 NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
 args and genrule bazel substitions. This will be fixed in a future major release.
@@ -693,7 +693,7 @@ const some_file = runfiles.resolveWorkspaceRelative(args[0]);
 
 NB: Bazel will error if it sees the single dollar sign $(rlocation path) in `templated_args` as it will try to
 expand `$(rlocation)` since we now expand predefined & custom "make" variables such as `$(COMPILATION_MODE)`,
-`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`. See https://docs.bazel.build/versions/master/be/make-variables.html.
+`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`. See https://docs.bazel.build/versions/main/be/make-variables.html.
 
 To prevent expansion of `$(rlocation)` write it as `$$(rlocation)`. Bazel understands `$$` to be
 the string literal `$` and the expansion results in `$(rlocation)` being passed as an arg instead
@@ -709,10 +709,10 @@ need to update to `$$(rlocation)`. This may be changed in the future.
 2. Subject to predefined variables & custom variable substitutions.
 
 Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_variables.
 
 Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
-See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables.
 
 Predefined genrule variables are not supported in this context.
 
@@ -2001,9 +2001,9 @@ It also provides:
 - [JSModuleInfo](#jsmoduleinfo) so rules like bundlers can collect the transitive set of .js files
 - [JSNamedModuleInfo](#jsnamedmoduleinfo) for rules that expect named AMD or `goog.module` format JS
 
-[OutputGroupInfo]: https://docs.bazel.build/versions/master/skylark/lib/OutputGroupInfo.html
-[DefaultInfo]: https://docs.bazel.build/versions/master/skylark/lib/DefaultInfo.html
-[output_group]: https://docs.bazel.build/versions/master/be/general.html#filegroup.output_group
+[OutputGroupInfo]: https://docs.bazel.build/versions/main/skylark/lib/OutputGroupInfo.html
+[DefaultInfo]: https://docs.bazel.build/versions/main/skylark/lib/DefaultInfo.html
+[output_group]: https://docs.bazel.build/versions/main/be/general.html#filegroup.output_group
 
 
 **PARAMETERS**
@@ -2108,7 +2108,7 @@ By default, Bazel runs actions with a working directory set to your workspace ro
 Use the `chdir` attribute to change the working directory before the program runs.
 
 This is a great candidate to wrap with a macro, as documented:
-https://docs.bazel.build/versions/master/skylark/macros.html#full-example
+https://docs.bazel.build/versions/main/skylark/macros.html#full-example
 
 
 **PARAMETERS**
@@ -2135,7 +2135,7 @@ Defaults to `None`
 
 <h4 id="npm_package_bin-data">data</h4>
 
-similar to [genrule.srcs](https://docs.bazel.build/versions/master/be/general.html#genrule.srcs)
+similar to [genrule.srcs](https://docs.bazel.build/versions/main/be/general.html#genrule.srcs)
 may also include targets that produce or reference npm packages which are needed by the tool
 
 Defaults to `[]`
@@ -2148,7 +2148,7 @@ Defaults to `{}`
 
 <h4 id="npm_package_bin-outs">outs</h4>
 
-similar to [genrule.outs](https://docs.bazel.build/versions/master/be/general.html#genrule.outs)
+similar to [genrule.outs](https://docs.bazel.build/versions/main/be/general.html#genrule.outs)
 
 Defaults to `[]`
 
@@ -2156,11 +2156,11 @@ Defaults to `[]`
 
 Command-line arguments to the tool.
 
-Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/main/be/make-variables.html.
 
 1. Predefined source/output path substitions is applied first:
 
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_label_variables.
 
 Use $(execpath) $(execpaths) to expand labels to the execroot (where Bazel runs build actions).
 
@@ -2176,7 +2176,7 @@ for either $(execpath) or $(rootpath) depending on the context.
 2. "Make" variables are expanded second:
 
 Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_variables.
 
 Like genrule, you may also use some syntax sugar for locations.
 
@@ -2188,10 +2188,10 @@ Like genrule, you may also use some syntax sugar for locations.
 - `$(RULEDIR)`: the root output directory of the rule, corresponding with its package
     (can be used with output_dir=True or False)
 
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_genrule_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_genrule_variables.
 
 Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
-See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables.
 
 Defaults to `[]`
 
@@ -2301,14 +2301,14 @@ Path of the output file, relative to this package.
 
 Arguments to concatenate into a params file.
 
-Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/main/be/make-variables.html.
 
 1. Subject to predefined source/output path variables substitutions.
 
 The predefined variables `execpath`, `execpaths`, `rootpath`, `rootpaths`, `location`, and `locations` take
 label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths denoted by that label.
 
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables for more info.
+See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_label_variables for more info.
 
 NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
 args and genrule bazel substitions. This will be fixed in a future major release.
@@ -2318,10 +2318,10 @@ for more info.
 2. Subject to predefined variables & custom variable substitutions.
 
 Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_variables.
 
 Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
-See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables.
 
 Predefined genrule variables are not supported in this context.
 

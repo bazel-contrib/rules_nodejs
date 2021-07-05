@@ -31,7 +31,7 @@ const BAZEL_EXIT_TESTS_FAILED = 3;
 const BAZEL_EXIT_NO_TESTS_FOUND = 4;
 
 // Test sharding support
-// See https://docs.bazel.build/versions/master/test-encyclopedia.html#role-of-the-test-runner
+// See https://docs.bazel.build/versions/main/test-encyclopedia.html#role-of-the-test-runner
 const TOTAL_SHARDS = Number(process.env['TEST_TOTAL_SHARDS']);
 const SHARD_INDEX = Number(process.env['TEST_SHARD_INDEX']);
 // Tell Bazel that this test runner supports sharding by updating the last modified date of the

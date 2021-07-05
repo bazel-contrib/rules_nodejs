@@ -361,7 +361,7 @@ fi
                         # We need this call to the list of Files.
                         # Calling the .to_list() method may have some perfs hits,
                         # so we should be running this method only once per rule.
-                        # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
+                        # see: https://docs.bazel.build/versions/main/skylark/depsets.html#performance
                         node_modules.to_list() + sources.to_list(),
                 collect_data = True,
             ),
@@ -373,7 +373,7 @@ fi
             pkgs = data,
         ),
         # indicates that the this binary should be instrumented by coverage
-        # see https://docs.bazel.build/versions/master/skylark/lib/coverage_common.html
+        # see https://docs.bazel.build/versions/main/skylark/lib/coverage_common.html
         # since this will be called from a nodejs_test, where the entrypoint is going to be the test file
         # we shouldn't add the entrypoint as a attribute to collect here
         coverage_common.instrumented_files_info(ctx, dependency_attributes = ["data"], extensions = ["js", "ts"]),
@@ -497,14 +497,14 @@ If source files need to be required then they can be copied to the bin_dir with 
         To pass a node startup option, prepend it with `--node_options=`, e.g.
         `--node_options=--preserve-symlinks`.
 
-Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/main/be/make-variables.html.
 
 1. Subject to predefined source/output path variables substitutions.
 
 The predefined variables `execpath`, `execpaths`, `rootpath`, `rootpaths`, `location`, and `locations` take
 label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths denoted by that label.
 
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables for more info.
+See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_label_variables for more info.
 
 NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
 args and genrule bazel substitions. This will be fixed in a future major release.
@@ -547,7 +547,7 @@ const some_file = runfiles.resolveWorkspaceRelative(args[0]);
 
 NB: Bazel will error if it sees the single dollar sign $(rlocation path) in `templated_args` as it will try to
 expand `$(rlocation)` since we now expand predefined & custom "make" variables such as `$(COMPILATION_MODE)`,
-`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`. See https://docs.bazel.build/versions/master/be/make-variables.html.
+`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`. See https://docs.bazel.build/versions/main/be/make-variables.html.
 
 To prevent expansion of `$(rlocation)` write it as `$$(rlocation)`. Bazel understands `$$` to be
 the string literal `$` and the expansion results in `$(rlocation)` being passed as an arg instead
@@ -563,10 +563,10 @@ need to update to `$$(rlocation)`. This may be changed in the future.
 2. Subject to predefined variables & custom variable substitutions.
 
 Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
-See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_variables.
 
 Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
-See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables.
 
 Predefined genrule variables are not supported in this context.
 """,

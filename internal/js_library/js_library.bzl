@@ -345,9 +345,9 @@ def js_library(
     - [JSModuleInfo](#jsmoduleinfo) so rules like bundlers can collect the transitive set of .js files
     - [JSNamedModuleInfo](#jsnamedmoduleinfo) for rules that expect named AMD or `goog.module` format JS
 
-    [OutputGroupInfo]: https://docs.bazel.build/versions/master/skylark/lib/OutputGroupInfo.html
-    [DefaultInfo]: https://docs.bazel.build/versions/master/skylark/lib/DefaultInfo.html
-    [output_group]: https://docs.bazel.build/versions/master/be/general.html#filegroup.output_group
+    [OutputGroupInfo]: https://docs.bazel.build/versions/main/skylark/lib/OutputGroupInfo.html
+    [DefaultInfo]: https://docs.bazel.build/versions/main/skylark/lib/DefaultInfo.html
+    [output_group]: https://docs.bazel.build/versions/main/be/general.html#filegroup.output_group
 
     Args:
         name: The name for the target

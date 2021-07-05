@@ -70,6 +70,6 @@ cypress_toolchain = rule(
     },
     doc = """Defines a cypress toolchain.
 
-For usage see https://docs.bazel.build/versions/master/toolchains.html#defining-toolchains.
+For usage see https://docs.bazel.build/versions/main/toolchains.html#defining-toolchains.
 """,
 )
