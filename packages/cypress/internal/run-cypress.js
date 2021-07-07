@@ -24,9 +24,9 @@ async function main() {
     // Detect that we are running as a test, by using well-known environment
     // variables. See go/test-encyclopedia
     if (!process.env.BUILD_WORKSPACE_DIRECTORY) {
-      await invokeCypressWithCommand('run');
+      await invokeCypressWithCommand('run-ct');
     } else {
-      await invokeCypressWithCommand('open');
+      await invokeCypressWithCommand('open-ct');
     }
   } catch (e) {
     console.error(e);

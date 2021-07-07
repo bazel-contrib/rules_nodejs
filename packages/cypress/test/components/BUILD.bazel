@@ -1,0 +1,18 @@
+load("@build_bazel_rules_nodejs//packages/cypress:index.bzl", "cypress_web_test")
+
+cypress_web_test(
+    name = "test",
+    srcs = [
+        "Button.tsx",
+        "Button.spec.tsx",
+    ],
+    config_file = "cypress.json",
+    cypress_npm_package = "@cypress_deps//cypress",
+    data = [
+        "@cypress_deps//:node_modules",
+        "webpack.config.js",
+        "tsconfig.json",
+    ],
+    plugin_file = "plugin.js",
+    tags = ["cypress"],
+)
