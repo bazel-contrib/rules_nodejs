@@ -62,6 +62,7 @@ Organizations:
 - [LogiOcean](https://www.logiocean.com)
 - [Spica](https://spicaengine.com)
 - [Domino Data Lab](https://www.dominodatalab.com/)
+- [Cookies](https://cookies.co/)
 
 Not on this list? [Send a PR](https://github.com/bazelbuild/rules_nodejs/edit/stable/README.md) to add your repo or organization!
 
