@@ -1,6 +1,11 @@
 {
+  "version": "0.0.1",
   "dependencies": {
     "__invalid_dependency__": "removed by pre_install_patches",
+    "__other_invalid_dependency__": "removed by package_json_replace",
     "semver": "1.0.0"
+  },
+  "scripts": {
+    "replace_me": "not yet replaced"
   }
 }

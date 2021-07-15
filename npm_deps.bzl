@@ -408,9 +408,22 @@ filegroup(
         patch_tool = "patch",
         post_install_patches = ["//internal/npm_install/test/patches_yarn:semver+1.0.0.patch"],
         pre_install_patches = ["//internal/npm_install/test/patches_yarn:package_json.patch"],
+        package_json_remove = [
+            "dependencies.__other_invalid_dependency__",
+            "dependencies.ignored_doesnt_exist",
+        ],
+        package_json_replace = {
+            # modify version
+            "version": "1.0.0",
+            # modify scripts.replace_me
+            "scripts.replace_me": "replaced",
+            # add scripts.new
+            "scripts.new": "added",
+        },
         symlink_node_modules = False,
         yarn_lock = "//internal/npm_install/test/patches_yarn:yarn.lock",
         quiet = False,
+        manual_build_file_contents = """exports_files(["_/internal/npm_install/test/patches_yarn/package.json"])""",
     )
 
     npm_install(
@@ -422,8 +435,21 @@ filegroup(
         patch_tool = "patch",
         post_install_patches = ["//internal/npm_install/test/patches_npm:semver+1.0.0.patch"],
         pre_install_patches = ["//internal/npm_install/test/patches_npm:package_json.patch"],
+        package_json_remove = [
+            "dependencies.__other_invalid_dependency__",
+            "dependencies.ignored_doesnt_exist",
+        ],
+        package_json_replace = {
+            # modify version
+            "version": "1.0.0",
+            # modify scripts.replace_me
+            "scripts.replace_me": "replaced",
+            # add scripts.new
+            "scripts.new": "added",
+        },
         symlink_node_modules = False,
         quiet = False,
+        manual_build_file_contents = """exports_files(["_/internal/npm_install/test/patches_npm/package.json"])""",
     )
 
     yarn_install(

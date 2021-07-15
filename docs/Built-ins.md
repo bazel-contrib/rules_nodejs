@@ -726,9 +726,9 @@ Defaults to `[]`
 <pre>
 npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-exports_directories_only">exports_directories_only</a>,
             <a href="#npm_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#npm_install-included_files">included_files</a>, <a href="#npm_install-links">links</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>,
-            <a href="#npm_install-npm_command">npm_command</a>, <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>, <a href="#npm_install-patch_args">patch_args</a>, <a href="#npm_install-patch_tool">patch_tool</a>,
-            <a href="#npm_install-post_install_patches">post_install_patches</a>, <a href="#npm_install-pre_install_patches">pre_install_patches</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>,
-            <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
+            <a href="#npm_install-npm_command">npm_command</a>, <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_json_remove">package_json_remove</a>, <a href="#npm_install-package_json_replace">package_json_replace</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>,
+            <a href="#npm_install-package_path">package_path</a>, <a href="#npm_install-patch_args">patch_args</a>, <a href="#npm_install-patch_tool">patch_tool</a>, <a href="#npm_install-post_install_patches">post_install_patches</a>, <a href="#npm_install-pre_install_patches">pre_install_patches</a>, <a href="#npm_install-quiet">quiet</a>,
+            <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
 </pre>
 
 Runs npm install during workspace setup.
@@ -971,6 +971,52 @@ Defaults to `"ci"`
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*)
 
+
+<h4 id="npm_install-package_json_remove">package_json_remove</h4>
+
+(*List of strings*): List of `package.json` keys to remove before running the package manager.
+
+Keys are '.' separated. For example, a key of `dependencies.my-dep` in the list corresponds to the `package.json`
+entry,
+
+```
+{
+    "dependencies": {
+        "my-dep": "..."
+    }
+}
+```
+
+This can be used, for example, during a migration to remove first party file: deps that are required
+for the non-bazel build but should not be installed via the package manager in the bazel build since
+they will be reference as bazel targets instead.
+
+NB: removals specified are performed after preinstall_patches so if you are using both then the patch file should be relative
+to the source `package.json`. Non-existant keys are silently ignored.
+
+Defaults to `[]`
+
+<h4 id="npm_install-package_json_replace">package_json_replace</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Map of `package.json` keys to values to replace or create before running the package mangager.
+
+Keys are '.' separated. For example, a key of `scripts.postinstall` corresponds to the `package.json`
+entry,
+
+```
+{
+    "scripts": {
+        "postinstall": "..."
+    }
+}
+```
+
+This can be used, for example, during a migration to override npm scripts such as preinstall & postinstall.
+
+NB: replaces specified are performed after preinstall_patches so if you are using both then the patch file should be relative
+to the source `package.json`.
+
+Defaults to `{}`
 
 <h4 id="npm_install-package_lock_json">package_lock_json</h4>
 
@@ -1320,9 +1366,9 @@ Defaults to `{}`
 <pre>
 yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-exports_directories_only">exports_directories_only</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>,
              <a href="#yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-links">links</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>,
-             <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_path">package_path</a>, <a href="#yarn_install-patch_args">patch_args</a>, <a href="#yarn_install-patch_tool">patch_tool</a>, <a href="#yarn_install-post_install_patches">post_install_patches</a>,
-             <a href="#yarn_install-pre_install_patches">pre_install_patches</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>,
-             <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
+             <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_json_remove">package_json_remove</a>, <a href="#yarn_install-package_json_replace">package_json_replace</a>, <a href="#yarn_install-package_path">package_path</a>, <a href="#yarn_install-patch_args">patch_args</a>,
+             <a href="#yarn_install-patch_tool">patch_tool</a>, <a href="#yarn_install-post_install_patches">post_install_patches</a>, <a href="#yarn_install-pre_install_patches">pre_install_patches</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>,
+             <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
 </pre>
 
 Runs yarn install during workspace setup.
@@ -1569,6 +1615,52 @@ Defaults to `""`
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*)
 
+
+<h4 id="yarn_install-package_json_remove">package_json_remove</h4>
+
+(*List of strings*): List of `package.json` keys to remove before running the package manager.
+
+Keys are '.' separated. For example, a key of `dependencies.my-dep` in the list corresponds to the `package.json`
+entry,
+
+```
+{
+    "dependencies": {
+        "my-dep": "..."
+    }
+}
+```
+
+This can be used, for example, during a migration to remove first party file: deps that are required
+for the non-bazel build but should not be installed via the package manager in the bazel build since
+they will be reference as bazel targets instead.
+
+NB: removals specified are performed after preinstall_patches so if you are using both then the patch file should be relative
+to the source `package.json`. Non-existant keys are silently ignored.
+
+Defaults to `[]`
+
+<h4 id="yarn_install-package_json_replace">package_json_replace</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Map of `package.json` keys to values to replace or create before running the package mangager.
+
+Keys are '.' separated. For example, a key of `scripts.postinstall` corresponds to the `package.json`
+entry,
+
+```
+{
+    "scripts": {
+        "postinstall": "..."
+    }
+}
+```
+
+This can be used, for example, during a migration to override npm scripts such as preinstall & postinstall.
+
+NB: replaces specified are performed after preinstall_patches so if you are using both then the patch file should be relative
+to the source `package.json`.
+
+Defaults to `{}`
 
 <h4 id="yarn_install-package_path">package_path</h4>
 
