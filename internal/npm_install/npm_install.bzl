@@ -287,6 +287,46 @@ All transitive dependencies are given limited visibility, enforcing that all dir
 listed in the `package.json` file.
 """,
     ),
+    "package_json_remove": attr.string_list(
+        doc = """List of `package.json` keys to remove before running the package manager.
+
+Keys are '.' separated. For example, a key of `dependencies.my-dep` in the list corresponds to the `package.json`
+entry,
+
+```
+{
+    "dependencies": {
+        "my-dep": "..."
+    }
+}
+```
+
+This can be used, for example, during a migration to remove first party file: deps that are required
+for the non-bazel build but should not be installed via the package manager in the bazel build since
+they will be reference as bazel targets instead.
+
+NB: removals specified are performed after preinstall_patches so if you are using both then the patch file should be relative
+to the source `package.json`. Non-existant keys are silently ignored.""",
+    ),
+    "package_json_replace": attr.string_dict(
+        doc = """Map of `package.json` keys to values to replace or create before running the package mangager.
+
+Keys are '.' separated. For example, a key of `scripts.postinstall` corresponds to the `package.json`
+entry,
+
+```
+{
+    "scripts": {
+        "postinstall": "..."
+    }
+}
+```
+
+This can be used, for example, during a migration to override npm scripts such as preinstall & postinstall.
+
+NB: replaces specified are performed after preinstall_patches so if you are using both then the patch file should be relative
+to the source `package.json`.""",
+    ),
     "symlink_node_modules": attr.bool(
         doc = """Turn symlinking of node_modules on
 
@@ -496,6 +536,55 @@ def _copy_file(repository_ctx, f):
     if result.return_code:
         fail("cp -f {} {} failed: \nSTDOUT:\n{}\nSTDERR:\n{}".format(repository_ctx.path(f), to, result.stdout, result.stderr))
 
+def _package_json_changes(repository_ctx):
+    if len(repository_ctx.attr.package_json_replace.keys()) == 0 and len(repository_ctx.attr.package_json_remove) == 0:
+        # there are no replacements to make
+        return
+
+    # split key segments by dot
+    key_split_char = "."
+
+    # read, save a .orig & and decode the contents of the package.json file
+    package_json_path = _rerooted_workspace_path(repository_ctx, repository_ctx.attr.package_json)
+    package_json_contents = repository_ctx.read(package_json_path)
+    repository_ctx.file(
+        package_json_path + ".orig",
+        content = package_json_contents,
+    )
+    package_json = json.decode(package_json_contents)
+
+    # process package_json_replace attr
+    for replace_key, replace_value in repository_ctx.attr.package_json_replace.items():
+        segments = replace_key.split(key_split_char)
+        num_segments = len(segments)
+        loc = package_json
+        for i, segment in enumerate(segments):
+            if i < num_segments - 1:
+                if segment not in loc:
+                    loc[segment] = {}
+                loc = loc[segment]
+            else:
+                loc[segment] = replace_value
+
+    # process package_json_remove attr
+    for remove_key in repository_ctx.attr.package_json_remove:
+        segments = remove_key.split(key_split_char)
+        num_segments = len(segments)
+        loc = package_json
+        for i, segment in enumerate(segments):
+            if i < num_segments - 1:
+                if segment not in loc:
+                    break
+                loc = loc[segment]
+            else:
+                loc.pop(segment, None)
+
+    # overwrite the package.json file with the changes made
+    repository_ctx.file(
+        package_json_path,
+        content = json.encode_indent(package_json, indent = "  "),
+    )
+
 def _symlink_file(repository_ctx, f):
     repository_ctx.symlink(f, _rerooted_workspace_path(repository_ctx, f))
 
@@ -605,8 +694,11 @@ cd /D "{root}" && "{npm}" {npm_args}
     _add_node_repositories_info_deps(repository_ctx)
     _apply_pre_install_patches(repository_ctx)
 
+    # _package_json_changes should be called _after_ _apply_pre_install_patches (as per docstring)
+    _package_json_changes(repository_ctx)
+
     result = repository_ctx.execute(
-        [node, "pre_process_package_json.js", repository_ctx.path(repository_ctx.attr.package_json), "npm"],
+        [node, "pre_process_package_json.js", repository_ctx.path(_rerooted_workspace_path(repository_ctx, repository_ctx.attr.package_json)), "npm"],
         quiet = repository_ctx.attr.quiet,
     )
     if result.return_code:
@@ -764,8 +856,11 @@ cd /D "{root}" && "{yarn}" {yarn_args}
     _add_node_repositories_info_deps(repository_ctx)
     _apply_pre_install_patches(repository_ctx)
 
+    # _package_json_changes should be called _after_ _apply_pre_install_patches (as per docstring)
+    _package_json_changes(repository_ctx)
+
     result = repository_ctx.execute(
-        [node, "pre_process_package_json.js", repository_ctx.path(repository_ctx.attr.package_json), "yarn"],
+        [node, "pre_process_package_json.js", repository_ctx.path(_rerooted_workspace_path(repository_ctx, repository_ctx.attr.package_json)), "yarn"],
         quiet = repository_ctx.attr.quiet,
     )
     if result.return_code:
