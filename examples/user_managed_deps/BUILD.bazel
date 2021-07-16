@@ -20,8 +20,8 @@ NODE_MODULES_EXCLUDE_PATTERNS = [
 js_library(
     name = "npm/lodash",
     package_name = "lodash",
-    # strip prefix tells the linker where the base of the link target is
-    strip_prefix = "node_modules/lodash",
+    # link_root prefix tells the linker where the root of the link target is
+    link_root = "node_modules/lodash",
     srcs = glob(
         include = ["node_modules/lodash/**"],
         exclude = NODE_MODULES_EXCLUDE_PATTERNS,
