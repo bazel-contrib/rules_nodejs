@@ -203,9 +203,9 @@ Defaults to `[]`
 <pre>
 ts_library(<a href="#ts_library-name">name</a>, <a href="#ts_library-angular_assets">angular_assets</a>, <a href="#ts_library-compiler">compiler</a>, <a href="#ts_library-data">data</a>, <a href="#ts_library-deps">deps</a>, <a href="#ts_library-devmode_module">devmode_module</a>, <a href="#ts_library-devmode_target">devmode_target</a>,
            <a href="#ts_library-expected_diagnostics">expected_diagnostics</a>, <a href="#ts_library-generate_externs">generate_externs</a>, <a href="#ts_library-internal_testing_type_check_dependencies">internal_testing_type_check_dependencies</a>,
-           <a href="#ts_library-link_workspace_root">link_workspace_root</a>, <a href="#ts_library-module_name">module_name</a>, <a href="#ts_library-module_root">module_root</a>, <a href="#ts_library-package_name">package_name</a>, <a href="#ts_library-package_path">package_path</a>, <a href="#ts_library-prodmode_module">prodmode_module</a>,
-           <a href="#ts_library-prodmode_target">prodmode_target</a>, <a href="#ts_library-runtime">runtime</a>, <a href="#ts_library-runtime_deps">runtime_deps</a>, <a href="#ts_library-srcs">srcs</a>, <a href="#ts_library-supports_workers">supports_workers</a>, <a href="#ts_library-tsconfig">tsconfig</a>, <a href="#ts_library-tsickle_typed">tsickle_typed</a>,
-           <a href="#ts_library-use_angular_plugin">use_angular_plugin</a>)
+           <a href="#ts_library-link_workspace_root">link_workspace_root</a>, <a href="#ts_library-module_name">module_name</a>, <a href="#ts_library-module_root">module_root</a>, <a href="#ts_library-node_modules_workspace">node_modules_workspace</a>, <a href="#ts_library-package_name">package_name</a>,
+           <a href="#ts_library-package_path">package_path</a>, <a href="#ts_library-prodmode_module">prodmode_module</a>, <a href="#ts_library-prodmode_target">prodmode_target</a>, <a href="#ts_library-runtime">runtime</a>, <a href="#ts_library-runtime_deps">runtime_deps</a>, <a href="#ts_library-srcs">srcs</a>,
+           <a href="#ts_library-supports_workers">supports_workers</a>, <a href="#ts_library-tsconfig">tsconfig</a>, <a href="#ts_library-tsickle_typed">tsickle_typed</a>, <a href="#ts_library-use_angular_plugin">use_angular_plugin</a>)
 </pre>
 
 type-check and compile a set of TypeScript sources to JavaScript.
@@ -373,6 +373,12 @@ Defaults to `""`
 (*String*)
 
 Defaults to `""`
+
+<h4 id="ts_library-node_modules_workspace">node_modules_workspace</h4>
+
+(*String*): TODO
+
+Defaults to `"npm"`
 
 <h4 id="ts_library-package_name">package_name</h4>
 

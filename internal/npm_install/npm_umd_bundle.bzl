@@ -17,7 +17,7 @@
 For use by yarn_install and npm_install. Not meant to be part of the public API.
 """
 
-load("//:providers.bzl", "DirectoryFilePathInfo", "ExternalNpmPackageInfo", "node_modules_aspect")
+load("//:providers.bzl", "DirectoryFilePathInfo")
 load("//internal/common:maybe_directory_file_path.bzl", "maybe_directory_file_path")
 
 def _entry_point_path(ctx):
@@ -43,19 +43,7 @@ def _impl(ctx):
     args.add(output.path)
     args.add_joined(ctx.attr.excluded, join_with = ",")
 
-    sources = ctx.attr.package[ExternalNpmPackageInfo].sources.to_list()
-
-    if ctx.attr.package[ExternalNpmPackageInfo].has_directories:
-        # If sources contain directories then we cannot filter by extension
-        inputs = sources
-    else:
-        # Only pass .js and package.json files as inputs to browserify.
-        # The latter is required for module resolution in some cases.
-        inputs = [
-            f
-            for f in sources
-            if f.path.endswith(".js") or f.path.endswith(".json")
-        ]
+    inputs = ctx.attr.package[DefaultInfo].files
 
     ctx.actions.run(
         progress_message = "Generated UMD bundle for %s npm package [browserify]" % ctx.attr.package_name,
@@ -101,7 +89,6 @@ This target would be then be used instead of the generated `@npm//typeorm:typeor
     "package": attr.label(
         doc = """The npm package target""",
         mandatory = True,
-        aspects = [node_modules_aspect],
     ),
     "package_name": attr.string(
         doc = """The name of the npm package""",

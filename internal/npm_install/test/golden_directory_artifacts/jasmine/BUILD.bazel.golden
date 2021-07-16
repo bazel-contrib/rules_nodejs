@@ -1,40 +1,37 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "jasmine__files",
-    srcs = ["//:node_modules/jasmine"],
-)
 js_library(
     name = "jasmine",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [":jasmine__files"],
+    link_to_bin = False,
     deps = [
-        "//jasmine:jasmine__contents",
-        "//glob:glob__contents",
-        "//fs.realpath:fs.realpath__contents",
-        "//inflight:inflight__contents",
-        "//once:once__contents",
-        "//wrappy:wrappy__contents",
-        "//inherits:inherits__contents",
-        "//minimatch:minimatch__contents",
-        "//brace-expansion:brace-expansion__contents",
-        "//balanced-match:balanced-match__contents",
-        "//concat-map:concat-map__contents",
-        "//path-is-absolute:path-is-absolute__contents",
+        "//jasmine:jasmine__direct",
+        "//glob:glob__direct",
+        "//fs.realpath:fs.realpath__direct",
+        "//inflight:inflight__direct",
+        "//once:once__direct",
+        "//wrappy:wrappy__direct",
+        "//inherits:inherits__direct",
+        "//minimatch:minimatch__direct",
+        "//brace-expansion:brace-expansion__direct",
+        "//balanced-match:balanced-match__direct",
+        "//concat-map:concat-map__direct",
+        "//path-is-absolute:path-is-absolute__direct",
     ],
 )
 js_library(
-    name = "jasmine__contents",
-    package_name = "$node_modules_dir$",
+    name = "jasmine__direct",
+    package_name = "jasmine",
     package_path = "",
-    srcs = [":jasmine__files"],
+    link_root = "node_modules/jasmine",
+    link_to_bin = False,
+    srcs = ["//:node_modules/jasmine"],
+    source_directories = True,
     visibility = ["//:__subpackages__"],
 )
 alias(
     name = "jasmine__typings",
-    actual = "jasmine__contents",
+    actual = "jasmine__direct",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

@@ -18,17 +18,16 @@ js_library(
         "//internal/linker:__subpackages__",
         "//packages/runfiles/test:__pkg__",
     ],
+    srcs = [
+        "README.md",
+        "package.json",
+    ],
     deps = [":runfiles_lib"],
 )
 
 pkg_npm(
     name = "npm_package",
-    package_name = "@bazel/runfiles",
-    srcs = [
-        "README.md",
-        "package.json",
-    ],
     deps = [
-        ":runfiles_lib",
+        ":bazel_runfiles",
     ],
 )

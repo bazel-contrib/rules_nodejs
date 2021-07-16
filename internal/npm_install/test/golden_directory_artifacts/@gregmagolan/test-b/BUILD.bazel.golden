@@ -1,29 +1,26 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "test-b__files",
-    srcs = ["//:node_modules/@gregmagolan/test-b"],
-)
 js_library(
     name = "test-b",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [":test-b__files"],
+    link_to_bin = False,
     deps = [
-        "//@gregmagolan/test-b:test-b__contents",
+        "//@gregmagolan/test-b:test-b__direct",
     ],
 )
 js_library(
-    name = "test-b__contents",
-    package_name = "$node_modules_dir$",
+    name = "test-b__direct",
+    package_name = "@gregmagolan/test-b",
     package_path = "",
-    srcs = [":test-b__files"],
+    link_root = "node_modules/@gregmagolan/test-b",
+    link_to_bin = False,
+    srcs = ["//:node_modules/@gregmagolan/test-b"],
+    source_directories = True,
     visibility = ["//:__subpackages__"],
 )
 alias(
     name = "test-b__typings",
-    actual = "test-b__contents",
+    actual = "test-b__direct",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

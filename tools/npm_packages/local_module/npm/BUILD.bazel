@@ -14,14 +14,18 @@ filegroup(
 
 js_library(
     name = "local-module",
+    link_to_bin = False,
     srcs = [":local-module__files"],
     deps = [
-        ":local-module__contents",
+        ":local-module__direct",
     ],
 )
 
 js_library(
-    name = "local-module__contents",
+    name = "local-module__direct",
+    package_name = "local-module",
+    link_root = "node_modules/local-module",
+    link_to_bin = False,
     srcs = [
         ":local-module__files",
         ":local-module__nested_node_modules",

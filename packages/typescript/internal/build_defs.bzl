@@ -14,8 +14,8 @@
 
 "TypeScript compilation"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "LinkablePackageInfo", "js_ecma_script_module_info", "js_module_info", "js_named_module_info", "node_modules_aspect", "run_node")
-
+load("@build_bazel_rules_nodejs//:providers.bzl", "LinkablePackageInfo", "js_ecma_script_module_info", "js_module_info", "js_named_module_info", "run_node")
+load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
 load("@build_bazel_rules_typescript//internal:common/compilation.bzl", "COMMON_ATTRIBUTES", "DEPS_ASPECTS", "compile_ts", "ts_providers_dict_to_struct")
@@ -96,28 +96,6 @@ def _trim_package_node_modules(package_name):
         segments.append(n)
     return "/".join(segments)
 
-def _compute_node_modules_root(ctx):
-    """Computes the node_modules root from the node_modules and deps attributes.
-
-    Args:
-      ctx: the starlark execution context
-
-    Returns:
-      The node_modules root as a string
-    """
-    node_modules_root = None
-    for d in ctx.attr.deps:
-        if ExternalNpmPackageInfo in d:
-            possible_root = "/".join(["external", d[ExternalNpmPackageInfo].workspace, "node_modules"])
-            if not node_modules_root:
-                node_modules_root = possible_root
-            elif node_modules_root != possible_root:
-                fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
-    if not node_modules_root:
-        # there are no fine grained deps but we still need a node_modules_root even if its empty
-        node_modules_root = "/".join(["external", ctx.attr._typescript_typings[ExternalNpmPackageInfo].workspace, "node_modules"])
-    return node_modules_root
-
 def _filter_ts_inputs(all_inputs):
     return [
         f
@@ -146,14 +124,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     if not action_outputs:
         return None
 
-    action_inputs.extend(_filter_ts_inputs(ctx.attr._typescript_typings[ExternalNpmPackageInfo].sources.to_list()))
-
-    # Also include files from npm fine grained deps as action_inputs.
-    # These deps are identified by the ExternalNpmPackageInfo provider.
-    for d in ctx.attr.deps:
-        if ExternalNpmPackageInfo in d:
-            # Note: we can't avoid calling .to_list() on sources
-            action_inputs.extend(_filter_ts_inputs(d[ExternalNpmPackageInfo].sources.to_list()))
+    action_inputs.extend(_filter_ts_inputs(ctx.attr._typescript_typings[DefaultInfo].files.to_list()))
 
     if ctx.file.tsconfig:
         action_inputs.append(ctx.file.tsconfig)
@@ -260,7 +231,7 @@ def tsc_wrapped_tsconfig(
     # bazel-foo/ and therefore we need to strip some parent directories for each
     # f.path.
 
-    node_modules_root = _compute_node_modules_root(ctx)
+    node_modules_root = "/".join(["external", ctx.attr.node_modules_workspace, "node_modules"])
     config = create_tsconfig(
         ctx,
         # Filter out package.json files that are included in DeclarationInfo
@@ -409,7 +380,7 @@ then it needs to be a data dependency of `tsc_wrapped` so that it can be loaded 
             cfg = "host",
         ),
         "deps": attr.label_list(
-            aspects = DEPS_ASPECTS + [node_modules_aspect],
+            aspects = DEPS_ASPECTS + [module_mappings_aspect],
             doc = "Compile-time dependencies, typically other ts_library targets",
         ),
         "devmode_module": attr.string(
@@ -498,6 +469,10 @@ either:
         ),
         "use_angular_plugin": attr.bool(
             doc = """Run the Angular ngtsc compiler under ts_library""",
+        ),
+        "node_modules_workspace": attr.string(
+            default = "npm",
+            doc = "TODO",
         ),
         "_typescript_typings": attr.label(
             default = _TYPESCRIPT_TYPINGS,

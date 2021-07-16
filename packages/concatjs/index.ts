@@ -4,11 +4,12 @@
  */
 import * as crypto from 'crypto';
 import * as fs from 'fs';
-import * as File from 'karma/lib/file';
 import * as path from 'path';
 import * as process from 'process';
 import {createInterface} from 'readline';
 ///<reference types="lib.dom"/>
+
+const File = require('karma/lib/file')
 
 /**
  * Return SHA1 of data buffer.

@@ -3,14 +3,9 @@ package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 js_library(
     name = "@gregmagolan",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [
-        "//@gregmagolan/test-a:test-a__files",
-        "//@gregmagolan/test-b:test-b__files",
-    ],
+    link_to_bin = False,
     deps = [
-        "//@gregmagolan/test-a:test-a__contents",
-        "//@gregmagolan/test-b:test-b__contents",
+        "//@gregmagolan/test-a",
+        "//@gregmagolan/test-b",
     ],
 )

@@ -7,5 +7,8 @@
     // Typescript will automatically discover all types under node_modules/@types
     // and included them in the build. See getAutomaticTypeDirectiveNames in
     // https://github.com/Microsoft/TypeScript/blob/master/src/compiler/moduleNameResolver.ts.
+  },
+  "bazelOptions": {
+    "disableStrictDeps": true
   }
 }

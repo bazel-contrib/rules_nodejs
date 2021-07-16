@@ -1,29 +1,26 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "zone.js__files",
-    srcs = ["//:node_modules/zone.js"],
-)
 js_library(
     name = "zone.js",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [":zone.js__files"],
+    link_to_bin = False,
     deps = [
-        "//zone.js:zone.js__contents",
+        "//zone.js:zone.js__direct",
     ],
 )
 js_library(
-    name = "zone.js__contents",
-    package_name = "$node_modules_dir$",
+    name = "zone.js__direct",
+    package_name = "zone.js",
     package_path = "",
-    srcs = [":zone.js__files"],
+    link_root = "node_modules/zone.js",
+    link_to_bin = False,
+    srcs = ["//:node_modules/zone.js"],
+    source_directories = True,
     visibility = ["//:__subpackages__"],
 )
 alias(
     name = "zone.js__typings",
-    actual = "zone.js__contents",
+    actual = "zone.js__direct",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

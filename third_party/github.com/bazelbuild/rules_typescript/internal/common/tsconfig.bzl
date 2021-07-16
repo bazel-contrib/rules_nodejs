@@ -301,6 +301,6 @@ def create_tsconfig(
     return {
         "compilerOptions": compiler_options,
         "bazelOptions": bazel_options,
-        "files": [workspace_path + "/" + f.path for f in files],
+        "files": [workspace_path + "/" + f.path for f in files if "/node_modules/typescript/lib/lib." not in f.path],
         "compileOnSave": False,
     }

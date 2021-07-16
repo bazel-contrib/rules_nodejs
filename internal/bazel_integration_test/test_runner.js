@@ -372,7 +372,7 @@ for (const bazelCommand of config.bazelCommands) {
     'BASH_FUNC_is_absolute%%',
     'BASH_FUNC_rlocation%%',
     'BASH_FUNC_runfiles_export_envvars%%',
-    'BAZEL_NODE_MODULES_ROOTS',
+    'BAZEL_NODE_MODULES_PACKAGES',
     'BAZEL_NODE_PATCH_REQUIRE',
     'BAZEL_NODE_RUNFILES_HELPER',
     'BAZEL_PATCH_ROOTS',

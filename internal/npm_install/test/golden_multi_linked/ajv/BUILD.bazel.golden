@@ -1,6 +1,30 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "ajv",
+    link_to_bin = False,
+    srcs = [":ajv__files"],
+    deps = [
+        "//ajv:ajv__direct",
+        "//co:co__direct",
+        "//fast-deep-equal:fast-deep-equal__direct",
+        "//fast-json-stable-stringify:fast-json-stable-stringify__direct",
+        "//json-schema-traverse:json-schema-traverse__direct",
+    ],
+)
+js_library(
+    name = "ajv__direct",
+    package_name = "ajv",
+    package_path = "tools/fine_grained_goldens",
+    link_root = "node_modules/ajv",
+    link_to_bin = False,
+    srcs = [
+      ":ajv__files",
+      ":ajv__nested_node_modules",
+    ],
+    visibility = ["//:__subpackages__"],
+)
 filegroup(
     name = "ajv__files",
     srcs = [
@@ -106,32 +130,14 @@ filegroup(
 )
 filegroup(
     name = "ajv__all_files",
-    srcs = [":ajv__files", ":ajv__not_files"],
-)
-js_library(
-    name = "ajv",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
-    srcs = [":ajv__files"],
-    deps = [
-        "//ajv:ajv__contents",
-        "//co:co__contents",
-        "//fast-deep-equal:fast-deep-equal__contents",
-        "//fast-json-stable-stringify:fast-json-stable-stringify__contents",
-        "//json-schema-traverse:json-schema-traverse__contents",
+    srcs = [
+      ":ajv__files",
+      ":ajv__not_files",
     ],
 )
 js_library(
-    name = "ajv__contents",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
-    srcs = [":ajv__files", ":ajv__nested_node_modules"],
-    visibility = ["//:__subpackages__"],
-)
-js_library(
     name = "ajv__typings",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
+    link_to_bin = False,
     srcs = [
         "//:node_modules/ajv/lib/ajv.d.ts",
     ],

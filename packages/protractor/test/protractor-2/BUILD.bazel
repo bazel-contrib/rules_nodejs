@@ -58,6 +58,7 @@ ts_library(
         "@npm//@types/jasmine",
         "@npm//protractor",
     ],
+    supports_workers = False,
 )
 
 protractor_web_test_suite(

@@ -10,6 +10,7 @@ nodejs_binary(
         "@build_bazel_rules_typescript//internal:tsc_wrapped",
         "@build_bazel_rules_typescript//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
         "@npm//@angular/compiler-cli",
+        "@npm//@angular/core",
         "@npm//protobufjs",
         "@npm//source-map-support",
         "@npm//tsickle",

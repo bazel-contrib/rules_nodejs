@@ -24,11 +24,6 @@ load(
     _declaration_info = "declaration_info",
 )
 load(
-    "//internal/providers:external_npm_package_info.bzl",
-    _ExternalNpmPackageInfo = "ExternalNpmPackageInfo",
-    _node_modules_aspect = "node_modules_aspect",
-)
-load(
     "//internal/providers:js_providers.bzl",
     _JSEcmaScriptModuleInfo = "JSEcmaScriptModuleInfo",
     _JSModuleInfo = "JSModuleInfo",
@@ -59,13 +54,15 @@ JSNamedModuleInfo = _JSNamedModuleInfo
 js_named_module_info = _js_named_module_info
 JSEcmaScriptModuleInfo = _JSEcmaScriptModuleInfo
 js_ecma_script_module_info = _js_ecma_script_module_info
-ExternalNpmPackageInfo = _ExternalNpmPackageInfo
 
-# Export NpmPackageInfo for pre-3.0 legacy support in downstream rule sets
-# such as rules_docker
-# TODO(4.0): remove NpmPackageInfo
-NpmPackageInfo = _ExternalNpmPackageInfo
-node_modules_aspect = _node_modules_aspect
+# Deprecated unused providers for pre-4.0 legacy support in downstream rule sets and @angular/bazel
+# TODO(5.0): remove references in downstream rulesets and remove ExternalNpmPackageInfo, NpmPackageInfo & node_modules_aspect
+ExternalNpmPackageInfo = provider()
+NpmPackageInfo = provider()
+def _node_modules_aspect_impl(target, ctx):
+    return []
+node_modules_aspect = aspect(_node_modules_aspect_impl)
+
 LinkablePackageInfo = _LinkablePackageInfo
 
 #Modelled after _GoContextData in rules_go/go/private/context.bzl

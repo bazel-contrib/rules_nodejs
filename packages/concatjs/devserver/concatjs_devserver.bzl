@@ -14,7 +14,7 @@
 
 "Simple development server"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSNamedModuleInfo", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
 load(
     "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
     "write_amd_names_shim",
@@ -29,24 +29,23 @@ def _to_manifest_path(ctx, file):
         return ctx.workspace_name + "/" + file.short_path
 
 def _concatjs_devserver(ctx):
-    files_depsets = []
+    named_module_files_depsets = []
     for dep in ctx.attr.deps:
         if JSNamedModuleInfo in dep:
-            files_depsets.append(dep[JSNamedModuleInfo].sources)
-        if not JSNamedModuleInfo in dep and not ExternalNpmPackageInfo in dep and hasattr(dep, "files"):
+            named_module_files_depsets.append(dep[JSNamedModuleInfo].sources)
+        elif hasattr(dep, "files"):
             # These are javascript files provided by DefaultInfo from a direct
-            # dep that has no JSNamedModuleInfo provider or ExternalNpmPackageInfo
-            # provider (not an npm dep). These files must be in named AMD or named
-            # UMD format.
-            files_depsets.append(dep.files)
-    files = depset(transitive = files_depsets)
+            # dep that has no JSNamedModuleInfo provider. These files must be in
+            # named AMD or named UMD format.
+            named_module_files_depsets.append(dep.files)
+    named_module_files = depset(transitive = named_module_files_depsets)
 
     # Also include files from npm fine grained deps as inputs.
     # These deps are identified by the ExternalNpmPackageInfo provider.
     node_modules_depsets = []
-    for dep in ctx.attr.deps:
-        if ExternalNpmPackageInfo in dep:
-            node_modules_depsets.append(dep[ExternalNpmPackageInfo].sources)
+    # for dep in ctx.attr.deps:
+    #     if ExternalNpmPackageInfo in dep:
+    #         node_modules_depsets.append(dep[ExternalNpmPackageInfo].sources)
     node_modules = depset(transitive = node_modules_depsets)
 
     workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
@@ -57,7 +56,7 @@ def _concatjs_devserver(ctx):
     # see if we can get performance gains out of the module loader.
     ctx.actions.write(ctx.outputs.manifest, "".join([
         workspace_name + "/" + f.short_path + "\n"
-        for f in files.to_list()
+        for f in named_module_files.to_list()
         if f.path.endswith(".js")
     ]))
 
@@ -118,7 +117,7 @@ def _concatjs_devserver(ctx):
             files = devserver_runfiles,
             # We don't expect executable targets to depend on the devserver, but if they do,
             # they can see the JavaScript code.
-            transitive_files = depset(transitive = [files, node_modules]),
+            transitive_files = depset(transitive = [named_module_files, node_modules]),
             collect_data = True,
             collect_default = True,
         ),
@@ -139,7 +138,6 @@ concatjs_devserver = rule(
         "deps": attr.label_list(
             doc = "Targets that produce JavaScript, such as `ts_library`",
             allow_files = True,
-            aspects = [node_modules_aspect],
         ),
         "devserver": attr.label(
             doc = """Go based devserver executable.

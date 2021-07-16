@@ -2,5 +2,8 @@
   "compilerOptions": {
     "lib": ["es2015"],
     "types": ["jasmine"]
+  },
+  "bazelOptions": {
+    "disableStrictDeps": true
   }
 }

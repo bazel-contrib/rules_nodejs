@@ -20,7 +20,7 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("//:providers.bzl", "DirectoryFilePathInfo", "ExternalNpmPackageInfo", "JSModuleInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "node_modules_aspect")
+load("//:providers.bzl", "DirectoryFilePathInfo", "JSModuleInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:maybe_directory_file_path.bzl", "maybe_directory_file_path")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
@@ -30,41 +30,16 @@ load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_scri
 load("//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect", "write_node_modules_manifest")
 load("//nodejs:repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 
-def _trim_package_node_modules(package_name):
-    # trim a package name down to its path prior to a node_modules
-    # segment. 'foo/node_modules/bar' would become 'foo' and
-    # 'node_modules/bar' would become ''
-    segments = []
-    for n in package_name.split("/"):
-        if n == "node_modules":
-            break
-        segments.append(n)
-    return "/".join(segments)
-
-def _compute_node_modules_roots(ctx, data):
-    """Computes the node_modules root (if any) from data attribute."""
-    node_modules_roots = {}
-
-    # Add in roots from third-party deps
-    for d in data:
-        if ExternalNpmPackageInfo in d:
-            path = getattr(d[ExternalNpmPackageInfo], "path", "")
-            workspace = d[ExternalNpmPackageInfo].workspace
-            if path in node_modules_roots:
-                other_workspace = node_modules_roots[path]
-                if other_workspace != workspace:
-                    fail("All npm dependencies at the path '%s' must come from a single workspace. Found '%s' and '%s'." % (path, other_workspace, workspace))
-            node_modules_roots[path] = workspace
-
-    # Add in roots for multi-linked first party deps
+def _compute_node_modules_packages(ctx, data):
+    """Computes the node_modules packages (if any) from data attribute."""
+    node_modules_packages = []
     for dep in data:
         for k, v in getattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME, {}).items():
             map_key_split = k.split(":")
-            package_name = map_key_split[0]
             package_path = map_key_split[1] if len(map_key_split) > 1 else ""
-            if package_path not in node_modules_roots:
-                node_modules_roots[package_path] = ""
-    return node_modules_roots
+            if package_path and package_path not in node_modules_packages:
+                node_modules_packages.append(package_path)
+    return node_modules_packages
 
 def _write_require_patch_script(ctx, data, node_modules_root):
     # Generates the JavaScript snippet of module roots mappings, with each entry
@@ -138,14 +113,13 @@ def _to_manifest_path(ctx, file):
     else:
         return ctx.workspace_name + "/" + file.short_path
 
-def _to_execroot_path(ctx, file):
+def _to_execroot_path(file):
     parts = file.path.split("/")
     if parts[0] == "external":
         if parts[2] == "node_modules":
             # external/npm/node_modules -> node_modules/foo
             # the linker will make sure we can resolve node_modules from npm
             return "/".join(parts[2:])
-
     return file.path
 
 def _join(*elements):
@@ -153,16 +127,7 @@ def _join(*elements):
 
 def _nodejs_binary_impl(ctx, data = [], runfiles = [], expanded_args = []):
     node_modules_manifest = write_node_modules_manifest(ctx, link_workspace_root = ctx.attr.link_workspace_root)
-    node_modules_depsets = []
     data = ctx.attr.data + data
-
-    # Also include files from npm fine grained deps as inputs.
-    # These deps are identified by the ExternalNpmPackageInfo provider.
-    for d in data:
-        if ExternalNpmPackageInfo in d:
-            node_modules_depsets.append(d[ExternalNpmPackageInfo].sources)
-
-    node_modules = depset(transitive = node_modules_depsets)
 
     # Using an array of depsets will allow us to avoid flattening files and sources
     # inside this loop. This should reduce the performances hits,
@@ -183,14 +148,8 @@ def _nodejs_binary_impl(ctx, data = [], runfiles = [], expanded_args = []):
             sources_depsets.append(d.files)
     sources = depset(transitive = sources_depsets)
 
-    node_modules_roots = _compute_node_modules_roots(ctx, data)
-
-    if "" in node_modules_roots:
-        node_modules_root = node_modules_roots[""] + "/node_modules"
-    else:
-        # there are no fine grained deps but we still need a node_modules_root even if it is a non-existant one
-        node_modules_root = "build_bazel_rules_nodejs/node_modules"
-    _write_require_patch_script(ctx, data, node_modules_root)
+    # Legacy require patch script
+    _write_require_patch_script(ctx, data, "npm/node_modules")
 
     _write_loader_script(ctx)
 
@@ -210,18 +169,12 @@ def _nodejs_binary_impl(ctx, data = [], runfiles = [], expanded_args = []):
     # runfiles helpers to use.
     env_vars += "export BAZEL_WORKSPACE=%s\n" % ctx.workspace_name
 
-    bazel_node_module_roots = ""
-    for path, root in node_modules_roots.items():
-        if bazel_node_module_roots:
-            bazel_node_module_roots = bazel_node_module_roots + ","
-        bazel_node_module_roots = bazel_node_module_roots + "%s:%s" % (path, root)
-
-    # if BAZEL_NODE_MODULES_ROOTS has not already been set by
+    # if BAZEL_NODE_MODULES_PACKAGES has not already been set by
     # run_node, then set it to the computed value
-    env_vars += """if [[ -z "${BAZEL_NODE_MODULES_ROOTS:-}" ]]; then
-  export BAZEL_NODE_MODULES_ROOTS=%s
+    env_vars += """if [[ -z "${BAZEL_NODE_MODULES_PACKAGES:-}" ]]; then
+  export BAZEL_NODE_MODULES_PACKAGES=%s
 fi
-""" % bazel_node_module_roots
+""" % ",".join(_compute_node_modules_packages(ctx, data))
 
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
         # Check ctx.var first & if env var not in there then check
@@ -323,7 +276,7 @@ fi
     #else:
     #    substitutions["TEMPLATED_script_path"] = "$(rlocation \"%s\")" % _to_manifest_path(ctx, ctx.file.entry_point)
     # For now we need to look in both places
-    substitutions["TEMPLATED_entry_point_execroot_path"] = "\"%s\"" % _ts_to_js(_to_execroot_path(ctx, _get_entry_point_file(ctx)))
+    substitutions["TEMPLATED_entry_point_execroot_path"] = "\"%s\"" % _ts_to_js(_to_execroot_path(_get_entry_point_file(ctx)))
     substitutions["TEMPLATED_entry_point_manifest_path"] = "$(rlocation \"%s\")" % _ts_to_js(_to_manifest_path(ctx, _get_entry_point_file(ctx)))
     if DirectoryFilePathInfo in ctx.attr.entry_point:
         substitutions["TEMPLATED_entry_point_main"] = ctx.attr.entry_point[DirectoryFilePathInfo].path
@@ -362,14 +315,14 @@ fi
                         # Calling the .to_list() method may have some perfs hits,
                         # so we should be running this method only once per rule.
                         # see: https://docs.bazel.build/versions/main/skylark/depsets.html#performance
-                        node_modules.to_list() + sources.to_list(),
+                        sources.to_list(),
                 collect_data = True,
             ),
         ),
-        # TODO(alexeagle): remove sources and node_modules from the runfiles
+        # TODO(alexeagle): remove sources from the runfiles
         # when downstream usage is ready to rely on linker
         NodeRuntimeDepsInfo(
-            deps = depset(ctx.files.entry_point, transitive = [node_modules, sources]),
+            deps = depset(ctx.files.entry_point, transitive = [sources]),
             pkgs = data,
         ),
         # indicates that the this binary should be instrumented by coverage
@@ -406,7 +359,7 @@ Note, this can lead to different outputs produced by this rule.""",
     "data": attr.label_list(
         doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,
-        aspects = [node_modules_aspect, module_mappings_aspect, module_mappings_runtime_aspect],
+        aspects = [module_mappings_aspect, module_mappings_runtime_aspect],
     ),
     "default_env_vars": attr.string_list(
         doc = """Default environment variables that are added to `configuration_env_vars`.

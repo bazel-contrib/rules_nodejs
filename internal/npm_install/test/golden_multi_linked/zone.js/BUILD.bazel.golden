@@ -1,6 +1,26 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "zone.js",
+    link_to_bin = False,
+    srcs = [":zone.js__files"],
+    deps = [
+        "//zone.js:zone.js__direct",
+    ],
+)
+js_library(
+    name = "zone.js__direct",
+    package_name = "zone.js",
+    package_path = "tools/fine_grained_goldens",
+    link_root = "node_modules/zone.js",
+    link_to_bin = False,
+    srcs = [
+      ":zone.js__files",
+      ":zone.js__nested_node_modules",
+    ],
+    visibility = ["//:__subpackages__"],
+)
 filegroup(
     name = "zone.js__files",
     srcs = [
@@ -146,28 +166,14 @@ filegroup(
 )
 filegroup(
     name = "zone.js__all_files",
-    srcs = [":zone.js__files", ":zone.js__not_files"],
-)
-js_library(
-    name = "zone.js",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
-    srcs = [":zone.js__files"],
-    deps = [
-        "//zone.js:zone.js__contents",
+    srcs = [
+      ":zone.js__files",
+      ":zone.js__not_files",
     ],
 )
 js_library(
-    name = "zone.js__contents",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
-    srcs = [":zone.js__files", ":zone.js__nested_node_modules"],
-    visibility = ["//:__subpackages__"],
-)
-js_library(
     name = "zone.js__typings",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
+    link_to_bin = False,
     srcs = [
         "//:node_modules/zone.js/dist/zone.js.d.ts",
     ],

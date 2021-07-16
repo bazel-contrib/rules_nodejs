@@ -5,9 +5,6 @@ load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 js_library(
     name = "lib_plugin_file",
     srcs = ["lib_plugin.js"],
-    deps = [
-        "@cypress_deps//:node_modules",
-    ],
 )
 
 ts_library(
@@ -19,6 +16,7 @@ ts_library(
     deps = [
         "@cypress_deps//:node_modules",
     ],
+    node_modules_workspace = "cypress_deps",
 )
 
 ts_library(
@@ -30,6 +28,7 @@ ts_library(
     deps = [
         "@cypress_deps//:node_modules",
     ],
+    node_modules_workspace = "cypress_deps",
 )
 
 cypress_web_test(

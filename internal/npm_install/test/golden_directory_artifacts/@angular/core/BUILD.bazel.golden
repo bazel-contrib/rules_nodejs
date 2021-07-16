@@ -1,32 +1,29 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "core__files",
-    srcs = ["//:node_modules/@angular/core"],
-)
 js_library(
     name = "core",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [":core__files"],
+    link_to_bin = False,
     deps = [
-        "//@angular/core:core__contents",
-        "//tslib:tslib__contents",
-        "//rxjs:rxjs__contents",
-        "//zone.js:zone.js__contents",
+        "//@angular/core:core__direct",
+        "//tslib:tslib__direct",
+        "//rxjs:rxjs__direct",
+        "//zone.js:zone.js__direct",
     ],
 )
 js_library(
-    name = "core__contents",
-    package_name = "$node_modules_dir$",
+    name = "core__direct",
+    package_name = "@angular/core",
     package_path = "",
-    srcs = [":core__files"],
+    link_root = "node_modules/@angular/core",
+    link_to_bin = False,
+    srcs = ["//:node_modules/@angular/core"],
+    source_directories = True,
     visibility = ["//:__subpackages__"],
 )
 alias(
     name = "core__typings",
-    actual = "core__contents",
+    actual = "core__direct",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

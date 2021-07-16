@@ -26,6 +26,7 @@ ts_library(
         "//packages/typescript/test/devmode_consumer:__pkg__",
         "//packages/typescript/test/es6_consumer:__pkg__",
     ],
+    supports_workers = False,
     deps = [
         ":foo_ts_library",
         "//packages/typescript/test/generated_ts",

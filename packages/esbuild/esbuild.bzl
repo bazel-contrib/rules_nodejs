@@ -3,7 +3,7 @@ esbuild rule
 """
 
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "params_file")
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/common:expand_variables.bzl", "expand_variables")
 load("@build_bazel_rules_nodejs//toolchains/esbuild:toolchain.bzl", "TOOLCHAIN")
@@ -29,9 +29,6 @@ def _esbuild_impl(ctx):
 
         if DefaultInfo in dep:
             deps_depsets.append(dep[DefaultInfo].data_runfiles.files)
-
-        if ExternalNpmPackageInfo in dep:
-            deps_depsets.append(dep[ExternalNpmPackageInfo].sources)
 
         # Collect the path alias mapping to resolve packages correctly
         if hasattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME):
@@ -227,7 +224,7 @@ See https://esbuild.github.io/api/#define for more details
         ),
         "deps": attr.label_list(
             default = [],
-            aspects = [module_mappings_aspect, node_modules_aspect],
+            aspects = [module_mappings_aspect],
             doc = "A list of direct dependencies that are required to build the bundle",
         ),
         "entry_point": attr.label(
