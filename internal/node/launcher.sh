@@ -274,7 +274,7 @@ fi
 export BAZEL_PATCH_ROOTS="${EXECROOT}"
 # Set all bazel managed node_modules directories as guarded so no symlinks may
 # escape and no symlinks may enter.
-# We always guard against the root node_modules where 1st party deps go.
+# We always guard against the root node_modules where 1st party deps go by default.
 # (e.g., /private/.../execroot/build_bazel_rules_nodejs/node_modules)
 export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/node_modules"
 if [[ "${RUNFILES_ROOT}" ]]; then
@@ -284,50 +284,42 @@ if [[ "${RUNFILES_ROOT}" ]]; then
   # (e.g., /private/.../execroot/build_bazel_rules_nodejs/bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/build_bazel_rules_nodejs/node_modules)
   export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${BAZEL_WORKSPACE}/node_modules"
 fi
-if [[ -n "${BAZEL_NODE_MODULES_ROOTS:-}" ]]; then
-  # BAZEL_NODE_MODULES_ROOTS is in the format "<path>:<workspace>,<path>:<workspace>"
-  # (e.g., "internal/linker/test:npm_internal_linker_test,:npm")
+if [[ -n "${BAZEL_NODE_MODULES_PACKAGES:-}" ]]; then
+  # BAZEL_NODE_MODULES_PACKAGES is in the format "<package_path>,<package_path>"
+  # (e.g., "internal/linker/test,internal/npm_install/test")
   if [[ -n "${VERBOSE_LOGS:-}" ]]; then
-    echo "BAZEL_NODE_MODULES_ROOTS=${BAZEL_NODE_MODULES_ROOTS}" >&2
+    echo "BAZEL_NODE_MODULES_PACKAGES=${BAZEL_NODE_MODULES_PACKAGES}" >&2
   fi
   OLDIFS="${IFS}"
   IFS=","
-  roots=(${BAZEL_NODE_MODULES_ROOTS})
+  packages=(${BAZEL_NODE_MODULES_PACKAGES})
   IFS="${OLDIFS}"
-  for root in "${roots[@]}"; do
-    if [[ "${root}" ]]; then
-      OLDIFS="${IFS}"
-      IFS=":"
-      root_pair=(${root})
-      IFS="${OLDIFS}"
-      root_path="${root_pair[0]}"
-      root_workspace="${root_pair[1]:-}"
-      if [[ "${root_path}" ]]; then
-        # Guard non-root node_modules as well
-        # (e.g., /private/.../execroot/build_bazel_rules_nodejs/internal/linker/test/node_modules)
-        export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/${root_path}/node_modules"
-        if [[ "${RUNFILES_ROOT}" ]]; then
-          # If in runfiles guard the node_modules location in runfiles as well
-          # (e.g., /private/.../execroot/build_bazel_rules_nodejs/bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/build_bazel_rules_nodejs/internal/linker/test/node_modules)
-          export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${BAZEL_WORKSPACE}/${root_path}/node_modules"
-        fi
-      fi
-      # TODO: the following guards on the external workspaces may not be necessary and could be removed in the future with care
-      if [[ "${root_workspace}" ]] && [[ "${root_workspace}" != "${BAZEL_WORKSPACE}" ]]; then
-        # Guard the external workspaces if they are not the user workspace
-        # (e.g., /private/.../execroot/build_bazel_rules_nodejs/external/npm_internal_linker_test/node_modules)
-        export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/external/${root_workspace}/node_modules"
-        if [[ "${RUNFILES_ROOT}" ]]; then
-          # If in runfiles guard the external workspace location in runfiles as well
-          # (e.g., /private/.../execroot/build_bazel_rules_nodejs/bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/npm_internal_linker_test/node_modules)
-          export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${root_workspace}/node_modules"
-          # and include the legacy runfiles location incase legacy runfiles are enabled
-          # (e.g., /private/.../bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/build_bazel_rules_nodejs/external/npm_internal_linker_test/node_modules)
-          export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${BAZEL_WORKSPACE}/external/${root_workspace}/node_modules"
-        fi
+  for package in "${packages[@]}"; do
+    if [[ "${package}" ]]; then
+      # Guard node_modules in packages as well
+      # (e.g., /private/.../execroot/build_bazel_rules_nodejs/internal/linker/test/node_modules)
+      export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/${package}/node_modules"
+      if [[ "${RUNFILES_ROOT}" ]]; then
+        # If in runfiles guard the node_modules location in runfiles as well
+        # (e.g., /private/.../execroot/build_bazel_rules_nodejs/bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/build_bazel_rules_nodejs/internal/linker/test/node_modules)
+        export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${BAZEL_WORKSPACE}/${package}/node_modules"
       fi
     fi
   done
+  # root_workspace="npm"
+  # if [[ "${root_workspace}" ]] && [[ "${root_workspace}" != "${BAZEL_WORKSPACE}" ]]; then
+  #   # Guard the external workspaces if they are not the user workspace
+  #   # (e.g., /private/.../execroot/build_bazel_rules_nodejs/external/npm_internal_linker_test/node_modules)
+  #   export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/external/${root_workspace}/node_modules"
+  #   if [[ "${RUNFILES_ROOT}" ]]; then
+  #     # If in runfiles guard the external workspace location in runfiles as well
+  #     # (e.g., /private/.../execroot/build_bazel_rules_nodejs/bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/npm_internal_linker_test/node_modules)
+  #     export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${root_workspace}/node_modules"
+  #     # and include the legacy runfiles location incase legacy runfiles are enabled
+  #     # (e.g., /private/.../bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/build_bazel_rules_nodejs/external/npm_internal_linker_test/node_modules)
+  #     export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${BAZEL_WORKSPACE}/external/${root_workspace}/node_modules"
+  #   fi
+  # fi
 fi
 if [[ -n "${VERBOSE_LOGS:-}" ]]; then
   echo "BAZEL_PATCH_ROOTS=${BAZEL_PATCH_ROOTS}" >&2

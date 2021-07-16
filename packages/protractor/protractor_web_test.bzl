@@ -14,7 +14,7 @@
 "Run end-to-end tests with Protractor"
 
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSModuleInfo", "JSNamedModuleInfo", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo")
 load("@build_bazel_rules_nodejs//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
@@ -52,29 +52,28 @@ def _protractor_web_test_impl(ctx):
         sibling = ctx.outputs.script,
     )
 
-    files_depsets = [depset(ctx.files.srcs)]
+    named_module_files_depsets = [depset(ctx.files.srcs)]
     for dep in ctx.attr.deps:
         if JSNamedModuleInfo in dep:
-            files_depsets.append(dep[JSNamedModuleInfo].sources)
-        if not JSNamedModuleInfo in dep and not ExternalNpmPackageInfo in dep and hasattr(dep, "files"):
+            named_module_files_depsets.append(dep[JSNamedModuleInfo].sources)
+        elif hasattr(dep, "files"):
             # These are javascript files provided by DefaultInfo from a direct
-            # dep that has no JSNamedModuleInfo provider or ExternalNpmPackageInfo
-            # provider (not an npm dep). These files must be in named AMD or named
-            # UMD format.
-            files_depsets.append(dep.files)
-    files = depset(transitive = files_depsets)
+            # dep that has no JSNamedModuleInfo provider. These files must be in
+            # named AMD or named UMD format.
+            named_module_files_depsets.append(dep.files)
+    named_module_files = depset(transitive = named_module_files_depsets)
 
     # Also include files from npm fine grained deps as inputs.
     # These deps are identified by the ExternalNpmPackageInfo provider.
     node_modules_depsets = []
-    for dep in ctx.attr.deps:
-        if ExternalNpmPackageInfo in dep:
-            node_modules_depsets.append(dep[ExternalNpmPackageInfo].sources)
+    # for dep in ctx.attr.deps:
+    #     if ExternalNpmPackageInfo in dep:
+    #         node_modules_depsets.append(dep[ExternalNpmPackageInfo].sources)
     node_modules = depset(transitive = node_modules_depsets)
 
     specs = [
         _to_manifest_path(ctx, f)
-        for f in files.to_list()
+        for f in named_module_files.to_list()
     ]
 
     configuration_sources = []
@@ -175,7 +174,7 @@ ${{COMMAND}}
         files = depset([ctx.outputs.script]),
         runfiles = ctx.runfiles(
             files = runfiles,
-            transitive_files = depset(transitive = [files, node_modules, server_runfiles]),
+            transitive_files = depset(transitive = [named_module_files, node_modules, server_runfiles]),
             # Propagate protractor_bin and its runfiles
             collect_data = True,
             collect_default = True,
@@ -201,7 +200,6 @@ _protractor_web_test = rule(
         "deps": attr.label_list(
             doc = "Other targets which produce JavaScript such as `ts_library`",
             allow_files = True,
-            aspects = [node_modules_aspect],
         ),
         "on_prepare": attr.label(
             doc = """A file with a node.js script to run once before all tests run.

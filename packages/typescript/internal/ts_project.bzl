@@ -1,6 +1,6 @@
 "ts_project rule"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "ExternalNpmPackageInfo", "declaration_info", "js_module_info", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "declaration_info", "js_module_info", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 load(":ts_config.bzl", "TsConfigInfo", "write_tsconfig")
@@ -149,10 +149,6 @@ def _ts_project_impl(ctx):
     for dep in ctx.attr.deps:
         if TsConfigInfo in dep:
             deps_depsets.append(dep[TsConfigInfo].deps)
-        if ExternalNpmPackageInfo in dep:
-            # TODO: we could maybe filter these to be tsconfig.json or *.d.ts only
-            # we don't expect tsc wants to read any other files from npm packages.
-            deps_depsets.append(dep[ExternalNpmPackageInfo].sources)
         if DeclarationInfo in dep:
             deps_depsets.append(dep[DeclarationInfo].transitive_declarations)
         if _ValidOptionsInfo in dep:

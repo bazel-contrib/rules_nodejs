@@ -39,7 +39,7 @@ describe('launcher.sh environment', function() {
     expectPathsToMatch(process.env['BAZEL_TARGET'], '//internal/node/test:env_test');
     expectPathsToMatch(process.cwd(), `${process.env['RUNFILES_DIR']}/build_bazel_rules_nodejs`);
     expectPathsToMatch(process.env['PWD'], `${process.env['RUNFILES_DIR']}/build_bazel_rules_nodejs`);
-    expectPathsToMatch(process.env['BAZEL_NODE_MODULES_ROOTS'], ':npm');
+    expectPathsToMatch(process.env['BAZEL_NODE_MODULES_PACKAGES'], ':npm');
     const expectedRoots = [
       `${execroot}`,
       `${execroot}/node_modules`,
@@ -64,10 +64,10 @@ describe('launcher.sh environment', function() {
        expectPathsToMatch(env['BAZEL_WORKSPACE'], 'build_bazel_rules_nodejs');
        expectPathsToMatch(env['BAZEL_TARGET'], '//internal/node/test:dump_build_env');
        expectPathsToMatch(env['PWD'], execroot);
-       // On Windows, an empty string value for 'BAZEL_NODE_MODULES_ROOTS' does not make it into
+       // On Windows, an empty string value for 'BAZEL_NODE_MODULES_PACKAGES' does not make it into
        // dump_build_env.json
        expectPathsToMatch(
-           env['BAZEL_NODE_MODULES_ROOTS'] ? env['BAZEL_NODE_MODULES_ROOTS'] : '', '');
+           env['BAZEL_NODE_MODULES_PACKAGES'] ? env['BAZEL_NODE_MODULES_PACKAGES'] : '', '');
        const expectedRoots = [
          `${execroot}`,
          `${execroot}/node_modules`,
@@ -88,7 +88,7 @@ describe('launcher.sh environment', function() {
        expectPathsToMatch(env['BAZEL_WORKSPACE'], 'build_bazel_rules_nodejs');
        expectPathsToMatch(env['BAZEL_TARGET'], '//internal/node/test:dump_build_env_alt');
        expectPathsToMatch(env['PWD'], execroot);
-       expectPathsToMatch(env['BAZEL_NODE_MODULES_ROOTS'], ':npm');
+       expectPathsToMatch(env['BAZEL_NODE_MODULES_PACKAGES'], ':npm');
        const expectedRoots = [
          `${execroot}`,
          `${execroot}/node_modules`,

@@ -1,6 +1,25 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "rxjs",
+    srcs = [":rxjs__files"],
+    deps = [
+        "//rxjs:rxjs__direct",
+        "//tslib:tslib__direct",
+    ],
+)
+js_library(
+    name = "rxjs__direct",
+    package_name = "rxjs",
+    package_path = "tools/fine_grained_goldens",
+    link_root = "node_modules/rxjs",
+    srcs = [
+      ":rxjs__files",
+      ":rxjs__nested_node_modules",
+    ],
+    visibility = ["//:__subpackages__"],
+)
 filegroup(
     name = "rxjs__files",
     srcs = [
@@ -3625,29 +3644,13 @@ filegroup(
 )
 filegroup(
     name = "rxjs__all_files",
-    srcs = [":rxjs__files", ":rxjs__not_files"],
-)
-js_library(
-    name = "rxjs",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
-    srcs = [":rxjs__files"],
-    deps = [
-        "//rxjs:rxjs__contents",
-        "//tslib:tslib__contents",
+    srcs = [
+      ":rxjs__files",
+      ":rxjs__not_files",
     ],
 )
 js_library(
-    name = "rxjs__contents",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
-    srcs = [":rxjs__files", ":rxjs__nested_node_modules"],
-    visibility = ["//:__subpackages__"],
-)
-js_library(
     name = "rxjs__typings",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
     srcs = [
         "//:node_modules/rxjs/AsyncSubject.d.ts",
         "//:node_modules/rxjs/BehaviorSubject.d.ts",

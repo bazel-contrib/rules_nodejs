@@ -2,32 +2,36 @@ load("@build_bazel_rules_nodejs//:index.bzl", "js_library", "nodejs_binary", "no
 
 # This is "user-managed" dependencies - Bazel knows nothing about our package
 # manager. We assume that developers will install the `node_modules` directory
-# themselves and keep it up-to-date. This rule simply exposes files in the
-# node_modules directory to Bazel using js_library with package_name set to
-# "node_modules" so it can read them as inputs to processes it spawns.
+# themselves and keep it up-to-date.
+
+NODE_MODULES_EXCLUDE_PATTERNS = [
+    # Files under test & docs may contain file names that
+    # are not legal Bazel labels (e.g.,
+    # node_modules/ecstatic/test/public/中文/檔案.html)
+    "node_modules/**/test/**",
+    "node_modules/**/docs/**",
+    # Files with spaces in the name are not legal Bazel labels
+    "node_modules/**/* */**",
+    "node_modules/**/* *",
+],
+
+# Each npm package is exported as a js_library with the appropriate package_name so
+# the linker links it to that package name in the action sandbox node_modules
+js_library(
+    name = "npm/lodash",
+    package_name = "lodash",
+    # strip prefix tells the linker where the base of the link target is
+    strip_prefix = "node_modules/lodash",
+    srcs = glob(
+        include = ["node_modules/lodash/**"],
+        exclude = NODE_MODULES_EXCLUDE_PATTERNS,
+    ),
+)
+
+# Conviencience target for all npm packages
 js_library(
     name = "node_modules",
-    # Special value to provide ExternalNpmPackageInfo which is used by downstream
-    # rules that use these npm dependencies
-    package_name = "$node_modules$",
-    srcs = glob(
-        include = [
-            "node_modules/**/*.js",
-            "node_modules/**/*.d.ts",
-            "node_modules/**/*.json",
-            "node_modules/.bin/*",
-        ],
-        exclude = [
-            # Files under test & docs may contain file names that
-            # are not legal Bazel labels (e.g.,
-            # node_modules/ecstatic/test/public/中文/檔案.html)
-            "node_modules/**/test/**",
-            "node_modules/**/docs/**",
-            # Files with spaces in the name are not legal Bazel labels
-            "node_modules/**/* */**",
-            "node_modules/**/* *",
-        ],
-    ),
+    deps = [":lodash"],
 )
 
 nodejs_binary(
@@ -36,7 +40,7 @@ nodejs_binary(
     args = ["--node_options=--expose-gc"],
     data = [
         "index.js",
-        "//:node_modules",
+        ":node_modules",
     ],
     entry_point = ":index.js",
 )

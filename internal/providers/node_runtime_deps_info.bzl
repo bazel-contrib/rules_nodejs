@@ -15,8 +15,7 @@
 """Custom provider that mimics the Runfiles, but doesn't incur the expense of creating the runfiles symlink tree"""
 
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
-load("//internal/linker:link_node_modules.bzl", "add_arg", "write_node_modules_manifest")
-load("//internal/providers:external_npm_package_info.bzl", "ExternalNpmPackageInfo")
+load("//internal/linker:link_node_modules.bzl", "add_arg", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "write_node_modules_manifest")
 
 NodeRuntimeDepsInfo = provider(
     doc = """Stores runtime dependencies of a nodejs_binary or nodejs_test
@@ -40,24 +39,23 @@ do the same.
     },
 )
 
-def _compute_node_modules_roots(ctx):
-    """Computes the node_modules root (if any) from data & deps targets."""
-    node_modules_roots = {}
-    deps = []
+
+def _compute_node_modules_packages(ctx):
+    """Computes the node_modules packages (if any) from data & deps targets."""
+    node_modules_packages = []
+    data = []
     if hasattr(ctx.attr, "data"):
-        deps += ctx.attr.data
+        data += ctx.attr.data
     if hasattr(ctx.attr, "deps"):
-        deps += ctx.attr.deps
-    for d in deps:
-        if ExternalNpmPackageInfo in d:
-            path = d[ExternalNpmPackageInfo].path
-            workspace = d[ExternalNpmPackageInfo].workspace
-            if path in node_modules_roots:
-                other_workspace = node_modules_roots[path]
-                if other_workspace != workspace:
-                    fail("All npm dependencies at the path '%s' must come from a single workspace. Found '%s' and '%s'." % (path, other_workspace, workspace))
-            node_modules_roots[path] = workspace
-    return node_modules_roots
+        data += ctx.attr.deps
+    for dep in data:
+        for k, v in getattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME, {}).items():
+            map_key_split = k.split(":")
+            package_path = map_key_split[1] if len(map_key_split) > 1 else ""
+            if package_path and package_path not in node_modules_packages:
+                node_modules_packages.append(package_path)
+    return node_modules_packages
+
 
 def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
     """Helper to replace ctx.actions.run
@@ -133,13 +131,7 @@ def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
                 env[var] = ctx.var[var]
             elif var in ctx.configuration.default_shell_env.keys():
                 env[var] = ctx.configuration.default_shell_env[var]
-    bazel_node_module_roots = ""
-    node_modules_roots = _compute_node_modules_roots(ctx)
-    for path, root in node_modules_roots.items():
-        if bazel_node_module_roots:
-            bazel_node_module_roots = bazel_node_module_roots + ","
-        bazel_node_module_roots = bazel_node_module_roots + "%s:%s" % (path, root)
-    env["BAZEL_NODE_MODULES_ROOTS"] = bazel_node_module_roots
+    env["BAZEL_NODE_MODULES_PACKAGES"] = ",".join(_compute_node_modules_packages(ctx))
 
     # ctx.actions.run accepts both lists and a depset for inputs. Coerce the original inputs to a
     # depset if they're a list, so that extra inputs can be combined in a performant manner.

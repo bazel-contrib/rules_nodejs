@@ -1,6 +1,24 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "test-a",
+    srcs = [":test-a__files"],
+    deps = [
+        "//@gregmagolan/test-a:test-a__direct",
+    ],
+)
+js_library(
+    name = "test-a__direct",
+    package_name = "@gregmagolan/test-a",
+    package_path = "",
+    link_root = "node_modules/@gregmagolan/test-a",
+    srcs = [
+      ":test-a__files",
+      ":test-a__nested_node_modules",
+    ],
+    visibility = ["//:__subpackages__"],
+)
 filegroup(
     name = "test-a__files",
     srcs = [
@@ -23,28 +41,13 @@ filegroup(
 )
 filegroup(
     name = "test-a__all_files",
-    srcs = [":test-a__files", ":test-a__not_files"],
-)
-js_library(
-    name = "test-a",
-    package_name = "$node_modules$",
-    package_path = "",
-    srcs = [":test-a__files"],
-    deps = [
-        "//@gregmagolan/test-a:test-a__contents",
+    srcs = [
+      ":test-a__files",
+      ":test-a__not_files",
     ],
 )
 js_library(
-    name = "test-a__contents",
-    package_name = "$node_modules$",
-    package_path = "",
-    srcs = [":test-a__files", ":test-a__nested_node_modules"],
-    visibility = ["//:__subpackages__"],
-)
-js_library(
     name = "test-a__typings",
-    package_name = "$node_modules$",
-    package_path = "",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

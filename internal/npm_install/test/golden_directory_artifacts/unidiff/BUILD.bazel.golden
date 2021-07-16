@@ -1,30 +1,25 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "unidiff__files",
-    srcs = ["//:node_modules/unidiff"],
-)
 js_library(
     name = "unidiff",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [":unidiff__files"],
     deps = [
-        "//unidiff:unidiff__contents",
-        "//diff:diff__contents",
+        "//unidiff:unidiff__direct",
+        "//diff:diff__direct",
     ],
 )
 js_library(
-    name = "unidiff__contents",
-    package_name = "$node_modules_dir$",
+    name = "unidiff__direct",
+    package_name = "unidiff",
     package_path = "",
-    srcs = [":unidiff__files"],
+    link_root = "node_modules/unidiff",
+    srcs = ["//:node_modules/unidiff"],
+    source_directories = True,
     visibility = ["//:__subpackages__"],
 )
 alias(
     name = "unidiff__typings",
-    actual = "unidiff__contents",
+    actual = "unidiff__direct",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

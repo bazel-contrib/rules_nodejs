@@ -1,6 +1,31 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "core",
+    srcs = [":core__files"],
+    deps = [
+        "//@angular/core:core__direct",
+        "//tslib:tslib__direct",
+        "//rxjs:rxjs__direct",
+        "//zone.js:zone.js__direct",
+    ],
+)
+js_library(
+    name = "core__direct",
+    package_name = "@angular/core",
+    package_path = "",
+    link_root = "node_modules/@angular/core",
+    srcs = [
+      ":core__files",
+      ":core__nested_node_modules",
+    ],
+    named_module_srcs = [
+        "//:node_modules/@angular/core/bundles/core-testing.umd.js",
+        "//:node_modules/@angular/core/bundles/core.umd.js",
+    ],
+    visibility = ["//:__subpackages__"],
+)
 filegroup(
     name = "core__files",
     srcs = [
@@ -676,35 +701,13 @@ filegroup(
 )
 filegroup(
     name = "core__all_files",
-    srcs = [":core__files", ":core__not_files"],
-)
-js_library(
-    name = "core",
-    package_name = "$node_modules$",
-    package_path = "",
-    srcs = [":core__files"],
-    deps = [
-        "//@angular/core:core__contents",
-        "//tslib:tslib__contents",
-        "//rxjs:rxjs__contents",
-        "//zone.js:zone.js__contents",
+    srcs = [
+      ":core__files",
+      ":core__not_files",
     ],
-)
-js_library(
-    name = "core__contents",
-    package_name = "$node_modules$",
-    package_path = "",
-    srcs = [":core__files", ":core__nested_node_modules"],
-    named_module_srcs = [
-        "//:node_modules/@angular/core/bundles/core-testing.umd.js",
-        "//:node_modules/@angular/core/bundles/core.umd.js",
-    ],
-    visibility = ["//:__subpackages__"],
 )
 js_library(
     name = "core__typings",
-    package_name = "$node_modules$",
-    package_path = "",
     srcs = [
         "//:node_modules/@angular/core/core.d.ts",
         "//:node_modules/@angular/core/schematics/migrations/missing-injectable/import_manager.d.ts",

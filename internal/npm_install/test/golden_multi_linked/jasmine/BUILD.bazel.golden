@@ -1,6 +1,35 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "jasmine",
+    srcs = [":jasmine__files"],
+    deps = [
+        "//jasmine:jasmine__direct",
+        "//glob:glob__direct",
+        "//fs.realpath:fs.realpath__direct",
+        "//inflight:inflight__direct",
+        "//once:once__direct",
+        "//wrappy:wrappy__direct",
+        "//inherits:inherits__direct",
+        "//minimatch:minimatch__direct",
+        "//brace-expansion:brace-expansion__direct",
+        "//balanced-match:balanced-match__direct",
+        "//concat-map:concat-map__direct",
+        "//path-is-absolute:path-is-absolute__direct",
+    ],
+)
+js_library(
+    name = "jasmine__direct",
+    package_name = "jasmine",
+    package_path = "tools/fine_grained_goldens",
+    link_root = "node_modules/jasmine",
+    srcs = [
+      ":jasmine__files",
+      ":jasmine__nested_node_modules",
+    ],
+    visibility = ["//:__subpackages__"],
+)
 filegroup(
     name = "jasmine__files",
     srcs = [
@@ -53,39 +82,13 @@ filegroup(
 )
 filegroup(
     name = "jasmine__all_files",
-    srcs = [":jasmine__files", ":jasmine__not_files"],
-)
-js_library(
-    name = "jasmine",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
-    srcs = [":jasmine__files"],
-    deps = [
-        "//jasmine:jasmine__contents",
-        "//glob:glob__contents",
-        "//fs.realpath:fs.realpath__contents",
-        "//inflight:inflight__contents",
-        "//once:once__contents",
-        "//wrappy:wrappy__contents",
-        "//inherits:inherits__contents",
-        "//minimatch:minimatch__contents",
-        "//brace-expansion:brace-expansion__contents",
-        "//balanced-match:balanced-match__contents",
-        "//concat-map:concat-map__contents",
-        "//path-is-absolute:path-is-absolute__contents",
+    srcs = [
+      ":jasmine__files",
+      ":jasmine__not_files",
     ],
 )
 js_library(
-    name = "jasmine__contents",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
-    srcs = [":jasmine__files", ":jasmine__nested_node_modules"],
-    visibility = ["//:__subpackages__"],
-)
-js_library(
     name = "jasmine__typings",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

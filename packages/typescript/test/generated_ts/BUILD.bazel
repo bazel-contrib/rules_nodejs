@@ -9,6 +9,7 @@ genrule(
 ts_library(
     name = "generated_ts",
     srcs = [":foo.ts"],
+    deps = ["@npm//typescript"],
     visibility = [
         "//packages/typescript/test/foobar:__pkg__",
     ],

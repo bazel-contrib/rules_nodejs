@@ -1,6 +1,25 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "unidiff",
+    srcs = [":unidiff__files"],
+    deps = [
+        "//unidiff:unidiff__direct",
+        "//diff:diff__direct",
+    ],
+)
+js_library(
+    name = "unidiff__direct",
+    package_name = "unidiff",
+    package_path = "tools/fine_grained_goldens",
+    link_root = "node_modules/unidiff",
+    srcs = [
+      ":unidiff__files",
+      ":unidiff__nested_node_modules",
+    ],
+    visibility = ["//:__subpackages__"],
+)
 filegroup(
     name = "unidiff__files",
     srcs = [
@@ -28,29 +47,13 @@ filegroup(
 )
 filegroup(
     name = "unidiff__all_files",
-    srcs = [":unidiff__files", ":unidiff__not_files"],
-)
-js_library(
-    name = "unidiff",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
-    srcs = [":unidiff__files"],
-    deps = [
-        "//unidiff:unidiff__contents",
-        "//diff:diff__contents",
+    srcs = [
+      ":unidiff__files",
+      ":unidiff__not_files",
     ],
 )
 js_library(
-    name = "unidiff__contents",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
-    srcs = [":unidiff__files", ":unidiff__nested_node_modules"],
-    visibility = ["//:__subpackages__"],
-)
-js_library(
     name = "unidiff__typings",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

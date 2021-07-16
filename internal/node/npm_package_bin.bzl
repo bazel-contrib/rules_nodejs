@@ -1,6 +1,6 @@
 "A generic rule to run a tool that appears in node_modules/.bin"
 
-load("//:providers.bzl", "DeclarationInfo", "ExternalNpmPackageInfo", "JSModuleInfo", "node_modules_aspect", "run_node")
+load("//:providers.bzl", "DeclarationInfo", "JSModuleInfo", "run_node")
 load("//internal/common:expand_variables.bzl", "expand_variables")
 load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
@@ -10,7 +10,7 @@ _ATTRS = {
     "args": attr.string_list(mandatory = True),
     "chdir": attr.string(),
     "configuration_env_vars": attr.string_list(default = []),
-    "data": attr.label_list(allow_files = True, aspects = [module_mappings_aspect, node_modules_aspect]),
+    "data": attr.label_list(allow_files = True, aspects = [module_mappings_aspect]),
     "env": attr.string_dict(default = {}),
     "exit_code_out": attr.output(),
     "link_workspace_root": attr.bool(),
@@ -33,12 +33,8 @@ def _expand_locations(ctx, s):
     return ctx.expand_location(s, targets = ctx.attr.data).split(" ")
 
 def _inputs(ctx):
-    # Also include files from npm fine grained deps as inputs.
-    # These deps are identified by the ExternalNpmPackageInfo provider.
     inputs_depsets = []
     for d in ctx.attr.data:
-        if ExternalNpmPackageInfo in d:
-            inputs_depsets.append(d[ExternalNpmPackageInfo].sources)
         if JSModuleInfo in d:
             inputs_depsets.append(d[JSModuleInfo].sources)
         if DeclarationInfo in d:

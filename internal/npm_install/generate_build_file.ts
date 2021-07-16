@@ -49,8 +49,6 @@ function log_verbose(...m: any[]) {
 
 const PUBLIC_VISIBILITY = '//visibility:public';
 
-let NODE_MODULES_PACKAGE_NAME = '$node_modules$';
-
 // Default values for unit testing; overridden in main()
 let config: any = {
   exports_directories_only: false,
@@ -115,10 +113,6 @@ export function main() {
   config = require('./generate_config.json')
   config.limited_visibility = `@${config.workspace}//:__subpackages__`;
 
-  if (config.exports_directories_only) {
-    NODE_MODULES_PACKAGE_NAME = '$node_modules_dir$';
-  }
-
   // get a set of all the direct dependencies for visibility
   const deps = getDirectDependencySet(config.package_json);
 
@@ -179,26 +173,10 @@ function flattenDependencies(pkgs: Dep[]) {
  * Generates the root BUILD file.
  */
 function generateRootBuildFile(pkgs: Dep[]) {
-  let pkgFilesStarlark = '';
-  if (pkgs.length) {
-    let list = ''
-    list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__files",`).join('\n        ');
-    if (!config.exports_directories_only) {
-      list += '\n        ';
-      list += pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__nested_node_modules",`).join('\n        ');
-    }
-    pkgFilesStarlark = `
-    # direct sources listed for strict deps support
-    srcs = [
-        ${list}
-    ],`;
-  }
-
   let depsStarlark = '';
   if (pkgs.length) {
-    const list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__contents",`).join('\n        ');
+    const list = pkgs.map(pkg => `"//${pkg._dir}",`).join('\n        ');
     depsStarlark = `
-    # flattened list of direct and transitive dependencies hoisted to root by the package manager
     deps = [
         ${list}
     ],`;
@@ -224,9 +202,7 @@ ${exportsStarlark}])
 # there are many files in target.
 # See https://github.com/bazelbuild/bazel/issues/5153.
 js_library(
-    name = "node_modules",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
-    package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
+    name = "node_modules",${depsStarlark}
 )
 
 `
@@ -977,46 +953,37 @@ function printPackageExperimentalDirectoryArtifacts(pkg: Dep) {
   // Flattened list of direct and transitive dependencies hoisted to root by the package manager
   const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
   const depsStarlark =
-      deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
+      deps.map(dep => `"//${dep._dir}:${dep._name}__direct",`).join('\n        ');
 
   let result = `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
 
-# Files that are part of the npm package
-filegroup(
-    name = "${pkg._name}__files",
-    srcs = ["//:node_modules/${pkg._dir}"],
-)
-
-# The primary target for this package for use in rule deps
+# The primary target for this package for use in rule deps containing a flattened
+# list of direct and transitive dependencies hoisted to root by the package manager
 js_library(
     name = "${pkg._name}",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
-    package_path = "${config.package_path}",
-    # direct sources listed for strict deps support
-    srcs = [":${pkg._name}__files"],
-    # nested node_modules for this package plus flattened list of direct and transitive dependencies
-    # hoisted to root by the package manager
     deps = [
         ${depsStarlark}
     ],
 )
 
-# Target is used as dep for main targets to prevent circular dependencies errors
+# Target with only direct sources that is used for linking & as a dependency of the primary target
 js_library(
-    name = "${pkg._name}__contents",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
+    name = "${pkg._name}__direct",
+    package_name = "${pkg._dir}",
     package_path = "${config.package_path}",
-    srcs = [":${pkg._name}__files"],
+    link_root = "node_modules/${pkg._dir}",
+    srcs = ["//:node_modules/${pkg._dir}"],
+    source_directories = True,
     visibility = ["//:__subpackages__"],
 )
 
 # For ts_library backward compat which uses @npm//typescript:typescript__typings
 alias(
     name = "${pkg._name}__typings",
-    actual = "${pkg._name}__contents",
+    actual = "${pkg._name}__direct",
 )
 `;
 
@@ -1098,12 +1065,36 @@ function printPackage(pkg: Dep) {
   // Flattened list of direct and transitive dependencies hoisted to root by the package manager
   const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
   const depsStarlark =
-      deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
+      deps.map(dep => `"//${dep._dir}:${dep._name}__direct",`).join('\n        ');
 
   let result = `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
+
+# The primary target for this package for use in rule deps containing a flattened
+# list of direct and transitive dependencies hoisted to root by the package manager.
+# Direct source files relisted for strict deps support.
+js_library(
+    name = "${pkg._name}",
+    srcs = [":${pkg._name}__files"],
+    deps = [
+        ${depsStarlark}
+    ],
+)
+
+# Target with only direct sources that is used for linking & as a dependency of the primary target
+js_library(
+    name = "${pkg._name}__direct",
+    package_name = "${pkg._dir}",
+    package_path = "${config.package_path}",
+    link_root = "node_modules/${pkg._dir}",
+    srcs = [
+      ":${pkg._name}__files",
+      ":${pkg._name}__nested_node_modules",
+    ],${namedSourcesStarlark}
+    visibility = ["//:__subpackages__"],
+)
 
 # Files that are part of the npm package not including its nested node_modules
 # (filtered by the 'included_files' attribute)
@@ -1131,37 +1122,15 @@ filegroup(
 # but not including nested node_modules.
 filegroup(
     name = "${pkg._name}__all_files",
-    srcs = [":${pkg._name}__files", ":${pkg._name}__not_files"],
-)
-
-# The primary target for this package for use in rule deps
-js_library(
-    name = "${pkg._name}",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
-    package_path = "${config.package_path}",
-    # direct sources listed for strict deps support
-    srcs = [":${pkg._name}__files"],
-    # nested node_modules for this package plus flattened list of direct and transitive dependencies
-    # hoisted to root by the package manager
-    deps = [
-        ${depsStarlark}
+    srcs = [
+      ":${pkg._name}__files",
+      ":${pkg._name}__not_files",
     ],
 )
 
-# Target is used as dep for main targets to prevent circular dependencies errors
+# For ts_library support which uses @npm//typescript:typescript__typings
 js_library(
-    name = "${pkg._name}__contents",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
-    package_path = "${config.package_path}",
-    srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
-    visibility = ["//:__subpackages__"],
-)
-
-# Typings files that are part of the npm package not including nested node_modules
-js_library(
-    name = "${pkg._name}__typings",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
-    package_path = "${config.package_path}",${dtsStarlark}
+    name = "${pkg._name}__typings",${dtsStarlark}
 )
 
 `;
@@ -1338,19 +1307,9 @@ function printScope(scope: string, pkgs: Dep[]) {
   // filter out duplicate deps
   deps = [...pkgs, ...new Set(deps)];
 
-  let pkgFilesStarlark = '';
-  if (deps.length) {
-    const list = deps.map(dep => `"//${dep._dir}:${dep._name}__files",`).join('\n        ');
-    pkgFilesStarlark = `
-    # direct sources listed for strict deps support
-    srcs = [
-        ${list}
-    ],`;
-  }
-
   let depsStarlark = '';
   if (deps.length) {
-    const list = deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
+    const list = deps.map(dep => `"//${dep._dir}",`).join('\n        ');
     depsStarlark = `
     # flattened list of direct and transitive dependencies hoisted to root by the package manager
     deps = [
@@ -1362,9 +1321,7 @@ function printScope(scope: string, pkgs: Dep[]) {
 
 # Generated target for npm scope ${scope}
 js_library(
-    name = "${scope}",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
-    package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
+    name = "${scope}",${depsStarlark}
 )
 
 `;

@@ -23,7 +23,6 @@ package_name set here must match.
 load(
     "//:providers.bzl",
     "DeclarationInfo",
-    "ExternalNpmPackageInfo",
     "JSModuleInfo",
     "JSNamedModuleInfo",
     "LinkablePackageInfo",
@@ -53,9 +52,6 @@ def _impl(ctx):
         fail("Expected a single target")
 
     link_target = ctx.attr.deps[0]
-
-    if ExternalNpmPackageInfo in link_target:
-        fail("3rd party dependency '%s' with ExternalNpmPackageInfo cannot be used as an npm_link target" % str(link_target))
 
     if LinkablePackageInfo in link_target:
         path = link_target[LinkablePackageInfo].path

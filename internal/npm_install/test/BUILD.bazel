@@ -123,8 +123,6 @@ sh_test(
         "@fine_grained_deps_%s//:node_modules" % pkgmgr,
     ],
     tags = ["no-local-jasmine-deps"],
-    # TODO: get this test running with just linker: failing under --config=no-runfiles
-    templated_args = ["--bazel_patch_module_resolver"],
     deps = [
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
@@ -146,8 +144,6 @@ sh_test(
         "fine.spec.js",
     ],
     tags = ["no-local-jasmine-deps"],
-    # TODO: get this test running with just linker: failing under --config=no-runfiles
-    templated_args = ["--bazel_patch_module_resolver"],
     deps = [
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,

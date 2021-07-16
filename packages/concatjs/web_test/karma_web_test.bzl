@@ -13,7 +13,7 @@
 # limitations under the License.
 "Unit testing with Karma"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSModuleInfo", "JSNamedModuleInfo", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
@@ -57,7 +57,6 @@ KARMA_WEB_TEST_ATTRS = {
     "deps": attr.label_list(
         doc = "Other targets which produce JavaScript such as `ts_library`",
         allow_files = True,
-        aspects = [node_modules_aspect],
     ),
     "karma": attr.label(
         doc = "karma binary label",
@@ -72,7 +71,6 @@ KARMA_WEB_TEST_ATTRS = {
         These should be a list of targets which produce JavaScript such as `ts_library`.
         The files will be loaded in the same order they are declared by that rule.""",
         allow_files = True,
-        aspects = [node_modules_aspect],
     ),
     "srcs": attr.label_list(
         doc = "A list of JavaScript test files",
@@ -159,11 +157,10 @@ def _write_karma_config(ctx, files, amd_names_shim):
         if JSNamedModuleInfo in dep:
             for src in dep[JSNamedModuleInfo].direct_sources.to_list():
                 runtime_files.append(_to_manifest_path(ctx, src))
-        if not JSNamedModuleInfo in dep and not ExternalNpmPackageInfo in dep and hasattr(dep, "files"):
+        elif hasattr(dep, "files"):
             # These are javascript files provided by DefaultInfo from a direct
-            # dep that has no JSNamedModuleInfo provider or ExternalNpmPackageInfo
-            # provider (not an npm dep). These files must be in named AMD or named
-            # UMD format.
+            # dep that has no JSNamedModuleInfo provider. These files must be in
+            # named AMD or named UMD format.
             for src in dep.files.to_list():
                 runtime_files.append(_to_manifest_path(ctx, src))
 
@@ -206,29 +203,28 @@ def _write_karma_config(ctx, files, amd_names_shim):
     return configuration
 
 def _karma_web_test_impl(ctx):
-    files_depsets = [depset(ctx.files.srcs)]
+    named_module_files_depsets = [depset(ctx.files.srcs)]
     for dep in ctx.attr.deps + ctx.attr.runtime_deps:
         if JSNamedModuleInfo in dep:
-            files_depsets.append(dep[JSNamedModuleInfo].sources)
-        if not JSNamedModuleInfo in dep and not ExternalNpmPackageInfo in dep and hasattr(dep, "files"):
+            named_module_files_depsets.append(dep[JSNamedModuleInfo].sources)
+        elif hasattr(dep, "files"):
             # These are javascript files provided by DefaultInfo from a direct
-            # dep that has no JSNamedModuleInfo provider or ExternalNpmPackageInfo
-            # provider (not an npm dep). These files must be in named AMD or named
-            # UMD format.
-            files_depsets.append(dep.files)
-    files = depset(transitive = files_depsets)
+            # dep that has no JSNamedModuleInfo provider. These files must be in
+            # named AMD or named UMD format.
+            named_module_files_depsets.append(dep.files)
+    named_module_files = depset(transitive = named_module_files_depsets)
 
     # Also include files from npm fine grained deps as inputs.
     # These deps are identified by the ExternalNpmPackageInfo provider.
     node_modules_depsets = []
-    for dep in ctx.attr.deps + ctx.attr.runtime_deps:
-        if ExternalNpmPackageInfo in dep:
-            node_modules_depsets.append(dep[ExternalNpmPackageInfo].sources)
+    # for dep in ctx.attr.deps + ctx.attr.runtime_deps:
+    #     if ExternalNpmPackageInfo in dep:
+    #         node_modules_depsets.append(dep[ExternalNpmPackageInfo].sources)
     node_modules = depset(transitive = node_modules_depsets)
 
     amd_names_shim = _write_amd_names_shim(ctx)
 
-    configuration = _write_karma_config(ctx, files, amd_names_shim)
+    configuration = _write_karma_config(ctx, named_module_files, amd_names_shim)
 
     ctx.actions.write(
         output = ctx.outputs.executable,
@@ -309,7 +305,7 @@ ${{COMMAND}}
         files = depset([ctx.outputs.executable]),
         runfiles = ctx.runfiles(
             files = runfiles,
-            transitive_files = depset(transitive = [files, node_modules]),
+            transitive_files = depset(transitive = [named_module_files, node_modules]),
         ).merge(ctx.attr.karma[DefaultInfo].data_runfiles),
         executable = ctx.outputs.executable,
     )]
