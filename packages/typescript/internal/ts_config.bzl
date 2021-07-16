@@ -72,7 +72,10 @@ def _relative_path(tsconfig, dest):
     # So we can calculate a relative path from e.g.
     # bazel-out/darwin-fastbuild/bin/packages/typescript/test/ts_project/generated_tsconfig/gen_src
     # to <generated file packages/typescript/test/ts_project/generated_tsconfig/gen_src/subdir/a.ts>
-    return dest.path[len(relative_to) + 1:]
+    result = dest.path[len(relative_to) + 1:]
+    if not result.startswith("."):
+        result = "./" + result
+    return result
 
 def _write_tsconfig_rule(ctx):
     # TODO: is it useful to expand Make variables in the content?
