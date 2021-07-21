@@ -31,8 +31,10 @@ exports_files([
 ])
 js_library(
     name = "node_modules",
-    package_name = "$node_modules_dir$",
+    package_name = "$node_modules$",
     package_path = "",
+    source_directories = True,
+    
     srcs = [
         "//ajv:ajv__files",
         "//balanced-match:balanced-match__files",

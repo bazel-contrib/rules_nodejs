@@ -14,6 +14,7 @@ filegroup(
 
 js_library(
     name = "local-module",
+    package_name = "$node_modules$",
     srcs = [":local-module__files"],
     deps = [
         ":local-module__contents",
@@ -22,6 +23,7 @@ js_library(
 
 js_library(
     name = "local-module__contents",
+    package_name = "$node_modules$",
     srcs = [
         ":local-module__files",
         ":local-module__nested_node_modules",

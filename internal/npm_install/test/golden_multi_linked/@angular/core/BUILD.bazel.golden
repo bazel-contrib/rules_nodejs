@@ -682,6 +682,7 @@ js_library(
     name = "core",
     package_name = "$node_modules$",
     package_path = "tools/fine_grained_goldens",
+    source_directories = False,
     srcs = [":core__files"],
     deps = [
         "//@angular/core:core__contents",
@@ -694,6 +695,7 @@ js_library(
     name = "core__contents",
     package_name = "$node_modules$",
     package_path = "tools/fine_grained_goldens",
+    source_directories = False,
     srcs = [":core__files", ":core__nested_node_modules"],
     named_module_srcs = [
         "//:node_modules/@angular/core/bundles/core-testing.umd.js",
@@ -705,6 +707,8 @@ js_library(
     name = "core__typings",
     package_name = "$node_modules$",
     package_path = "tools/fine_grained_goldens",
+    source_directories = False,
+    
     srcs = [
         "//:node_modules/@angular/core/core.d.ts",
         "//:node_modules/@angular/core/schematics/migrations/missing-injectable/import_manager.d.ts",

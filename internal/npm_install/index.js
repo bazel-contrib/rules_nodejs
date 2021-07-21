@@ -51,9 +51,6 @@ function createFileSymlinkSync(target, p) {
 function main() {
     config = require('./generate_config.json');
     config.limited_visibility = `@${config.workspace}//:__subpackages__`;
-    if (config.exports_directories_only) {
-        NODE_MODULES_PACKAGE_NAME = '$node_modules_dir$';
-    }
     const deps = getDirectDependencySet(config.package_json);
     const pkgs = findPackages('node_modules', deps);
     flattenDependencies(pkgs);
@@ -135,7 +132,9 @@ ${exportsStarlark}])
 js_library(
     name = "node_modules",
     package_name = "${NODE_MODULES_PACKAGE_NAME}",
-    package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
+    package_path = "${config.package_path}",
+    source_directories = ${config.exports_directories_only ? "True" : "False"},
+    ${pkgFilesStarlark}${depsStarlark}
 )
 
 `;
@@ -576,6 +575,7 @@ js_library(
     name = "${pkg._name}",
     package_name = "${NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",
+    source_directories = ${config.exports_directories_only ? "True" : "False"},
     # direct sources listed for strict deps support
     srcs = [":${pkg._name}__files"],
     # nested node_modules for this package plus flattened list of direct and transitive dependencies
@@ -590,6 +590,7 @@ js_library(
     name = "${pkg._name}__contents",
     package_name = "${NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",
+    source_directories = ${config.exports_directories_only ? "True" : "False"},
     srcs = [":${pkg._name}__files"],
     visibility = ["//:__subpackages__"],
 )
@@ -681,6 +682,7 @@ js_library(
     name = "${pkg._name}",
     package_name = "${NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",
+    source_directories = ${config.exports_directories_only ? "True" : "False"},
     # direct sources listed for strict deps support
     srcs = [":${pkg._name}__files"],
     # nested node_modules for this package plus flattened list of direct and transitive dependencies
@@ -695,6 +697,7 @@ js_library(
     name = "${pkg._name}__contents",
     package_name = "${NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",
+    source_directories = ${config.exports_directories_only ? "True" : "False"},
     srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
     visibility = ["//:__subpackages__"],
 )
@@ -703,7 +706,9 @@ js_library(
 js_library(
     name = "${pkg._name}__typings",
     package_name = "${NODE_MODULES_PACKAGE_NAME}",
-    package_path = "${config.package_path}",${dtsStarlark}
+    package_path = "${config.package_path}",
+    source_directories = ${config.exports_directories_only ? "True" : "False"},
+    ${dtsStarlark}
 )
 
 `;
@@ -860,7 +865,9 @@ function printScope(scope, pkgs) {
 js_library(
     name = "${scope}",
     package_name = "${NODE_MODULES_PACKAGE_NAME}",
-    package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
+    package_path = "${config.package_path}",
+    source_directories = ${config.exports_directories_only ? "True" : "False"},
+    ${pkgFilesStarlark}${depsStarlark}
 )
 
 `;

@@ -7,8 +7,9 @@ filegroup(
 )
 js_library(
     name = "core",
-    package_name = "$node_modules_dir$",
+    package_name = "$node_modules$",
     package_path = "",
+    source_directories = True,
     srcs = [":core__files"],
     deps = [
         "//@angular/core:core__contents",
@@ -19,8 +20,9 @@ js_library(
 )
 js_library(
     name = "core__contents",
-    package_name = "$node_modules_dir$",
+    package_name = "$node_modules$",
     package_path = "",
+    source_directories = True,
     srcs = [":core__files"],
     visibility = ["//:__subpackages__"],
 )

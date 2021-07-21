@@ -7,8 +7,9 @@ filegroup(
 )
 js_library(
     name = "test-a",
-    package_name = "$node_modules_dir$",
+    package_name = "$node_modules$",
     package_path = "",
+    source_directories = True,
     srcs = [":test-a__files"],
     deps = [
         "//@gregmagolan/test-a:test-a__contents",
@@ -16,8 +17,9 @@ js_library(
 )
 js_library(
     name = "test-a__contents",
-    package_name = "$node_modules_dir$",
+    package_name = "$node_modules$",
     package_path = "",
+    source_directories = True,
     srcs = [":test-a__files"],
     visibility = ["//:__subpackages__"],
 )

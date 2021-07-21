@@ -70,8 +70,24 @@ If package_path is not set the this will be the root node_modules of the workspa
     ),
     "srcs": attr.label_list(allow_files = True),
     "strip_prefix": attr.string(
-        doc = "Path components to strip from the start of the package import path",
+        doc = """Path components to strip from the start of the package import path.
+
+This path is appended to the link_root when calculating the link path.""",
         default = "",
+    ),
+    "link_root": attr.string(
+        doc = """Path to link to from the root of the workspace.
+        
+If unset, the target's package name is used.""",
+        default = "<package_name>",
+    ),
+    "source_directories": attr.bool(
+        doc = """A hint that srcs have directories since this cannot be detected in the rule context.
+
+If True, all srcs and deps should be source files so that the linker can link to the source tree.
+
+When set, DeclarationInfo is always exported since we can't scan into directory sources for file extensions. In the future,
+if we can detect that a source is a directory this can be removed.""",
     ),
 }
 
@@ -102,23 +118,14 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
                 amd_names_shim_content += "define(\"%s\", function() { return %s });\n" % n
     actions.write(amd_names_shim, amd_names_shim_content)
 
-def _link_path(ctx, all_files):
-    link_path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
-
-    # Strip a prefix from the package require path
+def _link_path(ctx, link_to_bin):
+    link_root = ctx.label.package if ctx.attr.link_root == "<package_name>" else ctx.attr.link_root
+    if link_to_bin:
+        link_path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, link_root] if p])
+    else:
+        link_path = "/".join([p for p in [ctx.label.workspace_root, link_root] if p])
     if ctx.attr.strip_prefix:
         link_path += "/" + ctx.attr.strip_prefix
-
-        # Check that strip_prefix contains at least one src path
-        check_prefix = "/".join([p for p in [ctx.label.package, ctx.attr.strip_prefix] if p])
-        prefix_contains_src = False
-        for file in all_files:
-            if file.short_path.startswith(check_prefix):
-                prefix_contains_src = True
-                break
-        if not prefix_contains_src:
-            fail("js_library %s strip_prefix path does not contain any of the provided sources" % ctx.label)
-
     return link_path
 
 def _impl(ctx):
@@ -128,11 +135,21 @@ def _impl(ctx):
     js_files = []
     named_module_files = []
 
+    # check for special package_name values that denote an external npm package
+    external_npm_package = ctx.attr.package_name == "$node_modules$"
+
+    # link to bin unless this is an external npm package or source_directories is True
+    link_to_bin = not external_npm_package and not ctx.attr.source_directories
+
+    output_directories = False
     for idx, f in enumerate(input_files):
         file = f
 
+        if file.is_directory:
+            output_directories = True
+
         # copy files into bin if needed
-        if file.is_source and not file.path.startswith("external/"):
+        if link_to_bin and file.is_source:
             dst = ctx.actions.declare_file(file.basename, sibling = file)
             if ctx.attr.is_windows:
                 copy_cmd(ctx, file, dst)
@@ -168,6 +185,23 @@ def _impl(ctx):
 
         # every single file on bin should be added here
         all_files.append(file)
+
+    if not external_npm_package:
+        # check that at least one file falls in the link_path
+        link_root = ctx.label.package if ctx.attr.link_root == "<package_name>" else ctx.attr.link_root
+        link_path = "/".join([p for p in [link_root, ctx.attr.strip_prefix] if p])
+        if link_path:
+            link_path_contains_src = False
+            for file in all_files:
+                short_path = file.short_path
+                if file.short_path.startswith("../"):
+                    # special case for external repositories
+                    short_path = "/".join(short_path.split("/")[2:])
+                if short_path.startswith(link_path):
+                    link_path_contains_src = True
+                    break
+            if len(all_files) and not link_path_contains_src:
+                fail("js_library %s link path '%s' does not contain any of the provided sources" % (ctx.label, link_path))
 
     files_depset = depset(all_files)
     js_files_depset = depset(js_files)
@@ -226,7 +260,7 @@ def _impl(ctx):
         ),
     ]
 
-    if ctx.attr.package_name == "$node_modules$" or ctx.attr.package_name == "$node_modules_dir$":
+    if external_npm_package:
         # special case for external npm deps
         workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
         providers.append(ExternalNpmPackageInfo(
@@ -234,13 +268,13 @@ def _impl(ctx):
             sources = depset(transitive = npm_sources_depsets),
             workspace = workspace_name,
             path = ctx.attr.package_path,
-            has_directories = (ctx.attr.package_name == "$node_modules_dir$"),
+            has_directories = ctx.attr.source_directories,
         ))
     else:
         providers.append(LinkablePackageInfo(
             package_name = ctx.attr.package_name,
             package_path = ctx.attr.package_path,
-            path = _link_path(ctx, all_files),
+            path = _link_path(ctx, link_to_bin),
             files = depset(transitive = direct_sources_depsets),
         ))
 
@@ -253,9 +287,9 @@ def _impl(ctx):
             deps = ctx.attr.deps,
         ))
         providers.append(OutputGroupInfo(types = decls))
-    elif ctx.attr.package_name == "$node_modules_dir$":
-        # If this is directory artifacts npm package then always provide declaration_info
-        # since we can't scan through files
+    elif output_directories or ctx.attr.source_directories:
+        # If there are directories in this js_library then always provide declaration_info
+        # since we can't scan through files within directories
         decls = depset(transitive = files_depsets)
         providers.append(declaration_info(
             declarations = decls,
@@ -421,7 +455,7 @@ def js_library(
         # module_name for legacy ts_library module_mapping support
         # which is still being used in a couple of tests
         # TODO: remove once legacy module_mapping is removed
-        module_name = package_name if package_name != "$node_modules$" and package_name != "$node_modules_dir$" else None,
+        module_name = package_name if package_name != "$node_modules$" else None,
         is_windows = select({
             "@bazel_tools//src/conditions:host_windows": True,
             "//conditions:default": False,

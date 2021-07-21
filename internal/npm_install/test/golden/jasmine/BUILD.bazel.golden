@@ -59,6 +59,7 @@ js_library(
     name = "jasmine",
     package_name = "$node_modules$",
     package_path = "",
+    source_directories = False,
     srcs = [":jasmine__files"],
     deps = [
         "//jasmine:jasmine__contents",
@@ -79,6 +80,7 @@ js_library(
     name = "jasmine__contents",
     package_name = "$node_modules$",
     package_path = "",
+    source_directories = False,
     srcs = [":jasmine__files", ":jasmine__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )
@@ -86,6 +88,8 @@ js_library(
     name = "jasmine__typings",
     package_name = "$node_modules$",
     package_path = "",
+    source_directories = False,
+    
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

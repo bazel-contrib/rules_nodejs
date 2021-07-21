@@ -5,6 +5,8 @@ js_library(
     name = "@gregmagolan",
     package_name = "$node_modules$",
     package_path = "",
+    source_directories = False,
+    
     srcs = [
         "//@gregmagolan/test-a:test-a__files",
         "//@gregmagolan/test-b:test-b__files",

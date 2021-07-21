@@ -121,6 +121,7 @@ sh_test(
         "coarse.spec.js",
         "common.spec.js",
         "@fine_grained_deps_%s//:node_modules" % pkgmgr,
+        "@fine_grained_deps_%s//semver-alias" % pkgmgr,
     ],
     tags = ["no-local-jasmine-deps"],
     # TODO: get this test running with just linker: failing under --config=no-runfiles
@@ -155,6 +156,8 @@ sh_test(
         "@fine_grained_deps_%s//local-module" % pkgmgr,
         "@fine_grained_deps_%s//typescript" % pkgmgr,
         "@fine_grained_deps_%s//rxjs" % pkgmgr,
+        "@fine_grained_deps_%s//semver" % pkgmgr,
+        "@fine_grained_deps_%s//semver-alias" % pkgmgr,
         # Note, test-b depends on test-a@0.0.1 which should be
         # layed out at node_modules/test-b/node_modules/test-a
         "@fine_grained_deps_%s//@gregmagolan/test-b" % pkgmgr,

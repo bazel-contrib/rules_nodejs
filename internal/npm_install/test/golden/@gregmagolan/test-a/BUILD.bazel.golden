@@ -29,6 +29,7 @@ js_library(
     name = "test-a",
     package_name = "$node_modules$",
     package_path = "",
+    source_directories = False,
     srcs = [":test-a__files"],
     deps = [
         "//@gregmagolan/test-a:test-a__contents",
@@ -38,6 +39,7 @@ js_library(
     name = "test-a__contents",
     package_name = "$node_modules$",
     package_path = "",
+    source_directories = False,
     srcs = [":test-a__files", ":test-a__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )
@@ -45,6 +47,8 @@ js_library(
     name = "test-a__typings",
     package_name = "$node_modules$",
     package_path = "",
+    source_directories = False,
+    
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

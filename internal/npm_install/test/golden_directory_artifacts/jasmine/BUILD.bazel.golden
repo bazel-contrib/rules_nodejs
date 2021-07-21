@@ -7,8 +7,9 @@ filegroup(
 )
 js_library(
     name = "jasmine",
-    package_name = "$node_modules_dir$",
+    package_name = "$node_modules$",
     package_path = "",
+    source_directories = True,
     srcs = [":jasmine__files"],
     deps = [
         "//jasmine:jasmine__contents",
@@ -27,8 +28,9 @@ js_library(
 )
 js_library(
     name = "jasmine__contents",
-    package_name = "$node_modules_dir$",
+    package_name = "$node_modules$",
     package_path = "",
+    source_directories = True,
     srcs = [":jasmine__files"],
     visibility = ["//:__subpackages__"],
 )

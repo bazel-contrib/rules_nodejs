@@ -44,9 +44,24 @@ def npm_deps():
             "@test_multi_linker/lib-c2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_c",
             "@test_multi_linker/lib-d": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
             "@test_multi_linker/lib-d2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
+            "semver-alias": "@npm//:semver-alias",
         },
         package_json = "//:package.json",
         yarn_lock = "//:yarn.lock",
+        manual_build_file_contents = """
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "semver-alias",
+    package_name = "semver-alias",
+    srcs = [
+        "node_modules/semver/package.json",
+        "node_modules/semver/semver.js",
+        "node_modules/semver/bin/semver",
+    ],
+    link_root = "node_modules/semver",
+    visibility = ["//semver-alias:__pkg__"],
+)
+""",
     )
 
     yarn_install(
@@ -88,11 +103,23 @@ def npm_deps():
             "@test_multi_linker/lib-c2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_c",
             "@test_multi_linker/lib-d": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
             "@test_multi_linker/lib-d2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
+            "semver-alias": "@npm_directory_artifacts//:semver-alias",
         },
         symlink_node_modules = False,
         exports_directories_only = True,
         package_json = "//:package.json",
         yarn_lock = "//:yarn.lock",
+        manual_build_file_contents = """
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "semver-alias",
+    package_name = "semver-alias",
+    srcs = ["node_modules/semver"],
+    link_root = "node_modules/semver",
+    visibility = ["//semver-alias:__pkg__"],
+    source_directories = True,
+)
+""",
     )
 
     yarn_install(
@@ -244,6 +271,23 @@ def npm_deps():
         package_json = "//:tools/fine_grained_deps_yarn/package.json",
         symlink_node_modules = False,
         yarn_lock = "//:tools/fine_grained_deps_yarn/yarn.lock",
+        links = {
+            "semver-alias": "@fine_grained_deps_yarn//:semver-alias",
+        },
+        manual_build_file_contents = """
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "semver-alias",
+    package_name = "semver-alias",
+    srcs = [
+        "node_modules/semver/package.json",
+        "node_modules/semver/semver.js",
+        "node_modules/semver/bin/semver",
+    ],
+    link_root = "node_modules/semver",
+    visibility = ["//semver-alias:__pkg__"],
+)
+""",
     )
 
     npm_install(
@@ -269,6 +313,23 @@ def npm_deps():
         package_json = "//:tools/fine_grained_deps_npm/package.json",
         package_lock_json = "//:tools/fine_grained_deps_npm/package-lock.json",
         symlink_node_modules = False,
+        links = {
+            "semver-alias": "@fine_grained_deps_npm//:semver-alias",
+        },
+        manual_build_file_contents = """
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "semver-alias",
+    package_name = "semver-alias",
+    srcs = [
+        "node_modules/semver/package.json",
+        "node_modules/semver/semver.js",
+        "node_modules/semver/bin/semver",
+    ],
+    link_root = "node_modules/semver",
+    visibility = ["//semver-alias:__pkg__"],
+)
+""",
     )
 
     yarn_install(
@@ -285,6 +346,20 @@ def npm_deps():
         package_json = "//:tools/fine_grained_deps_yarn/package.json",
         symlink_node_modules = False,
         yarn_lock = "//:tools/fine_grained_deps_yarn/yarn.lock",
+        links = {
+            "semver-alias": "@fine_grained_deps_yarn_directory_artifacts//:semver-alias",
+        },
+        manual_build_file_contents = """
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "semver-alias",
+    package_name = "semver-alias",
+    srcs = ["node_modules/semver"],
+    link_root = "node_modules/semver",
+    visibility = ["//semver-alias:__pkg__"],
+    source_directories = True,
+)
+""",
     )
 
     npm_install(
@@ -302,6 +377,20 @@ def npm_deps():
         package_json = "//:tools/fine_grained_deps_npm/package.json",
         package_lock_json = "//:tools/fine_grained_deps_npm/package-lock.json",
         symlink_node_modules = False,
+        links = {
+            "semver-alias": "@fine_grained_deps_npm_directory_artifacts//:semver-alias",
+        },
+        manual_build_file_contents = """
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+js_library(
+    name = "semver-alias",
+    package_name = "semver-alias",
+    srcs = ["node_modules/semver"],
+    link_root = "node_modules/semver",
+    visibility = ["//semver-alias:__pkg__"],
+    source_directories = True,
+)
+""",
     )
 
     yarn_install(

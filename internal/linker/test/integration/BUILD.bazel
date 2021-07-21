@@ -67,6 +67,7 @@ linked(
         "//internal/linker/test/integration/dynamic_linked_pkg",
         "//internal/linker/test/integration/dynamic_linked_scoped_pkg",
         "@npm//semver",
+        "@npm//semver-alias",
     ],
 )
 
@@ -98,6 +99,7 @@ linked(
         "//internal/linker/test/integration/dynamic_linked_pkg",
         "//internal/linker/test/integration/dynamic_linked_scoped_pkg",
         "@npm//semver",
+        "@npm//semver-alias",
     ],
 )
 
@@ -125,6 +127,7 @@ linked(
         "//internal/linker/test/integration/dynamic_linked_pkg",
         "//internal/linker/test/integration/dynamic_linked_scoped_pkg",
         "@npm//semver",
+        "@npm//semver-alias",
     ],
 )
 

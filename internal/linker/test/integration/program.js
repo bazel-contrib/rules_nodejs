@@ -1,3 +1,5 @@
+const assert = require('assert')
+
 // First-party "static linked" packages
 // they should get resolved through runfiles
 const a = require('static_linked');
@@ -23,7 +25,17 @@ try {
 }
 
 // Third-party package installed in the root node_modules
-const semver = require('semver');
+const semver = require('semver-alias');
+
+const semverVersion = require(require.resolve('semver/package.json')).version;
+assert.ok(
+  semver.gte(semverVersion, '5.0.0'),
+  `expected semverVersion to be the root @npm version >= 5.0.0`)
+
+const semverAliasVersion = require(require.resolve('semver-alias/package.json')).version;
+assert.ok(
+  semver.gte(semverAliasVersion, '5.0.0'),
+  `expected semverAliasVersion to be the root @npm version >= 5.0.0`)
 
 // This output should match what's in the golden.txt file
 console.log(t.addT(e.addE(d.addD(c.addC(b.addB(a.addA(semver.clean(' =v1.2.3 '))))))));
