@@ -12,7 +12,7 @@ bazel_download = repository_rule(
     doc = """Utility to call Bazel downloader.
 
     This is a simple pass-thru wrapper for Bazel's
-    [repository_ctx#download](https://docs.bazel.build/versions/master/skylark/lib/repository_ctx.html#download)
+    [repository_ctx#download](https://docs.bazel.build/versions/main/skylark/lib/repository_ctx.html#download)
     function.
     """,
     implementation = _bazel_download,

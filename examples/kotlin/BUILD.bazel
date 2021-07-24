@@ -1,5 +1,5 @@
 # Add rules here to build your software
-# See https://docs.bazel.build/versions/master/build-ref.html#BUILD_files
+# See https://docs.bazel.build/versions/main/build-ref.html#BUILD_files
 
 load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "pkg_web")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_js_import", "kt_js_library")

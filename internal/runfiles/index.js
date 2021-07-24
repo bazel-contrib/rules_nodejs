@@ -110,7 +110,7 @@ class Runfiles {
     }
     /**
      * The runfiles manifest maps from short_path
-     * https://docs.bazel.build/versions/master/skylark/lib/File.html#short_path
+     * https://docs.bazel.build/versions/main/skylark/lib/File.html#short_path
      * to the actual location on disk where the file can be read.
      *
      * In a sandboxed execution, it does not exist. In that case, runfiles must be

@@ -27,8 +27,8 @@ def expand_variables(ctx, s, outs = [], output_dir = False):
       - $(RULEDIR): The output directory of the rule, that is, the directory
         corresponding to the name of the package containing the rule under the bin tree.
 
-    See https://docs.bazel.build/versions/master/be/general.html#genrule.cmd and
-    https://docs.bazel.build/versions/master/be/make-variables.html#predefined_genrule_variables
+    See https://docs.bazel.build/versions/main/be/general.html#genrule.cmd and
+    https://docs.bazel.build/versions/main/be/make-variables.html#predefined_genrule_variables
     for more information of how these special variables are expanded.
     """
     rule_dir = [f for f in [

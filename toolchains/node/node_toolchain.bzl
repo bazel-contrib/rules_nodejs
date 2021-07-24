@@ -53,7 +53,7 @@ def _node_toolchain_impl(ctx):
             ),
         ),
         # Make the $(NODE_PATH) variable available in places like genrules.
-        # See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables
+        # See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables
         platform_common.TemplateVariableInfo({
             "NODE_PATH": target_tool_path,
         }),
@@ -74,6 +74,6 @@ node_toolchain = rule(
     },
     doc = """Defines a node toolchain.
 
-For usage see https://docs.bazel.build/versions/master/toolchains.html#defining-toolchains.
+For usage see https://docs.bazel.build/versions/main/toolchains.html#defining-toolchains.
 """,
 )

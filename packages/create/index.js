@@ -36,7 +36,7 @@ function validateWorkspaceName(name, error) {
   It should describe the project in reverse-DNS form, with elements separated by underscores.
   For example, if a project is hosted at example.com/some-project,
   you might use com_example_some_project as the workspace name.
-  From https://docs.bazel.build/versions/master/be/functions.html#workspace`);
+  From https://docs.bazel.build/versions/main/be/functions.html#workspace`);
 
   return false;
 }
@@ -104,7 +104,7 @@ function main(argv, error = console.error, log = console.log) {
     '@bazel/buildifier': 'latest',
   };
   let rootBuildContent = '# Add rules here to build your software\n' +
-      '# See https://docs.bazel.build/versions/master/build-ref.html#BUILD_files\n\n';
+      '# See https://docs.bazel.build/versions/main/build-ref.html#BUILD_files\n\n';
 
   if (args['typescript']) {
     devDependencies['@bazel/typescript'] = 'latest';
@@ -173,7 +173,7 @@ def fetch_dependencies():
   let workspaceContent = `# Bazel workspace created by @bazel/create 0.0.0-PLACEHOLDER
 
 # Declares that this directory is the root of a Bazel workspace.
-# See https://docs.bazel.build/versions/master/build-ref.html#workspace
+# See https://docs.bazel.build/versions/main/build-ref.html#workspace
 workspace(
     # How this workspace would be referenced with absolute labels from another workspace
     name = "${wkspName}",
