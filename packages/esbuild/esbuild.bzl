@@ -37,7 +37,7 @@ def _esbuild_impl(ctx):
             for key, value in getattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME).items():
                 # key is of format "package_name:package_path"
                 package_name = key.split(":")[0]
-                path_alias_mappings.update(generate_path_mapping(package_name, value[1].replace(ctx.bin_dir.path + "/", "")))
+                path_alias_mappings.update(generate_path_mapping(package_name, value.replace(ctx.bin_dir.path + "/", "")))
 
     entry_points = desugar_entry_point_names(ctx.file.entry_point, ctx.files.entry_points)
 
