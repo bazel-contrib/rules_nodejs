@@ -13,7 +13,7 @@ const sha256 = hash.update(fs.readFileSync(artifact)).digest('hex');
 
 for (const f of ['docs/install.md', 'packages/create/index.js']) {
   shell.sed(
-      '-i', 'download/[0-9\.]*(-rc.[0-9]+)?/rules_nodejs-[0-9\.]*(-rc.[0-9]+)?.tar.gz',
+      '-i', 'download/[0-9\.]*(-(beta|rc).[0-9]+)?/rules_nodejs-[0-9\.]*(-(beta|rc).[0-9]+)?.tar.gz',
       `download/${version}/rules_nodejs-${version}.tar.gz`, f);
   shell.sed('-i', 'sha256 = \"[0-9a-f]+\"', `sha256 = "${sha256}"`, f);
 }
