@@ -1,3 +1,19 @@
+# [4.0.0-beta.1](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0-beta.0...4.0.0-beta.1) (2021-07-27)
+
+
+### Bug Fixes
+
+* add missing SHA for rules_proto ([#2830](https://github.com/bazelbuild/rules_nodejs/issues/2830)) ([e822b95](https://github.com/bazelbuild/rules_nodejs/commit/e822b95))
+* **esbuild:** generate correct path mappings as mappings aspect no longer produces an array ([#2834](https://github.com/bazelbuild/rules_nodejs/issues/2834)) ([b79e3f4](https://github.com/bazelbuild/rules_nodejs/commit/b79e3f4))
+* **typescript:** fix bug in ts_project (write_tsconfig_rule) when extending from a generated tsconfig in same folder ([4e396eb](https://github.com/bazelbuild/rules_nodejs/commit/4e396eb))
+
+
+### Features
+
+* **builtin:** add package_json_remove and package_json_replace attributes to yarn_install & npm_install ([b68be36](https://github.com/bazelbuild/rules_nodejs/commit/b68be36))
+
+
+
 # [4.0.0-beta.0](https://github.com/bazelbuild/rules_nodejs/compare/3.5.0...4.0.0-beta.0) (2021-07-02)
 
 
