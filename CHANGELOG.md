@@ -1,3 +1,12 @@
+# [4.0.0-beta.2](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0-beta.1...4.0.0-beta.2) (2021-07-27)
+
+
+### Bug Fixes
+
+* version script should replace beta versions ([f956656](https://github.com/bazelbuild/rules_nodejs/commit/f956656))
+
+
+
 # [4.0.0-beta.1](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0-beta.0...4.0.0-beta.1) (2021-07-27)
 
 

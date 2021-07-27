@@ -157,8 +157,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 def fetch_dependencies():
     http_archive(
         name = "build_bazel_rules_nodejs",
-        sha256 = "4681ca88d512d57196d064d1441549080d8d17d119174a1229d1717a16a4a489",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.0.0-beta.0/rules_nodejs-4.0.0-beta.0.tar.gz"],
+        sha256 = "612aaac61e51789c595c9c8ef24580808256ad3b1b162ba5a9c8b2c048a2e07e",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.0.0-beta.2/rules_nodejs-4.0.0-beta.2.tar.gz"],
     )
 
     # rules_nodejs doesn't depend on skylib, but it's a useful dependency anyway.
@@ -168,7 +168,7 @@ def fetch_dependencies():
             "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
             "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
         ],
-        sha256 = "4681ca88d512d57196d064d1441549080d8d17d119174a1229d1717a16a4a489",
+        sha256 = "612aaac61e51789c595c9c8ef24580808256ad3b1b162ba5a9c8b2c048a2e07e",
     )`
   let workspaceContent = `# Bazel workspace created by @bazel/create 0.0.0-PLACEHOLDER
 
