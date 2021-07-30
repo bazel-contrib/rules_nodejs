@@ -104,7 +104,7 @@ def _collect_dep_declarations(ctx, declaration_infos):
         transitive_deps_declarations.append(ctx.attr._typescript_typings[DeclarationInfo].transitive_declarations)
 
     # .d.ts files whose types tsickle will not emit (used for ts_declaration(generate_externs=False).
-    type_blacklisted_declarations = [dep.type_blacklisted_declarations for dep in declaration_infos]
+    type_blocklisted_declarations = [dep.type_blocklisted_declarations for dep in declaration_infos]
 
     # If a tool like github.com/angular/clutz can create .d.ts from type annotated .js
     # its output will be collected here.
@@ -112,7 +112,7 @@ def _collect_dep_declarations(ctx, declaration_infos):
     return DeclarationInfo(
         declarations = depset(transitive = direct_deps_declarations),
         transitive_declarations = depset(ctx.files._additional_d_ts, transitive = transitive_deps_declarations),
-        type_blacklisted_declarations = depset(transitive = type_blacklisted_declarations),
+        type_blocklisted_declarations = depset(transitive = type_blocklisted_declarations),
     )
 
 def _should_generate_externs(ctx):
@@ -278,9 +278,9 @@ def compile_ts(
 
     dep_declarations = _collect_dep_declarations(ctx, declaration_infos)
 
-    type_blacklisted_declarations = dep_declarations.type_blacklisted_declarations
+    type_blocklisted_declarations = dep_declarations.type_blocklisted_declarations
     if not is_library and not _should_generate_externs(ctx):
-        type_blacklisted_declarations = depset(srcs_files, transitive = [type_blacklisted_declarations])
+        type_blocklisted_declarations = depset(srcs_files, transitive = [type_blocklisted_declarations])
 
     # The depsets of output files. These are the files that are always built
     # (including e.g. if you "blaze build :the_target" directly).
@@ -314,7 +314,7 @@ def compile_ts(
         srcs_files,
         jsx_factory = jsx_factory,
         tsickle_externs = tsickle_externs_path,
-        type_blacklisted_declarations = type_blacklisted_declarations.to_list(),
+        type_blocklisted_declarations = type_blocklisted_declarations.to_list(),
         allowed_deps = allowed_deps,
     )
 
@@ -448,7 +448,7 @@ def compile_ts(
     declarations_provider = DeclarationInfo(
         declarations = depset(transitive = declarations_depsets),
         transitive_declarations = transitive_decls,
-        type_blacklisted_declarations = type_blacklisted_declarations,
+        type_blocklisted_declarations = type_blocklisted_declarations,
     )
 
     # @unsorted-dict-items

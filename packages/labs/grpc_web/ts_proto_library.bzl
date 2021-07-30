@@ -201,7 +201,7 @@ def _ts_proto_library_impl(ctx):
         DeclarationInfo(
             declarations = dts_outputs,
             transitive_declarations = transitive_declarations,
-            type_blacklisted_declarations = depset([]),
+            type_blocklisted_declarations = depset([]),
         ),
     ]
 
