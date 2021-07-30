@@ -174,7 +174,7 @@ def _ts_project_impl(ctx):
         json_outs = [
             ctx.actions.declare_file(_join(ctx.attr.out_dir, src.short_path[pkg_len:]))
             for src in ctx.files.srcs
-            if src.basename.endswith(".json")
+            if src.basename.endswith(".json") and src.is_source
         ]
     else:
         json_outs = []
