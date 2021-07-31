@@ -85,7 +85,7 @@ genrule(
     outs = [
         "test-pkg.tgz",
     ],
-    cmd = "$(location :test_pkg.pack) && cp test-pkg-1.2.3.tgz $@",
+    cmd = "export HOME='.' && $(location :test_pkg.pack) && cp test-pkg-1.2.3.tgz $@",
     tags = ["no-rbe"],
     tools = [
         ":test_pkg.pack",

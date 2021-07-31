@@ -29,9 +29,7 @@ workspace(
 load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS", "node_repositories")
 
 node_repositories(
-    node_version = "12.14.1",
-    # TODO(alexeagle): upgrade to Node 16 to get native Mac M1 support
-    # node_version = "16.3.0",
+    node_version = "16.5.0",
 )
 
 #
