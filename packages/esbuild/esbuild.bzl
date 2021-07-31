@@ -152,6 +152,14 @@ def _esbuild_impl(ctx):
         inputs.append(ctx.file.args_file)
         launcher_args.add("--user_args=%s" % ctx.file.args_file.path)
 
+    if ctx.attr.config:
+        configs = ctx.attr.config[JSEcmaScriptModuleInfo].sources.to_list()
+        if len(configs) != 1:
+            fail("Expected only one source file: the configuration entrypoint")
+
+        inputs.append(configs[0])
+        launcher_args.add("--config_file=%s" % configs[0].path)
+
     run_node(
         ctx = ctx,
         inputs = depset(inputs),
@@ -188,7 +196,7 @@ Values are subject to $(location ...) expansion""",
         "args_file": attr.label(
             allow_single_file = True,
             mandatory = False,
-            doc = "A JSON file containing additional arguments that are passed to esbuild. Note: only one of args or args_file may be set",
+            doc = "Internal use only",
         ),
         "define": attr.string_dict(
             default = {},
@@ -333,6 +341,13 @@ edge16, node10, esnext). Default es2015.
 See https://esbuild.github.io/api/#target for more details
             """,
         ),
+        "config": attr.label(
+            providers = [JSEcmaScriptModuleInfo],
+            mandatory = False,
+            doc = """Configuration file used for esbuild, from the esbuild_config macro. Note that options set in this file may get overwritten.
+See https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/esbuild/test/plugins/BUILD.bazel for examples of using esbuild_config and plugins.
+            """,
+        ),
     },
     implementation = _esbuild_impl,
     toolchains = [
@@ -367,12 +382,12 @@ def esbuild_macro(name, output_dir = False, splitting = False, **kwargs):
     deps = kwargs.pop("deps", []) + ["@esbuild_npm//esbuild"]
     entry_points = kwargs.get("entry_points", None)
 
-    args = kwargs.pop("args", {})
+    # TODO(mattem): remove `args` and `args_file` in 5.x and everything can go via `config`
     args_file = kwargs.pop("args_file", None)
+    if args_file:
+        fail("Setting 'args_file' is not supported, set 'config' instead")
 
-    if args and args_file:
-        fail("Both 'args' and 'args_file' attributes set, these are mutually exclusive")
-
+    args = kwargs.pop("args", {})
     if args:
         if type(args) != type(dict()):
             fail("Expected 'args' to be of type dict")
@@ -384,6 +399,11 @@ def esbuild_macro(name, output_dir = False, splitting = False, **kwargs):
             args = [json.encode(args)],
             data = deps + srcs,
         )
+
+    config = kwargs.pop("config", None)
+    if config:
+        kwargs.setdefault("config", config)
+        deps.append("%s_deps" % config)
 
     if output_dir == True or entry_points or splitting == True:
         esbuild(
