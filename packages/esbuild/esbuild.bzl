@@ -6,7 +6,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "params_file")
 load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//packages/esbuild/toolchain:toolchain.bzl", "TOOLCHAIN")
-load(":helpers.bzl", "desugar_entry_point_names", "filter_files", "generate_path_mapping", "resolve_entry_point", "write_args_file", "write_jsconfig_file")
+load(":helpers.bzl", "desugar_entry_point_names", "filter_files", "generate_path_mapping", "make_deps_target", "resolve_entry_point", "write_args_file", "write_jsconfig_file")
 
 def _esbuild_impl(ctx):
     # For each dep, JSEcmaScriptModuleInfo is used if found, then JSModuleInfo and finally
@@ -154,8 +154,13 @@ def _esbuild_impl(ctx):
 
     if ctx.attr.config:
         configs = ctx.attr.config[JSEcmaScriptModuleInfo].sources.to_list()
+<<<<<<< HEAD
         if len(configs) != 1:
             fail("Expected only one source file: the configuration entrypoint")
+=======
+        if len(configs) > 1:
+            fail("Expected only one source file the configuration entrypoint")
+>>>>>>> feat(esbuild): add support for plugins via supplying a configuration file
 
         inputs.append(configs[0])
         launcher_args.add("--config_file=%s" % configs[0].path)

@@ -8,6 +8,9 @@ TS_EXTENSIONS = ["ts", "tsx"]
 JS_EXTENSIONS = ["js", "jsx", "mjs"]
 ALLOWED_EXTENSIONS = JS_EXTENSIONS + TS_EXTENSIONS
 
+def make_deps_target(name):
+    return name + "_deps"
+
 def strip_ext(f):
     "Strips the extension of a file."
     return f.short_path[:-len(f.extension) - 1]
