@@ -86,7 +86,7 @@ genrule(
         "test-pkg.tgz",
     ],
     cmd = "$(location :test_pkg.pack) && cp test-pkg-1.2.3.tgz $@",
-    tags = ["pkg_npm.pack"],
+    tags = ["no-rbe"],
     tools = [
         ":test_pkg.pack",
     ],
@@ -103,7 +103,7 @@ sh_test(
         ":gen_test_pkg_pack",
         ":test_pkg",
     ],
-    tags = ["pkg_npm.pack"],
+    tags = ["no-rbe"],
 )
 
 jasmine_node_test(
