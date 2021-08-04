@@ -102,7 +102,7 @@ const patcher = (fs = fs__default['default'], roots) => {
                 return origReadlink(args[0], (err, str) => {
                     if (err) {
                         if (err.code === 'ENOENT') {
-                            return cb(false, stats);
+                            return cb(null, stats);
                         }
                         else if (err.code === 'EINVAL') {
                             // readlink only returns einval when the target is not a link.
@@ -128,7 +128,7 @@ const patcher = (fs = fs__default['default'], roots) => {
                         });
                     }
                     // its a symlink and its inside of the root.
-                    cb(false, stats);
+                    cb(null, stats);
                 });
             };
         }
@@ -143,10 +143,10 @@ const patcher = (fs = fs__default['default'], roots) => {
                 if (err)
                     return cb(err);
                 if (isEscape(str, args[0])) {
-                    cb(false, path__default['default'].resolve(args[0]));
+                    cb(null, path__default['default'].resolve(args[0]));
                 }
                 else {
-                    cb(false, str);
+                    cb(null, str);
                 }
             };
         }
@@ -161,10 +161,10 @@ const patcher = (fs = fs__default['default'], roots) => {
                     if (err)
                         return cb(err);
                     if (isEscape(str, args[0])) {
-                        cb(false, path__default['default'].resolve(args[0]));
+                        cb(null, path__default['default'].resolve(args[0]));
                     }
                     else {
-                        cb(false, str);
+                        cb(null, str);
                     }
                 };
             }
@@ -188,7 +188,7 @@ const patcher = (fs = fs__default['default'], roots) => {
                     // if its not supposed to be a link we have to trigger an EINVAL error.
                     return cb(e);
                 }
-                cb(false, str);
+                cb(null, str);
             };
         }
         origReadlink(...args);

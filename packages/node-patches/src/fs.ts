@@ -79,7 +79,7 @@ export const patcher = (fs: any = _fs, roots: string[]) => {
         return origReadlink(args[0], (err: Error&{code: string}, str: string) => {
           if (err) {
             if (err.code === 'ENOENT') {
-              return cb(false, stats);
+              return cb(null, stats);
             } else if (err.code === 'EINVAL') {
               // readlink only returns einval when the target is not a link.
               // so if we found a link and it's no longer a link someone raced file system
@@ -105,7 +105,7 @@ export const patcher = (fs: any = _fs, roots: string[]) => {
             });
           }
           // its a symlink and its inside of the root.
-          cb(false, stats);
+          cb(null, stats);
         });
       };
     }
@@ -120,9 +120,9 @@ export const patcher = (fs: any = _fs, roots: string[]) => {
       args[args.length - 1] = (err: Error, str: string) => {
         if (err) return cb(err);
         if (isEscape(str, args[0])) {
-          cb(false, path.resolve(args[0]));
+          cb(null, path.resolve(args[0]));
         } else {
-          cb(false, str);
+          cb(null, str);
         }
       };
     }
@@ -137,9 +137,9 @@ export const patcher = (fs: any = _fs, roots: string[]) => {
           args[args.length - 1] = (err: Error, str: string) => {
             if (err) return cb(err);
             if (isEscape(str, args[0])) {
-              cb(false, path.resolve(args[0]));
+              cb(null, path.resolve(args[0]));
             } else {
-              cb(false, str);
+              cb(null, str);
             }
           };
         }
@@ -164,7 +164,7 @@ export const patcher = (fs: any = _fs, roots: string[]) => {
               // if its not supposed to be a link we have to trigger an EINVAL error.
               return cb(e);
             }
-            cb(false, str);
+            cb(null, str);
           };
         }
         origReadlink(...args);
