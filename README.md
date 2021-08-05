@@ -20,7 +20,7 @@ If you use code from an `/internal` path, or the labs package, these are not sub
 ## Documentation
 
 Comprehensive documentation for installing and using the rules, including generated API docs:
-https://docs.aspect.dev/rules_nodejs/
+https://bazelbuild.github.io/rules_nodejs/
 
 ## Quickstart
 

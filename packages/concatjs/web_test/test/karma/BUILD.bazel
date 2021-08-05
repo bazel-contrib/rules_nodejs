@@ -41,7 +41,10 @@ karma_web_test_suite(
         # in "tslib" transitively.
         "init-test.js",
     ],
-    tags = ["native"],
+    tags = [
+        "native",
+        "no-rbe",
+    ],
     deps = [
         "init-test.js",
         "requirejs-config.js",
@@ -66,6 +69,7 @@ custom_browser(
     name = "custom_chrome",
     browser = "@io_bazel_rules_webtesting//browsers:chromium-local",
     metadata = "custom_chrome.json",
+    tags = ["no-rbe"],
 )
 
 generated_file_test(
