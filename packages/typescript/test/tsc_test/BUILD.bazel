@@ -1,0 +1,12 @@
+load("@npm//typescript:index.bzl", "tsc_test")
+
+# Bazel only runs actions as required to produce requested outputs.
+# If we don't want TypeScript to emit anything at all, even .d.ts files,
+# then we can't make it a build step as it will never run.
+# Instead we invoke the bare `tsc` binary as a *_test rule, so that Bazel
+# always runs it to produce an exit code.
+tsc_test(
+    name = "typecheck_only",
+    args = ["$(location check_me.ts)"],
+    data = ["check_me.ts"],
+)
