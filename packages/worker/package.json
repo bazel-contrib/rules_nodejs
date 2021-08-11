@@ -16,8 +16,5 @@
     },
     "keywords": [
         "bazel"
-    ],
-    "scripts": {
-      "postinstall": "node npm_version_check.js"
-    }
+    ]
 }
