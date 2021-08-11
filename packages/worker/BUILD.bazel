@@ -45,12 +45,6 @@ copy_file(
     out = "%s/worker_protocol.proto" % _worker_proto_dir,
 )
 
-copy_file(
-    name = "npm_version_check",
-    src = "//internal:npm_version_check.js",
-    out = ":npm_version_check.js",
-)
-
 pkg_npm(
     name = "npm_package",
     srcs = [
@@ -70,6 +64,5 @@ pkg_npm(
         ":copy_worker_dts",
         ":copy_worker_js",
         ":copy_worker_proto",
-        ":npm_version_check",
     ],
 )
