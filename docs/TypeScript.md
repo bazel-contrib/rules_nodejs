@@ -39,6 +39,20 @@ Then call it, using the [`npm_package_bin`](Built-ins#npm_package_bin) documenta
 Here is an example:
 https://github.com/bazelbuild/rules_nodejs/blob/3.2.2/internal/node/test/BUILD.bazel#L491-L507
 
+### tsc_test
+
+`tsc_test` is generated alongside `tsc`.
+It is identical, except that Bazel treats it as a test target, producing only an exit code
+rather than files to be consumed by other steps in the build.
+
+This can be used for a build with `--noEmit`, so that TypeScript is purely used for
+type-checking and not for producing any build outputs.
+
+To use it, add the load statement `load("@npm//typescript:index.bzl", "tsc_test")` to your BUILD file.
+(Possibly replacing `@npm` with the name of the repository where you installed dependencies)
+
+See example in https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/tsc_test
+
 ### ts_project
 
 `ts_project` simply runs `tsc --project`, with Bazel knowing which outputs to expect based on the TypeScript compiler options,
@@ -138,6 +152,10 @@ your editor references, or `extends` from it, to keep consistent settings for th
 
 Anything you do with TypeScript is possible with `ts_project`, including json imports, type-checking only,
 transpile only, outdir, rootdir, and so on.
+
+> To use `ts_project` for typecheck-only, you'll still need to use --declaration so that .d.ts files are produced.
+> Alternatively, see the `tsc_test` rule documented above.
+
 See many examples in our test cases:
 https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project
 
