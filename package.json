@@ -35,7 +35,7 @@
         "@rollup/plugin-node-resolve": "8.4.0",
         "@types/hammerjs": "2.0.35",
         "@types/jasmine": "~3.3.13",
-        "@types/node": "^15.12.2",
+        "@types/node": "12.12.4",
         "@types/semver": "6.2.0",
         "babel-jest": "^27.0.6",
         "bazel_workspaces_consistent": "file:./tools/npm_packages/bazel_workspaces_consistent",
