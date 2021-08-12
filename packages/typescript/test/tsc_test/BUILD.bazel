@@ -7,6 +7,7 @@ load("@npm//typescript:index.bzl", "tsc_test")
 # always runs it to produce an exit code.
 tsc_test(
     name = "typecheck_only",
-    args = ["$(location check_me.ts)"],
+    args = ["$(execpath check_me.ts)"],
     data = ["check_me.ts"],
+    tags = ["no-bazelci-windows"],
 )
