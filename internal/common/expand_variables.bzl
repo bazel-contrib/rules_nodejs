@@ -15,7 +15,7 @@
 """Helper functions to expand "make" variables of form $(VAR)
 """
 
-def expand_variables(ctx, s, outs = [], output_dir = False):
+def expand_variables(ctx, s, outs = [], output_dir = False, attribute_name = "args"):
     """This function is the same as ctx.expand_make_variables with the additional
     genrule-like substitutions of:
 
@@ -67,4 +67,4 @@ def expand_variables(ctx, s, outs = [], output_dir = False):
     additional_substitutions["@D"] = "/".join([o for o in output_dir if o])
     additional_substitutions["RULEDIR"] = "/".join([o for o in rule_dir if o])
 
-    return ctx.expand_make_variables("args", s, additional_substitutions)
+    return ctx.expand_make_variables(attribute_name, s, additional_substitutions)
