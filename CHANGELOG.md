@@ -1,3 +1,18 @@
+# [3.8.0](https://github.com/bazelbuild/rules_nodejs/compare/3.7.0...3.8.0) (2021-08-12)
+
+
+### Bug Fixes
+
+* remove current directory prefix when running from execroot ([6be5186](https://github.com/bazelbuild/rules_nodejs/commit/6be5186))
+* **builtin:** correctly calculate pkg._directDependency when a mapped node_module is used ([9e23f8a](https://github.com/bazelbuild/rules_nodejs/commit/9e23f8a))
+* **labs:** fix ts_proto_library handling of external proto_library ([57c6576](https://github.com/bazelbuild/rules_nodejs/commit/57c6576))
+* **runfiles:** don't use false as a no-error value ([#2837](https://github.com/bazelbuild/rules_nodejs/issues/2837)) ([be8b27c](https://github.com/bazelbuild/rules_nodejs/commit/be8b27c))
+* **typescript:** do not re-declare .json output files in srcs if they are already generated files ([6508c6a](https://github.com/bazelbuild/rules_nodejs/commit/6508c6a))
+* **typescript:** document tsc_test for typecheck-only ([bc4d34a](https://github.com/bazelbuild/rules_nodejs/commit/bc4d34a))
+* **typescript:** fix bug in ts_project (write_tsconfig_rule) when extending from a generated tsconfig in same folder ([10cca5c](https://github.com/bazelbuild/rules_nodejs/commit/10cca5c))
+
+
+
 # [3.7.0](https://github.com/bazelbuild/rules_nodejs/compare/3.6.0...3.7.0) (2021-07-02)
 
 
