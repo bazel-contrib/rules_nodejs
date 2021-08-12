@@ -24,7 +24,7 @@ function getEsbuildArgs(paramsFilePath) {
   }
 }
 
-async function processConfigFile(configFilePath) {
+async function processConfigFile(configFilePath, existingArgs = {}) {
   const fullConfigFileUrl = pathToFileURL(join(process.cwd(), configFilePath));
   let config;
   try {
@@ -44,7 +44,6 @@ async function processConfigFile(configFilePath) {
   // These keys of the config can not be overriden
   const IGNORED_CONFIG_KEYS = [
     'bundle',
-    'define',
     'entryPoints',
     'external',
     'metafile',
@@ -56,9 +55,31 @@ async function processConfigFile(configFilePath) {
     'tsconfig',
   ];
 
+  const MERGE_CONFIG_KEYS = [
+    'define',
+  ];
+
   return Object.entries(config).reduce((prev, [key, value]) => {
+    if (value === null || value === void 0) {
+      return prev;
+    }
+
     if (IGNORED_CONFIG_KEYS.includes(key)) {
       console.error(`[WARNING] esbuild configuration property '${key}' from '${configFilePath}' will be ignored and overriden`);
+    } else if (MERGE_CONFIG_KEYS.includes(key) && existingArgs.hasOwnProperty(key)) {
+      // values from the rule override the config file
+      // perform a naive merge
+      if (Array.isArray(value)) {
+        prev[key] = [...value, ...existingArgs[key]];
+      } else if (typeof value === 'object') {
+        prev[key] = {
+          ...value,
+          ...existingArgs[key],
+        }
+      } else {
+        // can't merge
+        console.error(`[WARNING] esbuild configuration property '${key}' from '${configFilePath}' could not be merged`);
+      }
     } else {
       prev[key] = value;
     }
@@ -80,7 +101,7 @@ async function runOneBuild(args, userArgsFilePath, configFilePath) {
   }
   
   if (configFilePath) {
-    const config = await processConfigFile(configFilePath);
+    const config = await processConfigFile(configFilePath, args);
     args = {
       ...args,
       ...config

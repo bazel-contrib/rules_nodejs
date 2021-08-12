@@ -1,6 +1,7 @@
-load("//packages/esbuild:index.bzl", "esbuild")
+load("//packages/esbuild:index.bzl", "esbuild", "esbuild_config")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/typescript:index.bzl", "ts_library")
+load("//internal/node:context.bzl", "node_context_data")
 
 ts_library(
     name = "main",
@@ -23,13 +24,45 @@ esbuild(
     },
     define = {
         "process.env.NODE_ENV": "\"defined_in_bundle\"",
+        "SOME_TEST_ENV": "'$(SOME_TEST_ENV)'",
     },
     entry_point = "main.ts",
+    deps = [":main"],
+)
+
+# Force stamping behavior even in builds without --stamp config
+# by mocking out the config data
+node_context_data(
+    name = "context_data",
+    stamp = True,
+)
+
+esbuild_config(
+    name = "esbuild_config",
+    config_file = "esbuild.config.mjs",
+)
+
+esbuild(
+    name = "stamped_bundle",
+    args = {
+        "keepNames": True,
+    },
+    config = ":esbuild_config",
+    define = {
+        # defines defined on the rule take precedence over defines defined in the config, defined above
+        "process.env.NODE_ENV": "\"defined_on_rule\"",
+        "SOME_TEST_ENV": "'$(SOME_TEST_ENV)'",
+    },
+    entry_point = "main.ts",
+    node_context_data = ":context_data",
     deps = [":main"],
 )
 
 jasmine_node_test(
     name = "bundle_test",
     srcs = ["bundle_test.js"],
-    data = [":bundle"],
+    data = [
+        ":bundle",
+        ":stamped_bundle",
+    ],
 )
