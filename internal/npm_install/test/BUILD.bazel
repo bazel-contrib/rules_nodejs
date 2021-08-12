@@ -122,18 +122,39 @@ sh_test(
         "common.spec.js",
         "@fine_grained_deps_%s//:node_modules" % pkgmgr,
     ],
-    tags = ["no-local-jasmine-deps"],
+    tags = tags + ["no-local-jasmine-deps"],
     # TODO: get this test running with just linker: failing under --config=no-runfiles
     templated_args = ["--bazel_patch_module_resolver"],
     deps = [
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
     ],
-) for pkgmgr in [
-    "yarn",
-    "npm",
-    "yarn_directory_artifacts",
-    "npm_directory_artifacts",
+) for (pkgmgr, tags) in [
+    [
+        "yarn",
+        [],
+    ],
+    [
+        "npm",
+        [],
+    ],
+    # TODO(greg.magolan): this test started failing on stable branch
+    # even at the same commit it previously passed ¯\_(ツ)_/¯
+    #
+    # Error looks like
+    # C:/b/bk-windows-67j9/bazel/rules-nodejs-nodejs/internal/npm_install/test/BUILD.bazel:118:19:
+    # Testing //internal/npm_install/test:test_yarn_directory_artifacts failed:
+    # Exec failed due to IOException:
+    # C:/b/xavfw56r/execroot/build_bazel_rules_nodejs/bazel-out/x64_windows-fastbuild/bin/internal/npm_install/test/test_yarn_directory_artifacts.bat.runfiles/fine_grained_deps_yarn_directory_artifacts/node_modules/@gregmagolan/test-a
+    # (No such file or directory)
+    [
+        "yarn_directory_artifacts",
+        ["no-bazelci-windows"],
+    ],
+    [
+        "npm_directory_artifacts",
+        ["no-bazelci-windows"],
+    ],
 ]]
 
 # Test what happens when only certain NPM packages are in our dependencies.
@@ -145,7 +166,7 @@ sh_test(
         "common.spec.js",
         "fine.spec.js",
     ],
-    tags = ["no-local-jasmine-deps"],
+    tags = tags + ["no-local-jasmine-deps"],
     # TODO: get this test running with just linker: failing under --config=no-runfiles
     templated_args = ["--bazel_patch_module_resolver"],
     deps = [
@@ -159,11 +180,24 @@ sh_test(
         # layed out at node_modules/test-b/node_modules/test-a
         "@fine_grained_deps_%s//@gregmagolan/test-b" % pkgmgr,
     ],
-) for pkgmgr in [
-    "yarn",
-    "npm",
-    "yarn_directory_artifacts",
-    "npm_directory_artifacts",
+) for (pkgmgr, tags) in [
+    [
+        "yarn",
+        [],
+    ],
+    [
+        "npm",
+        [],
+    ],
+    [
+        "yarn_directory_artifacts",
+        # See above
+        ["no-bazelci-windows"],
+    ],
+    [
+        "npm_directory_artifacts",
+        ["no-bazelci-windows"],
+    ],
 ]]
 
 # A target to run that ensures yarn_install works for the case that there is
