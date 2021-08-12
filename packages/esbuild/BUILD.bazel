@@ -58,6 +58,7 @@ filegroup(
     name = "srcs",
     srcs = [
         "esbuild.bzl",
+        "esbuild_config.bzl",
         "esbuild_packages.bzl",
         "esbuild_repositories.bzl",
         "helpers.bzl",

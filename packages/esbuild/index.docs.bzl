@@ -93,6 +93,10 @@ load(
     _esbuild = "esbuild",
 )
 load(
+    "@build_bazel_rules_nodejs//packages/esbuild:esbuild_config.bzl",
+    _esbuild_config = "esbuild_config",
+)
+load(
     "@build_bazel_rules_nodejs//packages/esbuild:esbuild_repositories.bzl",
     _esbuild_repositories = "esbuild_repositories",
 )
@@ -102,5 +106,6 @@ load(
 )
 
 esbuild = _esbuild
+esbuild_config = _esbuild_config
 esbuild_repositories = _esbuild_repositories
 configure_esbuild_toolchain = _configure_esbuild_toolchain

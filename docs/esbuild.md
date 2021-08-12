@@ -99,9 +99,9 @@ This will create an output directory containing all the code split chunks, along
 **USAGE**
 
 <pre>
-esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-args_file">args_file</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-entry_points">entry_points</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-launcher">launcher</a>,
-        <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>, <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_css">output_css</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>,
-        <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-splitting">splitting</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>)
+esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-args_file">args_file</a>, <a href="#esbuild-config">config</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-entry_points">entry_points</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>,
+        <a href="#esbuild-launcher">launcher</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>, <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_css">output_css</a>, <a href="#esbuild-output_dir">output_dir</a>,
+        <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-splitting">splitting</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>)
 </pre>
 
 Runs the esbuild bundler under Bazel
@@ -126,7 +126,15 @@ Defaults to `{}`
 
 <h4 id="esbuild-args_file">args_file</h4>
 
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A JSON file containing additional arguments that are passed to esbuild. Note: only one of args or args_file may be set
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Internal use only
+
+Defaults to `None`
+
+<h4 id="esbuild-config">config</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Configuration file used for esbuild, from the esbuild_config macro. Note that options set in this file may get overwritten.
+See https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/esbuild/test/plugins/BUILD.bazel for examples of using esbuild_config and plugins.  The dependencies of this attribute must provide: Unknown Provider
+
 
 Defaults to `None`
 
@@ -319,6 +327,50 @@ label for the esbuild binary
 <h4 id="configure_esbuild_toolchain-exec_compatible_with">exec_compatible_with</h4>
 
 list of platform constraints
+
+
+
+
+## esbuild_config
+
+**USAGE**
+
+<pre>
+esbuild_config(<a href="#esbuild_config-name">name</a>, <a href="#esbuild_config-config_file">config_file</a>, <a href="#esbuild_config-srcs">srcs</a>, <a href="#esbuild_config-deps">deps</a>, <a href="#esbuild_config-kwargs">kwargs</a>)
+</pre>
+
+Macro for an esbuild configuration file and its assoicated dependencies
+
+**PARAMETERS**
+
+
+<h4 id="esbuild_config-name">name</h4>
+
+Unique name for this rule
+
+
+
+<h4 id="esbuild_config-config_file">config_file</h4>
+
+The configuration file / entrypoint
+
+
+
+<h4 id="esbuild_config-srcs">srcs</h4>
+
+List of source files referenced by the configuration
+
+Defaults to `[]`
+
+<h4 id="esbuild_config-deps">deps</h4>
+
+List of dependencies required for this configuration
+
+Defaults to `[]`
+
+<h4 id="esbuild_config-kwargs">kwargs</h4>
+
+Any other common attributes
 
 
 
