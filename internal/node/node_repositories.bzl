@@ -24,7 +24,7 @@ load("//internal/node:node_versions.bzl", "NODE_VERSIONS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("//toolchains/node:node_toolchain_configure.bzl", "node_toolchain_configure")
 
-_DEFAULT_NODE_VERSION = "14.17.1"
+_DEFAULT_NODE_VERSION = "14.17.5"
 
 # @unsorted-dict-items
 _YARN_VERSIONS = {
@@ -39,7 +39,7 @@ _YARN_VERSIONS = {
     "1.19.1": ("yarn-v1.19.1.tar.gz", "yarn-v1.19.1", "34293da6266f2aae9690d59c2d764056053ff7eebc56b80b8df05010c3da9343"),
     "1.22.4": ("yarn-v1.22.4.tar.gz", "yarn-v1.22.4", "bc5316aa110b2f564a71a3d6e235be55b98714660870c5b6b2d2d3f12587fb58"),
     "1.22.10": ("yarn-v1.22.10.tar.gz", "yarn-v1.22.10", "7e433d4a77e2c79e6a7ae4866782608a8e8bcad3ec6783580577c59538381a6e"),
-    # When adding a new version. please update /docs/install.md
+    "1.22.11": ("yarn-v1.22.11.tar.gz", "yarn-v1.22.11", "2c320de14a6014f62d29c34fec78fdbb0bc71c9ccba48ed0668de452c1f5fe6c"),
 }
 
 _DOC = """To be run in user's WORKSPACE to install rules_nodejs dependencies.
@@ -231,7 +231,7 @@ If this list is empty, we won't download yarn at all.
     ),
     "yarn_version": attr.string(
         doc = "the specific version of Yarn to install",
-        default = "1.19.1",
+        default = "1.22.11",
     ),
 }
 
