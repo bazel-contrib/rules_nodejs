@@ -166,7 +166,7 @@ Defaults to `["https://nodejs.org/dist/v{version}/{filename}"]`
 
 (*String*): the specific version of NodeJS to install or, if vendored_node is specified, the vendored version of node
 
-Defaults to `"14.17.1"`
+Defaults to `"14.17.5"`
 
 <h4 id="node_repositories-package_json">package_json</h4>
 
@@ -240,7 +240,7 @@ Defaults to `["https://github.com/yarnpkg/yarn/releases/download/v{version}/{fil
 
 (*String*): the specific version of Yarn to install
 
-Defaults to `"1.19.1"`
+Defaults to `"1.22.11"`
 
 
 ## nodejs_binary
