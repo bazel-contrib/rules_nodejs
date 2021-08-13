@@ -1030,10 +1030,10 @@
     "@babel/helper-validator-identifier" "^7.12.11"
     to-fast-properties "^2.0.0"
 
-"@bazel/angular@4.0.0-beta.1":
-  version "4.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@bazel/angular/-/angular-4.0.0-beta.1.tgz#549042453000d7d5787be817a16b113f95eac1e0"
-  integrity sha512-KVzop8raKQxN6DINj9WRTtRDOpoEOdgnupGy5Kt65JTLK49BYaZwPh7zFxHVzaYUacB+Q3gWmNBPOwmPa6Pzpw==
+"@bazel/angular@^3.8.0":
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/@bazel/angular/-/angular-3.8.0.tgz#e9b46822e0e3fc550f97a38db9bf3a6c325d3a1d"
+  integrity sha512-JljSOYDcBQDbXoW/T/7Yo6ZI/JqivnYBF4hC4PV+lSl2/Wx/6xKMIZ2llO+ch5SZm0ULs1uZWs5PNAm9kJANlQ==
   dependencies:
     "@angular-devkit/architect" "^0.901.7"
     "@bazel/bazelisk" "^1.4.0"
@@ -1059,10 +1059,10 @@
   resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-4.0.1.tgz#52cfbad5cbb86e9183a29dde2370cd465730ea0d"
   integrity sha512-BTmtvJbeeEVrqRApI1gr5hvPgYcHLpdGJ5EXNXEWO692ztMPSj5fB/dH0xUlaW45jn6LimYx8ymqTMhj3538og==
 
-"@bazel/concatjs@4.0.0-beta.1":
-  version "4.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-4.0.0-beta.1.tgz#252e524983536e4bcbd6877c58d2ae38e7331e27"
-  integrity sha512-BD1+b/54apUJYuq/90Dh9hOs4WeNYKGDeiOuwvuEBm96TITwCo3yKgxpC8De6vGR9bfAi9l8RjpwHr3/sCClRw==
+"@bazel/concatjs@^3.8.0":
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-3.8.0.tgz#a6b2483f7799c58652fbe5347ab2b3063a1ae6ad"
+  integrity sha512-Qi/Glf407LKz7wC3VAGwtm+Sjr/b+RLv7ESdlMekOlzMCK83OWA0aNhKtbSKZ36hJ/ToDgEWtjus7o6svsJECQ==
   dependencies:
     protobufjs "6.8.8"
     source-map-support "0.5.9"
@@ -1083,25 +1083,25 @@
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.15.10.tgz#cf0cff1aec6d8e7bb23e1fc618d09fbd39b7a13f"
   integrity sha512-0v+OwCQ6fsGFa50r6MXWbUkSGuWOoZ22K4pMSdtWiL5LKFIE4kfmMmtQS+M7/ICNwk2EIYob+NRreyi/DGUz5A==
 
-"@bazel/protractor@4.0.0-beta.1":
-  version "4.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-4.0.0-beta.1.tgz#684bd9ee26265aabf6417b2c6301d12bb837742b"
-  integrity sha512-V6+DVYSSYrOwYvURTuFrSqTTtNH8TFVrHGBr5ntSOraOHVkPrzsgZ29sEPFTePYAYmo4TXFbxgMM7pHQtW3JOw==
+"@bazel/protractor@^3.8.0":
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-3.8.0.tgz#b04999a6156bcc24f3819ee61b2b068cdbe0e309"
+  integrity sha512-NODXkhD3IWGM4MIBZ/0OQBRf8iIAZzUCRh62C0KFOsVAjhdyTChKVzIMjUn6vw6xcdk/TR1BxKfd/M/GYlStDA==
 
-"@bazel/rollup@4.0.0-beta.1":
-  version "4.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-4.0.0-beta.1.tgz#df33f7ddb643f27e8ef6ac04a6c93f0d872884ce"
-  integrity sha512-a9+kVGCbFqLlxVoECFdlmnR82iY9mZ/4Jnjw3rX3h95uwsNn7apPbq/GrWxptMmvTrMr49O+rmn6qUQQEHUhKQ==
+"@bazel/rollup@^3.8.0":
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-3.8.0.tgz#850f56176d73e3b7d99a43c7e33df21ecc6ac161"
+  integrity sha512-u63ubqYtfQhOu8Km3uYdhKa6qiLSlOKYsWwMP1xGkkXzu1hOiUznN1N7q8gCF1BV2DMy1D5IYkv+Xg4a+LEiBA==
 
-"@bazel/terser@4.0.0-beta.1":
-  version "4.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-4.0.0-beta.1.tgz#3b9d5dc69b87f781b94bf76dfa59b61a8c5a41e4"
-  integrity sha512-Kgcxqt+oxuNli0IvGF9/edkOTiM0hY+h6Z07UoYmnPsbrGcdVaUXjO8hplmT2G/acMZIeH6P1SJg7eusVnKcUg==
+"@bazel/terser@^3.8.0":
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-3.8.0.tgz#96d337b62b2ba18e2fe00984cca950cda899d165"
+  integrity sha512-c7cGIltFUI7prRocMDZ3qZVERnew81SFheuI5B9RQ3qeqTlJmlV8B8GI9FPG+7Ut69bmwn8es6UyPaH0iBnsQw==
 
-"@bazel/typescript@4.0.0-beta.1":
-  version "4.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-4.0.0-beta.1.tgz#2524d3d0e4cba56ccc5b8a6ab0a1ee8af5a86b70"
-  integrity sha512-pWQ8o3n8a7oVmOJ8nsj2/zeT99VwqI0S5oNmVxmoDydm9B9HE93QhkUelZrGooQC84AUBv0D4J0vZ5oONlAbjA==
+"@bazel/typescript@^3.8.0":
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.8.0.tgz#725d51a1c25e314a1d8cddb8b880ac05ba97acd4"
+  integrity sha512-4C1pLe4V7aidWqcPsWNqXFS7uHAB1nH5SUKG5uWoVv4JT9XhkNSvzzQIycMwXs2tZeCylX4KYNeNvfKrmkyFlw==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
