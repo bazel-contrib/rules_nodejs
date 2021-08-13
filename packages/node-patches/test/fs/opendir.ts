@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as assert from 'assert';
+import {deepStrictEqual, ok} from 'assert';
 // windows cant find the right types
 const fs = require('fs');
 import {withFixtures} from 'inline-fixtures';
@@ -35,8 +35,6 @@ describe('testing opendir', () => {
           // create symlink from a to b
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
 
-          const equal = assert.deepStrictEqual;
-
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
           patcher(patchedFs, [fixturesDir]);
@@ -50,12 +48,12 @@ describe('testing opendir', () => {
 
           let names = [entry1.name, entry2.name]
           names.sort()
-          equal(names, ['apples', 'link']);
+          deepStrictEqual(names, ['apples', 'link']);
 
           let maybeLink = entry1.name === 'link' ? entry1 : entry2;
-          assert.ok(maybeLink!.isSymbolicLink());
+          ok(maybeLink!.isSymbolicLink());
 
-          assert.ok(!empty, 'last read should be falsey');
+          ok(!empty, 'last read should be falsey');
         });
   });
 
@@ -69,8 +67,6 @@ describe('testing opendir', () => {
           fixturesDir = fs.realpathSync(fixturesDir);
           // create symlink from a to b
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
-
-          const equal = assert.deepStrictEqual;
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
@@ -86,13 +82,13 @@ describe('testing opendir', () => {
           let names = [entry1.name, entry2.name]
           names.sort()
 
-          assert.ok(!empty);
-          equal(names, ['apples', 'link']);
+          ok(!empty);
+          deepStrictEqual(names, ['apples', 'link']);
 
           let maybeLink = entry1.name === 'link' ? entry1 : entry2;
 
           console.error(entry1, entry2)
-          assert.ok(!maybeLink!.isSymbolicLink());
+          ok(!maybeLink!.isSymbolicLink());
         });
   });
 
@@ -117,13 +113,13 @@ describe('testing opendir', () => {
           for await (const entry of dir) {
             names.push(entry.name);
             if (entry.name === 'link') {
-              assert.ok(entry.isSymbolicLink());
+              ok(entry.isSymbolicLink());
             } else if (entry.name === 'apples') {
-              assert.ok(entry.isFile());
+              ok(entry.isFile());
             }
           }
           names.sort();
-          assert.deepStrictEqual(names, ['apples', 'link']);
+          deepStrictEqual(names, ['apples', 'link']);
         });
   });
 
@@ -148,14 +144,14 @@ describe('testing opendir', () => {
           for await (const entry of dir) {
             names.push(entry.name);
             if (entry.name === 'link') {
-              assert.ok(!entry.isSymbolicLink());
-              assert.ok(entry.isFile());
+              ok(!entry.isSymbolicLink());
+              ok(entry.isFile());
             } else if (entry.name === 'apples') {
-              assert.ok(entry.isFile());
+              ok(entry.isFile());
             }
           }
           names.sort();
-          assert.deepStrictEqual(names, ['apples', 'link']);
+          deepStrictEqual(names, ['apples', 'link']);
         });
   });
 });

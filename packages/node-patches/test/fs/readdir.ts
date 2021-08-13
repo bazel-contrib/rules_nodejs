@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as assert from 'assert';
+import {deepStrictEqual, ok} from 'assert';
 // windows cant find the right types
 const fs = require('fs');
 import {withFixtures} from 'inline-fixtures';
@@ -34,7 +34,6 @@ describe('testing readdir', () => {
           fixturesDir = fs.realpathSync(fixturesDir);
           // create symlink from a to b
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
-          const deepStrictEqual = assert.deepStrictEqual;
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
@@ -45,22 +44,22 @@ describe('testing readdir', () => {
           });
           deepStrictEqual(dirents[0].name, 'apples');
           deepStrictEqual(dirents[1].name, 'link');
-          assert.ok(dirents[0].isFile());
-          assert.ok(dirents[1].isSymbolicLink());
+          ok(dirents[0].isFile());
+          ok(dirents[1].isSymbolicLink());
 
           dirents = await util.promisify(patchedFs.readdir)(
               path.join(fixturesDir, 'a'), {withFileTypes: true});
           deepStrictEqual(dirents[0].name, 'apples');
           deepStrictEqual(dirents[1].name, 'link');
-          assert.ok(dirents[0].isFile());
-          assert.ok(dirents[1].isSymbolicLink());
+          ok(dirents[0].isFile());
+          ok(dirents[1].isSymbolicLink());
 
           dirents =
               await patchedFs.promises.readdir(path.join(fixturesDir, 'a'), {withFileTypes: true});
           deepStrictEqual(dirents[0].name, 'apples');
           deepStrictEqual(dirents[1].name, 'link');
-          assert.ok(dirents[0].isFile());
-          assert.ok(dirents[1].isSymbolicLink());
+          ok(dirents[0].isFile());
+          ok(dirents[1].isSymbolicLink());
         });
   });
   it('can readdir link dirents as files out of root', async () => {
@@ -73,7 +72,6 @@ describe('testing readdir', () => {
           fixturesDir = fs.realpathSync(fixturesDir);
           // create symlink from a to b
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
-          const deepStrictEqual = assert.deepStrictEqual;
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
@@ -84,25 +82,25 @@ describe('testing readdir', () => {
           });
           deepStrictEqual(dirents[0].name, 'apples');
           deepStrictEqual(dirents[1].name, 'link');
-          assert.ok(dirents[0].isFile());
-          assert.ok(!dirents[1].isSymbolicLink());
-          assert.ok(dirents[1].isFile());
+          ok(dirents[0].isFile());
+          ok(!dirents[1].isSymbolicLink());
+          ok(dirents[1].isFile());
 
           dirents = await util.promisify(patchedFs.readdir)(
               path.join(fixturesDir, 'a'), {withFileTypes: true});
           deepStrictEqual(dirents[0].name, 'apples');
           deepStrictEqual(dirents[1].name, 'link');
-          assert.ok(dirents[0].isFile());
-          assert.ok(!dirents[1].isSymbolicLink());
-          assert.ok(dirents[1].isFile());
+          ok(dirents[0].isFile());
+          ok(!dirents[1].isSymbolicLink());
+          ok(dirents[1].isFile());
 
           dirents =
               await patchedFs.promises.readdir(path.join(fixturesDir, 'a'), {withFileTypes: true});
           deepStrictEqual(dirents[0].name, 'apples');
           deepStrictEqual(dirents[1].name, 'link');
-          assert.ok(dirents[0].isFile());
-          assert.ok(!dirents[1].isSymbolicLink(), 'promise: not symlink');
-          assert.ok(dirents[1].isFile());
+          ok(dirents[0].isFile());
+          ok(!dirents[1].isSymbolicLink(), 'promise: not symlink');
+          ok(dirents[1].isFile());
         });
   });
 });

@@ -189,7 +189,7 @@ export async function runWorkerLoop(
         // cache to use the current memory usage as a guideline for expiring
         // data.  Note: this is intentionally not within runOneBuild(), as
         // we want to gc only after all its locals have gone out of scope.
-        global.gc();
+        global.gc!();
       }
       // All messages have been handled, make sure the invariant holds and
       // Buffer is empty once all messages have been read.
