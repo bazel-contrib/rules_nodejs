@@ -1,3 +1,23 @@
+# [4.0.0-rc.0](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0-beta.1...4.0.0-rc.0) (2021-08-13)
+
+
+### Bug Fixes
+
+* remove current directory prefix when running from execroot ([9771b74](https://github.com/bazelbuild/rules_nodejs/commit/9771b74))
+* **builtin:** correctly calculate pkg._directDependency when a mapped node_module is used ([32551a5](https://github.com/bazelbuild/rules_nodejs/commit/32551a5))
+* **typescript:** do not re-declare .json output files in srcs if they are already generated files ([38a9584](https://github.com/bazelbuild/rules_nodejs/commit/38a9584))
+* **typescript:** document tsc_test for typecheck-only ([20f90c5](https://github.com/bazelbuild/rules_nodejs/commit/20f90c5))
+* version script should replace beta versions ([e8f5f06](https://github.com/bazelbuild/rules_nodejs/commit/e8f5f06))
+
+
+### Features
+
+* **esbuild:** add support for plugins via supplying a configuration file ([5551bff](https://github.com/bazelbuild/rules_nodejs/commit/5551bff))
+* **esbuild:** add support for plugins via supplying a configuration file ([#2840](https://github.com/bazelbuild/rules_nodejs/issues/2840)) ([c95d9ca](https://github.com/bazelbuild/rules_nodejs/commit/c95d9ca))
+* **esbuild:** support stamping via config file ([413f73d](https://github.com/bazelbuild/rules_nodejs/commit/413f73d))
+
+
+
 # [4.0.0-beta.1](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0-beta.0...4.0.0-beta.1) (2021-07-27)
 
 
