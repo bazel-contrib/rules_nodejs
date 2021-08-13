@@ -110,7 +110,7 @@ tasks:
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
     skip_use_bazel_version_for_test: true
     test_flags:
-    - "--test_tag_filters=examples,-cypress"
+    - "--test_tag_filters=examples,-cypress,-no-bazelci-ubuntu"
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"

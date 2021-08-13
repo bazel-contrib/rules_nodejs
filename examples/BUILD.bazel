@@ -275,6 +275,10 @@ example_integration_test(
         "test ...",
     ],
     owners = ["@alan-agius4"],
+    tags = [
+        # TODO(mattem): This example timesout each time on Ubuntu
+        "no-bazelci-ubuntu",
+    ],
 )
 
 example_integration_test(
