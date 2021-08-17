@@ -121,6 +121,7 @@ tasks:
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_output=streamed"
     test_targets:
     - "//..."
     # The following examples only works on linux as it downloads the linux node distribution
