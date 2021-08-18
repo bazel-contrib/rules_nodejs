@@ -10,11 +10,13 @@ def _maybe(repo_rule, name, **kwargs):
     if name not in native.existing_rules():
         repo_rule(name = name, **kwargs)
 
-def esbuild_repositories(name = ""):
+def esbuild_repositories(name = "", npm_repository = "npm"):
     """Helper for fetching and setting up the esbuild versions and toolchains
 
     Args:
         name: currently unused
+        npm_repository:  the name of the repository where the @bazel/esbuild package is installed
+            by npm_install or yarn_install.
     """
 
     for name, meta in ESBUILD_PACKAGES.platforms.items():
@@ -27,14 +29,24 @@ def esbuild_repositories(name = ""):
             sha256 = meta.sha,
         )
 
-        toolchain_label = Label("@build_bazel_rules_nodejs//packages/esbuild/toolchain:esbuild_%s_toolchain" % name)
+        toolchain_label = Label("@build_bazel_rules_nodejs//toolchains/esbuild:esbuild_%s_toolchain" % name)
         native.register_toolchains("@%s//%s:%s" % (toolchain_label.workspace_name, toolchain_label.package, toolchain_label.name))
 
-    pkg_label = Label("@build_bazel_rules_nodejs//packages/esbuild/toolchain:package.json")
+    # When used from our distribution, the toolchain in rules_nodejs needs to point out to the
+    # @bazel/esbuild package where it was installed by npm_install so that our launcher.js can
+    # require('esbuild') via the multi-linker.
+    pkg_label = Label("@%s//packages/esbuild:esbuild.bzl" % npm_repository)
+    package_path = "external/" + pkg_label.workspace_name + "/@bazel/esbuild"
+
+    # BEGIN-INTERNAL
+    # But when used within rules_nodejs locally from source, it's linked next to the launcher.js source
+    package_path = "packages/esbuild"
+
+    # END-INTERNAL
     npm_install(
         name = "esbuild_npm",
-        package_json = pkg_label,
-        package_lock_json = Label("@build_bazel_rules_nodejs//packages/esbuild/toolchain:package-lock.json"),
+        package_json = Label("@build_bazel_rules_nodejs//toolchains/esbuild:package.json"),
+        package_lock_json = Label("@build_bazel_rules_nodejs//toolchains/esbuild:package-lock.json"),
         args = [
             # Install is run with ignore scripts so that esbuild's postinstall script does not run,
             # as we never use the downloaded binary anyway and instead set 'ESBUILD_BINARY_PATH' to the toolchains path.
@@ -42,5 +54,5 @@ def esbuild_repositories(name = ""):
             "--ignore-scripts",
         ],
         symlink_node_modules = False,
-        package_path = "packages/esbuild",
+        package_path = package_path,
     )

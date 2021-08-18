@@ -21,7 +21,7 @@ _esbuild_toolchain = rule(
     },
 )
 
-TOOLCHAIN = Label("@build_bazel_rules_nodejs//packages/esbuild/toolchain:toolchain_type")
+TOOLCHAIN = Label("@build_bazel_rules_nodejs//toolchains/esbuild:toolchain_type")
 
 def configure_esbuild_toolchain(name, binary, exec_compatible_with):
     """Defines a toolchain for esbuild given the binary path and platform constraints
