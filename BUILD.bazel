@@ -53,6 +53,7 @@ bzl_library(
         "//internal/pkg_npm:bzl",
         "//internal/pkg_web:bzl",
         "//internal/providers:bzl",
+        "//toolchains/esbuild:bzl",
         "//toolchains/node:bzl",
     ],
 )
@@ -69,9 +70,13 @@ codeowners(
 
 pkg_npm(
     name = "rules_nodejs_package",
-    srcs = glob(["*.bzl"]) + [
+    srcs = [
         "BUILD.bazel",
         "LICENSE",
+        "index.bzl",
+        "package.bzl",
+        "providers.bzl",
+        "version.bzl",
     ],
     substitutions = COMMON_REPLACEMENTS,
     deps = [
@@ -104,6 +109,7 @@ pkg_npm(
         "//third_party/npm/node_modules/browserify:package_contents",
         "//third_party/npm/node_modules/ieee754:package_contents",
         "//third_party/npm/node_modules/named-amd:package_contents",
+        "//toolchains/esbuild:package_contents",
         "//toolchains/node:package_contents",
     ],
 )

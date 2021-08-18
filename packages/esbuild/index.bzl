@@ -24,7 +24,7 @@ load(
     _esbuild_config = "esbuild_config",
 )
 load(
-    "@build_bazel_rules_nodejs//packages/esbuild/toolchain:toolchain.bzl",
+    "@build_bazel_rules_nodejs//toolchains/esbuild:toolchain.bzl",
     _configure_esbuild_toolchain = "configure_esbuild_toolchain",
 )
 

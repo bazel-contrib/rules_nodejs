@@ -52,6 +52,7 @@ filegroup(
     visibility = ["//:__pkg__"],
 )
 
+# BEGIN-INTERNAL
 # To update node_patches.js run:
 #   bazel run //internal/node:checked_in_node_patches.update
 generated_file_test(
@@ -61,3 +62,4 @@ generated_file_test(
     # For some reason rollup produces different, non-matching output with --config=no-runfiles
     tags = ["fix-windows"],
 )
+# END-INTERNAL

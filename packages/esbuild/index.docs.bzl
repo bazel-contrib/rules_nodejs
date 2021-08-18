@@ -16,30 +16,29 @@ or using yarn
 yarn add -D @bazel/esbuild
 ```
 
-The esbuild binary is fetched from npm automatically and exposed via toolchains. Add the `esbuild_repositories` rule to the `WORKSPACE`:
+The esbuild binary is fetched automatically for your platform and is exposed via Bazel toolchains.
+To do this, add the `esbuild_repositories` rule to your `WORKSPACE`.
+You'll need to point it to the repository created by npm_install or yarn_install where the `@bazel/esbuild`
+package is fetched. (Typically, this is `npm`).
+Set the `npm_repository` attribute to the name of that repository.
 
 ```python
-load("@npm//@bazel/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
-
-esbuild_repositories()
-```
-
-As esbuild is being fetched from `npm`, the load statement above can cause eager fetches of the `@npm` external repository.
-To work around this, it's possible to fetch the `@bazel/esbuild` package via an `http_archive`
-
-```python
-http_archive(
-    name = "bazel_esbuild",
-    urls = [
-        "https://registry.npmjs.org/@bazel/esbuild/-/esbuild-4.0.0.tgz",
-    ],
-    strip_prefix = "package",
+npm_install(
+    name = "npm",
+    # @bazel/esbuild is a dependency in this package.json
+    package_json = "//:package.json",
+    package_lock_json = "//:package-lock.json",
 )
 
-load("@bazel_esbuild//:esbuild_repositories.bzl", "esbuild_repositories")
+load("@build_bazel_rules_nodejs//toolchains/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
-esbuild_repositories()
+esbuild_repositories(npm_repository = "npm")  # Note, npm is the default value for npm_repository
 ```
+
+> To avoid eagerly fetching all the npm dependencies, this load statement comes from the "Built-in"
+> `@build_bazel_rules_nodejs` repository rather than from `@npm`.
+> In rules_nodejs 5.0 we intend to fix this layering violation by having the whole esbuild support
+> distributed independently of rules_nodejs, and not require any package to be installed from npm.
 
 ## Overview
 
@@ -97,11 +96,11 @@ load(
     _esbuild_config = "esbuild_config",
 )
 load(
-    "@build_bazel_rules_nodejs//packages/esbuild:esbuild_repositories.bzl",
+    "@build_bazel_rules_nodejs//toolchains/esbuild:esbuild_repositories.bzl",
     _esbuild_repositories = "esbuild_repositories",
 )
 load(
-    "@build_bazel_rules_nodejs//packages/esbuild/toolchain:toolchain.bzl",
+    "@build_bazel_rules_nodejs//toolchains/esbuild:toolchain.bzl",
     _configure_esbuild_toolchain = "configure_esbuild_toolchain",
 )
 

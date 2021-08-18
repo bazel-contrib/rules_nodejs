@@ -131,7 +131,7 @@ browser_repositories(
 )
 
 # Setup esbuild dependencies
-load("//packages/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
+load("//toolchains/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
 esbuild_repositories()
 

@@ -82,8 +82,8 @@ async function main() {
   replaceFileContent('packages/esbuild/esbuild_packages.bzl', replacements);
 
   // update package.json used for API wrapper
-  replaceFileContent('packages/esbuild/toolchain/package.json', [[/"esbuild": "(.+?)"/, version]]);
-  exec(`npm i --package-lock-only`, {silent: true, cwd: 'packages/esbuild/toolchain'});
+  replaceFileContent('toolchains/esbuild/package.json', [[/"esbuild": "(.+?)"/, version]]);
+  exec(`npm i --package-lock-only`, {silent: true, cwd: 'toolchains/esbuild'});
 }
 
 main();
