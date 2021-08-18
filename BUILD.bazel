@@ -69,9 +69,13 @@ codeowners(
 
 pkg_npm(
     name = "rules_nodejs_package",
-    srcs = glob(["*.bzl"]) + [
+    srcs = [
         "BUILD.bazel",
         "LICENSE",
+        "index.bzl",
+        "package.bzl",
+        "providers.bzl",
+        "version.bzl",
     ],
     substitutions = COMMON_REPLACEMENTS,
     deps = [
@@ -89,6 +93,7 @@ pkg_npm(
         "//internal/pkg_web:package_contents",
         "//internal/providers:package_contents",
         "//internal/runfiles:package_contents",
+        "//packages/esbuild:builtin_srcs",
         "//third_party/github.com/bazelbuild/bazel:package_contents",
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles:package_contents",

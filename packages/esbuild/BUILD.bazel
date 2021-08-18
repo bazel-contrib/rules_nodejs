@@ -60,11 +60,26 @@ filegroup(
         "esbuild.bzl",
         "esbuild_config.bzl",
         "esbuild_packages.bzl",
-        "esbuild_repositories.bzl",
+        # Intentionally not shipping the repositories code via npm
+        # See comment below on :builtin_srcs
+        # "esbuild_repositories.bzl",
         "helpers.bzl",
         "index.bzl",
         "launcher.js",
         "package.json",
+    ],
+)
+
+# Layering violation!
+# Include the esbuild repositories function in the rules_nodejs
+# built-in tgz distribution so you don't need to npm install
+# in the WORKSPACE file, as that is an eager fetch.
+filegroup(
+    name = "builtin_srcs",
+    srcs = [
+        "BUILD.bazel",
+        "esbuild_packages.bzl",
+        "esbuild_repositories.bzl",
     ],
 )
 
@@ -76,10 +91,9 @@ pkg_npm(
         "//packages/esbuild/toolchain:srcs",
     ],
     build_file_content = """exports_files(["launcher.js"])""",
-    substitutions = dict({
+    substitutions = {
         "@build_bazel_rules_nodejs//packages/esbuild": "//@bazel/esbuild",
-        "package_path = \"packages/esbuild\",": "package_path = \"external/\" + pkg_label.workspace_name + \"/@bazel/esbuild\",",
-    }),
+    },
     deps = [
         ":README.md",
         ":npm_version_check",

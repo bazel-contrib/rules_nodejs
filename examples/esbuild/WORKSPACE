@@ -33,22 +33,6 @@ npm_install(
     package_lock_json = "//:package-lock.json",
 )
 
-# This is the simpler way to load, however it eagerly fetches all of the npm
-# dependencies for every build due to this load statement, whether the build
-# needs them or not.
-# load("@npm//@bazel/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
-
-# We can avoid that eager fetch by loading esbuild_repositories
-# from a separately-fetched npm package.
-http_archive(
-    name = "bazel_esbuild",
-    strip_prefix = "package",
-    urls = [
-        # TODO(alexeagle): how to keep this version up-to-date as we cut releases?
-        "https://registry.npmjs.org/@bazel/esbuild/-/esbuild-4.0.0-rc.0.tgz",
-    ],
-)
-
-load("@bazel_esbuild//:esbuild_repositories.bzl", "esbuild_repositories")
+load("@build_bazel_rules_nodejs//packages/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
 esbuild_repositories()

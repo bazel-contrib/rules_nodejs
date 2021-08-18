@@ -133,7 +133,7 @@ browser_repositories(
 # Setup esbuild dependencies
 load("//packages/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
-esbuild_repositories()
+esbuild_repositories(npm_repository = "build_bazel_rules_nodejs")
 
 #
 # Dependencies to run stardoc & generating documentation

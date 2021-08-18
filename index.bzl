@@ -63,6 +63,7 @@ def dummy_bzl_library(name, srcs = [], deps = [], visibility = ["//visibility:pu
 
 # @unsorted-dict-items
 COMMON_REPLACEMENTS = {
+    "#@external ": "",
     # Replace loads from @bazel_skylib with the dummy rule above
     "(load\\(\"@bazel_skylib//:bzl_library.bzl\", \"bzl_library\"\\))": "# bazel_skylib mocked out\n# $1\nload(\"@build_bazel_rules_nodejs//:index.bzl\", bzl_library = \"dummy_bzl_library\")",
     # Make sure we don't try to load from under tools/ which isn't in the distro
@@ -70,6 +71,9 @@ COMMON_REPLACEMENTS = {
     # Cleanup up package.json @bazel/foobar package deps for published packages:
     # "@bazel/foobar": "file:///..." => "@bazel/foobar": "0.0.0-PLACEHOLDER"
     "\"@bazel/([a-zA-Z_-]+)\":\\s+\"(file|bazel)[^\"]+\"": "\"@bazel/$1\": \"0.0.0-PLACEHOLDER\"",
+    # Intentional layering violation: we copy a file from packages/esbuild
+    # so we need one of its replacements as well
+    "//packages/esbuild": "//@bazel/esbuild",
 }
 
 def npm_install(**kwargs):
