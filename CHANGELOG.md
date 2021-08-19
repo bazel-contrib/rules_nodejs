@@ -1,3 +1,17 @@
+# [4.0.0-rc.1](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0-rc.0...4.0.0-rc.1) (2021-08-19)
+
+
+### Bug Fixes
+
+* **cypress:** don't eager-fetch the npm repository just to get the cypress toolchain ([e661da6](https://github.com/bazelbuild/rules_nodejs/commit/e661da6))
+
+
+### Features
+
+* **builtin:** added support of linux ppc64le ([582ecc1](https://github.com/bazelbuild/rules_nodejs/commit/582ecc1))
+
+
+
 # [4.0.0-rc.0](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0-beta.1...4.0.0-rc.0) (2021-08-13)
 
 
