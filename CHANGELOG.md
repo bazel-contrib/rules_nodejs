@@ -4,7 +4,7 @@
 ### Bug Fixes
 
 * **cypress:** don't eager-fetch the npm repository just to get the cypress toolchain ([e661da6](https://github.com/bazelbuild/rules_nodejs/commit/e661da6))
-
+* **esbuild:** distribute esbuild_repositories function in the built-in, not the @bazel/esbuild package ([c164c6d](https://github.com/bazelbuild/rules_nodejs/commit/c164c6d))
 
 ### Features
 
