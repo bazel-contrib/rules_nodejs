@@ -85,7 +85,7 @@ def _cypress_plugin_wrapper(ctx):
 def _cypress_web_test_impl(ctx):
     plugin_wrapper = _cypress_plugin_wrapper(ctx)
 
-    cypressinfo = ctx.toolchains[Label("@build_bazel_rules_nodejs//packages/cypress/internal/toolchain:toolchain_type")].cypressinfo
+    cypressinfo = ctx.toolchains[Label("@build_bazel_rules_nodejs//toolchains/cypress:toolchain_type")].cypressinfo
 
     expanded_args = [
         ctx.file.config_file.short_path,
@@ -116,7 +116,7 @@ def _cypress_web_test_impl(ctx):
         expanded_args = expanded_args,
     )
 
-toolchain_type_label = Label("@build_bazel_rules_nodejs//packages/cypress/internal/toolchain:toolchain_type")
+toolchain_type_label = Label("@build_bazel_rules_nodejs//toolchains/cypress:toolchain_type")
 
 _cypress_web_test_kwargs = dict(
     nodejs_test_kwargs,

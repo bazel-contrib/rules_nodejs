@@ -27,15 +27,14 @@ bzl_library(
     name = "bzl",
     srcs = [
         ":index.bzl",
-        "//packages/cypress/internal:cypress_repositories.bzl",
         "//packages/cypress/internal:cypress_web_test.bzl",
-        "//packages/cypress/internal/toolchain:cypress_toolchain.bzl",
         "@bazel_tools//tools:bzl_srcs",
     ],
     deps = [
         "//:bzl",
         "//internal/common:bzl",
         "//internal/node:bzl",
+        "//toolchains/cypress:bzl",
     ],
 )
 
@@ -61,13 +60,10 @@ pkg_npm(
         "index.bzl",
         "package.json",
         "//packages/cypress/internal:BUILD.bazel",
-        "//packages/cypress/internal:cypress_repositories.bzl",
         "//packages/cypress/internal:cypress_web_test.bzl",
         "//packages/cypress/internal:plugins/base.js",
         "//packages/cypress/internal:plugins/index.js.tpl",
         "//packages/cypress/internal:run-cypress.js",
-        "//packages/cypress/internal/toolchain:BUILD.bazel",
-        "//packages/cypress/internal/toolchain:cypress_toolchain.bzl",
     ],
     build_file_content = "",
     substitutions = {

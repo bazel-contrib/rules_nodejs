@@ -106,5 +106,5 @@ filegroup(
 
     # This needs to be setup so toolchains can access nodejs for all different versions
     for os_name in ["windows", "darwin", "linux"]:
-        toolchain_label = Label("@build_bazel_rules_nodejs//packages/cypress/internal/toolchain:cypress_{}_toolchain".format(os_name))
+        toolchain_label = Label("@build_bazel_rules_nodejs//toolchains/cypress:cypress_{}_toolchain".format(os_name))
         native.register_toolchains("@{}//{}:{}".format(toolchain_label.workspace_name, toolchain_label.package, toolchain_label.name))
