@@ -165,10 +165,6 @@ example_integration_test(
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
-    tags = [
-        # TODO(alexeagle): re-enable when it stops timing out on 4.x branch
-        "manual",
-    ],
 )
 
 example_integration_test(
