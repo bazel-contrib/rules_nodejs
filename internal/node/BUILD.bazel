@@ -30,6 +30,7 @@ bzl_library(
     deps = [
         "//internal/npm_install:bzl",
         "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
+        "//toolchains/node:bzl",
     ],
 )
 

@@ -50,11 +50,10 @@ bzl_library(
         "//internal/generated_file_test:bzl",
         "//internal/js_library:bzl",
         "//internal/linker:bzl",
+        "//internal/node:bzl",
         "//internal/pkg_npm:bzl",
         "//internal/pkg_web:bzl",
         "//internal/providers:bzl",
-        "//toolchains/esbuild:bzl",
-        "//toolchains/node:bzl",
     ],
 )
 

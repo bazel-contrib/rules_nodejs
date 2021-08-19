@@ -1,0 +1,14 @@
+load("//tools/stardoc:index.bzl", "stardoc")
+
+stardoc(
+    name = "docs",
+    out = "README.md",
+    input = "index.for_docs.bzl",
+    tags = ["fix-windows"],
+    visibility = ["//docs:__pkg__"],
+    deps = [
+        "//toolchains/cypress:bzl",
+        "//toolchains/esbuild:bzl",
+        "//toolchains/node:bzl",
+    ],
+)
