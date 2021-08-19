@@ -14,6 +14,7 @@ bzl_library(
     srcs = [
         "cypress_repositories.bzl",
         "cypress_toolchain.bzl",
+        "@bazel_tools//tools:bzl_srcs",
     ],
     visibility = ["//visibility:public"],
 )

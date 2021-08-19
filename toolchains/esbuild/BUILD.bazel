@@ -30,4 +30,7 @@ bzl_library(
         "toolchain.bzl",
     ],
     visibility = ["//visibility:public"],
+    deps = [
+        "//:bzl",
+    ],
 )
