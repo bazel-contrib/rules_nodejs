@@ -41,7 +41,7 @@ yarn_install(
     yarn_lock = "//:yarn.lock",
 )
 
-load("@yarn//@bazel/cypress:index.bzl", "cypress_repositories")
+load("@build_bazel_rules_nodejs//toolchains/cypress:cypress_repositories.bzl", "cypress_repositories")
 
 cypress_repositories(
     name = "cypress",

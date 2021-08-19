@@ -32,9 +32,7 @@ yarn add -D @bazel/cypress cypress
 Then, load and invoke `cypress_repositories` within your `WORKSPACE` file.
 
 ```python
-# Assuming your external repository for node_modules is named @npm
-
-load("@npm//@bazel/cypress:index.bzl", "cypress_repositories")
+load("@build_bazel_rules_nodejs//toolchains/cypress:cypress_repositories.bzl", "cypress_repositories")
 
 # The name you pass here names the external repository you can load cypress_web_test from
 cypress_repositories(name = "cypress", version = "MATCH_VERSION_IN_PACKAGE_JSON")
@@ -90,7 +88,7 @@ cypress_web_test(
 """
 
 load(
-    "@build_bazel_rules_nodejs//packages/cypress/internal:cypress_repositories.bzl",
+    "@build_bazel_rules_nodejs//toolchains/cypress:cypress_repositories.bzl",
     _cypress_repositories = "cypress_repositories",
 )
 load(
@@ -98,7 +96,7 @@ load(
     _cypress_web_test = "cypress_web_test",
 )
 load(
-    "@build_bazel_rules_nodejs//packages/cypress/internal/toolchain:cypress_toolchain.bzl",
+    "@build_bazel_rules_nodejs//toolchains/cypress:cypress_toolchain.bzl",
     _cypress_toolchain = "cypress_toolchain",
 )
 
