@@ -889,25 +889,25 @@
     "@babel/helper-validator-identifier" "^7.14.5"
     to-fast-properties "^2.0.0"
 
-"@bazel/labs@4.0.0-rc.0":
-  version "4.0.0-rc.0"
-  resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-4.0.0-rc.0.tgz#2abe9cdfeb63e429266110144e5fb9a750ae6adb"
-  integrity sha512-+7JHcNMNDVmWKYrqjRxnHH60irrfS/y2FNKcwTnju6PYOzp3uV1ApN7Tc91nwW3EGOHEjZi8nyPQ3e78tRIFog==
+"@bazel/labs@4.0.0-rc.1":
+  version "4.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-4.0.0-rc.1.tgz#e650385c9ea4eb00f7511f85d6844d4e8e00e5f3"
+  integrity sha512-K+4yYKhdiGC9cn7hcdojGO7rJron+b9DdSa/JO/Q1wh3qyHSzA7e4tbJddVTOr+aLIBadrVcs6YxSRnKmLdprw==
 
-"@bazel/rollup@4.0.0-rc.0":
-  version "4.0.0-rc.0"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-4.0.0-rc.0.tgz#65748a827468916ecd3a90840fa96a7e2eda41ae"
-  integrity sha512-Sq6X6GqlTLfIXajPODvCrbCmD1rgc/o9zrIwA3jOaQ1K6xLqAgup8m8fIuSDwW2BtMB8QukU45ABl4tsNphirA==
+"@bazel/rollup@4.0.0-rc.1":
+  version "4.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-4.0.0-rc.1.tgz#b79f22df8e549447f38b705ee20cdac2d6bddb9d"
+  integrity sha512-TCQFvTtUKZk+8o2WA+1ZG/zABrMD21LLkpJO0MsSifk7f261HrCKQuxXjsaJsbwUq5QxvHkeEZLLE470Do0ZBw==
 
-"@bazel/terser@4.0.0-rc.0":
-  version "4.0.0-rc.0"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-4.0.0-rc.0.tgz#014d629bc2bae02a97296bf9ebf7c8bd3457c5ed"
-  integrity sha512-uJ61RzsBlekulb5g+puUwfZf1ftkQEHfFAcDvC47MaUlIu87ljd192WqjdmSyvZ9yAI7yV2YlbtYIB+U92KoiA==
+"@bazel/terser@4.0.0-rc.1":
+  version "4.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-4.0.0-rc.1.tgz#5732e36c91189c435076d30bb5d9ac32ded3558b"
+  integrity sha512-YFagk6wSkzzjgavgGcwiQEJ7ujfoxeby2+jZ7i7Ud96CCSNris09Bzamei1mVIsu4PgMHbgdkodXJqFNerdP+Q==
 
-"@bazel/typescript@4.0.0-rc.0":
-  version "4.0.0-rc.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-4.0.0-rc.0.tgz#0507e329d66c1b94a4fe66423ce2e7ee2fcbd0b2"
-  integrity sha512-Aa0SoUNzLSePcupAqZbdjJX3Q8hRLuMQluIga5rnPPxcvy6/NvU/N4pKIN7kRzDe4xJ3JQ45fLPYNnoUGEMtjQ==
+"@bazel/typescript@4.0.0-rc.1":
+  version "4.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-4.0.0-rc.1.tgz#6187e3cb34218afd2fba8927746df6502e31d5c8"
+  integrity sha512-oz3jLMbVEaMvkZP+necQxnNigsnLdqR9r6t+oUq0zhOW92SBmIbgBpAa1YPAHLDSC8YICrAOcUuXgMfiz136bw==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
