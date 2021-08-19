@@ -79,7 +79,7 @@ async function main() {
   }));
 
   replacements.push([/_VERSION = "(.+?)"/, version]);
-  replaceFileContent('packages/esbuild/esbuild_packages.bzl', replacements);
+  replaceFileContent('toolchains/esbuild/esbuild_packages.bzl', replacements);
 
   // update package.json used for API wrapper
   replaceFileContent('toolchains/esbuild/package.json', [[/"esbuild": "(.+?)"/, version]]);
