@@ -13,7 +13,7 @@
 # limitations under the License.
 "E2E testing with Cypress"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_test_kwargs")
 
 ATTRS = dict(
@@ -55,9 +55,10 @@ def _filter_js(files):
 def _cypress_plugin_wrapper(ctx):
     plugin_file = None
 
-    # TODO: switch to JSModuleInfo when it is available
-    if JSNamedModuleInfo in ctx.attr.plugin_file:
+    if JSNamedModuleInfo in ctx.attr.plugin_file and len(ctx.attr.plugin_file[JSNamedModuleInfo].direct_sources.to_list()) > 0:
         plugin_file = _filter_js(ctx.attr.plugin_file[JSNamedModuleInfo].direct_sources.to_list())[0]
+    if JSModuleInfo in ctx.attr.plugin_file and len(ctx.attr.plugin_file[JSModuleInfo].direct_sources.to_list()) > 0:
+        plugin_file = _filter_js(ctx.attr.plugin_file[JSModuleInfo].direct_sources.to_list())[0]
     else:
         plugin_file = ctx.file.plugin_file
 
