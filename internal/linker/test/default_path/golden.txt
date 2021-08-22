@@ -1,0 +1,1 @@
+ExternalNpmPackageInfo with no path works!

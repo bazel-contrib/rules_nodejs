@@ -1,0 +1,30 @@
+load("//:index.bzl", "generated_file_test", "nodejs_binary", "npm_package_bin")
+load(
+    ":custom_external_npm_package_info.bzl",
+    "custom_external_npm_package_info",
+)
+
+package(default_testonly = True)
+
+# Custom target returning `ExternalNpmPackageInfo` without a `path` field.
+custom_external_npm_package_info(
+    name = "external_npm_package_info",
+)
+
+nodejs_binary(
+    name = "binary",
+    data = [":external_npm_package_info"],
+    entry_point = "default_path.js",
+)
+
+npm_package_bin(
+    name = "generated",
+    stdout = "generated.txt",
+    tool = ":binary",
+)
+
+generated_file_test(
+    name = "test",
+    src = "golden.txt",
+    generated = "generated.txt",
+)
