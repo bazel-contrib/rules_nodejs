@@ -48,7 +48,7 @@ def _compute_node_modules_roots(ctx):
     # Add in roots from third-party deps
     for d in ctx.attr.data:
         if ExternalNpmPackageInfo in d:
-            path = d[ExternalNpmPackageInfo].path
+            path = getattr(d[ExternalNpmPackageInfo], "path", "")
             workspace = d[ExternalNpmPackageInfo].workspace
             if path in node_modules_roots:
                 other_workspace = node_modules_roots[path]

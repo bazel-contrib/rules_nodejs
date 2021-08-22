@@ -50,7 +50,7 @@ def _compute_node_modules_roots(ctx):
         deps += ctx.attr.deps
     for d in deps:
         if ExternalNpmPackageInfo in d:
-            path = d[ExternalNpmPackageInfo].path
+            path = getattr(d[ExternalNpmPackageInfo], "path", "")
             workspace = d[ExternalNpmPackageInfo].workspace
             if path in node_modules_roots:
                 other_workspace = node_modules_roots[path]

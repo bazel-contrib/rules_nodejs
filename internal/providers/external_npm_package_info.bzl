@@ -45,7 +45,7 @@ def _node_modules_aspect_impl(target, ctx):
         for dep in ctx.rule.attr.deps:
             if ExternalNpmPackageInfo in dep:
                 has_directories = has_directories or dep[ExternalNpmPackageInfo].has_directories
-                path = dep[ExternalNpmPackageInfo].path
+                path = getattr(dep[ExternalNpmPackageInfo], "path", "")
                 workspace = dep[ExternalNpmPackageInfo].workspace
                 sources_depsets = []
                 if path in paths:
