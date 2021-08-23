@@ -73,7 +73,7 @@ def _move_files(ctx, root_paths):
         outputs = [www_dir],
         executable = ctx.executable._assembler,
         arguments = [args],
-        execution_requirements = {"local": "1"},
+        #execution_requirements = {"local": "1"},
         progress_message = "Assembling assets for pkg_web into %s" % www_dir.short_path,
         env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
     )
