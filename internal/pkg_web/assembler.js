@@ -125,7 +125,13 @@ function main(params) {
     return execPath;
   }
 
+  const copyStack = [];
   function copy(f, substitutions) {
+    copyStack.push(f);
+    if (copyStack.length > 5) {
+      console.error(copyStack);
+      throw new Error('copyStack too deep');
+    }
     if (fs.statSync(f).isDirectory()) {
       for (const file of fs.readdirSync(f)) {
         // Change paths to posix
@@ -144,6 +150,7 @@ function main(params) {
       mkdirp(path.dirname(dest));
       fs.copyFileSync(f, dest);
     }
+    copyStack.pop();
   }
 
   // Remove duplicate files (which may come from this rule) from the
