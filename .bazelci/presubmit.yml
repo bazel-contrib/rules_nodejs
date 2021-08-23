@@ -163,6 +163,80 @@ tasks:
     # //internal/node/test:nodejs_toolchain_windows_amd64_test is a "manual" test that must be run
     # explicitly with --platforms=@build_bazel_rules_nodejs//toolchains/node:windows_amd64 set
     - "//internal/node/test:nodejs_toolchain_windows_amd64_test"
+  ubuntu1604_examples:
+    name: ubuntu1604_examples
+    platform: ubuntu1604
+    # We need to reduce the memory & CPU usage of the top-level
+    # bazel process for bazel-in-bazel tests to not
+    # deplete the system memory completely.
+    # - startup JVM memory reduced
+    # - top-level bazel process should use as little memory as possible and only 1 core
+    # - nested bazel process should use a limited number of cores
+    shell_commands:
+    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    build_flags:
+    - "--build_tag_filters=examples,-cypress"
+    build_targets:
+    - "//..."
+    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+    skip_use_bazel_version_for_test: true
+    test_flags:
+    - "--test_tag_filters=examples,-cypress"
+    - "--local_ram_resources=792"
+    # test_args will be passed to the nested bazel process
+    - "--test_arg=--local_ram_resources=13288"
+    - "--test_arg=--local_cpu_resources=7"
+    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
+    # On circleci we have the same issue but we can work around it using apt-get.
+    # on bazelci apt-get fails with permission denied and there is no sudo
+    # command to switch to root.
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_output=streamed"
+    test_targets:
+    - "//..."
+    # The following examples only works on linux as it downloads the linux node distribution
+    # It is tagged "manual" so we run it explicitly here
+    # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
+    - "//examples:examples_vendored_node"
+    - "//examples:examples_vendored_node_and_yarn"
+  ubuntu2004_examples:
+    name: ubuntu2004_examples
+    platform: ubuntu2004
+    # We need to reduce the memory & CPU usage of the top-level
+    # bazel process for bazel-in-bazel tests to not
+    # deplete the system memory completely.
+    # - startup JVM memory reduced
+    # - top-level bazel process should use as little memory as possible and only 1 core
+    # - nested bazel process should use a limited number of cores
+    shell_commands:
+    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    build_flags:
+    - "--build_tag_filters=examples,-cypress"
+    build_targets:
+    - "//..."
+    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+    skip_use_bazel_version_for_test: true
+    test_flags:
+    - "--test_tag_filters=examples,-cypress"
+    - "--local_ram_resources=792"
+    # test_args will be passed to the nested bazel process
+    - "--test_arg=--local_ram_resources=13288"
+    - "--test_arg=--local_cpu_resources=7"
+    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
+    # On circleci we have the same issue but we can work around it using apt-get.
+    # on bazelci apt-get fails with permission denied and there is no sudo
+    # command to switch to root.
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_output=streamed"
+    test_targets:
+    - "//..."
+    # The following examples only works on linux as it downloads the linux node distribution
+    # It is tagged "manual" so we run it explicitly here
+    # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
+    - "//examples:examples_vendored_node"
+    - "//examples:examples_vendored_node_and_yarn"
   macos:
     name: macos
     platform: macos
