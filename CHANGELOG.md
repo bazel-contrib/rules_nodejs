@@ -1,3 +1,15 @@
+# [4.0.0](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0-rc.1...4.0.0) (2021-08-24)
+
+
+### Bug Fixes
+
+* **create:** remove skylib install ([0125a46](https://github.com/bazelbuild/rules_nodejs/commit/0125a46))
+* update Skylib hash ([010d12f](https://github.com/bazelbuild/rules_nodejs/commit/010d12f))
+* **cypress:** add js files from JSModuleInfo to plugin wrapper sources if available ([1274c59](https://github.com/bazelbuild/rules_nodejs/commit/1274c59))
+* update usages of `ExternalNpmPackageInfo.path` to be safe and default to empty string ([eacbcf7](https://github.com/bazelbuild/rules_nodejs/commit/eacbcf7)), closes [/github.com/bazelbuild/rules_postcss/blob/2bd16fda40cd4bf4fbf0b477b968366ec1602103/internal/plugin.bzl#L30-L41](https://github.com//github.com/bazelbuild/rules_postcss/blob/2bd16fda40cd4bf4fbf0b477b968366ec1602103/internal/plugin.bzl/issues/L30-L41)
+
+
+
 # [4.0.0-rc.1](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0-rc.0...4.0.0-rc.1) (2021-08-19)
 
 
