@@ -1,7 +1,7 @@
 {
   "private": true,
   "devDependencies": {
-    "@bazel/jasmine": "4.0.0-rc.1",
+    "@bazel/jasmine": "^4.0.0",
     "jasmine": "^3.5.0"
   },
   "scripts": {
