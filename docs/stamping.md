@@ -47,7 +47,7 @@ echo STABLE_GIT_COMMIT $(git rev-parse HEAD)
 
 Make sure you set the executable bit, eg. `chmod 755 tools/bazel_stamp_vars.sh`.
 
-> **NOTE** keys start start with `STABLE_` will cause a re-build when they change.
+> **NOTE** keys that start with `STABLE_` will cause a re-build when they change.
 > Other keys will NOT cause a re-build, so stale values can appear in your app.
 > Non-stable (volatile) keys should typically be things like timestamps that always vary between builds.
 
