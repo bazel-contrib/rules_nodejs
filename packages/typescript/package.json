@@ -29,7 +29,7 @@
         "protobufjs": "6.8.8",
         "semver": "5.6.0",
         "source-map-support": "0.5.9",
-        "tsutils": "2.27.2"
+        "tsutils": "3.21.0"
     },
     "scripts": {
       "postinstall": "node npm_version_check.js"
