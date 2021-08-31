@@ -42,24 +42,26 @@ def rules_typescript_dev_dependencies():
         sha256 = "f624fe9ca8d51de192655369ac538c420afb7cde16e1ad052554b582fff09287",
     )
 
-    # For building ts_devserver binary
+    # For building concatjs_devserver binary
     # See https://github.com/bazelbuild/rules_go#setup for the latest version.
     _maybe(
         http_archive,
         name = "io_bazel_rules_go",
-        patch_args = ["-p1"],
-        patches = [
-            # Patch out a breaking change to runfiles support library
-            # See discussion on https://github.com/bazelbuild/rules_go/pull/2076
-            "@build_bazel_rules_typescript//:revert_rules_go_commit_4442d82a001f378d0605cbbca3fb529979a1c3a6.patch",
-            # This old SHA seems no longer available on go.googlesource.com?
-            # Fetching @org_golang_x_tools; Cloning c8855242db9c1762032abe33c2dff50de3ec9d05 of https://go.googlesource.com/tools 99s
-            "@build_bazel_rules_typescript//:replace_go_googlesource_com_remote.patch",
-        ],
-        sha256 = "8df59f11fb697743cbb3f26cfb8750395f30471e9eabde0d174c3aebc7a1cd39",
+        sha256 = "8e968b5fcea1d2d64071872b12737bbb5514524ee5f0a4f54f5920266c261acb",
         urls = [
-            "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/0.19.1/rules_go-0.19.1.tar.gz",
-            "https://github.com/bazelbuild/rules_go/releases/download/0.19.1/rules_go-0.19.1.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.28.0/rules_go-v0.28.0.zip",
+            "https://github.com/bazelbuild/rules_go/releases/download/v0.28.0/rules_go-v0.28.0.zip",
+        ],
+    )
+
+    # go_repository is defined in bazel_gazelle
+    _maybe(
+        http_archive,
+        name = "bazel_gazelle",
+        sha256 = "62ca106be173579c0a167deb23358fdfe71ffa1e4cfdddf5582af26520f1c66f",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.23.0/bazel-gazelle-v0.23.0.tar.gz",
+            "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.23.0/bazel-gazelle-v0.23.0.tar.gz",
         ],
     )
 
@@ -69,17 +71,6 @@ def rules_typescript_dev_dependencies():
         sha256 = "98e615d592d237f94db8bf033fba78cd404d979b0b70351a9e5aaff725398357",
         strip_prefix = "protobuf-3.9.1",
         urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.9.1.tar.gz"],
-    )
-
-    # go_repository is defined in bazel_gazelle
-    _maybe(
-        http_archive,
-        name = "bazel_gazelle",
-        urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/0.17.0/bazel-gazelle-0.17.0.tar.gz",
-            "https://github.com/bazelbuild/bazel-gazelle/releases/download/0.17.0/bazel-gazelle-0.17.0.tar.gz",
-        ],
-        sha256 = "3c681998538231a2d24d0c07ed5a7658cb72bfb5fd4bf9911157c0e9ac6a2687",
     )
 
 def _maybe(repo_rule, name, **kwargs):
