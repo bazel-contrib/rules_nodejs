@@ -19,7 +19,7 @@
     "dependencies": {
         "protobufjs": "6.8.8",
         "source-map-support": "0.5.9",
-        "tsutils": "2.27.2"
+        "tsutils": "3.21.0"
     },
     "peerDependencies": {
         "karma": ">=4.0.0",
