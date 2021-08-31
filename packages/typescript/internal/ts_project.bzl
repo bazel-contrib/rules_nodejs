@@ -171,10 +171,14 @@ def _ts_project_impl(ctx):
     # tsc will only produce .json if it also produces .js
     if len(ctx.outputs.js_outs):
         pkg_len = len(ctx.label.package) + 1 if len(ctx.label.package) else 0
-        json_outs = [
-            ctx.actions.declare_file(_join(ctx.attr.out_dir, src.short_path[pkg_len:]))
+        json_file_names = [
+            _map_out_path(src.short_path[pkg_len:], ctx.attr.out_dir, ctx.attr.root_dir, {"*": ".json"})
             for src in ctx.files.srcs
             if src.basename.endswith(".json") and src.is_source
+        ]
+        json_outs = [
+            ctx.actions.declare_file(file_name)
+            for file_name in json_file_names
         ]
     else:
         json_outs = []
@@ -334,12 +338,15 @@ def _replace_ext(f, ext_map):
     return None
 
 def _out_paths(srcs, outdir, rootdir, allow_js, ext_map):
-    rootdir_replace_pattern = rootdir + "/" if rootdir else ""
     return [
-        _join(outdir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + _replace_ext(f, ext_map))
-        for f in srcs
-        if _is_ts_src(f, allow_js)
+        _map_out_path(file, outdir, rootdir, ext_map)
+        for file in srcs
+        if _is_ts_src(file, allow_js)
     ]
+
+def _map_out_path(file, outdir, rootdir, ext_map):
+    rootdir_replace_pattern = rootdir + "/" if rootdir else ""
+    return _join(outdir, file[:file.rindex(".")].replace(rootdir_replace_pattern, "") + _replace_ext(file, ext_map))
 
 def ts_project_macro(
         name = "tsconfig",
