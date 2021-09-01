@@ -1,5 +1,5 @@
 const https = require('https');
-const { exec } = require('shelljs');
+const { execSync } = require('child_process');
 const { mkdirSync, createWriteStream, readFileSync, writeFileSync } = require('fs');
 const { join } = require('path');
 const { tmpdir } = require('os');
@@ -73,7 +73,7 @@ async function main() {
     const downloadPath = join(tmpDir, platform);
 
     await downloadFile(`https://registry.npmjs.org/${platform}/-/${platform}-${version}.tgz`, downloadPath);
-    const shasum = exec(`shasum -a 256 ${downloadPath}`, {silent: true}).stdout.split(' ')[0];
+    const shasum = execSync(`shasum -a 256 ${downloadPath}`, {silent: true, encoding: 'utf-8'}).split(' ')[0];
 
     return [new RegExp(`${_var}_SHA = "(.+?)"`, 's'), shasum];
   }));
