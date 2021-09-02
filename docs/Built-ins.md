@@ -19,8 +19,8 @@ This is necessary to bootstrap Bazel to run the package manager to download othe
 
 <pre>
 node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>,
-                  <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>, <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-vendored_node">vendored_node</a>, <a href="#node_repositories-vendored_yarn">vendored_yarn</a>,
-                  <a href="#node_repositories-yarn_download_auth">yarn_download_auth</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>, <a href="#node_repositories-yarn_version">yarn_version</a>)
+                  <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>, <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-use_nvmrc">use_nvmrc</a>, <a href="#node_repositories-vendored_node">vendored_node</a>,
+                  <a href="#node_repositories-vendored_yarn">vendored_yarn</a>, <a href="#node_repositories-yarn_download_auth">yarn_download_auth</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>, <a href="#node_repositories-yarn_version">yarn_version</a>)
 </pre>
 
 To be run in user's WORKSPACE to install rules_nodejs dependencies.
@@ -194,6 +194,14 @@ Defaults to `True`
 
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
 
+
+<h4 id="node_repositories-use_nvmrc">use_nvmrc</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): the local path of the .nvmrc file containing the version of node
+
+If set then also set node_version to the version found in the .nvmrc file.
+
+Defaults to `None`
 
 <h4 id="node_repositories-vendored_node">vendored_node</h4>
 
