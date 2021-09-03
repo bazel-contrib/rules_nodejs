@@ -64,3 +64,43 @@ go_binary(
     pure = "on",
     visibility = ["//visibility:public"],
 )
+
+go_binary(
+    name = "devserver-darwin-arm64",
+    out = "devserver-darwin_arm64",
+    embed = [":go_default_library"],
+    goarch = "arm64",
+    goos = "darwin",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-linux-arm64",
+    out = "devserver-linux_arm64",
+    embed = [":go_default_library"],
+    goarch = "arm64",
+    goos = "linux",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-linux-ppc64le",
+    out = "devserver-linux_ppc64le",
+    embed = [":go_default_library"],
+    goarch = "arm64",
+    goos = "linux",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-linux-s390x",
+    out = "devserver-linux_s390x",
+    embed = [":go_default_library"],
+    goarch = "s390x",
+    goos = "linux",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)

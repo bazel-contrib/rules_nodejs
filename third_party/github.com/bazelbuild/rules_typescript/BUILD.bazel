@@ -41,9 +41,6 @@ pkg_npm(
     vendor_external = ["build_bazel_rules_typescript"],
     visibility = ["//visibility:public"],
     deps = [
-        "//devserver:devserver-darwin",
-        "//devserver:devserver-linux",
-        "//devserver:devserver-windows",
         "//internal:generated_BUILD",
         "//internal:tsc_wrapped",
     ],
