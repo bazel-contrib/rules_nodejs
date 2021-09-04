@@ -1,6 +1,28 @@
+import "./gc";
 import { readMetadata, writeMetadata } from "./metadata";
 import { blaze } from "./worker_protocol";
-import { Writable } from "stream";
+
+/**
+ * Whether to print debug messages (to console.error) from the debug function
+ * below.
+ */
+export const DEBUG = false;
+
+let output: string = "";
+
+/**
+ * Write a message to stderr, which appears in the bazel log and is visible to
+ * the end user.
+ */
+export function log(...args: Array<unknown>) {
+    console.error(...args);
+}
+
+/** Maybe print a debug message (depending on a flag defaulting to false). */
+export function debug(...args: Array<unknown>) {
+    if (DEBUG) log(...args);
+}
+
 
 /**
  * runAsWorker returns true if the given arguments indicate the process should
@@ -10,26 +32,14 @@ export function runAsWorker(args: string[]) {
     return args.indexOf('--persistent_worker') !== -1;
 }
 
-
-export type BuildCallack = (succedded: boolean) => void;
-
-export type CancellationCallback = () => void;
-
-export type Input = {
-    path: string;
-    digest: string;
+export type Inputs = {
+    [path: string]: string;
 }
 
 export type OneBuildFunc = (
     args: string[],
-    inputs: Input[],
-    console: Console,
-    callback: BuildCallack
-) => CancellationCallback;
-
-// keeps track of the cancellation callbacks. each callback is removed after the
-// build is complete regardless of build status.
-const cancellationCallbacks = new Map<number, CancellationCallback>();
+    inputs: Inputs
+) => boolean | Promise<boolean>;
 
 /**
  * runWorkerLoop handles the interacton between bazel workers and the
@@ -45,16 +55,28 @@ const cancellationCallbacks = new Map<number, CancellationCallback>();
  */
 export async function runWorkerLoop(runOneBuild: OneBuildFunc) {
     // this hold the remaning data from the previous stdin loop.
-    let data: Buffer;
+    let data: Buffer | undefined;
     let offset: number;
+
+
+    process.stderr.write = (buffer: Uint8Array | string, encoding?: BufferEncoding | ((err?: Error) => void), cb?: (err?: Error) => void) => {
+        output += Buffer.from(buffer).toString("utf-8");
+        if (typeof encoding == "function") {
+            encoding();
+        } else if (typeof cb == "function") {
+            cb();
+        }
+        return true;
+    }
 
     for await (let wholeBuffer of process.stdin) {
         let chunk: Buffer = wholeBuffer;
         if (data! == undefined) {
             const metadata = readMetadata(chunk, 0);
+            chunk = chunk.slice(metadata.headerSize);
             if (metadata.messageSize <= chunk.length) {
                 // now we have the whole message in the buffer.
-                data = chunk.slice(metadata.headerSize, metadata.headerSize + metadata.messageSize);
+                data = chunk;
                 offset = chunk.length;
             } else {
                 data = Buffer.allocUnsafe(metadata.messageSize);
@@ -70,50 +92,49 @@ export async function runWorkerLoop(runOneBuild: OneBuildFunc) {
 
         const work = blaze.worker.WorkRequest.deserialize(data);
 
-        if (work.cancel) {
-            const cancelCallback = cancellationCallbacks.get(work.request_id);
-            if (cancelCallback) {
-                cancellationCallbacks.delete(work.request_id);
-                return cancelCallback();
-            }
+        debug('Handling new build request: ' + work.request_id);
+
+        let succedded;
+
+        try {
+            debug('Compiling with:\n\t' + work.arguments.join('\n\t'));
+            await runOneBuild(
+                work.arguments,
+                work.inputs.reduce((inputs, input) => {
+                    inputs[input.path] = Buffer.from(input.digest).toString("hex");
+                    return inputs;
+                }, {} as Inputs)
+            );
+        } catch (error) {
+            // will be redirected to stderr which we capture and put into output
+            log('Compilation failed:\t\n', error);
+            succedded = false;
         }
 
-        let output = Buffer.alloc(0);
+        const workResponse = new blaze.worker.WorkResponse({
+            exit_code: succedded ? 1 : 0,
+            request_id: work.request_id,
+            output
+        }).serialize();
 
-        const stream = new Writable({
-            write: (chunk) => {
-                output = Buffer.concat([output, chunk]);
-            }
-        });
+        const metadata = writeMetadata(workResponse.byteLength);
 
-        const buildCallack: BuildCallack = (succedded) => {
-            const workResponse = new blaze.worker.WorkResponse({
-                exit_code: succedded ? 1 : 0,
-                request_id: work.request_id,
-                output: output.toString("utf-8")
-            }).serialize();
+        process.stdout.write(Buffer.concat([
+            metadata,
+            workResponse
+        ]));
 
-            const metadata = writeMetadata(workResponse.byteLength);
+        debug('Compilation was successful: ' + work.request_id);
 
-            process.stdout.write(Buffer.concat([
-                metadata,
-                workResponse
-            ]));
-            cancellationCallbacks.delete(work.request_id);
-        }
-
-        const cancelCallback = runOneBuild(
-            work.arguments,
-            work.inputs.map(input => {
-                return {
-                    path: input.path,
-                    digest: Buffer.from(input.digest).toString("hex")
-                }
-            }),
-            new console.Console(stream, stream),
-            buildCallack
-        );
-
-        cancellationCallbacks.set(work.request_id, cancelCallback);
+        // Force a garbage collection pass.  This keeps our memory usage
+        // consistent across multiple compilations, and allows the file
+        // cache to use the current memory usage as a guideline for expiring
+        // data.  Note: this is intentionally not within runOneBuild(), as
+        // we want to gc only after all its locals have gone out of scope.
+        global.gc();
+        // clean up the buffer for the next cycle
+        data = undefined;
+        // clear output
+        output = "";
     }
 }

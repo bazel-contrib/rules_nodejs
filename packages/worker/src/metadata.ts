@@ -15,11 +15,13 @@ export function readMetadata(buffer: Buffer, offset: number) {
 }
 
 export function writeMetadata(messageSize: number) {
-  const buffer = new Uint8Array(10);
-  for (let index = 0; messageSize > 127; index++) {
+  const buffer = Buffer.alloc(10);
+  let index = 0;
+  while (messageSize > 127) {
     buffer[index] = (messageSize & 0x7f) | 0x80;
     messageSize = messageSize >>> 7;
+    index++;
   }
-  buffer[buffer.length] = messageSize;
-  return buffer;
+  buffer[index] = messageSize;
+  return buffer.slice(0, index + 1);
 }

@@ -1,7 +1,7 @@
 "Shows how to define a bazel rule that runs its action as a persistent worker."
 
 def _work(ctx):
-    output = ctx.actions.declare_file(ctx.label.name + ".json")
+    output = ctx.actions.declare_file(ctx.label.name + ".txt")
 
     # Bazel workers always get their arguments spilled into a params file
     args = ctx.actions.args()
@@ -12,6 +12,7 @@ def _work(ctx):
     args.set_param_file_format("multiline")
 
     args.add(output.path)
+    args.add(ctx.files.src[0])
 
     ctx.actions.run(
         arguments = [args],

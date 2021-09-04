@@ -14,7 +14,7 @@
 
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "js_library")
-load("//packages/typescript:index.bzl", "ts_project", "ts_config")
+load("//packages/typescript:index.bzl", "ts_config", "ts_project")
 
 generated_file_test(
     name = "copy_worker_protocol",
@@ -27,38 +27,38 @@ ts_config(
     src = ":tsconfig.json",
     visibility = ["//visibility:public"],
     deps = [
-        "//:tsconfig.json"
-    ]
+        "//:tsconfig.json",
+    ],
 )
 
 ts_project(
     name = "src",
-    tsconfig = ":tsconfig",
-    declaration = True,
     srcs = [
-        "src/worker_protocol.ts",
-        "src/worker.ts",
+        "index.ts",
+        "src/gc.ts",
         "src/metadata.ts",
-        "index.ts"
+        "src/worker.ts",
+        "src/worker_protocol.ts",
     ],
+    declaration = True,
+    tsconfig = ":tsconfig",
     deps = [
         "@npm//@types/google-protobuf",
+        "@npm//@types/node",
         "@npm//google-protobuf",
-        "@npm//@types/node"
     ],
 )
 
-
 js_library(
     name = "library",
-    visibility = ["//visibility:public"],
     package_name = "@bazel/worker",
     srcs = [
         "package.json",
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":src",
-    ]
+    ],
 )
 
 pkg_npm(
