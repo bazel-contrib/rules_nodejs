@@ -18,24 +18,10 @@ const path = require('path');
 const rollup = require('rollup');
 const loadConfigFile = require('rollup/dist/loadConfigFile');
 const crypto = require('crypto')
+const worker = require('@bazel/worker');
 
 const MNEMONIC = 'Rollup';
 const PID = process.pid;
-
-let worker;
-try {
-  worker = require('./worker');
-} catch {
-  // TODO: rely on the linker to link the first-party package
-  const helper = process.env['BAZEL_NODE_RUNFILES_HELPER'];
-  if (!helper) throw new Error('No runfiles helper and no @bazel/worker npm package');
-  const runfiles = require(helper);
-  const workerRequire = runfiles.resolve('build_bazel_rules_nodejs/packages/rollup/worker.js');
-  if (!workerRequire)
-    throw new Error(`build_bazel_rules_nodejs/packages/rollup/worker.js missing in runfiles ${
-        JSON.stringify(runfiles.manifest)}, ${runfiles.dir}`);
-  worker = require(workerRequire);
-}
 
 // Store the cache forever to re-use on each build
 let cacheMap = Object.create(null);
@@ -220,8 +206,7 @@ async function main(args) {
   // Bazel will pass a special argument to the program when it's running us as a worker
   if (worker.runAsWorker(args)) {
     worker.log(`Running ${MNEMONIC} as a Bazel worker`);
-
-    worker.runWorkerLoop(runRollupBundler);
+    await worker.runWorkerLoop(runRollupBundler);
   } else {
     // Running standalone so stdout is available as usual
     console.log(`Running ${MNEMONIC} as a standalone process`);

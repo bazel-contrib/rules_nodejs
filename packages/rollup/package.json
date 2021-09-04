@@ -1,5 +1,8 @@
 {
     "name": "@bazel/rollup",
+    "dependencies": {
+        "@bazel/worker": "0.0.0-PLACEHOLDER"
+    },
     "peerDependencies": {
         "rollup": ">=2.3.0 <3.0.0"
     },
@@ -7,8 +10,8 @@
     "license": "Apache-2.0",
     "version": "0.0.0-PLACEHOLDER",
     "repository": {
-        "type" : "git",
-        "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+        "type": "git",
+        "url": "https://github.com/bazelbuild/rules_nodejs.git",
         "directory": "packages/rollup"
     },
     "bin": {
@@ -22,6 +25,6 @@
         "bazel"
     ],
     "scripts": {
-      "postinstall": "node npm_version_check.js"
+        "postinstall": "node npm_version_check.js"
     }
 }

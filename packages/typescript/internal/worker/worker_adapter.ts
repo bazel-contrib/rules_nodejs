@@ -11,9 +11,9 @@
  */
 import * as fs from 'fs';
 import * as ts from 'typescript';
+import * as worker from '@bazel/worker';
 
 const MNEMONIC = 'TsProject';
-const worker = require('./worker');
 
 let createWatchCompilerHost: typeof ts.createWatchCompilerHost;
 

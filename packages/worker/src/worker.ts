@@ -54,10 +54,6 @@ export type OneBuildFunc = (
  *   https://www.npmjs.com/package/@bazel/worker
  */
 export async function runWorkerLoop(runOneBuild: OneBuildFunc) {
-    // this hold the remaning data from the previous stdin loop.
-    let data: Buffer | undefined;
-    let offset: number;
-
 
     process.stderr.write = (buffer: Uint8Array | string, encoding?: BufferEncoding | ((err?: Error) => void), cb?: (err?: Error) => void) => {
         output += Buffer.from(buffer).toString("utf-8");
@@ -68,43 +64,45 @@ export async function runWorkerLoop(runOneBuild: OneBuildFunc) {
         }
         return true;
     }
+    // this hold the remaning data from the previous stdin loop.
+    let prev: Buffer = Buffer.alloc(0);
 
-    for await (let wholeBuffer of process.stdin) {
-        let chunk: Buffer = wholeBuffer;
-        if (data! == undefined) {
-            const metadata = readMetadata(chunk, 0);
-            chunk = chunk.slice(metadata.headerSize);
-            if (metadata.messageSize <= chunk.length) {
-                // now we have the whole message in the buffer.
-                data = chunk;
-                offset = chunk.length;
-            } else {
-                data = Buffer.allocUnsafe(metadata.messageSize);
-                offset = chunk.copy(data, 0, metadata.headerSize);
-            }
+    for await (const buffer of process.stdin) {
+        let chunk: Buffer = Buffer.concat([prev, buffer]);
+        let current: Buffer;
+
+        debug("Reiterating");
+
+        const metadata = readMetadata(chunk, 0);
+
+        if (metadata.messageSize <= chunk.length +  metadata.headerSize) {
+            chunk = chunk.slice(metadata.headerSize)
+            current = chunk.slice(0, metadata.messageSize);
+            prev = chunk.slice(metadata.messageSize);
+            debug("Now we have the full message. Time to go!");
         } else {
-            offset! += chunk.copy(data, offset!);
+            prev = chunk;
+            debug("We do not have the full message yet. Keep reading");
+            continue;
         }
 
-        if (offset! < data.length) {
-            return;
-        }
+        const work = blaze.worker.WorkRequest.deserialize(current!);
 
-        const work = blaze.worker.WorkRequest.deserialize(data);
-
+    
         debug('Handling new build request: ' + work.request_id);
 
-        let succedded;
+        let succedded: boolean;
 
         try {
             debug('Compiling with:\n\t' + work.arguments.join('\n\t'));
-            await runOneBuild(
+            succedded = await runOneBuild(
                 work.arguments,
                 work.inputs.reduce((inputs, input) => {
                     inputs[input.path] = Buffer.from(input.digest).toString("hex");
                     return inputs;
                 }, {} as Inputs)
             );
+            debug('Compilation was successful: ' + work.request_id);
         } catch (error) {
             // will be redirected to stderr which we capture and put into output
             log('Compilation failed:\t\n', error);
@@ -112,19 +110,17 @@ export async function runWorkerLoop(runOneBuild: OneBuildFunc) {
         }
 
         const workResponse = new blaze.worker.WorkResponse({
-            exit_code: succedded ? 1 : 0,
+            exit_code: succedded ? 0 : 1,
             request_id: work.request_id,
             output
         }).serialize();
 
-        const metadata = writeMetadata(workResponse.byteLength);
+        const responseMetadata = writeMetadata(workResponse.byteLength);
 
         process.stdout.write(Buffer.concat([
-            metadata,
+            responseMetadata,
             workResponse
         ]));
-
-        debug('Compilation was successful: ' + work.request_id);
 
         // Force a garbage collection pass.  This keeps our memory usage
         // consistent across multiple compilations, and allows the file
@@ -132,8 +128,6 @@ export async function runWorkerLoop(runOneBuild: OneBuildFunc) {
         // data.  Note: this is intentionally not within runOneBuild(), as
         // we want to gc only after all its locals have gone out of scope.
         global.gc();
-        // clean up the buffer for the next cycle
-        data = undefined;
         // clear output
         output = "";
     }

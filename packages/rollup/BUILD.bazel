@@ -47,25 +47,6 @@ stardoc(
     deps = [":bzl"],
 )
 
-# Copy the proto file to a matching third_party/... nested directory
-# so the runtime require() statements still work
-_worker_proto_dir = "third_party/github.com/bazelbuild/bazel/src/main/protobuf"
-
-genrule(
-    name = "copy_worker_js",
-    srcs = ["//packages/worker:npm_package"],
-    outs = ["worker.js"],
-    cmd = "cp $(execpath //packages/worker:npm_package)/index.js $@",
-    visibility = ["//visibility:public"],
-)
-
-copy_file(
-    name = "copy_worker_proto",
-    src = "@build_bazel_rules_typescript//%s:worker_protocol.proto" % _worker_proto_dir,
-    out = "%s/worker_protocol.proto" % _worker_proto_dir,
-    visibility = ["//visibility:public"],
-)
-
 copy_file(
     name = "npm_version_check",
     src = "//internal:npm_version_check.js",
@@ -85,8 +66,6 @@ pkg_npm(
     build_file_content = """exports_files(["rollup.config.js"])""",
     deps = [
         ":README.md",
-        ":copy_worker_proto",
         ":npm_version_check",
-        ":worker.js",
     ],
 )
