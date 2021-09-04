@@ -3,9 +3,6 @@
     "compilerOptions": {
         "moduleResolution": "node",
         "module": "CommonJS",
-        "declaration": true,        
-        "paths": {
-            "@bazel/worker": ["../../dist/bin/packages/worker"]
-        }
+        "declaration": true
     },
 }
