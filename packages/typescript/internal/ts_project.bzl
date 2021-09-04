@@ -280,6 +280,7 @@ def _validate_options_impl(ctx):
         preserve_jsx = ctx.attr.preserve_jsx,
         composite = ctx.attr.composite,
         emit_declaration_only = ctx.attr.emit_declaration_only,
+        resolve_json_module = ctx.attr.resolve_json_module,
         source_map = ctx.attr.source_map,
         incremental = ctx.attr.incremental,
         ts_build_info_file = ctx.attr.ts_build_info_file,
@@ -310,6 +311,7 @@ validate_options = rule(
         "extends": attr.label(allow_files = [".json"]),
         "incremental": attr.bool(),
         "preserve_jsx": attr.bool(),
+        "resolve_json_module": attr.bool(),
         "source_map": attr.bool(),
         "target": attr.string(),
         "ts_build_info_file": attr.string(),
@@ -322,6 +324,9 @@ def _is_ts_src(src, allow_js):
     if not src.endswith(".d.ts") and (src.endswith(".ts") or src.endswith(".tsx")):
         return True
     return allow_js and (src.endswith(".js") or src.endswith(".jsx"))
+
+def _is_json_src(src, resolve_json_module):
+    return resolve_json_module and src.endswith(".json")
 
 def _replace_ext(f, ext_map):
     cur_ext = f[f.rindex("."):]
@@ -352,6 +357,7 @@ def ts_project_macro(
         declaration = False,
         source_map = False,
         declaration_map = False,
+        resolve_json_module = False,
         preserve_jsx = False,
         composite = False,
         incremental = False,
@@ -579,6 +585,8 @@ def ts_project_macro(
         allow_js: boolean; Specifies whether TypeScript will read .js and .jsx files. When used with declaration,
             TypeScript will generate .d.ts files from .js files.
 
+        resolve_json_module: boolean; Specifies whether TypeScript will read .json files.
+
         declaration_dir: a string specifying a subdirectory under the bazel-out folder where generated declaration
             outputs are written. Equivalent to the TypeScript --declarationDir option.
             By default declarations are written to the out_dir.
@@ -607,10 +615,14 @@ def ts_project_macro(
     """
 
     if srcs == None:
+        include = ["**/*.ts", "**/*.tsx"]
+        exclude = []
         if allow_js == True:
-            srcs = native.glob(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"])
-        else:
-            srcs = native.glob(["**/*.ts", "**/*.tsx"])
+            include.append("**/*.js", "**/*.jsx")
+        if resolve_json_module == True:
+            include.append("**/*.json")
+            exclude.append("**/tsconfig*.json")
+        srcs = native.glob(include, exclude)
     extra_deps = []
 
     if type(extends) == type([]):
@@ -626,6 +638,7 @@ def ts_project_macro(
         declaration_map = compiler_options.setdefault("declarationMap", declaration_map)
         emit_declaration_only = compiler_options.setdefault("emitDeclarationOnly", emit_declaration_only)
         allow_js = compiler_options.setdefault("allowJs", allow_js)
+        resolve_json_module = compiler_options.setdefault("resolveJsonModule", resolve_json_module)
 
         # These options are always passed on the tsc command line so don't include them
         # in the tsconfig. At best they're redundant, but at worst we'll have a conflict
@@ -640,7 +653,7 @@ def ts_project_macro(
         write_tsconfig(
             name = "_gen_tsconfig_%s" % name,
             config = tsconfig,
-            files = [s for s in srcs if _is_ts_src(s, allow_js)],
+            files = [s for s in srcs if _is_ts_src(s, allow_js) or _is_json_src(s, resolve_json_module)],
             extends = Label("%s//%s:%s" % (native.repository_name(), native.package_name(), name)).relative(extends) if extends else None,
             out = "tsconfig_%s.json" % name,
         )
@@ -665,6 +678,7 @@ def ts_project_macro(
                 incremental = incremental,
                 ts_build_info_file = ts_build_info_file,
                 emit_declaration_only = emit_declaration_only,
+                resolve_json_module = resolve_json_module,
                 allow_js = allow_js,
                 tsconfig = tsconfig,
                 extends = extends,

@@ -88,6 +88,7 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
   check('allowJs', 'allow_js');
   check('declarationMap', 'declaration_map');
   check('emitDeclarationOnly', 'emit_declaration_only');
+  check('resolveJsonModule', 'resolve_json_module');
   check('sourceMap', 'source_map');
   check('composite');
   check('declaration');
