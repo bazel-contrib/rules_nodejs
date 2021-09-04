@@ -13,36 +13,52 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
-load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "js_library")
+load("//packages/typescript:index.bzl", "ts_project", "ts_config")
 
-# We reach inside the @bazel/typescript npm package to grab this one .js file
-# This avoids a complex refactoring where we extract that .ts file from tsc_wrapped to a common library
-_worker_path = "internal/tsc_wrapped/worker"
-
-# Copy the proto file to a matching third_party/... nested directory
-# so the runtime require() statements still work
-_worker_proto_dir = "third_party/github.com/bazelbuild/bazel/src/main/protobuf"
-
-# because the package is a tree artifact, there's no label to address the files we want
-# and so we must use a custom cp command, not the copy_file rule
-genrule(
-    name = "copy_worker_js",
-    srcs = ["@build_bazel_rules_typescript//:npm_bazel_typescript_package"],
-    outs = ["index.js"],
-    cmd = "cp $(execpath @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.js $@" % _worker_path,
+generated_file_test(
+    name = "copy_worker_protocol",
+    src = ":src/worker_protocol.ts",
+    generated = "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol_proto_ts",
 )
 
-genrule(
-    name = "copy_worker_dts",
-    srcs = ["@build_bazel_rules_typescript//:npm_bazel_typescript_package"],
-    outs = ["index.d.ts"],
-    cmd = "cp $(execpath @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.d.ts $@" % _worker_path,
+ts_config(
+    name = "tsconfig",
+    src = ":tsconfig.json",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//:tsconfig.json"
+    ]
 )
 
-copy_file(
-    name = "copy_worker_proto",
-    src = "@build_bazel_rules_typescript//%s:worker_protocol.proto" % _worker_proto_dir,
-    out = "%s/worker_protocol.proto" % _worker_proto_dir,
+ts_project(
+    name = "src",
+    tsconfig = ":tsconfig",
+    declaration = True,
+    srcs = [
+        "src/worker_protocol.ts",
+        "src/worker.ts",
+        "src/metadata.ts",
+        "index.ts"
+    ],
+    deps = [
+        "@npm//@types/google-protobuf",
+        "@npm//google-protobuf",
+        "@npm//@types/node"
+    ],
+)
+
+
+js_library(
+    name = "library",
+    visibility = ["//visibility:public"],
+    package_name = "@bazel/worker",
+    srcs = [
+        "package.json",
+    ],
+    deps = [
+        ":src",
+    ]
 )
 
 pkg_npm(
@@ -52,18 +68,8 @@ pkg_npm(
         "README.md",
         "package.json",
     ],
-    substitutions = {
-        # Also fix the relative loading case since third_party directory is now a sibling of index.js
-        "../../third_party": "./third_party",
-        # Fix the require() statement that loads the worker_protocol.proto file
-        # we are re-rooting the sources into the @bazel/worker package so it's no longer
-        # relative to the build_bazel_rules_typescript workspace.
-        "build_bazel_rules_typescript": "@bazel/worker",
-    },
     visibility = ["//visibility:public"],
     deps = [
-        ":copy_worker_dts",
-        ":copy_worker_js",
-        ":copy_worker_proto",
+        ":src",
     ],
 )

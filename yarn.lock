@@ -1446,10 +1446,10 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
-"@bazel/bazelisk@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.5.0.tgz#61f583ed93be138b47be7180403938ea4057f54b"
-  integrity sha512-qhOGN1WmfZYNJXGrRL/0byii9hX5FBomMv3WWI2OEL2+Bxm4t/bR3zMxN3xwQX1C8meSSrAfKGSzxVOZfpJsOg==
+"@bazel/bazelisk@^1.10.1":
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.10.1.tgz#46236a43ad58e310c55247f866da0dc6083c3d8b"
+  integrity sha512-IHszNzBO2UrUy6YtsSAsZtnU6I6qpzXGkWdEvGoMxLgJnDsEnsIYniDCUjvjU1KAP+A03eepmCHlyFcRHMSxRA==
 
 "@bazel/buildifier@^3.2.0":
   version "3.2.0"
@@ -8837,6 +8837,11 @@ protobufjs@6.8.8:
     "@types/long" "^4.0.0"
     "@types/node" "^10.1.0"
     long "^4.0.0"
+
+protoc-gen-ts@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/protoc-gen-ts/-/protoc-gen-ts-0.4.0.tgz#4be7e2086dc32db15f01733a7a200793f1e1081a"
+  integrity sha512-TUoAT45fC9Fpcbp+rOdjzUPytnYkV8YR0xQ9atZi69RNV2/if600cDxBPXXbujGIegTmiEaUkQIz4Rrk2lOyUQ==
 
 protoduck@^5.0.1:
   version "5.0.1"

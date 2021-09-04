@@ -1,0 +1,6 @@
+load("//packages/worker/test/work:uses_workers.bzl", "work")
+
+work(
+    name = "do_work",
+    src = "file.txt",
+)

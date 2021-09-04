@@ -1,0 +1,24 @@
+
+package(default_visibility = ["//visibility:public"])
+
+load("//packages/typescript:index.bzl", "ts_project")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+ts_project(
+    name = "binary_lib",
+    tsconfig = "//packages/worker:tsconfig",
+    srcs = ["worker.ts"],
+    declaration = True,
+    deps = [
+        "//packages/worker:library",
+    ],
+)
+
+nodejs_binary(
+    name = "tool",
+    visibility = ["//visibility:public"],
+    data = [
+        ":binary_lib",
+    ],
+    entry_point = ":worker.js",
+)
