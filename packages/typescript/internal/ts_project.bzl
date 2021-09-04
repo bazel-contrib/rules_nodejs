@@ -323,6 +323,9 @@ def _is_ts_src(src, allow_js):
         return True
     return allow_js and (src.endswith(".js") or src.endswith(".jsx"))
 
+def _is_json_src(src):
+    return src.endswith(".json")
+
 def _replace_ext(f, ext_map):
     cur_ext = f[f.rindex("."):]
     new_ext = ext_map.get(cur_ext)
@@ -640,7 +643,7 @@ def ts_project_macro(
         write_tsconfig(
             name = "_gen_tsconfig_%s" % name,
             config = tsconfig,
-            files = [s for s in srcs if _is_ts_src(s, allow_js)],
+            files = [s for s in srcs if _is_ts_src(s, allow_js) or _is_json_src(s)],
             extends = Label("%s//%s:%s" % (native.repository_name(), native.package_name(), name)).relative(extends) if extends else None,
             out = "tsconfig_%s.json" % name,
         )

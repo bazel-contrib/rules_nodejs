@@ -16,6 +16,19 @@ ts_project(
 )
 
 ts_project(
+    name = "transpile-generated-tsconfig",
+    srcs = SRCS,
+    out_dir = "generated-tsconfig",
+    tsconfig = {
+        "compilerOptions": {
+            "composite": True,
+            "declaration": True,
+            "resolveJsonModule": True,
+        },
+    },
+)
+
+ts_project(
     name = "transpile-no-outdir",
     srcs = SRCS,
 )
@@ -38,11 +51,13 @@ nodejs_test(
     data = [
         ":transpile",
         ":transpile-decl-only",
+        ":transpile-generated-tsconfig",
         ":transpile-no-outdir",
     ],
     entry_point = "verify.js",
     templated_args = [
         "$(locations :transpile)",
         "$(locations :transpile-no-outdir)",
+        "$(locations :transpile-generated-tsconfig)",
     ],
 )
