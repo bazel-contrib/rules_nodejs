@@ -113,7 +113,7 @@ ${{COMMAND}}
         content = launcher_content,
     )
 
-    runfiles = [config] + ctx.files.bazel_binary + ctx.files.workspace_files + ctx.files.repositories + ctx.files.bazelrc_imports + ctx.files.npm_packages
+    runfiles = [config] + ctx.files.bazel_binary + ctx.files.workspace_files + ctx.files.repositories + ctx.files.bazelrc_imports + ctx.files.npm_packages + ctx.files.resolutions
 
     return [DefaultInfo(
         runfiles = ctx.runfiles(files = runfiles).merge(ctx.attr._test_runner[DefaultInfo].data_runfiles),
@@ -213,8 +213,10 @@ This can be used for integration testing against multiple external npm dependenc
     "3.5.x",
 ]]```""",
     ),
-    "resolutions": attr.string_dict(
-        doc = """""",
+    "resolutions": attr.label_keyed_string_dict(
+        doc = """
+        Packages to put into package.json's resolutions object.
+        """,
     ),
     "repositories": attr.label_keyed_string_dict(
         doc = """A label keyed string dictionary of repositories to replace in the workspace-under-test's WORKSPACE
@@ -276,8 +278,9 @@ def rules_nodejs_integration_test(name, **kwargs):
 
     # convert the npm packages into the tar output and add to resolutions
     resolutions = kwargs.pop("resolutions", {})
+    _tar_package_resolutions = {}
     for key in resolutions:
-        _tar_npm_packages[key + ".tar"] = resolutions[key]
+        _tar_package_resolutions[key + ".tar"] = resolutions[key]
 
     for bazel_version in SUPPORTED_BAZEL_VERSIONS:
         bazel_integration_test(
@@ -291,6 +294,7 @@ def rules_nodejs_integration_test(name, **kwargs):
                 "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
             },
             npm_packages = _tar_npm_packages,
+            resolutions = _tar_package_resolutions,
             tags = tags,
             **kwargs
         )

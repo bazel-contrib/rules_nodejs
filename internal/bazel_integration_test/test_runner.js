@@ -285,13 +285,14 @@ if (isFile(packageJsonFile)) {
   const resolutionKeys = Object.keys(config.resolutions);
 
   if (resolutionKeys.length) {
-    packageJsonContents = JSON.stringify(fs.readFileSync(packageJsonFile, { encoding: 'utf-8' }));
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonFile, { encoding: 'utf-8' }));
     const resolutions = {};
     for (const resolutionKey of resolutionKeys) {
       const packagePath = copyNpmPackage(config.resolutions[resolutionKey]).replace(/\\/g, '/');
       resolutions[`**/${resolutionKey}`] = `file:${packagePath}`;
     }
-    fs.writeFileSync(packageJsonFile, JSON.stringify(packageJsonContents, null, 2));
+    packageJson.resolutions = resolutions;
+    fs.writeFileSync(packageJsonFile, JSON.stringify(packageJson, null, 2));
   }
 
 
