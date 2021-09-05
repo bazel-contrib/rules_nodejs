@@ -685,7 +685,12 @@ def ts_project_macro(
                 # END-INTERNAL
                 Label(typescript_package),
                 Label("//packages/typescript/internal/worker:filegroup"),
+                # BEGIN-INTERNAL
+                # this is not needed when package since @bazel/typescript lists
+                # @bazel/worker as its dependency hence has access to it.
+                # this only needed when ts_project is run from the source.
                 Label("//packages/worker:library"),
+                # END-INTERNAL
                 tsconfig,
             ],
             entry_point = Label("//packages/typescript/internal/worker:worker_adapter"),

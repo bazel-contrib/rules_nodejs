@@ -26,8 +26,6 @@ TYPESCRIPT_REPLACEMENTS = dict(
         "(#|\\/\\/)\\s+BEGIN-DEV-ONLY[\\w\\W]+?(#|\\/\\/)\\s+END-DEV-ONLY": "",
         # Replace the worker filegroup with the entire @bazel/typescript node_module and its transitive node_modules
         "//packages/typescript/internal/worker:filegroup": "//@bazel/typescript",
-        # Replace the worker pacakge with the @bazel/worker package
-        "//packages/worker:library": "//@bazel/worker",
         # Change the worker entry point from the checked_in_ts_project target to the checked in .js
         "//packages/typescript/internal/worker:worker_adapter": "//@bazel/typescript/internal/worker:index.js",
         # This file gets vendored into our repo
