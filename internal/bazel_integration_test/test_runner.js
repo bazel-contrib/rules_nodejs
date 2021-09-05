@@ -328,12 +328,17 @@ const bazelBinary =
 
 if (DEBUG) {
   log(`
+
 ================================================================================
 Integration test put in DEBUG mode with BAZEL_INTEGRATION_TEST_DEBUG env set.
+
     bazel binary: ${bazelBinary}
     workspace under test root: ${workspaceRoot}
+
 Change directory to workspace under test root folder,
+
     cd ${workspaceRoot}
+
 and run integration test manually.
 ================================================================================
 `);
