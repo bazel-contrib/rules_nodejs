@@ -3,7 +3,8 @@
   "private": true,
   "devDependencies": {
     "@types/node": "12.12.50",
-    "protobufjs": "6.10.1",
+    "google-protobuf": "^3.6.1",
+    "@types/google-protobuf": "^3.15.2",
     "rollup": "2.3.4",
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "8.4.0",
