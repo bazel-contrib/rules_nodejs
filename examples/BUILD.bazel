@@ -22,11 +22,13 @@ example_integration_test(
         "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
-        "//packages/worker:npm_package": "@bazel/worker",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = ["@alan-agius4"],
+    resolutions = {
+        "//packages/worker:npm_package": "@bazel/worker",
+    },
 
     # bazel-in-bazel examples_angular fails on Windows on bazelci cloning a git repo:
     # ```

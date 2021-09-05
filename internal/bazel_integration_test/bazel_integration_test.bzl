@@ -49,6 +49,7 @@ module.exports = {{
     bazelrcAppend: `{TMPL_bazelrc_append}`,
     bazelrcImports: {{ {TMPL_bazelrc_imports} }},
     npmPackages: {{ {TMPL_npm_packages} }},
+    resolutions: {{ {TMPL_resolutions} }},
     checkNpmPackages: [ {TMPL_check_npm_packages} ],
     packageJsonRepacements: {{ {TMPL_package_json_substitutions} }},
 }};
@@ -60,6 +61,7 @@ module.exports = {{
             TMPL_bazelrc_append = ctx.attr.bazelrc_append,
             TMPL_bazelrc_imports = ", ".join(["'%s': '%s'" % (ctx.attr.bazelrc_imports[f], _to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.bazelrc_imports]),
             TMPL_npm_packages = ", ".join(["'%s': '%s'" % (ctx.attr.npm_packages[f], _to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.npm_packages]),
+            TMPL_resolutions = ", ".join(["'%s': '%s'" % (ctx.attr.resolutions[f], _to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.resolutions]),
             TMPL_check_npm_packages = ", ".join(["'%s'" % s for s in ctx.attr.check_npm_packages]),
             TMPL_package_json_substitutions = ", ".join(["'%s': '%s'" % (f, ctx.attr.package_json_substitutions[f]) for f in ctx.attr.package_json_substitutions]),
         ),
@@ -211,6 +213,9 @@ This can be used for integration testing against multiple external npm dependenc
     "3.5.x",
 ]]```""",
     ),
+    "resolutions": attr.string_dict(
+        doc = """""",
+    ),
     "repositories": attr.label_keyed_string_dict(
         doc = """A label keyed string dictionary of repositories to replace in the workspace-under-test's WORKSPACE
 file with generated workspace archive targets. The targets should be pkg_tar rules.
@@ -268,6 +273,11 @@ def rules_nodejs_integration_test(name, **kwargs):
     _tar_npm_packages = {}
     for key in npm_packages:
         _tar_npm_packages[key + ".tar"] = npm_packages[key]
+
+    # convert the npm packages into the tar output and add to resolutions
+    resolutions = kwargs.pop("resolutions", {})
+    for key in resolutions:
+        _tar_npm_packages[key + ".tar"] = resolutions[key]
 
     for bazel_version in SUPPORTED_BAZEL_VERSIONS:
         bazel_integration_test(
