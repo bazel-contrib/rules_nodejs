@@ -679,10 +679,13 @@ def ts_project_macro(
                 # BEGIN-INTERNAL
                 # Users get this dependency transitively from @bazel/typescript
                 # but that's our own code, so we don't.
+                # TODO: remove protobuf dependency once rules_typescript also uses
+                # worker package
                 "@npm//protobufjs",
                 # END-INTERNAL
                 Label(typescript_package),
                 Label("//packages/typescript/internal/worker:filegroup"),
+                Label("//packages/worker:library"),
                 tsconfig,
             ],
             entry_point = Label("//packages/typescript/internal/worker:worker_adapter"),
