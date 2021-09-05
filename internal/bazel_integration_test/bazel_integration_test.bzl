@@ -216,6 +216,10 @@ This can be used for integration testing against multiple external npm dependenc
     "resolutions": attr.label_keyed_string_dict(
         doc = """
         Packages to put into package.json's resolutions object.
+        ATTENTION: This will not work with npm_install as resolution is not taken
+        into consideration when resolving modules by npm.
+        See: https://stackoverflow.com/questions/52416312/npm-equivalent-of-yarn-resolutions
+        https://github.com/npm/rfcs/blob/latest/accepted/0036-overrides.md
         """,
     ),
     "repositories": attr.label_keyed_string_dict(

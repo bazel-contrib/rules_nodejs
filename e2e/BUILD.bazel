@@ -31,6 +31,9 @@ e2e_integration_test(
         "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
+    resolutions = {
+        "//packages/worker:npm_package": "@bazel/worker",
+    },
     # Coverage not working on Windows. Looks like a bazel issue.
     # ==================== Test output for //:coverage_test:
     # ERROR(tools/test/windows/tw.cc:1262) ERROR: src/main/native/windows/process.cc(199): CreateProcessW("C:\users\b\_bazel_b\tpt6yasm\execroot\e2e_coverage\bazel-out\x64_windows-fastbuild\bin\coverage_test.bat.runfiles\bazel_tools\tools\test\collect_coverage.sh"  ./coverage_test.bat): The system cannot find the file specified.
@@ -111,6 +114,9 @@ e2e_integration_test(
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
     },
+    resolutions = {
+        "//packages/worker:npm_package": "@bazel/worker",
+    },
 )
 
 e2e_integration_test(
@@ -119,6 +125,9 @@ e2e_integration_test(
         "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    resolutions = {
+        "//packages/worker:npm_package": "@bazel/worker",
     },
 )
 
@@ -135,6 +144,9 @@ e2e_integration_test(
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
+    resolutions = {
+        "//packages/worker:npm_package": "@bazel/worker",
+    },
 )
 
 [e2e_integration_test(
@@ -146,6 +158,9 @@ e2e_integration_test(
     # use these package.json packages instead
     package_json_substitutions = {
         "typescript": tsc_version,
+    },
+    resolutions = {
+        "//packages/worker:npm_package": "@bazel/worker",
     },
     workspace_root = "typescript",
 ) for tsc_version in [
