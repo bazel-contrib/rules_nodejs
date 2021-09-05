@@ -21,7 +21,7 @@ generated_file_test(
     src = ":src/worker_protocol.ts",
     generated = "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol_proto_ts",
     tags = [
-        "-no-bazelci-windows",
+        "no-bazelci-windows",
     ],
 )
 

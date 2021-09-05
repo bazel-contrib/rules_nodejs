@@ -9,7 +9,7 @@ proto_library(
 ts_proto_library(
     name = "worker_protocol_proto_ts",
     tags = [
-        "-no-bazelci-windows",
+        "no-bazelci-windows",
     ],
     visibility = ["//visibility:public"],
     deps = [":worker_protocol_proto"],
