@@ -8,6 +8,6 @@ proto_library(
 
 ts_proto_library(
     name = "worker_protocol_proto_ts",
-    deps = [":worker_protocol_proto"],
     visibility = ["//visibility:public"],
+    deps = [":worker_protocol_proto"],
 )
