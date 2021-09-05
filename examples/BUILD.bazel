@@ -22,6 +22,7 @@ example_integration_test(
         "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
+        "//packages/worker:npm_package": "@bazel/worker",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
@@ -47,6 +48,7 @@ example_integration_test(
         "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
+        "//packages/worker:npm_package": "@bazel/worker",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
@@ -76,6 +78,7 @@ example_integration_test(
     bazel_commands = ["build ..."],
     npm_packages = {
         "//packages/typescript:npm_package": "@bazel/typescript",
+        "//packages/worker:npm_package": "@bazel/worker",
     },
     # TODO(alexeagle): somehow this is broken by the new node-patches based node_patches script
     # ERROR: D:/temp/tmp-6900sejcsrcttpdb/BUILD.bazel:37:1: output 'app.bundle.js' was not created
@@ -88,6 +91,7 @@ example_integration_test(
         "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
+        "//packages/worker:npm_package": "@bazel/worker",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
@@ -114,6 +118,7 @@ example_integration_test(
     npm_packages = {
         "//packages/cypress:npm_package": "@bazel/cypress",
         "//packages/typescript:npm_package": "@bazel/typescript",
+        "//packages/worker:npm_package": "@bazel/worker",
     },
     owners = ["@mrmeku"],
     tags = [
@@ -125,6 +130,7 @@ example_integration_test(
     name = "examples_jest",
     npm_packages = {
         "//packages/typescript:npm_package": "@bazel/typescript",
+        "//packages/worker:npm_package": "@bazel/worker",
     },
     owners = ["@mrmeku"],
 )
@@ -134,6 +140,7 @@ example_integration_test(
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/rollup:npm_package": "@bazel/rollup",
+        "//packages/worker:npm_package": "@bazel/worker",
         "//packages/terser:npm_package": "@bazel/terser",
     },
     tags = [
@@ -158,6 +165,7 @@ example_integration_test(
     npm_packages = {
         "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/typescript:npm_package": "@bazel/typescript",
+        "//packages/worker:npm_package": "@bazel/worker",
     },
 )
 
@@ -172,6 +180,7 @@ example_integration_test(
     npm_packages = {
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
+        "//packages/worker:npm_package": "@bazel/worker",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
@@ -191,6 +200,7 @@ example_integration_test(
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/typescript:npm_package": "@bazel/typescript",
+        "//packages/worker:npm_package": "@bazel/worker",
     },
     owners = [
         "@zachgrayio",
@@ -215,6 +225,7 @@ example_integration_test(
     npm_packages = {
         "//packages/labs:npm_package": "@bazel/labs",
         "//packages/rollup:npm_package": "@bazel/rollup",
+        "//packages/worker:npm_package": "@bazel/worker",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
@@ -229,6 +240,7 @@ example_integration_test(
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/typescript:npm_package": "@bazel/typescript",
+        "//packages/worker:npm_package": "@bazel/worker",
     },
     # Flakes on windows
     # TODO: understand flake fail mode and re-enable
@@ -291,6 +303,7 @@ example_integration_test(
     npm_packages = {
         "//packages/esbuild:npm_package": "@bazel/esbuild",
         "//packages/typescript:npm_package": "@bazel/typescript",
+        "//packages/worker:npm_package": "@bazel/worker",
     },
     owners = ["@mattem"],
 )
