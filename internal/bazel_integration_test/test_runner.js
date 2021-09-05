@@ -44,7 +44,7 @@ log_verbose(`testArgs: ${JSON.stringify(testArgs, null, 2)}`);
 /**
  * Helper function to debug log out the contents of a file.
  */
- function logFileContents(desc, contents) {
+function logFileContents(desc, contents) {
   log_verbose(`${
       desc}\n========================================================================================\n${
       contents}\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n`);
@@ -134,8 +134,8 @@ function copyWorkspace(workspacePath) {
   const to = tmp.dirSync({keep: DEBUG, unsafeCleanup: !DEBUG}).name;
   if (RUNFILES_MANIFEST) {
     const start = workspacePath.startsWith('../') ?
-      workspacePath.slice(3) :
-      `${process.env['TEST_WORKSPACE']}/${workspacePath}/`;
+        workspacePath.slice(3) :
+        `${process.env['TEST_WORKSPACE']}/${workspacePath}/`;
     let copied = 0;
     for (const key of Object.keys(RUNFILES_MANIFEST)) {
       if (key.startsWith(start)) {
@@ -168,7 +168,7 @@ function copyWorkspace(workspacePath) {
 function copyNpmPackage(packagePath) {
   const to = tmp.dirSync({keep: DEBUG, unsafeCleanup: !DEBUG}).name;
   const from = RUNFILES_MANIFEST ? RUNFILES_MANIFEST[packagePath] :
-    path.posix.join(process.cwd(), '..', packagePath);
+                                   path.posix.join(process.cwd(), '..', packagePath);
   if (!isFile(from)) {
     throw new Error(`npm package ${packagePath} not found at ${from}`);
   }
@@ -179,8 +179,8 @@ function copyNpmPackage(packagePath) {
 }
 
 const workspacePath = config.workspaceRoot.startsWith('external/') ?
-  '..' + config.workspaceRoot.slice('external'.length) :
-  config.workspaceRoot;
+    '..' + config.workspaceRoot.slice('external'.length) :
+    config.workspaceRoot;
 log_verbose(`copying workspace under test ${workspacePath} to tmp`);
 const workspaceRoot = copyWorkspace(workspacePath);
 
@@ -191,7 +191,7 @@ if (bazelrcImportsKeys.length && isFile(bazelrcFile)) {
   let bazelrcContents = fs.readFileSync(bazelrcFile, {encoding: 'utf-8'});
   for (const importKey of bazelrcImportsKeys) {
     const importContents =
-      fs.readFileSync(runfiles.resolve(config.bazelrcImports[importKey]), {encoding: 'utf-8'});
+        fs.readFileSync(runfiles.resolve(config.bazelrcImports[importKey]), {encoding: 'utf-8'});
     bazelrcContents = bazelrcContents.replace(importKey, importContents);
   }
   fs.writeFileSync(bazelrcFile, bazelrcContents);
@@ -201,7 +201,7 @@ if (bazelrcImportsKeys.length && isFile(bazelrcFile)) {
 // Handle appending to .bazelrc
 if (config.bazelrcAppend) {
   let bazelrcContents =
-    isFile(bazelrcFile) ? fs.readFileSync(bazelrcFile, {encoding: 'utf-8'}) : '';
+      isFile(bazelrcFile) ? fs.readFileSync(bazelrcFile, {encoding: 'utf-8'}) : '';
   bazelrcContents += '\n\n# Appended by bazel_integration_test\n';
   bazelrcContents += config.bazelrcAppend;
   fs.writeFileSync(bazelrcFile, bazelrcContents);
@@ -226,16 +226,16 @@ if (config.bazelrcAppend) {
     // We have to disable the frozen lockfile option for the tests it won't match with the version
     // from the yarn.lock file.
     workspaceContents =
-      workspaceContents.replace(/(yarn_lock[\s\S]+?,)/gm, 'frozen_lockfile = False,\n    $1')
+        workspaceContents.replace(/(yarn_lock[\s\S]+?,)/gm, 'frozen_lockfile = False,\n    $1')
 
     // We have to use npm install in favour of npm ci as the package-lock.json would not match the
     // replaced version
     workspaceContents = workspaceContents.replace(
-      /(package_lock_json[\s\S]+?,)/gm, 'npm_command = "install",\n    $1')
+        /(package_lock_json[\s\S]+?,)/gm, 'npm_command = "install",\n    $1')
 
     if (!workspaceContents.includes(archiveFile)) {
       console.error(
-        `bazel_integration_test: WORKSPACE replacement for repository ${repositoryKey} failed!`)
+          `bazel_integration_test: WORKSPACE replacement for repository ${repositoryKey} failed!`)
       process.exit(1);
     }
   }
@@ -247,8 +247,8 @@ if (config.bazelrcAppend) {
 const packageJsonFile = path.posix.join(workspaceRoot, 'package.json');
 const packageJsonLockFile = path.posix.join(workspaceRoot, 'package-lock.json');
 const packageJsonLockContents = isFile(packageJsonLockFile) ?
-  JSON.parse(fs.readFileSync(packageJsonLockFile, {encoding: 'utf-8'})) :
-  undefined;
+    JSON.parse(fs.readFileSync(packageJsonLockFile, {encoding: 'utf-8'})) :
+    undefined;
 
 if (isFile(packageJsonFile)) {
   let packageJsonContents = fs.readFileSync(packageJsonFile, {encoding: 'utf-8'});
@@ -263,7 +263,7 @@ if (isFile(packageJsonFile)) {
       packageJsonContents = packageJsonContents.replace(regex, replacement);
       if (!packageJsonContents.includes(packagePath)) {
         console.error(`bazel_integration_test: package.json replacement for npm package ${
-          packageJsonKey} failed!`)
+            packageJsonKey} failed!`)
         process.exit(1);
       }
 
@@ -285,7 +285,7 @@ if (isFile(packageJsonFile)) {
   const resolutionKeys = Object.keys(config.resolutions);
 
   if (resolutionKeys.length) {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonFile, { encoding: 'utf-8' }));
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonFile, {encoding: 'utf-8'}));
     const resolutions = {};
     for (const resolutionKey of resolutionKeys) {
       const packagePath = copyNpmPackage(config.resolutions[resolutionKey]).replace(/\\/g, '/');
@@ -295,7 +295,6 @@ if (isFile(packageJsonFile)) {
     fs.writeFileSync(packageJsonFile, JSON.stringify(packageJson, null, 2));
   }
 
-
   const packageJsonReplacementKeys = Object.keys(config.packageJsonRepacements);
   if (packageJsonReplacementKeys.length) {
     for (const packageJsonKey of packageJsonReplacementKeys) {
@@ -304,7 +303,7 @@ if (isFile(packageJsonFile)) {
       packageJsonContents = packageJsonContents.replace(regex, replacement);
       if (!packageJsonContents.includes(replacement)) {
         console.error(`bazel_integration_test: package.json replacement for npm package ${
-          packageJsonKey} failed!`)
+            packageJsonKey} failed!`)
         process.exit(1);
       }
     }
@@ -312,8 +311,8 @@ if (isFile(packageJsonFile)) {
 
   for (const packageJsonKey of config.checkNpmPackages) {
     if (packageJsonContents.includes(`"${packageJsonKey}"`) &&
-      !packageJsonContents.includes(`"${packageJsonKey}": "file:`)) {
-        console.error(`bazel_integration_test: expected replacement of npm package ${
+        !packageJsonContents.includes(`"${packageJsonKey}": "file:`)) {
+      console.error(`bazel_integration_test: expected replacement of npm package ${
           packageJsonKey} for locally generated npm package not found; add ${
           packageJsonKey} to npm_packages attribute`);
       process.exit(1);
@@ -325,21 +324,16 @@ if (isFile(packageJsonFile)) {
 
 const isWindows = process.platform === 'win32';
 const bazelBinary =
-  runfiles.resolve(`${config.bazelBinaryWorkspace}/bazel${isWindows ? '.exe' : ''}`);
+    runfiles.resolve(`${config.bazelBinaryWorkspace}/bazel${isWindows ? '.exe' : ''}`);
 
 if (DEBUG) {
   log(`
-
 ================================================================================
 Integration test put in DEBUG mode with BAZEL_INTEGRATION_TEST_DEBUG env set.
-
     bazel binary: ${bazelBinary}
     workspace under test root: ${workspaceRoot}
-
 Change directory to workspace under test root folder,
-
     cd ${workspaceRoot}
-
 and run integration test manually.
 ================================================================================
 `);
