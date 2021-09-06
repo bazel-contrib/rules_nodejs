@@ -45,6 +45,7 @@ filegroup(
 
 exports_files([
     "index.js",
+    "bazel.webpack.config.js",
 ])
 
 filegroup(

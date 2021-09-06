@@ -1,18 +1,33 @@
 load("//packages/webpack:index.bzl", "webpack")
 
 webpack(
-    name = "bundle",
-    outs = ["app.bundle.js"],
+    name = "no_workers",
+    outs = ["no_workers.bundle.js"],
     args = [
-        "$(execpath index.js)",
-        "--config",
-        "$(execpath webpack.config.js)",
+        "--mode=development",
+        "./$(execpath index.js)",
         "-o",
         "$@",
     ],
     data = [
         "index.js",
         "module.js",
-        "webpack.config.js",
     ],
+    webpack_config = "webpack.config.js",
+)
+
+webpack(
+    name = "supports_workers",
+    outs = ["supports_workers.bundle.js"],
+    args = [
+        "--mode=development",
+        "-o",
+        "$@",
+    ],
+    data = [
+        "index.js",
+        "module.js",
+    ],
+    supports_workers = True,
+    webpack_config = "webpack.config.js",
 )

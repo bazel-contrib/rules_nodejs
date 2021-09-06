@@ -15,7 +15,7 @@ _DEFAULT_WEBPACK_CLI_PACKAGE = (
     # BEGIN-INTERNAL
     "@npm" +
     # END-INTERNAL
-    "//webpack"
+    "//webpack-cli"
 )
 
 MNEMONIC = "webpack"
@@ -23,7 +23,7 @@ MNEMONIC = "webpack"
 def _webpack_impl(ctx):
     arguments = ctx.actions.args()
     execution_requirements = {}
-    executable = ctx.executable._webpack_cli_bin
+    executable = ctx.executable.webpack_cli_bin
     progress_prefix = "Running webpack-cli"
     inputs = _inputs(ctx)
     outputs = []
@@ -48,7 +48,13 @@ def _webpack_impl(ctx):
         execution_requirements["supports-workers"] = "1"
         execution_requirements["worker-key-mnemonic"] = MNEMONIC
         progress_prefix = "{} (worker mode)".format(progress_prefix)
-        inputs
+        executable = ctx.executable.worker_bin
+        inputs.append(ctx.file.bazel_webpack_config)
+
+        # arguments.add_all(["-c", ctx.file.bazel_webpack_config.path, "-c", ctx.file.webpack_config.path, "--merge", "--watch"])
+        arguments.add_all(["-c", ctx.file.webpack_config.path])
+    else:
+        arguments.add_all(["-c", ctx.file.webpack_config.path])
 
     ctx.actions.run(
         arguments = [arguments],
@@ -57,7 +63,7 @@ def _webpack_impl(ctx):
         outputs = outputs,
         execution_requirements = execution_requirements,
         # The user can explicitly set the execution strategy
-        mnemonic = mnemonic,
+        mnemonic = MNEMONIC,
     )
 
     return [DefaultInfo(files = depset(outputs))]
@@ -80,7 +86,7 @@ def _inputs(ctx):
             inputs_depsets.append(d[JSModuleInfo].sources)
         if DeclarationInfo in d:
             inputs_depsets.append(d[DeclarationInfo].declarations)
-    return depset(ctx.files.data, transitive = inputs_depsets).to_list()
+    return depset(ctx.files.data, transitive = inputs_depsets).to_list() + [ctx.file.webpack_config]
 
 _webpack = rule(
     implementation = _webpack_impl,
@@ -100,6 +106,14 @@ See the <a href="https://webpack.js.org/api/cli/">Webpack CLI docs</a> for a com
         ),
         "output_dir": attr.bool(),
         "outs": attr.output_list(),
+        "webpack_config": attr.label(
+            allow_single_file = [".js"],
+            mandatory = True,
+        ),
+        "bazel_webpack_config": attr.label(
+            allow_single_file = [".js"],
+            default = Label("//packages/webpack/internal/worker:bazel.webpack.config.js"),
+        ),
         "worker_bin": attr.label(
             executable = True,
             cfg = "exec",
@@ -115,7 +129,6 @@ See the <a href="https://webpack.js.org/api/cli/">Webpack CLI docs</a> for a com
 
 def webpack_macro(
         name,
-        args,
         supports_workers = False,
         webpack_cli_package = _DEFAULT_WEBPACK_CLI_PACKAGE,
         webpack_require_path = "webpack",
@@ -153,7 +166,7 @@ def webpack_macro(
                 Label(webpack_cli_package),
                 Label("//packages/webpack/internal/worker:filegroup"),
             ],
-            entry_point = Label("//packages/webpack/internal/worker:worker_adapter"),
+            entry_point = Label("//packages/webpack/internal/worker:worker_adapter.js"),
         )
 
     _webpack(
