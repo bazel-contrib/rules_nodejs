@@ -26,9 +26,6 @@ example_integration_test(
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = ["@alan-agius4"],
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
-    },
 
     # bazel-in-bazel examples_angular fails on Windows on bazelci cloning a git repo:
     # ```
@@ -52,9 +49,6 @@ example_integration_test(
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
     },
     # bazel-in-bazel examples_angular_view_engine fails on Windows on bazelci cloning a git repo:
     # ```
@@ -83,9 +77,6 @@ example_integration_test(
     npm_packages = {
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
-    },
     # TODO(alexeagle): somehow this is broken by the new node-patches based node_patches script
     # ERROR: D:/temp/tmp-6900sejcsrcttpdb/BUILD.bazel:37:1: output 'app.bundle.js' was not created
     tags = ["no-bazelci-windows"],
@@ -99,9 +90,6 @@ example_integration_test(
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
     },
 )
 
@@ -128,9 +116,6 @@ example_integration_test(
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = ["@mrmeku"],
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
-    },
     tags = [
         "cypress",
     ],
@@ -142,9 +127,6 @@ example_integration_test(
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = ["@mrmeku"],
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
-    },
 )
 
 example_integration_test(
@@ -153,9 +135,6 @@ example_integration_test(
         "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
-    },
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
     },
     tags = [
         # Bintray was removed from the internet, and the version of
@@ -180,9 +159,6 @@ example_integration_test(
         "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
-    },
 )
 
 example_integration_test(
@@ -198,9 +174,6 @@ example_integration_test(
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
     },
     tags = [
         # TODO(alexeagle): re-enable when it stops timing out on 4.x branch
@@ -225,9 +198,6 @@ example_integration_test(
         "@rayman1104",
         "@siberex",
     ],
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
-    },
     # Fails on transitive dep of rules_docker
     # error running 'git init C:/users/b/_bazel_b/3oe2yqkh/external/rules_cc' while working with @rules_cc:
     # java.io.IOException: ERROR: src/main/native/windows/process.cc(199): CreateProcessW("git" init C:/users/b/_bazel_b/3oe2yqkh/external/rules_cc): The system cannot find the file specified
@@ -249,9 +219,6 @@ example_integration_test(
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = ["@mrmeku"],
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
-    },
     # Runs out of memory on bazelci windows
     # TODO(gregmagolan): fix on bazelci windows
     tags = ["no-bazelci-windows"],
@@ -262,9 +229,6 @@ example_integration_test(
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
     },
     # Flakes on windows
     # TODO: understand flake fail mode and re-enable
@@ -329,7 +293,4 @@ example_integration_test(
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = ["@mattem"],
-    resolutions = {
-        "//packages/worker:npm_package": "@bazel/worker",
-    },
 )

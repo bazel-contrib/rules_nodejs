@@ -16,6 +16,7 @@ load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "js_library")
 load("//packages/typescript:index.bzl", "ts_config", "ts_project")
 
+# to update run: bazel run //packages/worker:copy_worker_protocol.update
 generated_file_test(
     name = "copy_worker_protocol",
     src = ":src/worker_protocol.ts",
@@ -39,7 +40,7 @@ ts_project(
     srcs = [
         "index.ts",
         "src/gc.ts",
-        "src/metadata.ts",
+        "src/size.ts",
         "src/worker.ts",
         "src/worker_protocol.ts",
     ],

@@ -1,5 +1,5 @@
 import "./gc";
-import { readMetadata, writeMetadata } from "./metadata";
+import { readWorkRequestSize, writeWorkResponseSize } from "./size";
 import { blaze } from "./worker_protocol";
 
 /**
@@ -73,12 +73,12 @@ export async function runWorkerLoop(runOneBuild: OneBuildFunc) {
 
         debug("Reiterating");
 
-        const metadata = readMetadata(chunk, 0);
+        const size = readWorkRequestSize(chunk);
 
-        if (metadata.messageSize <= chunk.length +  metadata.headerSize) {
-            chunk = chunk.slice(metadata.headerSize)
-            current = chunk.slice(0, metadata.messageSize);
-            prev = chunk.slice(metadata.messageSize);
+        if (size.size <= chunk.length + size.headerSize) {
+            chunk = chunk.slice(size.headerSize)
+            current = chunk.slice(0, size.size);
+            prev = chunk.slice(size.size);
             debug("Now we have the full message. Time to go!");
         } else {
             prev = chunk;
@@ -88,7 +88,7 @@ export async function runWorkerLoop(runOneBuild: OneBuildFunc) {
 
         const work = blaze.worker.WorkRequest.deserialize(current!);
 
-    
+
         debug('Handling new build request: ' + work.request_id);
 
         let succedded: boolean;
@@ -115,10 +115,10 @@ export async function runWorkerLoop(runOneBuild: OneBuildFunc) {
             output
         }).serialize();
 
-        const responseMetadata = writeMetadata(workResponse.byteLength);
+        const responseSize = writeWorkResponseSize(workResponse.byteLength);
 
         process.stdout.write(Buffer.concat([
-            responseMetadata,
+            responseSize,
             workResponse
         ]));
 
