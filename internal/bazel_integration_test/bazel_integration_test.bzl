@@ -49,6 +49,7 @@ module.exports = {{
     bazelrcAppend: `{TMPL_bazelrc_append}`,
     bazelrcImports: {{ {TMPL_bazelrc_imports} }},
     npmPackages: {{ {TMPL_npm_packages} }},
+    resolutions: {{ {TMPL_resolutions} }},
     checkNpmPackages: [ {TMPL_check_npm_packages} ],
     packageJsonRepacements: {{ {TMPL_package_json_substitutions} }},
 }};
@@ -60,6 +61,7 @@ module.exports = {{
             TMPL_bazelrc_append = ctx.attr.bazelrc_append,
             TMPL_bazelrc_imports = ", ".join(["'%s': '%s'" % (ctx.attr.bazelrc_imports[f], _to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.bazelrc_imports]),
             TMPL_npm_packages = ", ".join(["'%s': '%s'" % (ctx.attr.npm_packages[f], _to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.npm_packages]),
+            TMPL_resolutions = ", ".join(["'%s': '%s'" % (ctx.attr.resolutions[f], _to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.resolutions]),
             TMPL_check_npm_packages = ", ".join(["'%s'" % s for s in ctx.attr.check_npm_packages]),
             TMPL_package_json_substitutions = ", ".join(["'%s': '%s'" % (f, ctx.attr.package_json_substitutions[f]) for f in ctx.attr.package_json_substitutions]),
         ),
@@ -111,7 +113,7 @@ ${{COMMAND}}
         content = launcher_content,
     )
 
-    runfiles = [config] + ctx.files.bazel_binary + ctx.files.workspace_files + ctx.files.repositories + ctx.files.bazelrc_imports + ctx.files.npm_packages
+    runfiles = [config] + ctx.files.bazel_binary + ctx.files.workspace_files + ctx.files.repositories + ctx.files.bazelrc_imports + ctx.files.npm_packages + ctx.files.resolutions
 
     return [DefaultInfo(
         runfiles = ctx.runfiles(files = runfiles).merge(ctx.attr._test_runner[DefaultInfo].data_runfiles),
@@ -211,6 +213,15 @@ This can be used for integration testing against multiple external npm dependenc
     "3.5.x",
 ]]```""",
     ),
+    "resolutions": attr.label_keyed_string_dict(
+        doc = """
+        Packages to put into package.json's resolutions object.
+        ATTENTION: This will not work with npm_install as resolution is not taken
+        into consideration when resolving modules by npm.
+        See: https://stackoverflow.com/questions/52416312/npm-equivalent-of-yarn-resolutions
+        https://github.com/npm/rfcs/blob/latest/accepted/0036-overrides.md
+        """,
+    ),
     "repositories": attr.label_keyed_string_dict(
         doc = """A label keyed string dictionary of repositories to replace in the workspace-under-test's WORKSPACE
 file with generated workspace archive targets. The targets should be pkg_tar rules.
@@ -269,6 +280,12 @@ def rules_nodejs_integration_test(name, **kwargs):
     for key in npm_packages:
         _tar_npm_packages[key + ".tar"] = npm_packages[key]
 
+    # convert the npm packages into the tar output and add to resolutions
+    resolutions = kwargs.pop("resolutions", {})
+    _tar_package_resolutions = {}
+    for key in resolutions:
+        _tar_package_resolutions[key + ".tar"] = resolutions[key]
+
     for bazel_version in SUPPORTED_BAZEL_VERSIONS:
         bazel_integration_test(
             name = "%s_%s" % (name, "bazel" + bazel_version) if bazel_version != BAZEL_VERSION else name,
@@ -281,6 +298,7 @@ def rules_nodejs_integration_test(name, **kwargs):
                 "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
             },
             npm_packages = _tar_npm_packages,
+            resolutions = _tar_package_resolutions,
             tags = tags,
             **kwargs
         )

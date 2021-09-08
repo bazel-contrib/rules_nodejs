@@ -26,5 +26,6 @@ def example_integration_test(name, owners = [], **kwargs):
         name = name,
         tags = kwargs.pop("tags", []) + ["examples"],
         workspace_files = kwargs.pop("workspace_files", "_%s_sources" % name),
+        resolutions = {"//packages/worker:npm_package": "@bazel/worker"},
         **kwargs
     )

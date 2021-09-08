@@ -281,6 +281,20 @@ if (isFile(packageJsonFile)) {
     }
   }
 
+
+  const resolutionKeys = Object.keys(config.resolutions);
+
+  if (resolutionKeys.length) {
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonFile, {encoding: 'utf-8'}));
+    const resolutions = {};
+    for (const resolutionKey of resolutionKeys) {
+      const packagePath = copyNpmPackage(config.resolutions[resolutionKey]).replace(/\\/g, '/');
+      resolutions[`**/${resolutionKey}`] = `file:${packagePath}`;
+    }
+    packageJson.resolutions = resolutions;
+    fs.writeFileSync(packageJsonFile, JSON.stringify(packageJson, null, 2));
+  }
+
   const packageJsonReplacementKeys = Object.keys(config.packageJsonRepacements);
   if (packageJsonReplacementKeys.length) {
     for (const packageJsonKey of packageJsonReplacementKeys) {

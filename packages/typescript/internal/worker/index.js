@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const ts = require("typescript");
+const worker = require("@bazel/worker");
 const MNEMONIC = 'TsProject';
-const worker = require('./worker');
 let createWatchCompilerHost;
 const formatHost = {
     getCanonicalFileName: (path) => path,

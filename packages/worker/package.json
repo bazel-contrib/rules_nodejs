@@ -1,7 +1,7 @@
 {
     "name": "@bazel/worker",
     "dependencies": {
-        "protobufjs": "6.8.8"
+        "google-protobuf": "^3.6.1"
     },
     "description": "Adapt Node programs to run as a Bazel worker",
     "license": "Apache-2.0",
