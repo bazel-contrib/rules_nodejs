@@ -1683,4 +1683,12 @@ NODE_VERSIONS = {
     "16.8.0-linux_s390x": ("node-v16.8.0-linux-s390x.tar.xz", "node-v16.8.0-linux-s390x", "cefc32542c3521bbd075b218bd2f7444589a537e6c82ff6b64f46765efb07392"),
     "16.8.0-linux_amd64": ("node-v16.8.0-linux-x64.tar.xz", "node-v16.8.0-linux-x64", "85880c0e63c254faa75f8cf6512bc353f1587ba6e65a5e1d7366bf684684ae74"),
     "16.8.0-windows_amd64": ("node-v16.8.0-win-x64.zip", "node-v16.8.0-win-x64", "16193b45e18c116ddd062cc1a7ac5d96de9cb2198d4334f345d5718ea6d603f7"),
+    # 16.9.0
+    "16.9.0-darwin_arm64": ("node-v16.9.0-darwin-arm64.tar.gz", "node-v16.9.0-darwin-arm64", "13105eb6623f474e4596c725bd4d6fcd500c68155f9f954bd3332c46f5df7378"),
+    "16.9.0-darwin_amd64": ("node-v16.9.0-darwin-x64.tar.gz", "node-v16.9.0-darwin-x64", "37cea8ce6f88c501ed2ed191fc4335e5c4ecbeb0e85247c07b35825f07a60351"),
+    "16.9.0-linux_arm64": ("node-v16.9.0-linux-arm64.tar.xz", "node-v16.9.0-linux-arm64", "6f5c9f6c95e9b80630d9e280379dab3d442dc4109e324bf9c310d438c0c735c4"),
+    "16.9.0-linux_ppc64le": ("node-v16.9.0-linux-ppc64le.tar.xz", "node-v16.9.0-linux-ppc64le", "85684fb0aaefc367cff1bc8810f9d39db425bc3958b75a5f2e49784f333fd2ec"),
+    "16.9.0-linux_s390x": ("node-v16.9.0-linux-s390x.tar.xz", "node-v16.9.0-linux-s390x", "744612d24fbf6bcecc56caf511bde659b2e5eafac8d17e50c0529d934a0723b7"),
+    "16.9.0-linux_amd64": ("node-v16.9.0-linux-x64.tar.xz", "node-v16.9.0-linux-x64", "891ecae3826e6dd9b7ed6f484383bcb0803edcb3dc5956e42f6e64d2c3cc269b"),
+    "16.9.0-windows_amd64": ("node-v16.9.0-win-x64.zip", "node-v16.9.0-win-x64", "c08c1dff1d43f149a3161f84881a73e9dd3c1772138645ce198b8126e641e313"),
 }
