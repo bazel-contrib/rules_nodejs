@@ -177,6 +177,13 @@ and `{filename}` with the matching entry from the `node_repositories` attribute.
         default = _DEFAULT_NODE_VERSION,
         doc = "the specific version of NodeJS to install or, if vendored_node is specified, the vendored version of node",
     ),
+    "use_nvmrc": attr.label(
+        allow_single_file = True,
+        default = None,
+        doc = """the local path of the .nvmrc file containing the version of node
+
+If set then also set node_version to the version found in the .nvmrc file.""",
+    ),
     "package_json": attr.label_list(
         doc = """(ADVANCED, not recommended)
             a list of labels, which indicate the package.json files that will be installed
@@ -280,6 +287,11 @@ def _download_node(repository_ctx):
     host_os = repository_ctx.name.split("nodejs_", 1)[1]
 
     node_version = repository_ctx.attr.node_version
+
+    if repository_ctx.attr.use_nvmrc:
+        node_version = str(repository_ctx.read(repository_ctx.attr.use_nvmrc)).strip()
+
+    _verify_version_is_valid(node_version)
 
     # Skip the download if we know it will fail
     if not node_exists_for_os(node_version, host_os):
@@ -813,3 +825,8 @@ def node_repositories(**kwargs):
 def _maybe(repo_rule, name, **kwargs):
     if name not in native.existing_rules():
         repo_rule(name = name, **kwargs)
+
+def _verify_version_is_valid(version):
+    major, minor, patch = (version.split(".") + [None, None, None])[:3]
+    if not major.isdigit() or not minor.isdigit() or not patch.isdigit():
+        fail("Invalid node version: %s" % version)
