@@ -15,7 +15,7 @@
 """Helper function for repository rules
 """
 
-load(":check_version.bzl", "check_version")
+load("//internal/node:node_versions.bzl", "NODE_VERSIONS")
 
 OS_ARCH_NAMES = [
     ("windows", "amd64"),
@@ -73,11 +73,7 @@ def is_linux_os(rctx):
     return name == OS_NAMES[3] or name == OS_NAMES[4] or name == OS_NAMES[5] or name == OS_NAMES[6]
 
 def node_exists_for_os(node_version, os_name):
-    "Whether a node binary is available for this platform"
-    is_16_or_greater = check_version(node_version, "16.0.0")
-
-    # There is no Apple Silicon native version of node before 16
-    return is_16_or_greater or os_name != "darwin_arm64"
+    return "-".join([node_version, os_name]) in NODE_VERSIONS.keys()
 
 def assert_node_exists_for_host(rctx):
     node_version = rctx.attr.node_version
