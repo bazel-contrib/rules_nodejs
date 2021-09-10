@@ -1,3 +1,22 @@
+# [4.1.0](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0...4.1.0) (2021-09-10)
+
+
+### Bug Fixes
+
+* **typescript:** write json srcs to generated tsconfig for resolveJsonModule+composite projects ([c70a07b](https://github.com/bazelbuild/rules_nodejs/commit/c70a07b))
+* readme ([52ee4ef](https://github.com/bazelbuild/rules_nodejs/commit/52ee4ef))
+* remove dependency on shelljs in esbuild-update script ([0f17126](https://github.com/bazelbuild/rules_nodejs/commit/0f17126))
+* update `tsutils` to version `3.21.0` ([bba5494](https://github.com/bazelbuild/rules_nodejs/commit/bba5494)), closes [/github.com/bazelbuild/rules_nodejs/blob/9b454e38f7e2bbc64f75ee9a7dcb6ff45f1c7a12/third_party/github.com/bazelbuild/rules_typescript/internal/tsetse/rules/check_return_value_rule.ts#L60-L62](https://github.com//github.com/bazelbuild/rules_nodejs/blob/9b454e38f7e2bbc64f75ee9a7dcb6ff45f1c7a12/third_party/github.com/bazelbuild/rules_typescript/internal/tsetse/rules/check_return_value_rule.ts/issues/L60-L62)
+* use execSync to call npm ([acc64f9](https://github.com/bazelbuild/rules_nodejs/commit/acc64f9))
+
+
+### Features
+
+* **builtin:** add support for using a local .nvmrc file for providing a node version ([#2911](https://github.com/bazelbuild/rules_nodejs/issues/2911)) ([44740df](https://github.com/bazelbuild/rules_nodejs/commit/44740df))
+* decouple @bazel/worker from rules_typescript ([#2918](https://github.com/bazelbuild/rules_nodejs/issues/2918)) ([bda0472](https://github.com/bazelbuild/rules_nodejs/commit/bda0472))
+
+
+
 # [4.0.0](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0-rc.1...4.0.0) (2021-08-24)
 
 
