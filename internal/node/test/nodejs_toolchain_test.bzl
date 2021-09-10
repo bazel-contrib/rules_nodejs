@@ -19,7 +19,7 @@ the correct node path is available to rules via
 ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files[0].path
 """
 
-load("//internal/node:node_repositories.bzl", "NODE_EXTRACT_DIR")
+load("//nodejs:repositories.bzl", "NODE_EXTRACT_DIR")
 
 _SCRIPT_TEMPLATE = """#!/bin/bash
 EXPECTED_NODE_PATH="{expected_node_path}"

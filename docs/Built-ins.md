@@ -19,7 +19,7 @@ This is necessary to bootstrap Bazel to run the package manager to download othe
 
 <pre>
 node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>,
-                  <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>, <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-use_nvmrc">use_nvmrc</a>, <a href="#node_repositories-vendored_node">vendored_node</a>,
+                  <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-platform">platform</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>, <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-use_nvmrc">use_nvmrc</a>, <a href="#node_repositories-vendored_node">vendored_node</a>,
                   <a href="#node_repositories-vendored_yarn">vendored_yarn</a>, <a href="#node_repositories-yarn_download_auth">yarn_download_auth</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>, <a href="#node_repositories-yarn_version">yarn_version</a>)
 </pre>
 
@@ -177,6 +177,12 @@ Defaults to `"14.17.5"`
             If you use bazel-managed dependencies, you should omit this attribute.
 
 Defaults to `[]`
+
+<h4 id="node_repositories-platform">platform</h4>
+
+(*String*): Internal use only. Which platform to install as a toolchain. If unset, we assume the repository is named nodejs_[platform]
+
+Defaults to `""`
 
 <h4 id="node_repositories-preserve_symlinks">preserve_symlinks</h4>
 

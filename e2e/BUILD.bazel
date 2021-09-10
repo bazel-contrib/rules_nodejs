@@ -61,6 +61,11 @@ e2e_integration_test(
 )
 
 e2e_integration_test(
+    name = "e2e_core",
+    repositories = {"//:release-core": "rules_nodejs"},
+)
+
+e2e_integration_test(
     name = "e2e_nodejs_image",
     bazel_commands = [
         "info",

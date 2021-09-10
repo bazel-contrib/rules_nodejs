@@ -17,7 +17,7 @@
 Labels are different on windows and linux/OSX.
 """
 
-load("//internal/common:os_name.bzl", "is_windows_os", "os_name")
+load("//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
 
 def get_node_label(rctx):
     if is_windows_os(rctx):

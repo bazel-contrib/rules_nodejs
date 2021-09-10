@@ -15,7 +15,7 @@
 """Custom copy_repository rule used by npm_install and yarn_install.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:os_name.bzl", "is_windows_os")
+load("@build_bazel_rules_nodejs//nodejs/private:os_name.bzl", "is_windows_os")
 
 def _copy_file(rctx, src):
     rctx.template(src.basename, src)

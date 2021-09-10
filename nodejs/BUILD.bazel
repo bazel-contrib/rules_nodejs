@@ -1,0 +1,17 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(["*"]) + ["//nodejs/private:package_contents"],
+    visibility = ["//:__pkg__"],
+)
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]) + ["@bazel_tools//tools:bzl_srcs"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//nodejs/private:bzl",
+        "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
+    ],
+)

@@ -28,7 +28,7 @@ load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:preserve_legacy_templated_args.bzl", "preserve_legacy_templated_args")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect", "write_node_modules_manifest")
-load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
+load("//nodejs:repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules

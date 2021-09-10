@@ -1,0 +1,19 @@
+workspace(name = "e2e_core")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "rules_nodejs",
+    sha256 = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.1.0/rules_nodejs-core-4.1.0.tar.gz"],
+)
+
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "rules_nodejs_dependencies")
+
+# This just gives us bazel-skylib
+rules_nodejs_dependencies()
+
+nodejs_register_toolchains(
+    name = "node16",
+    node_version = "16.9.0",
+)

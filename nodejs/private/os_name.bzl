@@ -15,7 +15,7 @@
 """Helper function for repository rules
 """
 
-load("//internal/node:node_versions.bzl", "NODE_VERSIONS")
+load(":node_versions.bzl", "NODE_VERSIONS")
 
 OS_ARCH_NAMES = [
     ("windows", "amd64"),

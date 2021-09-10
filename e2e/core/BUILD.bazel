@@ -1,0 +1,43 @@
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+
+write_file(
+    name = "js",
+    out = "some.js",
+    content = ["require('fs').writeFileSync(process.argv[2], 'stuff')"],
+)
+
+# Temporary fixture until we have toolchains hooked up in the core package
+alias(
+    name = "node_bin",
+    actual = select({
+        "@bazel_tools//src/conditions:darwin_arm64": "@node16_darwin_arm64//:node_bin",
+        "@bazel_tools//src/conditions:darwin_x86_64": "@node16_darwin_amd64//:node_bin",
+        "@bazel_tools//src/conditions:linux_aarch64": "@node16_linux_arm64//:node_bin",
+        "@bazel_tools//src/conditions:linux_s390x": "@node16_linux_s390x//:node_bin",
+        "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_bin",
+        "@bazel_tools//src/conditions:linux_ppc64le": "@node16_linux_ppc64le//:node_bin",
+        "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_bin",
+        "//conditions:default": "@node16_linux_amd64//:node_bin",
+    }),
+)
+
+genrule(
+    name = "try",
+    srcs = ["some.js"],
+    outs = ["thing"],
+    cmd = "$(execpath :node_bin) $(execpath some.js) $@",
+    tools = [":node_bin"],
+)
+
+write_file(
+    name = "write_expected",
+    out = "expected",
+    content = ["stuff"],
+)
+
+diff_test(
+    name = "test",
+    file1 = "expected",
+    file2 = "thing",
+)
