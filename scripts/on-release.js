@@ -53,3 +53,6 @@ for (const f of workspaceFiles) {
   workspaceContents = workspaceContents.replace(regex, replacement);
   fs.writeFileSync(f, workspaceContents);
 }
+
+// TODO: loop over concatjs binaries, calculate sha256 for each and replace
+// the constants in /toolchains/concatjs/repositories.bzl
