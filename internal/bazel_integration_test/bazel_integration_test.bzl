@@ -271,8 +271,7 @@ def rules_nodejs_integration_test(name, **kwargs):
     ]
 
     # replace the following repositories with the generated archives
-    repositories = kwargs.pop("repositories", {})
-    repositories["//:release"] = "build_bazel_rules_nodejs"
+    repositories = kwargs.pop("repositories", {"//:release": "build_bazel_rules_nodejs"})
 
     # convert the npm packages into the tar output
     npm_packages = kwargs.pop("npm_packages", {})

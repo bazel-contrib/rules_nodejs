@@ -93,6 +93,7 @@ pkg_npm(
         "//internal/pkg_web:package_contents",
         "//internal/providers:package_contents",
         "//internal/runfiles:package_contents",
+        "//nodejs:package_contents",
         "//third_party/github.com/bazelbuild/bazel:package_contents",
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles:package_contents",
@@ -121,5 +122,18 @@ pkg_tar(
     extension = "tar.gz",
     strip_prefix = "./rules_nodejs_package",
     tags = ["manual"],
+)
+
+pkg_tar(
+    name = "release-core",
+    srcs = [
+        "LICENSE",
+        "README.md",
+        "//nodejs:package_contents",
+        # TODO(5.0) remove this and depend on real skylib
+        "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
+    ],
+    extension = "tar.gz",
+    strip_prefix = ".",
 )
 # END-INTERNAL
