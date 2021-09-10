@@ -106,6 +106,6 @@ Check if there are any breaking changes since the last tag - if so, this will be
 1. `git commit -a -m 'chore: update lock files for release'`
 1. `git push upstream && git push upstream --tags`
 1. (Manual for now): go to the [releases] page, edit the release with rough changelog (especially note any breaking changes!) and upload the release artifact from `rules_nodejs-[version].tar.gz`. Also copy the release notes from CHANGELOG.md
-1. Announce the release on Bazel slack in `#javascript`
+1. Announce the release on Bazel slack in `#javascript
 
 [releases]: https://github.com/bazelbuild/rules_nodejs/releases

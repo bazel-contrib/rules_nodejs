@@ -2,15 +2,24 @@
 # yarn lockfile v1
 
 
-"@bazel/rollup@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-4.0.0.tgz#909cfa9bd0243fd78657711b3aa644b8432ba636"
-  integrity sha512-OcL7QtNk2nyN/v7fnih0VQ0pIDwSxdGkyZvt/m1SwODx/eJpBceam0yboLoer/sYEZPhv7YFyCTk9n2X64TZ5g==
+"@bazel/rollup@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-4.1.0.tgz#63c1ae1043a0245e8f21cf9d59030093db3e9721"
+  integrity sha512-EYCbhH8gxGnGT0b/sgjcL5/9MQ2rVkUA6mg9sRJsJPuyyQ9mP0Cbvm0Xy9pqoeu5bFb8aTudQR973Xpcr4LaqQ==
+  dependencies:
+    "@bazel/worker" "4.1.0"
 
-"@bazel/terser@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-4.0.0.tgz#9ef0c4635ba0191965f0b6c26eb0cc348c8c1f5e"
-  integrity sha512-sktDTfEBFD6LIv+g7W0l9nt5pih7N7aQVA09lv09rbTWD/JGX1LSSjG2p16af297XMxCP6GoHyVaxOVXS3IPYA==
+"@bazel/terser@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-4.1.0.tgz#071fff105db8eef61e7e9d39c5b17700e5977d15"
+  integrity sha512-4u0xnAhgOtbQV0o09hDjCWvdeIFnxZ40BYm4sYz8uo/YSPIHKggc6GyL8RmGqbuiB6Y8ZfbwUHcIv66FbVojFg==
+
+"@bazel/worker@4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-4.1.0.tgz#f63a5c821ce01731a4bc1b38f7dff16332fe331c"
+  integrity sha512-xO8dMC2GR+MwZrRa+FTG9yr5yzUCFvs7MiVYEJ25L708XhOqs34at6BFH1Xa3/ZYQt7iDBFpwY6QzbhhIIQrXA==
+  dependencies:
+    google-protobuf "^3.6.1"
 
 buffer-from@^1.0.0:
   version "1.1.1"
@@ -26,6 +35,11 @@ fsevents@~2.1.2:
   version "2.1.3"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.1.3.tgz#fb738703ae8d2f9fe900c33836ddebee8b97f23e"
   integrity sha512-Auw9a4AxqWpa9GUfj370BMPzzyncfBABW8Mab7BGWBYDj4Isgq+cDKtx0i6u9jcX9pQDnswsaaOTgTmA5pEjuQ==
+
+google-protobuf@^3.6.1:
+  version "3.17.3"
+  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.17.3.tgz#f87595073545a77946c8f0b67c302c5f7646d700"
+  integrity sha512-OVPzcSWIAJ+d5yiHyeaLrdufQtrvaBrF4JQg+z8ynTkbO3uFcujqXszTumqg1cGsAsjkWnI+M5B1xZ19yR4Wyg==
 
 rollup@2.3.0:
   version "2.3.0"

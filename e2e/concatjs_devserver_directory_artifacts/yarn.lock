@@ -2,29 +2,37 @@
 # yarn lockfile v1
 
 
-"@bazel/concatjs@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-4.0.0.tgz#fae04e7adb560f7666a71d8552bb424bb53b7d45"
-  integrity sha512-Ua+8Myq1RJjffASRHUzqFu05Zs5qU5Auzc+aiyq8V9opP5WTT4HR5lymmJrT/S1brhhM/1GZfbMZbYaddgyeVw==
+"@bazel/concatjs@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-4.1.0.tgz#73be7f4a6ab94ba3531a39d3a31e15c50a139800"
+  integrity sha512-r9ZM3TxOHPM1OUAxa5NAfAe/bHg9jn7Q0J92HJBv4m+/MGnAJ1ZZPTzxu7w79aUxha/Cr/oqF2DxKAdDbA7Lkg==
   dependencies:
     protobufjs "6.8.8"
     source-map-support "0.5.9"
-    tsutils "2.27.2"
+    tsutils "3.21.0"
 
-"@bazel/protractor@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-4.0.0.tgz#f29ae81c22790596bfd8212952a8e370406d094f"
-  integrity sha512-YiSU2IYdiW7HoVC3gAZJs9M0CiH9qluAvA9YLfvM3pM7rI1OmXYCm3hojgOLIRslbThcpfAcmQKjeUfdQPX5bA==
+"@bazel/protractor@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-4.1.0.tgz#db2602654d584d2e458cd90e8df2ddc213365ad7"
+  integrity sha512-p5rLdHzZFyc1byMwzzbyKcCWZVFgbcHcdWNc0R0MUQ+iX2dc72nkBci+ob/YxWMnSILVtyYO0vAnu1rP19/9zw==
 
-"@bazel/typescript@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-4.0.0.tgz#71a6f0f5e340c6b8516b21fbc0f0853e74055d0c"
-  integrity sha512-+Le9q+5IR9gEnSH8sXyxDB5dD6NJx2kbm6AL+cijYVat2MczpGV4sI1mu0mdLzYsEX5Tjt5iHkaNb7sFESjnYA==
+"@bazel/typescript@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-4.1.0.tgz#883e793c37df70c4ebc44bc4139f6008b3eb92fa"
+  integrity sha512-EfjGIa70IGwkBqOeirrbCRgvC/jue91L5r13c6NErb6JiSAzbKuxyKvZp4isGNPqv5W/LqpLGim5/yUQAmKXww==
   dependencies:
+    "@bazel/worker" "4.1.0"
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
-    tsutils "2.27.2"
+    tsutils "3.21.0"
+
+"@bazel/worker@4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-4.1.0.tgz#f63a5c821ce01731a4bc1b38f7dff16332fe331c"
+  integrity sha512-xO8dMC2GR+MwZrRa+FTG9yr5yzUCFvs7MiVYEJ25L708XhOqs34at6BFH1Xa3/ZYQt7iDBFpwY6QzbhhIIQrXA==
+  dependencies:
+    google-protobuf "^3.6.1"
 
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
@@ -599,6 +607,11 @@ globby@^5.0.0:
     object-assign "^4.0.1"
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
+
+google-protobuf@^3.6.1:
+  version "3.17.3"
+  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.17.3.tgz#f87595073545a77946c8f0b67c302c5f7646d700"
+  integrity sha512-OVPzcSWIAJ+d5yiHyeaLrdufQtrvaBrF4JQg+z8ynTkbO3uFcujqXszTumqg1cGsAsjkWnI+M5B1xZ19yR4Wyg==
 
 har-schema@^2.0.0:
   version "2.0.0"
@@ -1365,10 +1378,10 @@ tslib@~2.1.0:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.1.0.tgz#da60860f1c2ecaa5703ab7d39bc05b6bf988b97a"
   integrity sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==
 
-tsutils@2.27.2:
-  version "2.27.2"
-  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-2.27.2.tgz#60ba88a23d6f785ec4b89c6e8179cac9b431f1c7"
-  integrity sha512-qf6rmT84TFMuxAKez2pIfR8UCai49iQsfB7YWVjV1bKpy/d0PWT5rEOSM6La9PiHZ0k1RRZQiwVdVJfQ3BPHgg==
+tsutils@3.21.0:
+  version "3.21.0"
+  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-3.21.0.tgz#b48717d394cea6c1e096983eed58e9d61715b623"
+  integrity sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==
   dependencies:
     tslib "^1.8.1"
 
