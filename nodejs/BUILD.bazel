@@ -2,7 +2,9 @@ load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 filegroup(
     name = "package_contents",
-    srcs = glob(["*"]) + ["//nodejs/private:package_contents"],
+    srcs = glob(["*"]) + [
+        "//nodejs/private:package_contents",
+    ],
     visibility = ["//:__pkg__"],
 )
 

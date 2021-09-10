@@ -19,7 +19,7 @@ Users should not load files under "/internal"
 """
 
 load(
-    "//internal/providers:declaration_info.bzl",
+    "//nodejs/private/providers:declaration_info.bzl",
     _DeclarationInfo = "DeclarationInfo",
     _declaration_info = "declaration_info",
 )
@@ -38,7 +38,7 @@ load(
     _js_named_module_info = "js_named_module_info",
 )
 load(
-    "//internal/providers:linkable_package_info.bzl",
+    "//nodejs/private/providers:linkable_package_info.bzl",
     _LinkablePackageInfo = "LinkablePackageInfo",
 )
 load(
@@ -47,9 +47,17 @@ load(
     _run_node = "run_node",
 )
 load(
-    "//internal/providers:tree_artifacts.bzl",
+    "//nodejs/private/providers:tree_artifacts.bzl",
     _DirectoryFilePathInfo = "DirectoryFilePathInfo",
 )
+load(
+    "//nodejs/private/providers:node_context.bzl",
+    _NODE_CONTEXT_ATTRS = "NODE_CONTEXT_ATTRS",
+    _NodeContextInfo = "NodeContextInfo",
+)
+
+NodeContextInfo = _NodeContextInfo
+NODE_CONTEXT_ATTRS = _NODE_CONTEXT_ATTRS
 
 DeclarationInfo = _DeclarationInfo
 declaration_info = _declaration_info
@@ -67,29 +75,6 @@ ExternalNpmPackageInfo = _ExternalNpmPackageInfo
 NpmPackageInfo = _ExternalNpmPackageInfo
 node_modules_aspect = _node_modules_aspect
 LinkablePackageInfo = _LinkablePackageInfo
-
-#Modelled after _GoContextData in rules_go/go/private/context.bzl
-NodeContextInfo = provider(
-    doc = "Provides data about the build context, like config_setting's",
-    fields = {
-        "stamp": "If stamping is enabled",
-    },
-)
-
-NODE_CONTEXT_ATTRS = {
-    "node_context_data": attr.label(
-        default = "@build_bazel_rules_nodejs//internal:node_context_data",
-        providers = [NodeContextInfo],
-        doc = """Provides info about the build context, such as stamping.
-        
-By default it reads from the bazel command line, such as the `--stamp` argument.
-Use this to override values for this target, such as enabling or disabling stamping.
-You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
-to create a NodeContextInfo.
-""",
-    ),
-}
-
 NodeRuntimeDepsInfo = _NodeRuntimeDepsInfo
 run_node = _run_node
 DirectoryFilePathInfo = _DirectoryFilePathInfo
