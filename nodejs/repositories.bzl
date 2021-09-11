@@ -5,6 +5,10 @@ load("//nodejs/private:node_versions.bzl", "NODE_VERSIONS")
 load("//nodejs/private:yarn_versions.bzl", "YARN_VERSIONS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//nodejs/private:translate_package_lock.bzl", _translate_package_lock = "translate_package_lock")
+
+# re-exports
+translate_package_lock = _translate_package_lock
 
 DEFAULT_NODE_VERSION = "14.17.5"
 

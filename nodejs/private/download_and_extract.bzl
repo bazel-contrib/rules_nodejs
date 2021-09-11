@@ -1,12 +1,12 @@
-"Repository rule wrapper around Bazel's downloader"
+"Repository rule wrapper around Bazel's download_and_extract"
 
 def _bazel_download(repository_ctx):
     repository_ctx.file("BUILD.bazel", repository_ctx.attr.build_file_content)
-    repository_ctx.download(
-        output = repository_ctx.attr.output,
+    repository_ctx.download_and_extract(
         url = repository_ctx.attr.url,
         integrity = repository_ctx.attr.integrity,
     )
+    
 
 bazel_download = repository_rule(
     doc = """Utility to call Bazel downloader.
@@ -29,11 +29,6 @@ bazel_download = repository_rule(
             At best omitting this field will make your build non-hermetic.
             It is optional to make development easier but should be set before shipping.
             """,
-            mandatory = True,
-        ),
-        "output": attr.string(
-            doc = "path to the output file, relative to the repository directory",
-            mandatory = True,
         ),
         "url": attr.string_list(
             doc = "List of mirror URLs referencing the same file.",

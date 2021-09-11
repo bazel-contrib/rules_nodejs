@@ -21,6 +21,6 @@ def e2e_integration_test(name, **kwargs):
         name = name,
         tags = kwargs.pop("tags", []) + ["e2e"],
         workspace_files = kwargs.pop("workspace_files", "_%s_sources" % name),
-        resolutions = {"//packages/worker:npm_package": "@bazel/worker"},
+        resolutions = kwargs.pop("resolutions", {"//packages/worker:npm_package": "@bazel/worker"}),
         **kwargs
     )

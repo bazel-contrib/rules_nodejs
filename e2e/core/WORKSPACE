@@ -4,11 +4,12 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "rules_nodejs",
-    sha256 = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.1.0/rules_nodejs-core-4.1.0.tar.gz"],
+    #sha256 = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    #urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.1.0/rules_nodejs-core-4.1.0.tar.gz"],
+    urls = ["file:/home/BOSDYN/aeagle/.cache/bazel/_bazel_aeagle/493f2e0e58b807c8f1de81e64f381636/execroot/build_bazel_rules_nodejs/bazel-out/k8-fastbuild/bin/release-core.tar.gz"],
 )
 
-load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "rules_nodejs_dependencies")
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "rules_nodejs_dependencies", "translate_package_lock")
 
 # This just gives us bazel-skylib
 rules_nodejs_dependencies()
@@ -17,3 +18,14 @@ nodejs_register_toolchains(
     name = "node16",
     node_version = "16.9.0",
 )
+
+# Translate our package.lock file from JSON to Starlark
+translate_package_lock(
+    name = "npm",
+    package_lock = "//:package-lock.json",
+)
+
+load("@npm//:index.bzl", "npm_repositories")
+
+# Declare an external repository for each npm package fetchable by the lock file
+npm_repositories()

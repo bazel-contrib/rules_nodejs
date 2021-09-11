@@ -63,6 +63,7 @@ e2e_integration_test(
 e2e_integration_test(
     name = "e2e_core",
     repositories = {"//:release-core": "rules_nodejs"},
+    resolutions = {},
 )
 
 e2e_integration_test(

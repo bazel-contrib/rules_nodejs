@@ -27,7 +27,7 @@ genrule(
     srcs = ["some.js"],
     outs = ["thing"],
     cmd = "$(execpath :node_bin) $(execpath some.js) $@",
-    tools = [":node_bin"],
+    tools = [":node_bin", "@npm//chalk"],
 )
 
 write_file(

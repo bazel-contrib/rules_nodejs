@@ -62,19 +62,6 @@ load("@build_bazel_rules_nodejs//:npm_deps.bzl", "npm_deps")
 
 npm_deps()
 
-load("@build_bazel_rules_nodejs//internal/npm_tarballs:translate_package_lock.bzl", "translate_package_lock")
-
-# Translate our package.lock file from JSON to Starlark
-translate_package_lock(
-    name = "npm_node_patches_lock",
-    package_lock = "//packages/node-patches:package-lock.json",
-)
-
-load("@npm_node_patches_lock//:index.bzl", _npm_patches_repositories = "npm_repositories")
-
-# Declare an external repository for each npm package fetchable by the lock file
-_npm_patches_repositories()
-
 # We have a source dependency on build_bazel_rules_typescript
 # so we must repeat its transitive toolchain deps
 load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
