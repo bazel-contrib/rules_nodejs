@@ -35,7 +35,7 @@ load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _ya
 load("//internal/pkg_npm:pkg_npm.bzl", _pkg_npm = "pkg_npm_macro")
 load("//internal/pkg_web:pkg_web.bzl", _pkg_web = "pkg_web")
 load(
-    "//internal/providers:tree_artifacts.bzl",
+    "//nodejs/private/providers:directory_file_path_info.bzl",
     _directory_file_path = "directory_file_path",
 )
 

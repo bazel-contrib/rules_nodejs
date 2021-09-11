@@ -218,7 +218,7 @@ Provides data about the build context, like config_setting's
 
 <h4 id="NodeContextInfo-stamp">stamp</h4>
 
- If stamping is enabled 
+ If stamping is enabled for this build 
 
 
 ## NodeRuntimeDepsInfo

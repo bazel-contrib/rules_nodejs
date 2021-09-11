@@ -54,6 +54,7 @@ bzl_library(
         "//internal/pkg_npm:bzl",
         "//internal/pkg_web:bzl",
         "//internal/providers:bzl",
+        "//nodejs/private/providers:bzl",
     ],
 )
 
@@ -94,6 +95,7 @@ pkg_npm(
         "//internal/providers:package_contents",
         "//internal/runfiles:package_contents",
         "//nodejs:package_contents",
+        "//nodejs/private/providers:package_contents",
         "//third_party/github.com/bazelbuild/bazel:package_contents",
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles:package_contents",
@@ -129,6 +131,8 @@ pkg_tar(
     srcs = [
         "LICENSE",
         "README.md",
+        "providers.bzl",
+        "version.bzl",
         "//nodejs:package_contents",
         # TODO(5.0) remove this and depend on real skylib
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
