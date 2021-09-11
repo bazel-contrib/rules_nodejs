@@ -481,14 +481,17 @@ def ts_project_macro(
 
         srcs: List of labels of TypeScript source files to be provided to the compiler.
 
-            If absent, defaults to `**/*.ts[x]` (all TypeScript files in the package).
+            If absent, the default is set as follows:
+            - Include `**/*.ts[x]` (all TypeScript files in the package).
+            - If `allow_js` is set, include `**/*.js[x]` (all JavaScript files in the package).
+            - If `resolve_json_module` is set, include `**/*.json` (all JSON files in the package), but exclude `**/package.json`, `**/package-lock.json`, and `**/tsconfig*.json`.
 
         deps: List of labels of other rules that produce TypeScript typings (.d.ts files)
 
         tsconfig: Label of the tsconfig.json file to use for the compilation
 
             To support "chaining" of more than one extended config, this label could be a target that
-            provdes `TsConfigInfo` such as `ts_config`.
+            provides `TsConfigInfo` such as `ts_config`.
 
             By default, we assume the tsconfig file is "tsconfig.json" in the same folder as the ts_project rule.
 
@@ -618,10 +621,10 @@ def ts_project_macro(
         include = ["**/*.ts", "**/*.tsx"]
         exclude = []
         if allow_js == True:
-            include.append("**/*.js", "**/*.jsx")
+            include.extend(["**/*.js", "**/*.jsx"])
         if resolve_json_module == True:
             include.append("**/*.json")
-            exclude.append("**/tsconfig*.json")
+            exclude.extend(["**/package.json", "**/package-lock.json", "**/tsconfig*.json"])
         srcs = native.glob(include, exclude)
     extra_deps = []
 
