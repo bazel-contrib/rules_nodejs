@@ -15,3 +15,12 @@ bzl_library(
         "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
     ],
 )
+
+# This is the target rule authors should put in their "toolchains"
+# attribute in order to get a node interpreter for the correct
+# platform.
+# See https://docs.bazel.build/versions/main/toolchains.html#writing-rules-that-use-toolchains
+toolchain_type(
+    name = "toolchain_type",
+    visibility = ["//visibility:public"],
+)
