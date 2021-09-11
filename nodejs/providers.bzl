@@ -17,17 +17,10 @@ load(
     _LinkablePackageInfo = "LinkablePackageInfo",
 )
 load(
-    "//nodejs/private/providers:tree_artifacts.bzl",
+    "//nodejs/private/providers:directory_file_path_info.bzl",
     _DirectoryFilePathInfo = "DirectoryFilePathInfo",
 )
-load(
-    "//nodejs/private/providers:node_context.bzl",
-    _NODE_CONTEXT_ATTRS = "NODE_CONTEXT_ATTRS",
-    _NodeContextInfo = "NodeContextInfo",
-)
 
-NodeContextInfo = _NodeContextInfo
-NODE_CONTEXT_ATTRS = _NODE_CONTEXT_ATTRS
 DeclarationInfo = _DeclarationInfo
 declaration_info = _declaration_info
 JSModuleInfo = _JSModuleInfo

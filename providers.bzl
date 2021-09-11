@@ -47,11 +47,11 @@ load(
     _run_node = "run_node",
 )
 load(
-    "//nodejs/private/providers:tree_artifacts.bzl",
+    "//nodejs/private/providers:directory_file_path_info.bzl",
     _DirectoryFilePathInfo = "DirectoryFilePathInfo",
 )
 load(
-    "//nodejs/private/providers:node_context.bzl",
+    "//internal/providers:node_context.bzl",
     _NODE_CONTEXT_ATTRS = "NODE_CONTEXT_ATTRS",
     _NodeContextInfo = "NodeContextInfo",
 )
