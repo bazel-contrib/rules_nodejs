@@ -60,6 +60,7 @@ pkg_npm(
         ":produces_files",
         ":rollup/bundle/subdirectory",
         ":ts_library",
+        "//internal/pkg_npm/test/transition:test_lib",
         "@internal_npm_package_test_vendored_external//:ts_library",
     ],
 )
@@ -80,28 +81,17 @@ pkg_npm(
     srcs = [":rollup/bundle/subdirectory"],
 )
 
-genrule(
-    name = "gen_test_pkg_pack",
-    outs = [
-        "test-pkg.tgz",
-    ],
-    cmd = "export HOME='.' && $(location :test_pkg.pack) && cp test-pkg-1.2.3.tgz $@",
-    tags = ["no-rbe"],
-    tools = [
-        ":test_pkg.pack",
-    ],
-)
-
 sh_test(
     name = "test_pkg_pack",
     srcs = ["diff_pack_dir.sh"],
     args = [
-        "$(location :gen_test_pkg_pack)",
-        "$(location :test_pkg)",
+        "$(rootpath :test_pkg.pack)",
+        "$(rootpath :test_pkg)",
     ],
     data = [
-        ":gen_test_pkg_pack",
         ":test_pkg",
+        ":test_pkg.pack",
+        "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
     ],
     tags = ["no-rbe"],
 )

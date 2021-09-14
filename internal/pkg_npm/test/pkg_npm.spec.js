@@ -51,6 +51,11 @@ describe('pkg_npm', () => {
   it('copies files from deps', () => {
     expect(readFromPkg('bundle.min.js')).toBe('bundle content');
   });
+
+  it('copies files from different output directories (when used with transitions)', () => {
+    expect(readFromPkg('transition/test.js')).toEqual('OK');
+  });
+
   it('copies files from external workspace if included in srcs', () => {
     expect(readFromPkg('vendored_external_file')).toEqual('vendored_external_file content');
   });

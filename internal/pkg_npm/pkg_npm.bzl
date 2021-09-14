@@ -169,7 +169,7 @@ PKG_NPM_OUTPUTS = {
     "publish_sh": "%{name}.publish.sh",
 }
 
-# Takes a depset of files and returns a corresponding list of file paths without any files
+# Takes a depset of files and returns a corresponding list of files without any files
 # that aren't part of the specified package path. Also include files from external repositories
 # that explicitly specified in the vendor_external list.
 def _filter_out_external_files(ctx, files, package_path):
@@ -177,12 +177,25 @@ def _filter_out_external_files(ctx, files, package_path):
     for file in files:
         # NB: package_path may be an empty string
         if file.short_path.startswith(package_path) and not file.short_path.startswith("../"):
-            result.append(file.path)
+            result.append(file)
         else:
             for v in ctx.attr.vendor_external:
                 if file.short_path.startswith("../%s/" % v):
-                    result.append(file.path)
+                    result.append(file)
     return result
+
+# Serializes a file into a struct that matches the `BazelFileInfo` type in the
+# packager implementation. Useful for transmission of such information.
+def _serialize_file(file):
+    return struct(path = file.path, shortPath = file.short_path)
+
+# Serializes a list of files into a JSON string that can be passed as CLI argument
+# for the packager, matching the `BazelFileInfo[]` type in the packager implementation.
+def _serialize_files_for_arg(files):
+    result = []
+    for file in files:
+        result.append(_serialize_file(file))
+    return json.encode(result)
 
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
 def create_package(ctx, deps_files, nested_packages):
@@ -217,25 +230,23 @@ def create_package(ctx, deps_files, nested_packages):
         return package_dir
 
     package_dir = ctx.actions.declare_directory(ctx.label.name)
-    package_path = ctx.label.package
+    owning_package_name = ctx.label.package
 
     # List of dependency sources which are local to the package that defines the current
     # target. Also include files from external repositories that explicitly specified in
     # the vendor_external list. We only want to package deps files which are inside of the
-    # current package unless explicitely specified.
-    filtered_deps_sources = _filter_out_external_files(ctx, deps_files, package_path)
+    # current package unless explicitly specified.
+    filtered_deps_sources = _filter_out_external_files(ctx, deps_files, owning_package_name)
 
     args = ctx.actions.args()
     inputs = ctx.files.srcs + deps_files + nested_packages
 
     args.use_param_file("%s", use_always = True)
     args.add(package_dir.path)
-    args.add(package_path)
-    args.add_joined([s.path for s in ctx.files.srcs], join_with = ",", omit_if_empty = False)
-    args.add(ctx.bin_dir.path)
-    args.add(ctx.genfiles_dir.path)
-    args.add_joined(filtered_deps_sources, join_with = ",", omit_if_empty = False)
-    args.add_joined([p.path for p in nested_packages], join_with = ",", omit_if_empty = False)
+    args.add(owning_package_name)
+    args.add(_serialize_files_for_arg(ctx.files.srcs))
+    args.add(_serialize_files_for_arg(filtered_deps_sources))
+    args.add(_serialize_files_for_arg(nested_packages))
     args.add(ctx.attr.substitutions)
 
     if stamp:
