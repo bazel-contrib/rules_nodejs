@@ -1,0 +1,19 @@
+load(":index.bzl", "test_rule", "test_transition_flag")
+
+package(default_visibility = ["//internal/pkg_npm/test:__pkg__"])
+
+test_transition_flag(
+    name = "test_flag",
+    build_setting_default = False,
+)
+
+test_rule(
+    name = "test_lib",
+    deps = [":transitioned_genrule"],
+)
+
+genrule(
+    name = "transitioned_genrule",
+    outs = ["test.js"],
+    cmd = """echo OK > $@""",
+)

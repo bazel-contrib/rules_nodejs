@@ -25,6 +25,12 @@ const path = require('path');
 const isBinary = require('isbinaryfile').isBinaryFileSync;
 
 /**
+ * Type definition describing a file captured in the Bazel action.
+ * https://docs.bazel.build/versions/main/skylark/lib/File.html.
+ * @typedef {{path: string, shortPath: string}} BazelFileInfo
+ */
+
+/**
  * Create a new directory and any necessary subdirectories
  * if they do not exist.
  */
@@ -92,8 +98,19 @@ function parseStatusFile(p) {
 function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
-      [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, substitutionsArg,
+      [outDir, owningPackageName, srcsArg, depsArg, packagesArg, substitutionsArg,
        volatileFile, infoFile, vendorExternalArg, target, validate, packageNameArg] = args;
+
+  /** @type BazelFileInfo[] */
+  const srcs = JSON.parse(srcsArg);
+
+  /** @type BazelFileInfo[] */
+  const deps = JSON.parse(depsArg);
+
+  /** @type BazelFileInfo[] */
+  const packages = JSON.parse(packagesArg);
+
+  const vendorExternal = vendorExternalArg.split(',').filter(s => !!s);
 
   const substitutions = [
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
@@ -127,22 +144,24 @@ function main(args) {
     }
   }
 
-  // src like baseDir/my/path is just copied to outDir/my/path
-  for (let src of srcsArg.split(',').filter(s => !!s)) {
-    src = src.replace(/\\/g, '/');
-    if (src.startsWith('external/')) {
-      // If srcs is from external workspace drop the external/wksp portion
-      copyWithReplace(src, path.join(outDir, src.split('/').slice(2).join('/')), substitutions);
+  // src like owningPackageName/my/path is just copied to outDir/my/path
+  for (let srcFile of srcs) {
+    if (srcFile.shortPath.startsWith('../')) {
+      // If src is from external workspace drop the ../wksp portion
+      copyWithReplace(srcFile.path, path.join(outDir,
+          srcFile.shortPath.split('/').slice(2).join('/')), substitutions);
     } else {
       // Source is from local workspace
-      if (baseDir && !src.startsWith(`${baseDir}/`)) {
+      if (!srcFile.path.startsWith(owningPackageName)) {
         throw new Error(
-            `${src} in 'srcs' does not reside in the base directory, ` +
+            `${srcFile.shortPath} in 'srcs' does not reside in the base directory, ` +
             `generated file should belong in 'deps' instead.`);
       }
 
-      if (validate === "true" && path.relative(baseDir, src) === "package.json") {
-        const packageJson = JSON.parse(fs.readFileSync(src));
+      const outRelativePath = getOwningPackageRelativeOutPath(srcFile);
+
+      if (validate === "true" && outRelativePath === "package.json") {
+        const packageJson = JSON.parse(fs.readFileSync(srcFile.path, 'utf8'));
         if (packageJson['name'] !== packageNameArg) {
           console.error(`ERROR: pkg_npm rule ${
             target} was configured with attributes that don't match the package.json`);
@@ -155,67 +174,60 @@ function main(args) {
           return 1;
         }
       }
-      copyWithReplace(src, path.join(outDir, path.relative(baseDir, src)), substitutions);
+      copyWithReplace(srcFile.path, path.join(outDir, outRelativePath), substitutions);
     }
   }
 
-  function outPath(f) {
-    for (const ext of vendorExternalArg.split(',').filter(s => !!s)) {
-      const candidate = path.join(binDir, 'external', ext);
-      if (!path.relative(candidate, f).startsWith('..')) {
-        return path.join(outDir, path.relative(candidate, f));
+  /**
+   * Gets the output path for the given file, relative to the output package directory.
+   * e.g. if the file path is `bazel-out/<..>/bin/packages/core/index.js` and the
+   * owning package is `packages/core`, then `index.js` is being returned.
+   * @param file {BazelFileInfo}
+   * @returns {string}
+   */
+  function getOwningPackageRelativeOutPath(file) {
+    for (const workspaceName of vendorExternal) {
+      if (file.shortPath.startsWith(`../${workspaceName}`)) {
+        return path.relative(`../${workspaceName}`, file.shortPath);
       }
     }
-    if (!path.relative(binDir, f).startsWith('..')) {
-      return path.join(outDir, path.relative(path.join(binDir, baseDir), f));
-    } else if (!path.relative(genDir, f).startsWith('..')) {
-      return path.join(outDir, path.relative(path.join(genDir, baseDir), f));
-    } else {
-      // It might be nice to enforce here that deps don't contain sources
-      // since those belong in srcs above.
-      // The `deps` attribute should typically be outputs of other rules.
-      // However, things like .d.ts sources of a ts_library or data attributes
-      // of ts_library will result in source files that appear in the deps
-      // so we have to allow this.
-      return path.join(outDir, path.relative(baseDir, f));
-    }
+
+    return path.relative(owningPackageName, file.shortPath);
   }
 
   // Deps like bazel-bin/baseDir/my/path is copied to outDir/my/path.
-  for (const dep of depsArg.split(',').filter(s => !!s)) {
+  for (const dep of deps) {
+    const outPath = path.join(outDir, getOwningPackageRelativeOutPath(dep));
     try {
-      copyWithReplace(dep, outPath(dep), substitutions);
+      copyWithReplace(dep.path, outPath, substitutions);
     } catch (e) {
-      console.error(`Failed to copy ${dep} to ${outPath(dep)}`);
+      console.error(`Failed to copy ${dep} to ${outPath}`);
       throw e;
     }
   }
 
   // package contents like bazel-bin/baseDir/my/directory/* is
   // recursively copied to outDir/my/*
-  for (const pkg of packagesArg.split(',').filter(s => !!s)) {
-    const outDir = outPath(path.dirname(pkg));
+  for (const pkg of packages) {
+    const outRelativePath = path.dirname(getOwningPackageRelativeOutPath(pkg));
+    const outExecPath = path.join(outDir, outRelativePath);
+
     function copyRecursive(base, file) {
+      const absolutePath = path.join(base, file);
       file = file.replace(/\\/g, '/');
-      if (fs.lstatSync(path.join(base, file)).isDirectory()) {
-        const files = fs.readdirSync(path.join(base, file));
+
+      if (fs.lstatSync(absolutePath).isDirectory()) {
+        const files = fs.readdirSync(absolutePath);
+
         files.forEach(f => {
           copyRecursive(base, path.join(file, f));
         });
       } else {
-        function outFile() {
-          for (const ext of vendorExternalArg.split(',').filter(s => !!s)) {
-            if (file.startsWith(`external/${ext}`)) {
-              return file.substr(`external/${ext}`.length);
-            }
-          }
-          return file;
-        }
-        copyWithReplace(path.join(base, file), path.join(outDir, outFile()), substitutions);
+        copyWithReplace(absolutePath, path.join(outExecPath, file), substitutions);
       }
     }
-    fs.readdirSync(pkg).forEach(f => {
-      copyRecursive(pkg, f);
+    fs.readdirSync(pkg.path).forEach(f => {
+      copyRecursive(pkg.path, f);
     });
   }
 }
