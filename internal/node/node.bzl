@@ -27,7 +27,7 @@ load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:preserve_legacy_templated_args.bzl", "preserve_legacy_templated_args")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
-load("//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect", "write_node_modules_manifest")
+load("//internal/linker:link_node_modules.bzl", "LinkerPackageMappingInfo", "module_mappings_aspect", "write_node_modules_manifest")
 load("//nodejs:repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 
 def _trim_package_node_modules(package_name):
@@ -58,7 +58,10 @@ def _compute_node_modules_roots(ctx, data):
 
     # Add in roots for multi-linked first party deps
     for dep in data:
-        for k, v in getattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME, {}).items():
+        if not LinkerPackageMappingInfo in dep:
+            continue
+
+        for k, v in dep[LinkerPackageMappingInfo].mappings.items():
             map_key_split = k.split(":")
             package_name = map_key_split[0]
             package_path = map_key_split[1] if len(map_key_split) > 1 else ""
