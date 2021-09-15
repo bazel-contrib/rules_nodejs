@@ -20,13 +20,6 @@ load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS")
 WEBPACK_REPLACEMENTS = dict(
     COMMON_REPLACEMENTS,
     **{
-        # This BEGIN-DEV fencing is required as files pulled in from
-        # @build_bazel_rules_typescript//:npm_bazel_typescript_package
-        # use this alternate fencing
-        "(#|\\/\\/)\\s+BEGIN-DEV-ONLY[\\w\\W]+?(#|\\/\\/)\\s+END-DEV-ONLY": "",
-        # Replace the worker filegroup with the entire @bazel/typescript node_module and its transitive node_modules
-        "//packages/webpack/internal/worker:filegroup": "//@bazel/webpack",
-        # Change the worker entry point from the checked_in_ts_project target to the checked in .js
-        "//packages/webpack/internal/worker:worker_adapter": "//@bazel/webpack/internal/worker:index.js",
+        "//packages/webpack": "//@bazel/webpack",
     }
 )

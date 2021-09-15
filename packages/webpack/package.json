@@ -8,6 +8,12 @@
         "url": "https://github.com/bazelbuild/rules_nodejs.git",
         "directory": "packages/webpack"
     },
+    "bin": {
+        "webpack-worker": "./internal/worker/worker_adapter.js"
+    },
+    "dependencies": {
+        "@bazel/worker": "0.0.0-PLACEHOLDER"
+    },
     "bugs": {
         "url": "https://github.com/bazelbuild/rules_nodejs/issues"
     },
@@ -16,6 +22,6 @@
         "bazel"
     ],
     "peerDependencies": {
-        "webpack": ">=4.0"
+        "webpack-cli": ">=4.0"
     }
 }

@@ -1,0 +1,29 @@
+load("//packages/webpack:index.bzl", "webpack")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+
+webpack(
+    name = "bundle_worker",
+    outs = ["app.bundle.worker.js"],
+    args = [
+        "./$(execpath index.js)",
+        "--mode",
+        "production",
+        # Discuss this: Whether we should automatically add this or not
+        "-o",
+        "$(RULEDIR)",
+        "--output-filename",
+        "app.bundle.worker.js",
+    ],
+    data = [
+        "index.js",
+        "module.js",
+    ],
+    supports_workers = True,
+    webpack_config = "webpack.config.js",
+)
+
+generated_file_test(
+    name = "bundle_test",
+    src = "bundle.js",
+    generated = "app.bundle.worker.js",
+)

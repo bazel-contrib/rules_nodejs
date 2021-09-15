@@ -18,30 +18,18 @@ package(default_visibility = ["//packages/webpack:__subpackages__"])
 
 bzl_library(
     name = "bzl",
-    srcs = glob(
-        ["*.bzl"],
-        exclude = ["internal_*"],
-    ),
+    srcs = ["webpack.bzl"],
     deps = [
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
     ],
 )
 
-# We don't need to distribute any of the content of the BUILD.bazel file in this package
-# So generate an empty marker file
-genrule(
-    name = "generated_BUILD",
-    srcs = [],
-    # Name the output "BUILD" so it doesn't collide with InputArtifact "BUILD.bazel"
-    outs = ["BUILD"],
-    cmd = "echo \"# Marker that this directory is a Bazel package\" > $@",
-)
-
 filegroup(
     name = "package_contents",
     srcs = [
         "webpack.bzl",
-        "//packages/webpack/internal/worker:package_contents",
+        "//packages/webpack/internal/worker:webpack.config.js",
+        "//packages/webpack/internal/worker:worker_adapter.js",
     ],
 )

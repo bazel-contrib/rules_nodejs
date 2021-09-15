@@ -1,58 +1,28 @@
-# BEGIN-INTERNAL
-load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
-load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+load("//packages/typescript:index.bzl", "ts_config", "ts_project")
 
 package(default_visibility = ["//packages/webpack:__subpackages__"])
 
-# To update index.js run:
-#   bazel run //packages/webpack/internal/worker:worker_adapter_check_compiled.update
-
-checked_in_ts_project(
-    name = "worker_adapter",
-    src = "worker_adapter.ts",
-    checked_in_js = "index.js",
+ts_config(
+    name = "tsconfig",
+    src = ":tsconfig.json",
+    visibility = ["//visibility:public"],
     deps = [
+        "//:tsconfig.json",
+    ],
+)
+
+ts_project(
+    name = "worker_adapter",
+    srcs = ["worker_adapter.ts"],
+    declaration = True,
+    tsconfig = ":tsconfig",
+    deps = [
+        "//packages/worker:library",
         "@npm//@types/node",
-        "@npm//webpack",
+        "@npm//webpack-cli",
     ],
 )
-
-# Copy the proto file to a matching third_party/... nested directory
-# so the runtime require() statements still work
-_worker_proto_dir = "third_party/github.com/bazelbuild/bazel/src/main/protobuf"
-
-genrule(
-    name = "copy_worker_js",
-    srcs = ["//packages/worker:npm_package"],
-    outs = ["worker.js"],
-    cmd = "cp $(execpath //packages/worker:npm_package)/index.js $@",
-)
-
-copy_file(
-    name = "copy_worker_proto",
-    src = "@build_bazel_rules_typescript//%s:worker_protocol.proto" % _worker_proto_dir,
-    out = "%s/worker_protocol.proto" % _worker_proto_dir,
-)
-
-filegroup(
-    name = "package_contents",
-    srcs = [
-        "BUILD.bazel",
-    ],
-)
-
-# END-INTERNAL
 
 exports_files([
-    "index.js",
+    "webpack.config.js",
 ])
-
-filegroup(
-    name = "filegroup",
-    srcs = [
-        "index.js",
-        "third_party/github.com/bazelbuild/bazel/src/main/protobuf/worker_protocol.proto",
-        "worker.js",
-    ],
-    visibility = ["//visibility:public"],
-)

@@ -55,7 +55,7 @@ nodejs_test(
     ],
 )
 
-# Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
+# Ugly genrule depending on local linux environment to build the README out of starlark doc generation.
 # Only referenced when we do a release.
 # TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
 genrule(
@@ -72,16 +72,15 @@ genrule(
 
 pkg_npm(
     name = "npm_package",
+    package_name = "@bazel/webpack",
     srcs = [
         "index.bzl",
         "package.json",
-        "//packages/webpack/internal:package_contents",
     ],
     build_file_content = "",
     substitutions = WEBPACK_REPLACEMENTS,
     deps = [
-        "//packages/webpack/internal:BUILD",
-        "//packages/webpack/internal/worker:filegroup",
+        "//packages/webpack/internal:package_contents",
     ] + select({
         # FIXME: fix stardoc on Windows; //packages/typescript:index.md generation fails with:
         #   ERROR: D:/b/62unjjin/external/npm_bazel_typescript/BUILD.bazel:36:1: Couldn't build file
