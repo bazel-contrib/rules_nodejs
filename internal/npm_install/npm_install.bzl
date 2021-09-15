@@ -330,17 +330,44 @@ to the source `package.json`.""",
     "symlink_node_modules": attr.bool(
         doc = """Turn symlinking of node_modules on
 
-This requires the use of Bazel 0.26.0 and the experimental
-managed_directories feature.
+When True, we run the package manager (npm or yarn) with the working directory
+set in your source tree, in the folder containing the package.json file.
+The resulting `node_modules` folder in the source tree will be symlinked to the
+external repository created by this rule.
 
-When true, the package manager will run in the package.json folder
-and the resulting node_modules folder will be symlinked into the
-external repository create by this rule.
+This gives the user experience of running `bazel build` in a clean clone,
+and the `node_modules` folder is created as if you had run `npm install` yourself.
+It avoids installing the dependencies twice in a typical developer workflow, where you'd
+need to `npm install` for tooling like formatters or editors, and then Bazel installs
+a second copy in its external repository. This can save some time.
+It also means you can patch the source files in the `node_modules` folder and these changes
+will be reflected in subsequent Bazel executions.
 
-When false, the package manager will run in the external repository
-created by this rule and any files other than the package.json file and
-the lock file that are required for it to run should be listed in the
-data attribute.
+WARNING: we suspect there are some hard-to-reproduce bugs when this feature is used,
+because any corruption in the node_modules tree won't be corrected by Bazel.
+When repairing this with `bazel clean --expunge` you'll also have to `rm -rf node_modules`
+or else the next Bazel run will re-use the same corrupted `node_modules` folder by restoring
+the symlink to it.
+
+When using symlink_node_modules, we recommend also enabling Bazel's `managed_directories`
+for the node_modules folder. This is documented in the
+[workspace global](https://docs.bazel.build/versions/main/skylark/lib/globals.html#workspace)
+Be sure to include the `node_modules` path in the `.bazelignore` file.
+
+Using managed_directories will mean that
+
+1. changes to files under `node_modules` are tracked by Bazel as if they were located
+   in the external repository folder, and
+2. if the `node_modules` folder is deleted from the source tree, Bazel will re-run the
+   repository rule that creates it again on the next run.
+
+When False, the package manager will run in the external repository
+created by this rule.
+This requires that any files required for it to run should be listed in the
+`data` attribute. These files would include things like patch files that are
+read by a postinstall lifecycle hook such as the `patch-package` package uses.
+`package.json` and the lock file are already specified in dedicated attributes
+of this rule and do not need to be included in the `data`.
 """,
         default = True,
     ),
