@@ -59,5 +59,15 @@ cypress_web_test(
         "@cypress_deps//rxjs",
     ],
     plugin_file = ":lib_plugin_file",
-    tags = ["cypress"],
+    tags = [
+        "cypress",
+        # Currently we assume port 3000 is fixed,
+        # so only one can run at a time.
+        # This should simply require adding an "exclusive" tag
+        # (or choosing a dynamic port)
+        # However exclusive seems to change the spawn strategy?
+        # so that it fails with
+        # Error: Cannot find module 'cypress/lib/cli'
+        "manual",
+    ],
 )
