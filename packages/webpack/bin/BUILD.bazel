@@ -1,0 +1,17 @@
+"""The default binaries used in our local builds
+
+Note that in the npm distribution, this file is absent, and will be generated on-the-fly when
+the package is installed (possibly with different attribute values).
+"""
+
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "webpack-worker",
+    data = [
+        "//packages/worker:library",
+        "@npm//webpack-cli",
+    ],
+    entry_point = "//packages/webpack/internal/worker:worker_adapter.js",
+    visibility = ["//visibility:public"],
+)

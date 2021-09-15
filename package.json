@@ -101,6 +101,7 @@
         "unidiff": "1.0.1",
         "webpack-cli": "4.8.0",
         "webpack": "5.52.0",
+        "@types/webpack": "^5.28.0",
         "yarn": "1.22.0",
         "zone.js": "^0.11.4"
     },

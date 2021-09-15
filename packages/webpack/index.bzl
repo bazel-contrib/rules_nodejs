@@ -17,7 +17,7 @@
 Users should not load files under "/internal"
 """
 
-load("//packages/webpack/internal:webpack.bzl", _webpack = "webpack_macro")
+load("//packages/webpack/internal:webpack.bzl", _webpack = "webpack")
 
 webpack = _webpack
 # If adding rules here also add to index.docs.bzl

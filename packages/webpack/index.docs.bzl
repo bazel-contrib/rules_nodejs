@@ -18,7 +18,7 @@ We can't point stardoc to the top-level index.bzl since then it will see macros 
 So this is a copy of index.bzl with macro indirection removed.
 """
 
-load("//packages/webpack/internal:webpack.bzl", _webpack = "webpack_macro")
+load("//packages/webpack/internal:webpack.bzl", _webpack = "webpack")
 
 webpack = _webpack
 # DO NOT ADD MORE rules here unless they appear in the generated docsite.
