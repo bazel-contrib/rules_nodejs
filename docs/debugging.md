@@ -49,6 +49,7 @@ You will first need to configure your `.vscode/launch.json`:
       "request": "attach",
       "name": "Attach nodejs_binary",
       "internalConsoleOptions": "neverOpen",
+      "resolveSourceMapLocations": null,
       "sourceMapPathOverrides": {
         "../*": "${workspaceRoot}/*",
         "../../*": "${workspaceRoot}/*",
