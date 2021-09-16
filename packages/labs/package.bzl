@@ -24,10 +24,10 @@ def npm_bazel_labs_dependencies():
 
     http_archive(
         name = "rules_proto",
-        sha256 = "e0cab008a9cdc2400a1d6572167bf9c5afc72e19ee2b862d18581051efab42c9",
-        strip_prefix = "rules_proto-c0b62f2f46c85c16cb3b5e9e921f0d00e3101934",
+        sha256 = "83c8798f5a4fe1f6a13b5b6ae4267695b71eed7af6fbf2b6ec73a64cf01239ab",
+        strip_prefix = "rules_proto-b22f78685bf62775b80738e766081b9e4366cdf0",
         urls = [
-            "https://github.com/bazelbuild/rules_proto/archive/c0b62f2f46c85c16cb3b5e9e921f0d00e3101934.tar.gz",
+            "https://github.com/bazelbuild/rules_proto/archive/b22f78685bf62775b80738e766081b9e4366cdf0.tar.gz",
         ],
     )
 
