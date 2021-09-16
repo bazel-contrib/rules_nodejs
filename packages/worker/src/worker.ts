@@ -33,7 +33,10 @@ export function runAsWorker(args: string[]) {
 }
 
 export type Inputs = {
-    [path: string]: string;
+    // Digest is not necessarily present all the time
+    // See: https://github.com/bazelbuild/rules_nodejs/issues/2953 
+    // And: https://github.com/bazelbuild/bazel/blob/97643ad92d86179d21b2526e9f9804045d025f21/src/main/java/com/google/devtools/build/lib/worker/WorkerSpawnRunner.java#L238
+    [path: string]: string | null;
 }
 
 export type OneBuildFunc = (
@@ -98,7 +101,11 @@ export async function runWorkerLoop(runOneBuild: OneBuildFunc) {
             succedded = await runOneBuild(
                 work.arguments,
                 work.inputs.reduce((inputs, input) => {
-                    inputs[input.path] = Buffer.from(input.digest).toString("hex");
+                    let digest: string | null = null;
+                    if (input.digest) {
+                        digest = Buffer.from(input.digest).toString("hex")
+                    }
+                    inputs[input.path] = digest;
                     return inputs;
                 }, {} as Inputs)
             );
