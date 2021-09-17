@@ -1,15 +1,22 @@
 // Called from "version" npm script when running `npm version`
 // during release process. This script updates the docs to point to the release.
 // It also copies the release file to a filename matching the one we want to publish to GitHub.
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const shell = require('shelljs');
 const version = require('../package.json').version;
 const artifact = 'dist/bin/release.tar.gz';
-const hash = require('crypto').createHash('sha256');
-// TODO(alexeagle): consider streaming the bytes into the hash function, if this consumes too much
-// RAM
-const sha256 = hash.update(fs.readFileSync(artifact)).digest('hex');
+const coreArtifact = 'dist/bin/release-core.tar.gz';
+
+function computeSha256(path) {
+  const hash = crypto.createHash('sha256');
+  // TODO(alexeagle): consider streaming the bytes into the hash function, if this consumes too much
+  // RAM
+  return hash.update(fs.readFileSync(path)).digest('hex');
+}
+const sha256 = computeSha256(artifact);
+const coreSha256 = computeSha256(coreArtifact);
 
 for (const f of ['docs/install.md', 'packages/create/index.js']) {
   shell.sed(
@@ -18,6 +25,7 @@ for (const f of ['docs/install.md', 'packages/create/index.js']) {
   shell.sed('-i', 'sha256 = \"[0-9a-f]+\"', `sha256 = "${sha256}"`, f);
 }
 shell.cp('-f', artifact, `rules_nodejs-${version}.tar.gz`);
+shell.cp('-f', coreArtifact, `rules_nodejs-core-${version}.tar.gz`);
 
 /**
  * Returns an array of all WORKSPACE the files under a directory.
@@ -51,5 +59,13 @@ for (const f of workspaceFiles) {
       version}.tar.gz"],
 `;
   workspaceContents = workspaceContents.replace(regex, replacement);
+  const coreRegex = new RegExp(`http_archive\\(\\s*name\\s*\\=\\s*"rules_nodejs"[^)]+`);
+  const coreReplacement = `http_archive(
+    name = "rules_nodejs",
+    sha256 = "${coreSha256}",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/${version}/rules_nodejs-core-${
+      version}.tar.gz"],
+`;
+  workspaceContents = workspaceContents.replace(coreRegex, coreReplacement);
   fs.writeFileSync(f, workspaceContents);
 }
