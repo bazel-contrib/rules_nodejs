@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/worker@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-4.1.0.tgz#f63a5c821ce01731a4bc1b38f7dff16332fe331c"
-  integrity sha512-xO8dMC2GR+MwZrRa+FTG9yr5yzUCFvs7MiVYEJ25L708XhOqs34at6BFH1Xa3/ZYQt7iDBFpwY6QzbhhIIQrXA==
+"@bazel/worker@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-4.2.0.tgz#96d4f4f7807c8e3a583e3e9e78d81385882c8013"
+  integrity sha512-FQ88yaWtCAveauBXxZ9uuQvmAGAaHZUqu2ptTIf6R6Q8yblPB7w6VTKfkLoT162gqLzDclzhoidJ4YH93bidtA==
   dependencies:
     google-protobuf "^3.6.1"
 

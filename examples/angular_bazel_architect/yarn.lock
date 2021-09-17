@@ -1353,10 +1353,10 @@
   resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.10.1.tgz#46236a43ad58e310c55247f866da0dc6083c3d8b"
   integrity sha512-IHszNzBO2UrUy6YtsSAsZtnU6I6qpzXGkWdEvGoMxLgJnDsEnsIYniDCUjvjU1KAP+A03eepmCHlyFcRHMSxRA==
 
-"@bazel/buildifier@^0.0.0-PLACEHOLDER":
-  version "0.0.0-PLACEHOLDER"
-  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-0.0.0-PLACEHOLDER.tgz#c9b33a90e860c460c72900099af68f408746a886"
-  integrity sha512-WUTjpWteoPwXzODt6gNVqpvirDR7+HpmieQVnqR+eliC6gggQQjN/9XLa8Ar9aQcZN4dCDOM/7KiV5KVHvhIkQ==
+"@bazel/buildifier@^4.2.1":
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-4.2.1.tgz#2ea4c0d5015a1f36174a139e8953c4eec509564e"
+  integrity sha512-eMBw//leW3xIbDrylsFKC7ejOMKAja2Z3BmQ5Zan/h7s/C+F2cMz3UFJhSVZRl4AaN3bXVvTNMz385abaTK/tA==
 
 "@bazel/ibazel@^0.15.10":
   version "0.15.10"
