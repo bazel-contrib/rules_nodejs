@@ -1,3 +1,21 @@
+# [4.2.0](https://github.com/bazelbuild/rules_nodejs/compare/4.1.0...4.2.0) (2021-09-17)
+
+
+### Bug Fixes
+
+* **builtin:** pkg_npm unable to copy files from transitioned actions ([#2942](https://github.com/bazelbuild/rules_nodejs/issues/2942)) ([4291e20](https://github.com/bazelbuild/rules_nodejs/commit/4291e20))
+* **typescript:** exclude package(-lock).json from default ts_project srcs ([0245b6d](https://github.com/bazelbuild/rules_nodejs/commit/0245b6d))
+* **worker:** check if the input digest present ([b43c594](https://github.com/bazelbuild/rules_nodejs/commit/b43c594))
+
+
+### Features
+
+* **builtin:** add a toolchain to new core that exposes the node for any platform ([20f4a8f](https://github.com/bazelbuild/rules_nodejs/commit/20f4a8f))
+* **builtin:** add support for stopping propagation of `link_node_modules` aspect ([dedc982](https://github.com/bazelbuild/rules_nodejs/commit/dedc982))
+* introduce "core" package at /nodejs ([a32cf5c](https://github.com/bazelbuild/rules_nodejs/commit/a32cf5c))
+
+
+
 # [4.1.0](https://github.com/bazelbuild/rules_nodejs/compare/4.0.0...4.1.0) (2021-09-10)
 
 
