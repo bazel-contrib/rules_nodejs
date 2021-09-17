@@ -36,12 +36,17 @@ write_file(
 
 # In theory, you can use the node toolchain together with a genrule().
 # However the genrule implementation doesn't perform toolchain resolution.
-# See this comment from Jay Conrod about a similar question for rules_go
+# See https://github.com/bazelbuild/bazel/issues/14009
+# and also this comment from Jay Conrod about a similar question for rules_go
 # https://github.com/bazelbuild/rules_go/issues/2255#issuecomment-545478712
-# That means you must resolve the toolchain yourself, with a select()
-# and that falls down the same deoptimization described above:
+#
+# That bazel issue has a workaround, which we should put in the new core package.
+# TODO(alexeagle): make a simple rule that forwards the toolchain definition and tools
+# and uncomment this block.
+#
+# Note that another possible workaround is to resolve the toolchain yourself,
+# with a select() - however that falls down the same deoptimization described above:
 # it will eager-fetch node for all platforms.
-# So instead we recommend always writing a custom rule to access the node binary.
 # alias(
 #     name = "node_toolchain",
 #     actual = select({
