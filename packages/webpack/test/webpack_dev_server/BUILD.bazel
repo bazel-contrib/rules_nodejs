@@ -1,0 +1,10 @@
+load("//packages/webpack:index.bzl", "webpack_dev_server")
+
+webpack_dev_server(
+    name = "webpack_dev_server",
+    data = [
+        "foo.js",
+        "public/index.html",
+    ],
+    webpack_config = "webpack.config.js",
+)

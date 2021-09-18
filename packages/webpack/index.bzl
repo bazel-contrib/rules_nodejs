@@ -18,6 +18,8 @@ Users should not load files under "/internal"
 """
 
 load("//packages/webpack/internal:webpack.bzl", _webpack = "webpack")
+load("//packages/webpack/internal:webpack_dev_server.bzl", _webpack_dev_server = "webpack_dev_server")
 
 webpack = _webpack
+webpack_dev_server = _webpack_dev_server
 # If adding rules here also add to index.docs.bzl
