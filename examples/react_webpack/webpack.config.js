@@ -1,21 +1,11 @@
- 
-module.exports = (env, argv) => ({
-  mode: argv.mode,
+
+module.exports = () => ({
   module: {
-      rules: [
-        {
-          test: /\.css$/,
-          exclude: /node_modules/,
-          use: [
-            { loader: "style-loader" },
-            {
-              loader: "css-loader",
-              query: {
-                modules: true
-              }
-            }
-          ]
-        },
-      ]
-    }
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
+    ],
+  }
 });

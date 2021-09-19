@@ -1,3 +1,4 @@
+# BEGIN-INTERNAL
 load("//packages/typescript:index.bzl", "ts_config", "ts_project")
 
 package(default_visibility = ["//packages/webpack:__subpackages__"])
@@ -22,6 +23,16 @@ ts_project(
         "@npm//webpack-cli",
     ],
 )
+
+filegroup(
+    name = "package_contents",
+    srcs = [
+        "BUILD.bazel",
+        "webpack.config.js",
+        "worker_adapter.js",
+    ],
+)
+# END-INTERNAL
 
 exports_files([
     "webpack.config.js",

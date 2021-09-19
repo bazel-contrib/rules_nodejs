@@ -6,7 +6,7 @@ def webpack_dev_server(
         args = [],
         data = [],
         tags = [],
-        ibazel_webpack_plugin = "//packages/webpack/internal/devserver:webpack.config.js",
+        ibazel_webpack_plugin = Label("//packages/webpack/internal/dev_server:webpack.config.js"),
         **kwargs):
     nodejs_binary(
         name = name,

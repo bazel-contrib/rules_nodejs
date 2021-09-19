@@ -129,7 +129,7 @@ worker aware binary rather than "webpack_bin".""",
         ),
         "_bazel_webpack_config": attr.label(
             allow_single_file = [".js"],
-            default = "//packages/webpack/internal/worker:webpack.config.js",
+            default = Label("//packages/webpack/internal/worker:webpack.config.js"),
         ),
     },
 )

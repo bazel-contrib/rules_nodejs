@@ -1,0 +1,15 @@
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "webpack.config.js",
+])
+
+# BEGIN-INTERNAL
+filegroup(
+    name = "package_contents",
+    srcs = [
+        "BUILD.bazel",
+        "webpack.config.js",
+    ],
+)
+# END-INTERNAL

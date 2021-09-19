@@ -1,7 +1,7 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_project")
 load("@npm//http-server:index.bzl", "http_server")
 load("@npm//sass:index.bzl", "sass")
-load("@npm//webpack-cli:index.bzl", webpack = "webpack_cli")
+load("@npm//@bazel/webpack:index.bzl", "webpack", "webpack_dev_server")
 
 sass(
     name = "styles",
@@ -22,30 +22,57 @@ ts_project(
     ],
 )
 
+WEBPACK_ENTRY = "--entry=./$(location index.js)"
+
+WEBPACK_ARGS = [
+    WEBPACK_ENTRY,
+    "-o",
+    "$@",
+]
+
+WEBPACK_DATA = [
+    "index.js",
+    "styles.css",
+    "@npm//:node_modules",
+]
+
 webpack(
-    name = "bundle",
-    outs = ["app.bundle.js"],
+    name = "dev_bundle",
+    outs = ["dev.bundle.js"],
     args = [
-        "$(execpath index.js)",
-        "--config",
-        "$(execpath webpack.config.js)",
-        "-o",
-        "$@",
-    ],
-    data = [
-        "index.js",
-        "styles.css",
-        "webpack.config.js",
-        "@npm//:node_modules",
-    ],
+        "--mode=development",
+    ] + WEBPACK_ARGS,
+    data = WEBPACK_DATA,
+    supports_workers = True,
+    webpack_config = "webpack.config.js",
+)
+
+webpack(
+    name = "prod_bundle",
+    outs = ["prod.bundle.js"],
+    args = [
+        "--mode=production",
+    ] + WEBPACK_ARGS,
+    data = WEBPACK_DATA,
+    webpack_config = "webpack.config.js",
 )
 
 # Note, on Windows you need `--enable_runfiles`
 http_server(
     name = "server",
     data = [
-        "app.bundle.js",
         "index.html",
+        "prod.bundle.js",
     ],
     templated_args = ["."],
+)
+
+webpack_dev_server(
+    name = "webpack_dev_server",
+    args = [
+        "--mode=development",
+        WEBPACK_ENTRY,
+    ],
+    data = WEBPACK_DATA,
+    webpack_config = "webpack.config.js",
 )

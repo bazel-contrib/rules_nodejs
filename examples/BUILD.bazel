@@ -75,6 +75,7 @@ example_integration_test(
     # TODO: add some tests in the example
     bazel_commands = ["build ..."],
     npm_packages = {
+        "//packages/webpack:npm_package": "@bazel/webpack",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     # TODO(alexeagle): somehow this is broken by the new node-patches based node_patches script

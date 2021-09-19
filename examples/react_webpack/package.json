@@ -2,21 +2,22 @@
     "private": true,
     "devDependencies": {
         "@bazel/buildifier": "^0.0.0-PLACEHOLDER",
+        "@bazel/webpack": "^0.0.0-PLACEHOLDER",
         "@bazel/ibazel": "^0.15.10",
         "@bazel/typescript": "^4.1.0",
         "@types/react": "^16.9.5",
         "@types/react-dom": "^16.9.1",
-        "css-loader": "^3.2.0",
-        "csstype": "^2.2.0",
+        "css-loader": "^6.3.0",
+        "csstype": "^3.0.9",
         "http-server": "^0.11.1",
         "react": "^16.10.2",
         "react-dom": "^16.10.2",
         "sass": "^1.23.0",
-        "style-loader": "^1.0.0",
+        "style-loader": "^3.2.1",
         "typescript": "^3.6.3",
-        "webpack": "^4.41.0",
-        "webpack-cli": "^3.3.9",
-        "webpack-dev-server": "^3.8.2"
+        "webpack": "^5.53.0",
+        "webpack-cli": "^4.8.0",
+        "webpack-dev-server": "^4.2.1"
     },
     "scripts": {
         "build": "bazel build //...",

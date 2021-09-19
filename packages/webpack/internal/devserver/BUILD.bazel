@@ -1,5 +1,0 @@
-package(default_visibility = ["//visibility:public"])
-
-exports_files([
-    "webpack.config.js",
-])
