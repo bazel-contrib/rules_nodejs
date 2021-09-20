@@ -62,7 +62,7 @@ PLATFORMS = {
     ),
 }
 
-def _impl(repository_ctx):
+def _toolchains_repo_impl(repository_ctx):
     # Expose a concrete toolchain which is the result of Bazel resolving the toolchain
     # for the execution or target platform.
     # Workaround for https://github.com/bazelbuild/bazel/issues/14009
@@ -70,14 +70,14 @@ def _impl(repository_ctx):
 
 load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain_providers")
 
-def _impl(ctx):
+def _resolved_toolchain_impl(ctx):
     toolchain_info = ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo
     return node_toolchain_providers(ctx, toolchain_info)
 
 # Copied from java_toolchain_alias
 # https://cs.opensource.google/bazel/bazel/+/master:tools/jdk/java_toolchain_alias.bzl
 resolved_toolchain = rule(
-    implementation = _impl,
+    implementation = _resolved_toolchain_impl,
     toolchains = ["@rules_nodejs//nodejs:toolchain_type"],
     incompatible_use_toolchain_transition = True,
 )
@@ -116,7 +116,7 @@ toolchain(
     repository_ctx.file("BUILD.bazel", build_content)
 
 toolchains_repo = repository_rule(
-    _impl,
+    _toolchains_repo_impl,
     doc = """Creates a repository with toolchain definitions for all known platforms
      which can be registered or selected.""",
     attrs = {
