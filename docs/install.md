@@ -4,7 +4,7 @@ layout: default
 toc: true
 ---
 
-# Custom installation
+# Installation
 
 First, you need Bazel.
 We recommend using Bazelisk, which is a version-selection wrapper, similar to
