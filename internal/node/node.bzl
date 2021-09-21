@@ -596,7 +596,7 @@ Predefined genrule variables are not supported in this context.
         allow_single_file = True,
     ),
     "_node_patches_script": attr.label(
-        default = Label("//internal/node:node_patches.js"),
+        default = Label("//nodejs:sandbox-patches.js"),
         allow_single_file = True,
     ),
     "_repository_args": attr.label(

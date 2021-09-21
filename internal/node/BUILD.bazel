@@ -13,7 +13,6 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -53,15 +52,3 @@ filegroup(
     ],
     visibility = ["//:__pkg__"],
 )
-
-# BEGIN-INTERNAL
-# To update node_patches.js run:
-#   bazel run //internal/node:checked_in_node_patches.update
-generated_file_test(
-    name = "checked_in_node_patches",
-    src = "node_patches.js",
-    generated = "//packages/node-patches:bundle",
-    # For some reason rollup produces different, non-matching output with --config=no-runfiles
-    tags = ["fix-windows"],
-)
-# END-INTERNAL

@@ -15,6 +15,8 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@npm_node_patches//typescript:index.bzl", "tsc")
 load("//packages/rollup:index.bzl", "rollup_bundle")
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -75,4 +77,29 @@ rollup_bundle(
     format = "cjs",
     sourcemap = "false",
     deps = ["@npm//@rollup/plugin-commonjs"],
+)
+
+write_file(
+    name = "update_gen",
+    out = "update.sh",
+    content = [
+        "#!/bin/sh",
+        "cd $BUILD_WORKSPACE_DIRECTORY",
+        "cp -fv dist/bin/packages/node-patches/bundle.js nodejs/sandbox-patches.js",
+    ],
+)
+
+sh_binary(
+    name = "update",
+    srcs = ["update.sh"],
+    data = ["bundle"],
+)
+
+diff_test(
+    name = "checked_in_bundle",
+    failure_message = """To accept the new generated file, run:
+
+        bazel run //packages/node-patches:update""",
+    file1 = "bundle",
+    file2 = "//nodejs:sandbox-patches.js",
 )

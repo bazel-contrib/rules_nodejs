@@ -1,15 +1,27 @@
+// Generated from:   bazel run //packages/node-patches:update
+
+/**
+ * @fileoverview patches some Node built-in APIs to prevent programs escaping from Bazel's sandbox.
+ * 
+ * A common source of hermeticity bugs in Node programs is that they tend to always resolve
+ * symlinks, due to the npm idiom of symlinking dependencies with 'npm link'.
+ * These patches hide the symlinks which exit the sandbox, making them appear to programs as
+ * if they are regular files/directories.
+ */
 // clang-format off
 'use strict';
 
 var path = require('path');
 var util = require('util');
 var fs$1 = require('fs');
+var os = require('os');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
 var path__default = /*#__PURE__*/_interopDefaultLegacy(path);
 var util__default = /*#__PURE__*/_interopDefaultLegacy(util);
 var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs$1);
+var os__default = /*#__PURE__*/_interopDefaultLegacy(os);
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -540,10 +552,12 @@ exports.patcher = void 0;
 // but adds support to ensure the registered loader is included in all nested executions of nodejs.
 
 
+
 const patcher = (requireScriptName, nodeDir) => {
     requireScriptName = path__default['default'].resolve(requireScriptName);
-    nodeDir = nodeDir || path__default['default'].join(path__default['default'].dirname(requireScriptName), '_node_bin');
+    nodeDir = nodeDir || path__default['default'].join(os__default['default'].tmpdir(), '_rules_nodejs_node_bin');
     const file = path__default['default'].basename(requireScriptName);
+    const repoArgs = process.env.NODE_REPOSITORY_ARGS || '';
     try {
         fs__default['default'].mkdirSync(nodeDir, { recursive: true });
     }
@@ -559,7 +573,7 @@ const patcher = (requireScriptName, nodeDir) => {
             fs__default['default'].writeFileSync(nodeEntry, `@if not defined DEBUG_HELPER @ECHO OFF
 set NP_SUBPROCESS_NODE_DIR=${nodeDir}
 set Path=${nodeDir};%Path%
-"${process.execPath}" ${process.env.NODE_REPOSITORY_ARGS} --require "${requireScriptName}" %*
+"${process.execPath}" ${repoArgs} --require "${requireScriptName}" %*
 `);
         }
     }
@@ -570,9 +584,9 @@ set Path=${nodeDir};%Path%
 export NP_SUBPROCESS_NODE_DIR="${nodeDir}"
 export PATH="${nodeDir}":\$PATH
 if [[ ! "\${@}" =~ "${file}" ]]; then
-  exec ${process.execPath} ${process.env.NODE_REPOSITORY_ARGS} --require "${requireScriptName}" "$@"
+  exec ${process.execPath} ${repoArgs} --require "${requireScriptName}" "$@"
 else
-  exec ${process.execPath} ${process.env.NODE_REPOSITORY_ARGS} "$@"
+  exec ${process.execPath} ${repoArgs} "$@"
 fi
 `, { mode: 0o777 });
         }

@@ -47,9 +47,12 @@ genrule(
     name = "use_node_toolchain",
     srcs = ["some.js"],
     outs = ["actual1"],
-    cmd = "$(NODE_PATH) $(execpath some.js) $@",
+    cmd = "$(NODE_PATH) --require=./$(execpath @rules_nodejs//nodejs:sandbox-patches.js) $(execpath some.js) $@",
     toolchains = ["@node16_toolchains//:resolved_toolchain"],
-    tools = ["@node16_toolchains//:resolved_toolchain"],
+    tools = [
+        "@node16_toolchains//:resolved_toolchain",
+        "@rules_nodejs//nodejs:sandbox-patches.js",
+    ],
 )
 
 diff_test(
