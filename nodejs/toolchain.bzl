@@ -25,31 +25,6 @@ May be empty if the target_tool_path points to a locally installed node binary."
     },
 )
 
-def node_toolchain_providers(ctx, toolchain_info):
-    """Convert the toolchain_info struct to Providers returned by the toolchain.
-
-       This is exposed as part of the workaround for https://github.com/bazelbuild/bazel/issues/14009
-    """
-    return [
-        DefaultInfo(
-            files = depset(toolchain_info.tool_files),
-            runfiles = ctx.runfiles(files = toolchain_info.tool_files),
-        ),
-        platform_common.ToolchainInfo(
-            nodeinfo = NodeInfo(
-                target_tool_path = toolchain_info.target_tool_path,
-                tool_files = toolchain_info.tool_files,
-            ),
-        ),
-        # Make the $(NODE_PATH) variable available in places like genrules.
-        # See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables
-        # Note that genrule seems to have a bug: this only works if the node_toolchain target
-        # itself is used by the toolchains attribute of genrule, not the toolchain_type.
-        platform_common.TemplateVariableInfo({
-            "NODE_PATH": toolchain_info.target_tool_path,
-        }),
-    ]
-
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
     if file.short_path.startswith("../"):
@@ -70,7 +45,32 @@ def _node_toolchain_impl(ctx):
         tool_files = ctx.attr.target_tool.files.to_list()
         target_tool_path = _to_manifest_path(ctx, tool_files[0])
 
-    return node_toolchain_providers(ctx, struct(tool_files = tool_files, target_tool_path = target_tool_path))
+    # Make the $(NODE_PATH) variable available in places like genrules.
+    # See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables
+    # Note that genrule seems to have a bug: this only works if the node_toolchain target
+    # itself is used by the toolchains attribute of genrule, not the toolchain_type.
+    template_variables = platform_common.TemplateVariableInfo({
+        "NODE_PATH": target_tool_path,
+    })
+    default = DefaultInfo(
+        files = depset(tool_files),
+        runfiles = ctx.runfiles(files = tool_files),
+    )
+    nodeinfo = NodeInfo(
+        target_tool_path = target_tool_path,
+        tool_files = tool_files,
+    )
+    return [
+        default,
+        # Export all the providers inside our ToolchainInfo
+        # so the resolved_toolchain rule can grab and re-export them.
+        platform_common.ToolchainInfo(
+            nodeinfo = nodeinfo,
+            template_variables = template_variables,
+            default = default,
+        ),
+        template_variables,
+    ]
 
 node_toolchain = rule(
     implementation = _node_toolchain_impl,
