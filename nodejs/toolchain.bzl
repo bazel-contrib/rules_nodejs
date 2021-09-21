@@ -45,23 +45,31 @@ def _node_toolchain_impl(ctx):
         tool_files = ctx.attr.target_tool.files.to_list()
         target_tool_path = _to_manifest_path(ctx, tool_files[0])
 
+    # Make the $(NODE_PATH) variable available in places like genrules.
+    # See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables
+    template_variables = platform_common.TemplateVariableInfo({
+        "NODE_PATH": target_tool_path,
+    })
+    default = DefaultInfo(
+        files = depset(tool_files),
+        runfiles = ctx.runfiles(files = tool_files),
+    )
+    nodeinfo = NodeInfo(
+        target_tool_path = target_tool_path,
+        tool_files = tool_files,
+    )
+
+    # Export all the providers inside our ToolchainInfo
+    # so the resolved_toolchain rule can grab and re-export them.
+    toolchain_info = platform_common.ToolchainInfo(
+        nodeinfo = nodeinfo,
+        template_variables = template_variables,
+        default = default,
+    )
     return [
-        DefaultInfo(
-            runfiles = ctx.runfiles(files = tool_files),
-        ),
-        platform_common.ToolchainInfo(
-            nodeinfo = NodeInfo(
-                target_tool_path = target_tool_path,
-                tool_files = tool_files,
-            ),
-        ),
-        # Make the $(NODE_PATH) variable available in places like genrules.
-        # See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables
-        # Note that genrule seems to have a bug: this only works if the node_toolchain target
-        # itself is used by the toolchains attribute of genrule, not the toolchain_type.
-        platform_common.TemplateVariableInfo({
-            "NODE_PATH": target_tool_path,
-        }),
+        default,
+        toolchain_info,
+        template_variables,
     ]
 
 node_toolchain = rule(
