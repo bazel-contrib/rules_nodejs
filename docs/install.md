@@ -17,7 +17,7 @@ $ yarn add -D @bazel/bazelisk @bazel/ibazel
 $ npm install --save-dev @bazel/bazelisk @bazel/ibazel
 ```
 
-You could install a current bazel distribution, following the [bazel instructions].
+You could install a current bazel distribution, following the [bazel instructions](https://docs.bazel.build/versions/main/install.html).
 
 If you use Bazelisk, see [this workaround](https://github.com/bazelbuild/bazelisk/issues/29#issuecomment-478062147) to get working command-line completion.
 
