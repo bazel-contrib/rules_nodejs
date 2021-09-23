@@ -6,23 +6,37 @@ toc: true
 
 # Bazel JavaScript rules
 
-Bazel is Google's build system.
-It powers development at large scale by caching intermediate build artifacts,
-allowing build and test to be incremental and massively parallelizable.
-Read more at [https://bazel.build](https://bazel.build)
-
-This JavaScript support lets you build and test code that targets a JavaScript runtime, including NodeJS and browsers.
-
+Bazel rules to build and test code that targets a JavaScript runtime, including NodeJS and browsers.
 
 ## Scope of the project
 
 This repository contains three layers:
 
-1. A toolchain that fetches a hermetic node, npm, and yarn (independent of what's on the developer's machine), installs dependencies using one of these tools, and generates `BUILD` files so that Bazel can refer to those dependencies
+1. A toolchain that fetches a hermetic node, npm, and yarn (independent of what's on the developer's machine), installs dependencies using one of these tools, and generates `BUILD` files so that Bazel can refer to those dependencies. Also Bazel Providers to allow interop between JS rules. 
+    - [Install and setup](install.md)
+    - [Providers](Providers.md)
+    - [Toolchains](Toolchains.md)
 2. "Built-in" rules distributed by a `.tgz` archive, which give the basic ability to run Node.js programs
-3. Custom rules that are distributed on [npm](http://npmjs.com/~bazel) that more tightly integrate particular JS tooling options with Bazel
+    - [Built-ins](Built-ins.md)
+    - [Managing npm dependencies](dependencies.md)
+    - [Patching rules_nodejs](changing-rules.md)
+    - [Debugging](debugging.md)
+    - [Stamping release builds](stamping.md)
+3. Custom rules that are distributed on [npm](http://npmjs.com/~bazel) that more tightly integrate particular JS tooling options with Bazel.
+    - [Concatjs](Concatjs.md)
+    - [Cypress](Cypress.md)
+    - [esbuild](esbuild.md)
+    - [Jasmine](Jasmine.md)
+    - [Karma](Karma.md)
+    - [Labs](Labs.md)
+    - [Protractor](Protractor.md)
+    - [Rollup](Rollup.md)
+    - [Terser](Terser.md)
+    - [TypeScript](TypeScript.md)
+
+There are also numerous [examples](examples.md)
  
-If you would like to request a new rule, please open a [feature request](https://github.com/bazelbuild/rules_nodejs/issues/new), describe your use case, why it's important, and why you can't do it within the existing rules. Then the maintainers can decide if it is within the scope of the project and will have a large enough impact to warrant the time required to implement.  
+We would like to avoid adding more custom rules for specific npm packages.
 
 If you would like to write a rule outside the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.
 
