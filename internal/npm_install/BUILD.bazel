@@ -12,6 +12,7 @@ checked_in_ts_project(
     name = "compile_generate_build_file",
     src = "generate_build_file.ts",
     checked_in_js = "index.js",
+    tsconfig = "tsconfig.json",
     visibility = ["//internal/npm_install:__subpackages__"],
     deps = ["@npm//@types/node"],
 )

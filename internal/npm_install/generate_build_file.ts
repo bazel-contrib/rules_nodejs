@@ -38,8 +38,7 @@
  * @see https://docs.google.com/document/d/1AfjHMLVyE_vYwlHSK7k7yW_IIGppSxsQtPm9PTr1xEo
  */
 'use strict';
-
-import * as fs from 'fs';
+import {promises as fs, constants, mkdir} from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 
@@ -76,42 +75,58 @@ package(default_visibility = ["${visibility}"])
 }
 
 if (require.main === module) {
-  main();
+  main()
 }
+
+
+async function exists(p: string) {
+  return await fs.access(p, constants.F_OK | constants.W_OK).then(() => true, () => false);
+}
+
+// Avoid duplicate mkdir call when mkdir runs parallel.
+const mkdirPromiseMap = new Map<string, Promise<void>>()
 
 /**
  * Create a new directory and any necessary subdirectories
  * if they do not exist.
  */
-function mkdirp(p: string) {
-  if (!fs.existsSync(p)) {
-    mkdirp(path.dirname(p));
-    fs.mkdirSync(p);
+async function mkdirp(p: string) {
+  let promise = mkdirPromiseMap.get(p)
+  if (!promise) {
+    promise = (async () => {
+      if (await exists(p)) return
+        await mkdirp(path.dirname(p));
+        await fs.mkdir(p);
+    })()
+    // Store mkdir call
+    mkdirPromiseMap.set(p, promise)
   }
+  await promise
 }
 
 /**
  * Writes a file, first ensuring that the directory to
  * write to exists.
  */
-function writeFileSync(p: string, content: string) {
-  mkdirp(path.dirname(p));
-  fs.writeFileSync(p, content);
+async function writeFile(p: string, content: string) {
+  await mkdirp(path.dirname(p));
+  await fs.writeFile(p, content);
 }
 
 /**
  * Creates a file symlink, first ensuring that the directory to
  * create it into exists.
  */
-function createFileSymlinkSync(target: string, p: string) {
-  mkdirp(path.dirname(p));
-  fs.symlinkSync(target, p, 'file');
+async function createFileSymlink(target: string, p: string) {
+  await mkdirp(path.dirname(p));
+  await fs.symlink(target, p, 'file');
 }
 
 /**
  * Main entrypoint.
  */
-export function main() {
+export async function main() {
+
   config = require('./generate_config.json')
   config.limited_visibility = `@${config.workspace}//:__subpackages__`;
 
@@ -120,37 +135,44 @@ export function main() {
   }
 
   // get a set of all the direct dependencies for visibility
-  const deps = getDirectDependencySet(config.package_json);
+  const deps = await getDirectDependencySet(config.package_json);
 
   // find all packages (including packages in nested node_modules)
-  const pkgs = findPackages('node_modules', deps);
+  const pkgs: Array<Dep> = []
+  await findPackages('node_modules', deps, pkgs);
+  pkgs.sort((a, b) => {
+    if(a._dir < b._dir) return -1;
+    if(a._dir > b._dir) return 1; 
+    return 0;
+  });
 
   // flatten dependencies
   flattenDependencies(pkgs);
 
   // generate Bazel workspaces
-  generateBazelWorkspaces(pkgs)
+  await generateBazelWorkspaces(pkgs)
 
   // generate all BUILD files
-  generateBuildFiles(pkgs)
+  await generateBuildFiles(pkgs)
 
   // write a .bazelignore file
-  writeFileSync('.bazelignore', `node_modules\n${config.workspace_rerooted_path}`);
+  await writeFile('.bazelignore', `node_modules\n${config.workspace_rerooted_path}`);
 }
 
 /**
  * Generates all build files
  */
-function generateBuildFiles(pkgs: Dep[]) {
-  generateRootBuildFile(pkgs.filter(pkg => !pkg._isNested))
-  pkgs.filter(pkg => !pkg._isNested).forEach(pkg => generatePackageBuildFiles(pkg));
-  findScopes().forEach(scope => generateScopeBuildFiles(scope, pkgs));
+async function generateBuildFiles(pkgs: Dep[]) {
+  const notNestedPkgs = pkgs.filter(pkg => !pkg._isNested)
+  await generateRootBuildFile(notNestedPkgs)
+  await notNestedPkgs.reduce((p, pkg) => p.then(() => generatePackageBuildFiles(pkg)), Promise.resolve());
+  await (await findScopes()).reduce((prev, scope) => prev.then(() => generateScopeBuildFiles(scope, pkgs)), Promise.resolve());
   // Allow this to overwrite any previously generated BUILD files so that user links take priority
   // over package manager installed npm packages
-  generateLinksBuildFiles(config.links)
+  await generateLinksBuildFiles(config.links)
 }
 
-function generateLinksBuildFiles(links: {[key: string]: string}) {
+async function generateLinksBuildFiles(links: {[key: string]: string}) {
   for (const packageName of Object.keys(links)) {
     const target = links[packageName];
     const basename = packageName.split('/').pop();
@@ -162,7 +184,7 @@ npm_link(
     package_name = "${packageName}",
     package_path = "${config.package_path}",
 )`;
-    writeFileSync(path.posix.join(packageName, 'BUILD.bazel'), starlark);
+    await writeFile(path.posix.join(packageName, 'BUILD.bazel'), starlark);
   }
 }
 
@@ -178,7 +200,7 @@ function flattenDependencies(pkgs: Dep[]) {
 /**
  * Generates the root BUILD file.
  */
-function generateRootBuildFile(pkgs: Dep[]) {
+async function generateRootBuildFile(pkgs: Dep[]) {
   let pkgFilesStarlark = '';
   if (pkgs.length) {
     let list = ''
@@ -233,17 +255,17 @@ js_library(
 
   // Add the manual build file contents if they exists
   try {
-    buildFile += fs.readFileSync(`manual_build_file_contents`, {encoding: 'utf8'});
+    buildFile += await fs.readFile(`manual_build_file_contents`, {encoding: 'utf8'});
   } catch (e) {
   }
 
-  writeFileSync('BUILD.bazel', buildFile);
+  await writeFile('BUILD.bazel', buildFile);
 }
 
 /**
  * Generates all BUILD & bzl files for a package.
  */
-function generatePackageBuildFiles(pkg: Dep) {
+async function generatePackageBuildFiles(pkg: Dep) {
   // If a BUILD file was shipped with the package we should symlink the generated BUILD file
   // instead of append its contents to the end of the one we were going to generate.
   // https://github.com/bazelbuild/rules_nodejs/issues/2131
@@ -255,8 +277,8 @@ function generatePackageBuildFiles(pkg: Dep) {
   const nodeModulesPkgDir = `node_modules/${pkg._dir}`;
   // Check if the current package dep dir is a symlink (which happens when we
   // install a node_module with link:)
-  const isPkgDirASymlink =
-      fs.existsSync(nodeModulesPkgDir) && fs.lstatSync(nodeModulesPkgDir).isSymbolicLink();
+  const isPkgDirASymlink = await fs.lstat(nodeModulesPkgDir)
+    .then(stat => stat.isSymbolicLink()).catch(() => false)
   // Mark build file as one to symlink instead of generate as the package dir is a symlink, we
   // have a BUILD file and the pkg is written inside the workspace
   const symlinkBuildFile =
@@ -266,7 +288,7 @@ function generatePackageBuildFiles(pkg: Dep) {
   if (isPkgDirASymlink && !buildFilePath && !config.generate_local_modules_build_files) {
     console.log(`[yarn_install/npm_install]: package ${
         nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${
-        fs.realpathSync(nodeModulesPkgDir)}`)
+        await fs.realpath(nodeModulesPkgDir)}`)
   }
 
   // The following won't be used in a symlink build file case
@@ -275,7 +297,7 @@ function generatePackageBuildFiles(pkg: Dep) {
       printPackage(pkg);
   if (buildFilePath) {
     buildFile = buildFile + '\n' +
-        fs.readFileSync(path.join('node_modules', pkg._dir, buildFilePath), 'utf-8');
+    await fs.readFile(path.join('node_modules', pkg._dir, buildFilePath), 'utf-8');
   } else {
     buildFilePath = 'BUILD.bazel'
   }
@@ -292,7 +314,7 @@ function generatePackageBuildFiles(pkg: Dep) {
   if (!pkg._files.includes('bin/BUILD.bazel') && !pkg._files.includes('bin/BUILD')) {
     const binBuildFile = printPackageBin(pkg);
     if (binBuildFile.length) {
-      writeFileSync(
+      await writeFile(
           path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), generateBuildFileHeader(visibility) + binBuildFile);
     }
   }
@@ -301,7 +323,7 @@ function generatePackageBuildFiles(pkg: Dep) {
   // other than the BUILD file which we'll write below.
   // (maybe we shouldn't copy .js though, since it belongs under node_modules?)
   if (pkg._files.includes('index.bzl')) {
-    pkg._files.filter(f => f !== 'BUILD' && f !== 'BUILD.bazel').forEach(file => {
+    await pkg._files.filter(f => f !== 'BUILD' && f !== 'BUILD.bazel').reduce(async (prev, file) => {
       if (/^node_modules[/\\]/.test(file)) {
         // don't copy over nested node_modules
         return;
@@ -316,14 +338,14 @@ function generatePackageBuildFiles(pkg: Dep) {
         destFile = path.posix.join(path.dirname(destFile), basename.substr(1));
       }
       const src = path.posix.join('node_modules', pkg._dir, file);
-
-      mkdirp(path.dirname(destFile));
-      fs.copyFileSync(src, destFile);
-    });
+      await prev
+      await mkdirp(path.dirname(destFile));
+      await fs.copyFile(src, destFile);
+    }, Promise.resolve());
   } else {
     const indexFile = printIndexBzl(pkg);
     if (indexFile.length) {
-      writeFileSync(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
+      await writeFile(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
       buildFile += `
 # For integration testing
 exports_files(["index.bzl"])
@@ -332,19 +354,19 @@ exports_files(["index.bzl"])
   }
 
   if (!symlinkBuildFile) {
-    writeFileSync(
+    await writeFile(
         path.posix.join(pkg._dir, buildFilePath), generateBuildFileHeader(visibility) + buildFile);
   } else {
     const realPathBuildFileForPkg =
-        fs.realpathSync(path.posix.join(nodeModulesPkgDir, buildFilePath));
-    createFileSymlinkSync(realPathBuildFileForPkg, path.posix.join(pkg._dir, buildFilePath));
+        await fs.realpath(path.posix.join(nodeModulesPkgDir, buildFilePath));
+    await createFileSymlink(realPathBuildFileForPkg, path.posix.join(pkg._dir, buildFilePath));
   }
 }
 
 /**
  * Generate install_<workspace_name>.bzl files with function to install each workspace.
  */
-function generateBazelWorkspaces(pkgs: Dep[]) {
+async function generateBazelWorkspaces(pkgs: Dep[]) {
   const workspaces: Bag<string> = {};
 
   for (const pkg of pkgs) {
@@ -361,7 +383,7 @@ function generateBazelWorkspaces(pkgs: Dep[]) {
         process.exit(1);
       }
 
-      generateBazelWorkspace(pkg, workspace);
+      await generateBazelWorkspace(pkg, workspace);
 
       // Keep track of which npm package setup this bazel workspace for later use
       workspaces[workspace] = `${pkg._dir}@${pkg.version}`;
@@ -372,7 +394,7 @@ function generateBazelWorkspaces(pkgs: Dep[]) {
 /**
  * Generate install_<workspace>.bzl file with function to install the workspace.
  */
-function generateBazelWorkspace(pkg: Dep, workspace: string) {
+async function generateBazelWorkspace(pkg: Dep, workspace: string) {
   let bzlFile = `# Generated by the yarn_install/npm_install rule
 load("@build_bazel_rules_nodejs//internal/copy_repository:copy_repository.bzl", "copy_repository")
 
@@ -392,8 +414,8 @@ def _maybe(repo_rule, name, **kwargs):
   // Copy all files for this workspace to a folder under _workspaces
   // to restore the Bazel files which have be renamed from the npm package
   const workspaceSourcePath = path.posix.join('_workspaces', workspace);
-  mkdirp(workspaceSourcePath);
-  pkg._files.forEach(file => {
+  await mkdirp(workspaceSourcePath);
+  await Promise.all(pkg._files.map(async (file) => {
     if (/^node_modules[/\\]/.test(file)) {
       // don't copy over nested node_modules
       return;
@@ -413,22 +435,22 @@ def _maybe(repo_rule, name, **kwargs):
     }
     const src = path.posix.join('node_modules', pkg._dir, file);
     const dest = path.posix.join(workspaceSourcePath, destFile);
-    mkdirp(path.dirname(dest));
-    fs.copyFileSync(src, dest);
-  });
+    await mkdirp(path.dirname(dest));
+    await fs.copyFile(src, dest);
+  }));
 
   // We create _bazel_workspace_marker that is used by the custom copy_repository
   // rule to resolve the path to the repository source root. A root BUILD file
   // is required to reference _bazel_workspace_marker as a target so we also create
   // an empty one if one does not exist.
   if (!hasRootBuildFile(pkg, rootPath)) {
-    writeFileSync(
+    await writeFile(
         path.posix.join(workspaceSourcePath, 'BUILD.bazel'),
         '# Marker file that this directory is a bazel package');
   }
   const sha256sum = crypto.createHash('sha256');
-  sha256sum.update(fs.readFileSync(config.package_lock, {encoding: 'utf8'}));
-  writeFileSync(
+  sha256sum.update(await fs.readFile(config.package_lock, {encoding: 'utf8'}));
+  await writeFile(
       path.posix.join(workspaceSourcePath, '_bazel_workspace_marker'),
       `# Marker file to used by custom copy_repository rule\n${sha256sum.digest('hex')}`);
 
@@ -440,29 +462,35 @@ def _maybe(repo_rule, name, **kwargs):
     )
 `;
 
-  writeFileSync(`install_${workspace}.bzl`, bzlFile);
+  await writeFile(`install_${workspace}.bzl`, bzlFile);
 }
 
 /**
  * Generate build files for a scope.
  */
-function generateScopeBuildFiles(scope: string, pkgs: Dep[]) {
+async function generateScopeBuildFiles(scope: string, pkgs: Dep[]) {
   const buildFile = generateBuildFileHeader() + printScope(scope, pkgs);
-  writeFileSync(path.posix.join(scope, 'BUILD.bazel'), buildFile);
+  await writeFile(path.posix.join(scope, 'BUILD.bazel'), buildFile);
 }
 
 /**
  * Checks if a path is a file.
  */
-function isFile(p: string) {
-  return fs.existsSync(p) && fs.statSync(p).isFile();
+async function isFile(p: string) {
+  try {
+  return (await fs.stat(p)).isFile();
+  } catch (_e) {
+    return false
+  }
 }
 
 /**
  * Checks if a path is an npm package which is is a directory with a package.json file.
  */
-function isDirectory(p: string) {
-  return fs.existsSync(p) && fs.statSync(p).isDirectory();
+function isDirectory(p: string): Promise<boolean> {
+  return fs.stat(p)
+    .then((stat) => stat.isDirectory())
+    .catch(() => false)
 }
 
 /**
@@ -476,64 +504,62 @@ function stripBom(s: string) {
  * Returns an array of all the files under a directory as relative
  * paths to the directory.
  */
-function listFiles(rootDir: string, subDir: string = ''): string[] {
+async function listFiles(rootDir: string, subDir: string = ''): Promise<string[]> {
   const dir = path.posix.join(rootDir, subDir);
   if (!isDirectory(dir)) {
     return [];
   }
-  return fs.readdirSync(dir)
-      .reduce(
-          (files: string[], file) => {
-            const fullPath = path.posix.join(dir, file);
-            const relPath = path.posix.join(subDir, file);
-            const isSymbolicLink = fs.lstatSync(fullPath).isSymbolicLink();
-            let stat;
-            try {
-              stat = fs.statSync(fullPath);
-            } catch (e) {
-              if (isSymbolicLink) {
-                // Filter out broken symbolic links. These cause fs.statSync(fullPath)
-                // to fail with `ENOENT: no such file or directory ...`
-                if (config.exports_directories_only) {
-                  // Delete the symlink if we are exporting directory artifacts so the problematic symlink
-                  // doesn't show up in runfiles. These problematic symlinks cause bazel failures such as
-                  // ERROR: internal/npm_install/test/BUILD.bazel:118:19:
-                  //   Testing //internal/npm_install/test:test_yarn_directory_artifacts
-                  //   failed: Exec failed due to IOException: The file type of
-                  //   'bazel-out/darwin-fastbuild/bin/internal/npm_install/test/test_yarn_directory_artifacts.sh.runfiles/fine_grained_deps_yarn_directory_artifacts/node_modules/ecstatic/test/public/containsSymlink/problematic'
-                  //   is not supported.
-                  fs.unlinkSync(fullPath);
-                }
-                return files;
-              }
-              throw e;
-            }
-            const isDirectory = stat.isDirectory();
-            if (isDirectory && isSymbolicLink) {
-              // Filter out symbolic links to directories. An issue in yarn versions
-              // older than 1.12.1 creates symbolic links to folders in the .bin folder
-              // which leads to Bazel targets that cross package boundaries.
-              // See https://github.com/bazelbuild/rules_nodejs/issues/428 and
-              // https://github.com/bazelbuild/rules_nodejs/issues/438.
-              // This is tested in /e2e/fine_grained_symlinks.
-              if (config.exports_directories_only) {
-                // Delete the symlink if we are exporting directory artifacts so the problematic symlink
-                // doesn't show up in runfiles. These problematic symlinks cause bazel failures such as
-                // ERROR: internal/npm_install/test/BUILD.bazel:118:19:
-                //   Testing //internal/npm_install/test:test_yarn_directory_artifacts
-                //   failed: Exec failed due to IOException: The file type of
-                //   'bazel-out/darwin-fastbuild/bin/internal/npm_install/test/test_yarn_directory_artifacts.sh.runfiles/fine_grained_deps_yarn_directory_artifacts/node_modules/ecstatic/test/public/containsSymlink/problematic'
-                //   is not supported.
-                fs.unlinkSync(fullPath);
-              }
-              return files;
-            }
-            return isDirectory ? files.concat(listFiles(rootDir, relPath)) : files.concat(relPath);
-          },
-          [])
-      // We return a sorted array so that the order of files
-      // is the same regardless of platform
-      .sort();
+  const files: string[] = []
+  const filelist = await fs.readdir(dir);
+  for (const file of filelist) {
+    const fullPath = path.posix.join(dir, file);
+    const relPath = path.posix.join(subDir, file);
+    const isSymbolicLink = (await fs.lstat(fullPath)).isSymbolicLink();
+    let stat;
+    try {
+      stat = await fs.stat(fullPath);
+    } catch (e) {
+      if (isSymbolicLink) {
+        // Filter out broken symbolic links. These cause fs.statSync(fullPath)
+        // to fail with `ENOENT: no such file or directory ...`
+        if (config.exports_directories_only) {
+          // Delete the symlink if we are exporting directory artifacts so the problematic symlink
+          // doesn't show up in runfiles. These problematic symlinks cause bazel failures such as
+          // ERROR: internal/npm_install/test/BUILD.bazel:118:19:
+          //   Testing //internal/npm_install/test:test_yarn_directory_artifacts
+          //   failed: Exec failed due to IOException: The file type of
+          //   'bazel-out/darwin-fastbuild/bin/internal/npm_install/test/test_yarn_directory_artifacts.sh.runfiles/fine_grained_deps_yarn_directory_artifacts/node_modules/ecstatic/test/public/containsSymlink/problematic'
+          //   is not supported.
+          await fs.unlink(fullPath);
+        }
+        continue;
+      }
+      throw e;
+    }
+    const isDirectory = stat.isDirectory();
+    if (isDirectory && isSymbolicLink) {
+      // Filter out symbolic links to directories. An issue in yarn versions
+      // older than 1.12.1 creates symbolic links to folders in the .bin folder
+      // which leads to Bazel targets that cross package boundaries.
+      // See https://github.com/bazelbuild/rules_nodejs/issues/428 and
+      // https://github.com/bazelbuild/rules_nodejs/issues/438.
+      // This is tested in /e2e/fine_grained_symlinks.
+      if (config.exports_directories_only) {
+        // Delete the symlink if we are exporting directory artifacts so the problematic symlink
+        // doesn't show up in runfiles. These problematic symlinks cause bazel failures such as
+        // ERROR: internal/npm_install/test/BUILD.bazel:118:19:
+        //   Testing //internal/npm_install/test:test_yarn_directory_artifacts
+        //   failed: Exec failed due to IOException: The file type of
+        //   'bazel-out/darwin-fastbuild/bin/internal/npm_install/test/test_yarn_directory_artifacts.sh.runfiles/fine_grained_deps_yarn_directory_artifacts/node_modules/ecstatic/test/public/containsSymlink/problematic'
+        //   is not supported.
+        await fs.unlink(fullPath);
+      }
+      continue;
+    }
+    if (isDirectory) files.push(...(await listFiles(rootDir, relPath)))
+    else files.push(relPath)
+  }
+  return files;
 }
 
 /**
@@ -556,9 +582,9 @@ function hasRootBuildFile(pkg: Dep, rootPath: string) {
 /**
  * Returns a set of the root package.json files direct dependencies
  */
-export function getDirectDependencySet(pkgJsonPath: string): Set<string> {
+export async function getDirectDependencySet(pkgJsonPath: string): Promise<Set<string>> {
   const pkgJson = JSON.parse(
-    stripBom(fs.readFileSync(pkgJsonPath, {encoding: 'utf8'}))
+    stripBom(await fs.readFile(pkgJsonPath, {encoding: 'utf8'}))
   );
 
   return new Set([
@@ -571,53 +597,51 @@ export function getDirectDependencySet(pkgJsonPath: string): Set<string> {
 /**
  * Finds and returns an array of all packages under a given path.
  */
-function findPackages(p: string, dependencies: Set<string>) {
-  if (!isDirectory(p)) {
-    return [];
+async function findPackages(p: string, dependencies: Set<string>, pkgs: Array<Dep>) {
+  if (!await isDirectory(p)) {
+    return;
   }
 
-  const pkgs: Dep[] = [];
+  const listing = await fs.readdir(p);
 
-  const listing = fs.readdirSync(p);
-
-  const packages = listing
-                       // filter out scopes
-                       .filter(f => !f.startsWith('@'))
-                       // filter out folders such as `.bin` which can create
-                       // issues on Windows since these are "hidden" by default
-                       .filter(f => !f.startsWith('.'))
-                       .map(f => path.posix.join(p, f))
-                       .filter(f => isDirectory(f));
-
-  packages.forEach(f => {
-    pkgs.push(parsePackage(f, dependencies), ...findPackages(path.posix.join(f, 'node_modules'), dependencies));
-  });
-
-  const scopes = listing.filter(f => f.startsWith('@'))
-                     .map(f => path.posix.join(p, f))
-                     .filter(f => isDirectory(f));
-  scopes.forEach(f => pkgs.push(...findPackages(f, dependencies)));
-
-  return pkgs;
+  await Promise.all(listing.map(async f => {
+    // filter out folders such as `.bin` which can create
+    // issues on Windows since these are "hidden" by default
+    if (f.startsWith('.')) return;
+    const pf = path.posix.join(p, f)
+    
+    if (await isDirectory(pf)) {
+      if (f.startsWith('@')) {
+        await findPackages(pf, dependencies, pkgs)
+      } else {
+        pkgs.push(await parsePackage(pf, dependencies));
+        await findPackages(path.posix.join(pf, 'node_modules'), dependencies, pkgs)
+      }
+    }
+  }))
 }
 
 /**
  * Finds and returns an array of all package scopes in node_modules.
  */
-function findScopes() {
+async function findScopes() {
   const p = 'node_modules';
-  if (!isDirectory(p)) {
+  if (!await isDirectory(p)) {
     return [];
   }
 
-  const listing = fs.readdirSync(p);
+  const listing = await fs.readdir(p);
 
-  const scopes = listing.filter(f => f.startsWith('@'))
-                     .map(f => path.posix.join(p, f))
-                     .filter(f => isDirectory(f))
-                     // strip 'node_modules/' from filename
-                     .map(f => f.substring('node_modules/'.length));
-
+  const scopes: string[] = []
+  for (let f of listing) {
+    if (f.startsWith('@')) {
+      f = path.posix.join(p, f)
+      if (await isDirectory(f)) {
+        // strip 'node_modules/' from filename
+        scopes.push(f.substring('node_modules/'.length))
+      }
+    }
+  }
   return scopes;
 }
 
@@ -626,11 +650,11 @@ function findScopes() {
  * package json and return it as an object along with
  * some additional internal attributes prefixed with '_'.
  */
-export function parsePackage(p: string, dependencies: Set<string> = new Set()): Dep {
+export async function parsePackage(p: string, dependencies: Set<string> = new Set()): Promise<Dep> {
   // Parse the package.json file of this package
   const packageJson = path.posix.join(p, 'package.json');
-  const pkg = isFile(packageJson) ?
-      JSON.parse(stripBom(fs.readFileSync(packageJson, {encoding: 'utf8'}))) :
+  const pkg = (await isFile(packageJson)) ?
+      JSON.parse(stripBom(await fs.readFile(packageJson, {encoding: 'utf8'}))) :
       {version: '0.0.0'};
 
   // Trim the leading node_modules from the path and
@@ -648,7 +672,9 @@ export function parsePackage(p: string, dependencies: Set<string> = new Set()): 
   pkg._isNested = /\/node_modules\//.test(pkg._dir);
 
   // List all the files in the npm package for later use
-  pkg._files = listFiles(p);
+  // Use a sorted array so that the order of files
+  // is the same regardless of platform
+  pkg._files = (await listFiles(p)).sort();
 
   // The subset of files that are valid in runfiles.
   // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
@@ -812,10 +838,7 @@ function resolvePkgMainFile(pkg: Dep) {
   return undefined;
 }
 
-type Bag<T> =
-    {
-      [k: string]: T
-    }
+type Bag<T> = Record<string, T>
 
 /**
  * Flattens all transitive dependencies of a package
@@ -850,8 +873,8 @@ function flattenPkgDependencies(pkg: Dep, dep: Dep, pkgsMap: Map<string, Dep>) {
           }
           return null;
         })
-        .filter(dep => !!dep)
-        .forEach(dep => flattenPkgDependencies(pkg, dep!, pkgsMap));
+        .filter((dep): dep is Dep => Boolean(dep))
+        .forEach(dep => flattenPkgDependencies(pkg, dep, pkgsMap));
   };
   // npm will in some cases add optionalDependencies to the list
   // of dependencies to the package.json it writes to node_modules.
@@ -967,13 +990,6 @@ function findFile(pkg: Dep, m: string) {
  * Given a pkg, return the skylark `js_library` targets for the package.
  */
 function printPackageExperimentalDirectoryArtifacts(pkg: Dep) {
-  function starlarkFiles(attr: string, files: string[], comment: string = '') {
-    return `
-    ${comment ? comment + '\n    ' : ''}${attr} = [
-        ${files.map((f: string) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
-    ],`;
-  }
-
   // Flattened list of direct and transitive dependencies hoisted to root by the package manager
   const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
   const depsStarlark =
