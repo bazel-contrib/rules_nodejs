@@ -48,9 +48,11 @@ def esbuild_repositories(name = "", npm_repository = "npm"):
         package_json = Label("@build_bazel_rules_nodejs//toolchains/esbuild:package.json"),
         package_lock_json = Label("@build_bazel_rules_nodejs//toolchains/esbuild:package-lock.json"),
         args = [
-            # Install is run with ignore scripts so that esbuild's postinstall script does not run,
-            # as we never use the downloaded binary anyway and instead set 'ESBUILD_BINARY_PATH' to the toolchains path.
+            # Install is run with no-optional so that esbuild's optional dependencies are not installed.
+            # We never use the downloaded binary anyway and instead set 'ESBUILD_BINARY_PATH' to the toolchains path.
             # This allows us to deal with --platform
+            "--no-optional",
+            # Disable scripts as we don't need the javascript shim replaced wit the binary.
             "--ignore-scripts",
         ],
         symlink_node_modules = False,

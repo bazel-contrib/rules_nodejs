@@ -87,7 +87,7 @@ def _esbuild_impl(ctx):
     else:
         # by default, esbuild will tree-shake 'pure' functions
         # disable this unless also minifying
-        args.update({"treeShaking": "ignore-annotations"})
+        args.update({"ignoreAnnotations": True})
 
     if ctx.attr.splitting:
         if not ctx.attr.output_dir:
