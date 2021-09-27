@@ -406,6 +406,7 @@ def esbuild_macro(name, output_dir = False, splitting = False, **kwargs):
         args_file = "%s.user.args.json" % name
         params_file(
             name = "%s_args" % name,
+            testonly = kwargs.get("testonly", False),
             out = args_file,
             args = [json.encode(args)],
             data = deps + srcs,
