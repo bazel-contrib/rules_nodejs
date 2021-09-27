@@ -1,7 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as tsickle from 'tsickle';
 import * as ts from 'typescript';
+
+// Tsickle is optional, but this import is just used for typechecking.
+import type * as tsickle from 'tsickle';
 
 import {Plugin as BazelConformancePlugin} from '../tsetse/runner';
 
@@ -14,11 +16,12 @@ import {DiagnosticPlugin, PluginCompilerHost, EmitPlugin} from './plugin_api';
 import {Plugin as StrictDepsPlugin} from './strict_deps';
 import {BazelOptions, parseTsconfig, resolveNormalizedPath} from './tsconfig';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
+import { getAngularEmitPlugin } from './angular_plugin';
 
 /**
  * Top-level entry point for tsc_wrapped.
  */
-export function main(args: string[]) {
+export async function main(args: string[]) {
   if (runAsWorker(args)) {
     log('Starting TypeScript compiler persistent worker...');
     runWorkerLoop(runOneBuild);
@@ -27,7 +30,7 @@ export function main(args: string[]) {
   } else {
     debug('Running a single build...');
     if (args.length === 0) throw new Error('Not enough arguments');
-    if (!runOneBuild(args)) {
+    if (!await runOneBuild(args)) {
       return 1;
     }
   }
@@ -190,8 +193,8 @@ function expandSourcesFromDirectories(fileList: string[], filePath: string) {
  * multiple times (once per bazel request) when running as a bazel worker.
  * Any encountered errors are written to stderr.
  */
-function runOneBuild(
-    args: string[], inputs?: {[path: string]: string}): boolean {
+async function runOneBuild(
+    args: string[], inputs?: {[path: string]: string}): Promise<boolean> {
   if (args.length !== 1) {
     console.error('Expected one argument: path to tsconfig.json');
     return false;
@@ -242,9 +245,9 @@ function runOneBuild(
     fileLoader = new UncachedFileLoader();
   }
 
-  const diagnostics = perfTrace.wrap('createProgramAndEmit', () => {
-    return createProgramAndEmit(
-               fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules)
+  const diagnostics = await perfTrace.wrapAsync('createProgramAndEmit', async () => {
+    return (await createProgramAndEmit(
+               fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules))
         .diagnostics;
   });
 
@@ -289,10 +292,10 @@ function errorDiag(messageText: string) {
  *
  * Callers should check and emit diagnostics.
  */
-export function createProgramAndEmit(
+export async function createProgramAndEmit(
     fileLoader: FileLoader, options: ts.CompilerOptions,
     bazelOpts: BazelOptions, files: string[], disabledTsetseRules: string[]):
-    {program?: ts.Program, diagnostics: ts.Diagnostic[]} {
+    Promise<{program?: ts.Program, diagnostics: ts.Diagnostic[]}> {
   // Beware! createProgramAndEmit must not print to console, nor exit etc.
   // Handle errors by reporting and returning diagnostics.
   perfTrace.snapshotMemoryUsage();
@@ -322,31 +325,28 @@ export function createProgramAndEmit(
 
   let angularPlugin: EmitPlugin&DiagnosticPlugin|undefined;
   if (bazelOpts.angularCompilerOptions) {
-    try {
-      const ngOptions = bazelOpts.angularCompilerOptions;
-      // Add the rootDir setting to the options passed to NgTscPlugin.
-      // Required so that synthetic files added to the rootFiles in the program
-      // can be given absolute paths, just as we do in tsconfig.ts, matching
-      // the behavior in TypeScript's tsconfig parsing logic.
-      ngOptions['rootDir'] = options.rootDir;
+    // Dynamically load the Angular emit plugin.
+    // Lazy load, so that code that does not use the plugin doesn't even
+    // have to spend the time to parse and load the plugin's source.
+    const NgEmitPluginCtor = await getAngularEmitPlugin();
 
-      let angularPluginEntryPoint = '@angular/compiler-cli';
-
-      // Dynamically load the Angular compiler.
-      // Lazy load, so that code that does not use the plugin doesn't even
-      // have to spend the time to parse and load the plugin's source.
-      //
-      // tslint:disable-next-line:no-require-imports
-      const ngtsc = require(angularPluginEntryPoint);
-      angularPlugin = new ngtsc.NgTscPlugin(ngOptions);
-      diagnosticPlugins.push(angularPlugin!);
-    } catch (e) {
+    if (NgEmitPluginCtor === null) {
       return {
         diagnostics: [errorDiag(
             'when using `ts_library(use_angular_plugin=True)`, ' +
-            `you must install @angular/compiler-cli (was: ${e})`)]
+            `you must install @angular/compiler-cli.`)]
       };
     }
+
+    const ngOptions = bazelOpts.angularCompilerOptions;
+    // Add the rootDir setting to the options passed to NgTscPlugin.
+    // Required so that synthetic files added to the rootFiles in the program
+    // can be given absolute paths, just as we do in tsconfig.ts, matching
+    // the behavior in TypeScript's tsconfig parsing logic.
+    ngOptions['rootDir'] = options.rootDir;
+
+    angularPlugin = new NgEmitPluginCtor(ngOptions);
+    diagnosticPlugins.push(angularPlugin);
 
     // Wrap host so that Ivy compiler can add a file to it (has synthetic types for checking templates)
     // TODO(arick): remove after ngsummary and ngfactory files eliminated
@@ -684,5 +684,10 @@ if (require.main === module) {
   // completing pending operations, such as writing to stdout or emitting the
   // v8 performance log. Rather, set the exit code and fall off the main
   // thread, which will cause node to terminate cleanly.
-  process.exitCode = main(process.argv.slice(2));
+  main(process.argv.slice(2))
+    .then(exitCode => process.exitCode = exitCode)
+    .catch(e => {
+      console.error(e);
+      process.exitCode = 1;
+    });
 }

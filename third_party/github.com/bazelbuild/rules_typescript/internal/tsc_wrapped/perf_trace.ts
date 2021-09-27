@@ -59,6 +59,20 @@ export function wrap<T>(name: string, f: () => T): T {
 }
 
 /**
+ * Records the execution of the given async function by invoking it. Execution
+ * is recorded until the async function completes.
+ */
+export async function wrapAsync<T>(name: string, f: () => Promise<T>): Promise<T> {
+  const start = now();
+  try {
+    return await f();
+  } finally {
+    const end = now();
+    events.push({name, ph: 'X', pid: 1, ts: start, dur: (end - start)});
+  }
+}
+
+/**
  * counter records a snapshot of counts.  The counter name identifies a
  * single graph, while the counts object provides data for each count
  * of a line on the stacked bar graph.
