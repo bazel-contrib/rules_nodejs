@@ -34,8 +34,10 @@ package(default_visibility = ["${visibility}"])
 if (require.main === module) {
     main();
 }
+const constant = (c) => () => c;
 async function exists(p) {
-    return await fs_1.promises.access(p, fs_1.constants.F_OK | fs_1.constants.W_OK).then(() => true, () => false);
+    return fs_1.promises.access(p, fs_1.constants.F_OK | fs_1.constants.W_OK)
+        .then(constant(true), constant(false));
 }
 const mkdirPromiseMap = new Map();
 async function mkdirp(p) {
@@ -166,7 +168,8 @@ async function generatePackageBuildFiles(pkg) {
         buildFilePath = 'BUILD.bazel';
     const nodeModulesPkgDir = `node_modules/${pkg._dir}`;
     const isPkgDirASymlink = await fs_1.promises.lstat(nodeModulesPkgDir)
-        .then(stat => stat.isSymbolicLink()).catch(() => false);
+        .then(stat => stat.isSymbolicLink())
+        .catch(constant(false));
     const symlinkBuildFile = isPkgDirASymlink && buildFilePath && !config.generate_local_modules_build_files;
     if (isPkgDirASymlink && !buildFilePath && !config.generate_local_modules_build_files) {
         console.log(`[yarn_install/npm_install]: package ${nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${await fs_1.promises.realpath(nodeModulesPkgDir)}`);
@@ -296,17 +299,14 @@ async function generateScopeBuildFiles(scope, pkgs) {
     await writeFile(path.posix.join(scope, 'BUILD.bazel'), buildFile);
 }
 async function isFile(p) {
-    try {
-        return (await fs_1.promises.stat(p)).isFile();
-    }
-    catch (_e) {
-        return false;
-    }
+    return fs_1.promises.stat(p)
+        .then(stat => stat.isFile())
+        .catch(constant(false));
 }
-function isDirectory(p) {
+async function isDirectory(p) {
     return fs_1.promises.stat(p)
         .then((stat) => stat.isDirectory())
-        .catch(() => false);
+        .catch(constant(false));
 }
 function stripBom(s) {
     return s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;

@@ -79,9 +79,11 @@ if (require.main === module) {
   main();
 }
 
+const constant = <T>(c: T) => () => c
 
 async function exists(p: string) {
-  return await fs.access(p, constants.F_OK | constants.W_OK).then(() => true, () => false);
+  return fs.access(p, constants.F_OK | constants.W_OK)
+  .then(constant(true), constant(false));
 }
 
 // Avoid duplicate mkdir call when mkdir runs parallel.
@@ -272,7 +274,8 @@ async function generatePackageBuildFiles(pkg: Dep) {
   // Check if the current package dep dir is a symlink (which happens when we
   // install a node_module with link:)
   const isPkgDirASymlink = await fs.lstat(nodeModulesPkgDir)
-    .then(stat => stat.isSymbolicLink()).catch(() => false);
+    .then(stat => stat.isSymbolicLink())
+    .catch(constant(false));
   // Mark build file as one to symlink instead of generate as the package dir is a symlink, we
   // have a BUILD file and the pkg is written inside the workspace
   const symlinkBuildFile =
@@ -470,21 +473,19 @@ async function generateScopeBuildFiles(scope: string, pkgs: Dep[]) {
 /**
  * Checks if a path is a file.
  */
-async function isFile(p: string) {
-  try {
-  return (await fs.stat(p)).isFile();
-  } catch (_e) {
-    return false;
-  }
+async function isFile(p: string): Promise<boolean> {
+  return fs.stat(p)
+  .then(stat => stat.isFile())
+  .catch(constant(false));
 }
 
 /**
  * Checks if a path is an npm package which is is a directory with a package.json file.
  */
-function isDirectory(p: string): Promise<boolean> {
+async function isDirectory(p: string): Promise<boolean> {
   return fs.stat(p)
     .then((stat) => stat.isDirectory())
-    .catch(() => false);
+    .catch(constant(false));
 }
 
 /**
