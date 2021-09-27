@@ -66,15 +66,7 @@ async function main() {
         NODE_MODULES_PACKAGE_NAME = '$node_modules_dir$';
     }
     const deps = await getDirectDependencySet(config.package_json);
-    const pkgs = [];
-    await findPackages('node_modules', deps, pkgs);
-    pkgs.sort((a, b) => {
-        if (a._dir < b._dir)
-            return -1;
-        if (a._dir > b._dir)
-            return 1;
-        return 0;
-    });
+    const pkgs = await findPackages('node_modules', deps);
     flattenDependencies(pkgs);
     await generateBazelWorkspaces(pkgs);
     await generateBuildFiles(pkgs);
@@ -320,42 +312,45 @@ function stripBom(s) {
     return s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
 }
 async function listFiles(rootDir, subDir = '') {
-    const dir = path.posix.join(rootDir, subDir);
-    if (!isDirectory(dir)) {
-        return [];
-    }
     const files = [];
-    const filelist = await fs_1.promises.readdir(dir);
-    for (const file of filelist) {
-        const fullPath = path.posix.join(dir, file);
-        const relPath = path.posix.join(subDir, file);
-        const isSymbolicLink = (await fs_1.promises.lstat(fullPath)).isSymbolicLink();
-        let stat;
-        try {
-            stat = await fs_1.promises.stat(fullPath);
+    const _listFiles = async (rootDir, subDir = '') => {
+        const dir = path.posix.join(rootDir, subDir);
+        if (!isDirectory(dir)) {
+            return;
         }
-        catch (e) {
-            if (isSymbolicLink) {
+        const filelist = await fs_1.promises.readdir(dir);
+        for (const file of filelist) {
+            const fullPath = path.posix.join(dir, file);
+            const relPath = path.posix.join(subDir, file);
+            const isSymbolicLink = (await fs_1.promises.lstat(fullPath)).isSymbolicLink();
+            let stat;
+            try {
+                stat = await fs_1.promises.stat(fullPath);
+            }
+            catch (e) {
+                if (isSymbolicLink) {
+                    if (config.exports_directories_only) {
+                        await fs_1.promises.unlink(fullPath);
+                    }
+                    continue;
+                }
+                throw e;
+            }
+            const isDirectory = stat.isDirectory();
+            if (isDirectory && isSymbolicLink) {
                 if (config.exports_directories_only) {
                     await fs_1.promises.unlink(fullPath);
                 }
                 continue;
             }
-            throw e;
+            if (isDirectory)
+                (await _listFiles(rootDir, relPath));
+            else
+                files.push(relPath);
         }
-        const isDirectory = stat.isDirectory();
-        if (isDirectory && isSymbolicLink) {
-            if (config.exports_directories_only) {
-                await fs_1.promises.unlink(fullPath);
-            }
-            continue;
-        }
-        if (isDirectory)
-            files.push(...(await listFiles(rootDir, relPath)));
-        else
-            files.push(relPath);
-    }
-    return files;
+    };
+    await _listFiles(rootDir, subDir);
+    return files.sort();
 }
 function hasRootBuildFile(pkg, rootPath) {
     for (const file of pkg._files) {
@@ -376,25 +371,37 @@ async function getDirectDependencySet(pkgJsonPath) {
     ]);
 }
 exports.getDirectDependencySet = getDirectDependencySet;
-async function findPackages(p, dependencies, pkgs) {
-    if (!await isDirectory(p)) {
-        return;
-    }
-    const listing = await fs_1.promises.readdir(p);
-    await Promise.all(listing.map(async (f) => {
-        if (f.startsWith('.'))
+async function findPackages(p, dependencies) {
+    const pkgs = [];
+    const _findPackages = async (p) => {
+        if (!await isDirectory(p)) {
             return;
-        const pf = path.posix.join(p, f);
-        if (await isDirectory(pf)) {
-            if (f.startsWith('@')) {
-                await findPackages(pf, dependencies, pkgs);
-            }
-            else {
-                pkgs.push(await parsePackage(pf, dependencies));
-                await findPackages(path.posix.join(pf, 'node_modules'), dependencies, pkgs);
-            }
         }
-    }));
+        const listing = await fs_1.promises.readdir(p);
+        await Promise.all(listing.map(async (f) => {
+            if (f.startsWith('.'))
+                return [];
+            const pf = path.posix.join(p, f);
+            if (await isDirectory(pf)) {
+                if (f.startsWith('@')) {
+                    await _findPackages(pf);
+                }
+                else {
+                    pkgs.push(await parsePackage(pf, dependencies));
+                    await _findPackages(path.posix.join(pf, 'node_modules'));
+                }
+            }
+        }));
+    };
+    await _findPackages(p);
+    pkgs.sort((a, b) => {
+        if (a._dir < b._dir)
+            return -1;
+        if (a._dir > b._dir)
+            return 1;
+        return 0;
+    });
+    return pkgs;
 }
 async function findScopes() {
     const p = 'node_modules';
@@ -402,15 +409,15 @@ async function findScopes() {
         return [];
     }
     const listing = await fs_1.promises.readdir(p);
-    const scopes = [];
-    for (let f of listing) {
-        if (f.startsWith('@')) {
-            f = path.posix.join(p, f);
-            if (await isDirectory(f)) {
-                scopes.push(f.substring('node_modules/'.length));
-            }
+    const scopes = (await Promise.all(listing.map(async (f) => {
+        if (!f.startsWith('@'))
+            return;
+        f = path.posix.join(p, f);
+        if (await isDirectory(f)) {
+            return f.substring('node_modules/'.length);
         }
-    }
+    })))
+        .filter((f) => typeof f === 'string');
     return scopes;
 }
 async function parsePackage(p, dependencies = new Set()) {
@@ -422,7 +429,7 @@ async function parsePackage(p, dependencies = new Set()) {
     pkg._name = pkg._dir.split('/').pop();
     pkg._moduleName = pkg.name || `${pkg._dir}/${pkg._name}`;
     pkg._isNested = /\/node_modules\//.test(pkg._dir);
-    pkg._files = (await listFiles(p)).sort();
+    pkg._files = await listFiles(p);
     pkg._runfiles = pkg._files.filter((f) => !/[^\x21-\x7E]/.test(f));
     pkg._dependencies = [];
     pkg._directDependency = dependencies.has(pkg._moduleName) || dependencies.has(pkg._name) || dependencies.has(pkg._dir);

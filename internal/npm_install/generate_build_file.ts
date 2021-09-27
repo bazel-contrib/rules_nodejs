@@ -38,6 +38,7 @@
  * @see https://docs.google.com/document/d/1AfjHMLVyE_vYwlHSK7k7yW_IIGppSxsQtPm9PTr1xEo
  */
 'use strict';
+
 import {promises as fs, constants, mkdir} from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -75,7 +76,7 @@ package(default_visibility = ["${visibility}"])
 }
 
 if (require.main === module) {
-  main()
+  main();
 }
 
 
@@ -84,24 +85,24 @@ async function exists(p: string) {
 }
 
 // Avoid duplicate mkdir call when mkdir runs parallel.
-const mkdirPromiseMap = new Map<string, Promise<void>>()
+const mkdirPromiseMap = new Map<string, Promise<void>>();
 
 /**
  * Create a new directory and any necessary subdirectories
  * if they do not exist.
  */
 async function mkdirp(p: string) {
-  let promise = mkdirPromiseMap.get(p)
+  let promise = mkdirPromiseMap.get(p);
   if (!promise) {
     promise = (async () => {
-      if (await exists(p)) return
+      if (await exists(p)) return;
         await mkdirp(path.dirname(p));
         await fs.mkdir(p);
-    })()
+    })();
     // Store mkdir call
-    mkdirPromiseMap.set(p, promise)
+    mkdirPromiseMap.set(p, promise);
   }
-  await promise
+  await promise;
 }
 
 /**
@@ -126,8 +127,7 @@ async function createFileSymlink(target: string, p: string) {
  * Main entrypoint.
  */
 export async function main() {
-
-  config = require('./generate_config.json')
+  config = require('./generate_config.json');
   config.limited_visibility = `@${config.workspace}//:__subpackages__`;
 
   if (config.exports_directories_only) {
@@ -138,22 +138,16 @@ export async function main() {
   const deps = await getDirectDependencySet(config.package_json);
 
   // find all packages (including packages in nested node_modules)
-  const pkgs: Array<Dep> = []
-  await findPackages('node_modules', deps, pkgs);
-  pkgs.sort((a, b) => {
-    if(a._dir < b._dir) return -1;
-    if(a._dir > b._dir) return 1; 
-    return 0;
-  });
+  const pkgs: Dep[] = await findPackages('node_modules', deps);
 
   // flatten dependencies
   flattenDependencies(pkgs);
 
   // generate Bazel workspaces
-  await generateBazelWorkspaces(pkgs)
+  await generateBazelWorkspaces(pkgs);
 
   // generate all BUILD files
-  await generateBuildFiles(pkgs)
+  await generateBuildFiles(pkgs);
 
   // write a .bazelignore file
   await writeFile('.bazelignore', `node_modules\n${config.workspace_rerooted_path}`);
@@ -163,13 +157,13 @@ export async function main() {
  * Generates all build files
  */
 async function generateBuildFiles(pkgs: Dep[]) {
-  const notNestedPkgs = pkgs.filter(pkg => !pkg._isNested)
-  await generateRootBuildFile(notNestedPkgs)
+  const notNestedPkgs = pkgs.filter(pkg => !pkg._isNested);
+  await generateRootBuildFile(notNestedPkgs);
   await notNestedPkgs.reduce((p, pkg) => p.then(() => generatePackageBuildFiles(pkg)), Promise.resolve());
   await (await findScopes()).reduce((prev, scope) => prev.then(() => generateScopeBuildFiles(scope, pkgs)), Promise.resolve());
   // Allow this to overwrite any previously generated BUILD files so that user links take priority
   // over package manager installed npm packages
-  await generateLinksBuildFiles(config.links)
+  await generateLinksBuildFiles(config.links);
 }
 
 async function generateLinksBuildFiles(links: {[key: string]: string}) {
@@ -203,7 +197,7 @@ function flattenDependencies(pkgs: Dep[]) {
 async function generateRootBuildFile(pkgs: Dep[]) {
   let pkgFilesStarlark = '';
   if (pkgs.length) {
-    let list = ''
+    let list = '';
     list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__files",`).join('\n        ');
     if (!config.exports_directories_only) {
       list += '\n        ';
@@ -232,7 +226,7 @@ async function generateRootBuildFile(pkgs: Dep[]) {
   } else {
     pkgs.forEach(pkg => {pkg._files.forEach(f => {
                    exportsStarlark += `    "node_modules/${pkg._dir}/${f}",\n`;
-                 })});
+                 });});
   }
 
   let buildFile =
@@ -251,7 +245,7 @@ js_library(
     package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
 )
 
-`
+`;
 
   // Add the manual build file contents if they exists
   try {
@@ -278,7 +272,7 @@ async function generatePackageBuildFiles(pkg: Dep) {
   // Check if the current package dep dir is a symlink (which happens when we
   // install a node_module with link:)
   const isPkgDirASymlink = await fs.lstat(nodeModulesPkgDir)
-    .then(stat => stat.isSymbolicLink()).catch(() => false)
+    .then(stat => stat.isSymbolicLink()).catch(() => false);
   // Mark build file as one to symlink instead of generate as the package dir is a symlink, we
   // have a BUILD file and the pkg is written inside the workspace
   const symlinkBuildFile =
@@ -288,7 +282,7 @@ async function generatePackageBuildFiles(pkg: Dep) {
   if (isPkgDirASymlink && !buildFilePath && !config.generate_local_modules_build_files) {
     console.log(`[yarn_install/npm_install]: package ${
         nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${
-        await fs.realpath(nodeModulesPkgDir)}`)
+        await fs.realpath(nodeModulesPkgDir)}`);
   }
 
   // The following won't be used in a symlink build file case
@@ -299,7 +293,7 @@ async function generatePackageBuildFiles(pkg: Dep) {
     buildFile = buildFile + '\n' +
     await fs.readFile(path.join('node_modules', pkg._dir, buildFilePath), 'utf-8');
   } else {
-    buildFilePath = 'BUILD.bazel'
+    buildFilePath = 'BUILD.bazel';
   }
 
   // if the dependency doesn't appear in the given package.json file, and the 'strict_visibility' flag is set
@@ -338,7 +332,7 @@ async function generatePackageBuildFiles(pkg: Dep) {
         destFile = path.posix.join(path.dirname(destFile), basename.substr(1));
       }
       const src = path.posix.join('node_modules', pkg._dir, file);
-      await prev
+      await prev;
       await mkdirp(path.dirname(destFile));
       await fs.copyFile(src, destFile);
     }, Promise.resolve());
@@ -480,7 +474,7 @@ async function isFile(p: string) {
   try {
   return (await fs.stat(p)).isFile();
   } catch (_e) {
-    return false
+    return false;
   }
 }
 
@@ -490,7 +484,7 @@ async function isFile(p: string) {
 function isDirectory(p: string): Promise<boolean> {
   return fs.stat(p)
     .then((stat) => stat.isDirectory())
-    .catch(() => false)
+    .catch(() => false);
 }
 
 /**
@@ -505,23 +499,46 @@ function stripBom(s: string) {
  * paths to the directory.
  */
 async function listFiles(rootDir: string, subDir: string = ''): Promise<string[]> {
-  const dir = path.posix.join(rootDir, subDir);
-  if (!isDirectory(dir)) {
-    return [];
-  }
-  const files: string[] = []
-  const filelist = await fs.readdir(dir);
-  for (const file of filelist) {
-    const fullPath = path.posix.join(dir, file);
-    const relPath = path.posix.join(subDir, file);
-    const isSymbolicLink = (await fs.lstat(fullPath)).isSymbolicLink();
-    let stat;
-    try {
-      stat = await fs.stat(fullPath);
-    } catch (e) {
-      if (isSymbolicLink) {
-        // Filter out broken symbolic links. These cause fs.statSync(fullPath)
-        // to fail with `ENOENT: no such file or directory ...`
+  const files: string[] = [];
+  const _listFiles = async (rootDir: string, subDir: string = '') => {
+    const dir = path.posix.join(rootDir, subDir);
+    if (!isDirectory(dir)) {
+      return;
+    }
+    const filelist = await fs.readdir(dir);
+    for (const file of filelist) {
+      const fullPath = path.posix.join(dir, file);
+      const relPath = path.posix.join(subDir, file);
+      const isSymbolicLink = (await fs.lstat(fullPath)).isSymbolicLink();
+      let stat;
+      try {
+        stat = await fs.stat(fullPath);
+      } catch (e) {
+        if (isSymbolicLink) {
+          // Filter out broken symbolic links. These cause fs.statSync(fullPath)
+          // to fail with `ENOENT: no such file or directory ...`
+          if (config.exports_directories_only) {
+            // Delete the symlink if we are exporting directory artifacts so the problematic symlink
+            // doesn't show up in runfiles. These problematic symlinks cause bazel failures such as
+            // ERROR: internal/npm_install/test/BUILD.bazel:118:19:
+            //   Testing //internal/npm_install/test:test_yarn_directory_artifacts
+            //   failed: Exec failed due to IOException: The file type of
+            //   'bazel-out/darwin-fastbuild/bin/internal/npm_install/test/test_yarn_directory_artifacts.sh.runfiles/fine_grained_deps_yarn_directory_artifacts/node_modules/ecstatic/test/public/containsSymlink/problematic'
+            //   is not supported.
+            await fs.unlink(fullPath);
+          }
+          continue;
+        }
+        throw e;
+      }
+      const isDirectory = stat.isDirectory();
+      if (isDirectory && isSymbolicLink) {
+        // Filter out symbolic links to directories. An issue in yarn versions
+        // older than 1.12.1 creates symbolic links to folders in the .bin folder
+        // which leads to Bazel targets that cross package boundaries.
+        // See https://github.com/bazelbuild/rules_nodejs/issues/428 and
+        // https://github.com/bazelbuild/rules_nodejs/issues/438.
+        // This is tested in /e2e/fine_grained_symlinks.
         if (config.exports_directories_only) {
           // Delete the symlink if we are exporting directory artifacts so the problematic symlink
           // doesn't show up in runfiles. These problematic symlinks cause bazel failures such as
@@ -534,32 +551,14 @@ async function listFiles(rootDir: string, subDir: string = ''): Promise<string[]
         }
         continue;
       }
-      throw e;
+      if (isDirectory) (await _listFiles(rootDir, relPath));
+      else files.push(relPath);
     }
-    const isDirectory = stat.isDirectory();
-    if (isDirectory && isSymbolicLink) {
-      // Filter out symbolic links to directories. An issue in yarn versions
-      // older than 1.12.1 creates symbolic links to folders in the .bin folder
-      // which leads to Bazel targets that cross package boundaries.
-      // See https://github.com/bazelbuild/rules_nodejs/issues/428 and
-      // https://github.com/bazelbuild/rules_nodejs/issues/438.
-      // This is tested in /e2e/fine_grained_symlinks.
-      if (config.exports_directories_only) {
-        // Delete the symlink if we are exporting directory artifacts so the problematic symlink
-        // doesn't show up in runfiles. These problematic symlinks cause bazel failures such as
-        // ERROR: internal/npm_install/test/BUILD.bazel:118:19:
-        //   Testing //internal/npm_install/test:test_yarn_directory_artifacts
-        //   failed: Exec failed due to IOException: The file type of
-        //   'bazel-out/darwin-fastbuild/bin/internal/npm_install/test/test_yarn_directory_artifacts.sh.runfiles/fine_grained_deps_yarn_directory_artifacts/node_modules/ecstatic/test/public/containsSymlink/problematic'
-        //   is not supported.
-        await fs.unlink(fullPath);
-      }
-      continue;
-    }
-    if (isDirectory) files.push(...(await listFiles(rootDir, relPath)))
-    else files.push(relPath)
-  }
-  return files;
+  };
+  await _listFiles(rootDir, subDir);
+  // We return a sorted array so that the order of files
+  // is the same regardless of platform
+  return files.sort();
 }
 
 /**
@@ -597,28 +596,43 @@ export async function getDirectDependencySet(pkgJsonPath: string): Promise<Set<s
 /**
  * Finds and returns an array of all packages under a given path.
  */
-async function findPackages(p: string, dependencies: Set<string>, pkgs: Array<Dep>) {
-  if (!await isDirectory(p)) {
-    return;
-  }
-
-  const listing = await fs.readdir(p);
-
-  await Promise.all(listing.map(async f => {
-    // filter out folders such as `.bin` which can create
-    // issues on Windows since these are "hidden" by default
-    if (f.startsWith('.')) return;
-    const pf = path.posix.join(p, f)
-    
-    if (await isDirectory(pf)) {
-      if (f.startsWith('@')) {
-        await findPackages(pf, dependencies, pkgs)
-      } else {
-        pkgs.push(await parsePackage(pf, dependencies));
-        await findPackages(path.posix.join(pf, 'node_modules'), dependencies, pkgs)
-      }
+async function findPackages(p: string, dependencies: Set<string>): Promise<Dep[]> {
+  const pkgs: Dep[] = [];
+  const _findPackages = async (p: string) => {
+    if (!await isDirectory(p)) {
+      return;
     }
-  }))
+
+    const listing = await fs.readdir(p);
+
+    await Promise.all(listing.map(async f => {
+      // filter out folders such as `.bin` which can create
+      // issues on Windows since these are "hidden" by default
+      if (f.startsWith('.')) return [];
+      const pf = path.posix.join(p, f);
+      
+      if (await isDirectory(pf)) {
+        if (f.startsWith('@')) {
+          await _findPackages(pf);
+        } else {
+          pkgs.push(await parsePackage(pf, dependencies));
+          await _findPackages(path.posix.join(pf, 'node_modules'));
+        }
+      }
+    }));
+  };
+
+  await _findPackages(p);
+
+  // We return a sorted array so that the order of files
+  // is the same regardless of platform
+  pkgs.sort((a, b) => {
+    if(a._dir < b._dir) return -1;
+    if(a._dir > b._dir) return 1; 
+    return 0;
+  });
+
+  return pkgs;
 }
 
 /**
@@ -632,16 +646,18 @@ async function findScopes() {
 
   const listing = await fs.readdir(p);
 
-  const scopes: string[] = []
-  for (let f of listing) {
-    if (f.startsWith('@')) {
-      f = path.posix.join(p, f)
+  const scopes = (await Promise.all(
+    listing.map(async f => {
+      if (!f.startsWith('@')) return;
+      f = path.posix.join(p, f);
       if (await isDirectory(f)) {
         // strip 'node_modules/' from filename
-        scopes.push(f.substring('node_modules/'.length))
+        return f.substring('node_modules/'.length);
       }
-    }
-  }
+    })
+  ))
+  .filter((f) : f is string => typeof f === 'string');
+
   return scopes;
 }
 
@@ -659,7 +675,7 @@ export async function parsePackage(p: string, dependencies: Set<string> = new Se
 
   // Trim the leading node_modules from the path and
   // assign to _dir for future use
-  pkg._dir = p.substring('node_modules/'.length)
+  pkg._dir = p.substring('node_modules/'.length);
 
   // Stash the package directory name for future use
   pkg._name = pkg._dir.split('/').pop();
@@ -672,14 +688,12 @@ export async function parsePackage(p: string, dependencies: Set<string> = new Se
   pkg._isNested = /\/node_modules\//.test(pkg._dir);
 
   // List all the files in the npm package for later use
-  // Use a sorted array so that the order of files
-  // is the same regardless of platform
-  pkg._files = (await listFiles(p)).sort();
+  pkg._files = await listFiles(p);
 
   // The subset of files that are valid in runfiles.
   // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
   // Bazel runfiles. See https://github.com/bazelbuild/bazel/issues/4327
-  pkg._runfiles = pkg._files.filter((f: string) => !/[^\x21-\x7E]/.test(f))
+  pkg._runfiles = pkg._files.filter((f: string) => !/[^\x21-\x7E]/.test(f));
 
   // Initialize _dependencies to an empty array
   // which is later filled with the flattened dependency list
@@ -785,14 +799,14 @@ function resolveMainFile(pkg: Dep, mainFileName: string) {
 
   if (mainEntryField) {
     if (typeof mainEntryField === 'string') {
-      return findEntryFile(pkg, mainEntryField)
+      return findEntryFile(pkg, mainEntryField);
 
     } else if (typeof mainEntryField === 'object' && mainFileName === 'browser') {
       // browser has a weird way of defining this
       // the browser value is an object listing files to alias, usually pointing to a browser dir
       const indexEntryPoint = mainEntryField['index.js'] || mainEntryField['./index.js'];
       if (indexEntryPoint) {
-        return findEntryFile(pkg, indexEntryPoint)
+        return findEntryFile(pkg, indexEntryPoint);
       }
     }
   }
@@ -810,7 +824,7 @@ function resolvePkgMainFile(pkg: Dep) {
   //
   // this list is ordered, we try resolve `browser` first, then `module` and finally fall back to
   // `main`
-  const mainFileNames = ['browser', 'module', 'main']
+  const mainFileNames = ['browser', 'module', 'main'];
 
       for (const mainFile of mainFileNames) {
     const resolvedMainFile = resolveMainFile(pkg, mainFile);
@@ -823,7 +837,7 @@ function resolvePkgMainFile(pkg: Dep) {
   // then we just try looking around for common patterns
   const maybeRootIndex = findEntryFile(pkg, 'index.js');
   if (maybeRootIndex) {
-    return maybeRootIndex
+    return maybeRootIndex;
   }
 
   const maybeSelfNamedIndex = findEntryFile(pkg, `${pkg._name}.js`);
@@ -935,7 +949,7 @@ function filterFiles(files: string[], exts: string[] = []) {
         }
       }
       return false;
-    })
+    });
   }
   // Filter out BUILD files that came with the npm package
   return files.filter(file => {
@@ -1036,7 +1050,7 @@ alias(
 )
 `;
 
-  let mainEntryPoint = resolvePkgMainFile(pkg)
+  let mainEntryPoint = resolvePkgMainFile(pkg);
 
   // add an `npm_umd_bundle` target to generate an UMD bundle if one does
   // not exists
@@ -1182,7 +1196,7 @@ js_library(
 
 `;
 
-  let mainEntryPoint = resolvePkgMainFile(pkg)
+  let mainEntryPoint = resolvePkgMainFile(pkg);
 
   // add an `npm_umd_bundle` target to generate an UMD bundle if one does
   // not exists
