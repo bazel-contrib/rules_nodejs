@@ -403,6 +403,13 @@ try {
                   webTestNamedFiles['FIREFOX']}' in runfiles`);
             }
           }
+
+          // For Firefox, we need to disable the content sandbox as the browser is already being
+          // launched as part of the Bazel sandbox. This is necessary because the integrated content
+          // sandbox in Firefox will conflict with the Bazel sandbox due to nested sandboxing.
+          // This is similar to why we disable sandbox for Chromium (as seen above).
+          process.env.MOZ_DISABLE_CONTENT_SANDBOX = '1';
+
           conf.browsers.push(process.env['DISPLAY'] ? 'Firefox' : 'FirefoxHeadless');
         }
       });

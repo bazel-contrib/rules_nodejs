@@ -144,8 +144,8 @@ if you use the web testing rules in `@bazel/concatjs`:
 # Fetch transitive Bazel dependencies of karma_web_test
 http_archive(
     name = "io_bazel_rules_webtesting",
-    sha256 = "9bb461d5ef08e850025480bab185fd269242d4e533bca75bfb748001ceb343c3",
-    urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.3/rules_webtesting.tar.gz"],
+    sha256 = "e9abb7658b6a129740c0b3ef6f5a2370864e102a5ba5ffca2cea565829ed825a",
+    urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.5/rules_webtesting.tar.gz"],
 )
 
 # Set up web testing, choose browsers we can test on
@@ -160,6 +160,14 @@ browser_repositories(
     firefox = True,
 )
 ```
+
+## Known issues with running Chromium for macOS/Windows in Bazel
+
+For macOS and Windows, Chromium comes with files that contain spaces in their file names. This breaks runfile tree
+creation within Bazel due to a bug. There are various workarounds that allow for Chromium on these platforms:
+
+* Instruct Bazel to automatically disable runfile tree creation if not needed. [More details here](https://github.com/bazelbuild/bazel/issues/4327#issuecomment-922106293)
+* Instruct Bazel to use an alternative experimental approach for creating runfile trees. [More details here](https://github.com/bazelbuild/bazel/issues/4327#issuecomment-627422865)
 
 ## Installing with user-managed dependencies
 
