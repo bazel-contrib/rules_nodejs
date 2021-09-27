@@ -254,7 +254,7 @@ Defaults to `False`
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Your cypress plugin file. See https://docs.cypress.io/guides/tooling/plugins-guide
 
-Defaults to `@npm//@bazel/cypress:internal/plugins/base.js`
+Defaults to `@npm//@bazel/cypress/internal:plugins/base.js`
 
 <h4 id="cypress_web_test-srcs">srcs</h4>
 

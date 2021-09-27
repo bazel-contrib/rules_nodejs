@@ -34,7 +34,7 @@ ATTRS = dict(
         default = Label("@build_bazel_rules_nodejs//packages/cypress/internal:run-cypress.js"),
     ),
     plugin_file = attr.label(
-        default = Label("@build_bazel_rules_nodejs//packages/cypress:internal/plugins/base.js"),
+        default = Label("@build_bazel_rules_nodejs//packages/cypress/internal:plugins/base.js"),
         allow_single_file = True,
         doc = "Your cypress plugin file. See https://docs.cypress.io/guides/tooling/plugins-guide",
     ),
