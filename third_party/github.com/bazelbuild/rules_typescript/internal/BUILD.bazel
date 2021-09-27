@@ -61,6 +61,7 @@ tsc(
     data = _TSC_WRAPPED_SRCS + [
         "//internal:tsconfig.json",
         "@npm//@types/node",
+        "@npm//@angular/compiler-cli",
         "@npm//protobufjs",
         "@npm//tsickle",
         "@npm//tsutils",
