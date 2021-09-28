@@ -16,7 +16,7 @@ import {DiagnosticPlugin, PluginCompilerHost, EmitPlugin} from './plugin_api';
 import {Plugin as StrictDepsPlugin} from './strict_deps';
 import {BazelOptions, parseTsconfig, resolveNormalizedPath} from './tsconfig';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
-import { getAngularEmitPlugin } from './angular_plugin';
+import {getAngularEmitPluginOrThrow} from './angular_plugin';
 
 /**
  * Top-level entry point for tsc_wrapped.
@@ -325,27 +325,28 @@ export async function createProgramAndEmit(
 
   let angularPlugin: EmitPlugin&DiagnosticPlugin|undefined;
   if (bazelOpts.angularCompilerOptions) {
-    // Dynamically load the Angular emit plugin.
-    // Lazy load, so that code that does not use the plugin doesn't even
-    // have to spend the time to parse and load the plugin's source.
-    const NgEmitPluginCtor = await getAngularEmitPlugin();
+    try {
+      // Dynamically load the Angular emit plugin.
+      // Lazy load, so that code that does not use the plugin doesn't even
+      // have to spend the time to parse and load the plugin's source.
+      const NgEmitPluginCtor = await getAngularEmitPluginOrThrow();
+      const ngOptions = bazelOpts.angularCompilerOptions;
 
-    if (NgEmitPluginCtor === null) {
+      // Add the rootDir setting to the options passed to NgTscPlugin.
+      // Required so that synthetic files added to the rootFiles in the program
+      // can be given absolute paths, just as we do in tsconfig.ts, matching
+      // the behavior in TypeScript's tsconfig parsing logic.
+      ngOptions['rootDir'] = options.rootDir;
+
+      angularPlugin = new NgEmitPluginCtor(ngOptions);
+    } catch (e) {
       return {
         diagnostics: [errorDiag(
             'when using `ts_library(use_angular_plugin=True)`, ' +
-            `you must install @angular/compiler-cli.`)]
+            `you must install "@angular/compiler-cli". Error: ${e}`)]
       };
     }
 
-    const ngOptions = bazelOpts.angularCompilerOptions;
-    // Add the rootDir setting to the options passed to NgTscPlugin.
-    // Required so that synthetic files added to the rootFiles in the program
-    // can be given absolute paths, just as we do in tsconfig.ts, matching
-    // the behavior in TypeScript's tsconfig parsing logic.
-    ngOptions['rootDir'] = options.rootDir;
-
-    angularPlugin = new NgEmitPluginCtor(ngOptions);
     diagnosticPlugins.push(angularPlugin);
 
     // Wrap host so that Ivy compiler can add a file to it (has synthetic types for checking templates)
