@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//:index.bzl", "generated_file_test")
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("//tools/stardoc:index.bzl", "stardoc")
 
 stardoc(
@@ -37,13 +38,13 @@ stardoc(
 )
 
 _READMES = {
-    "Built-ins": ":builtins.md_",
+    "Built-ins": "//docs:builtins.md_",
     "Concatjs": "//packages/concatjs:README.md",
     "Cypress": "//packages/cypress:README.md",
     "Jasmine": "//packages/jasmine:README.md",
     "Labs": "//packages/labs:README.md",
     "Protractor": "//packages/protractor:README.md",
-    "Providers": ":providers.md_",
+    "Providers": "//docs:providers.md_",
     "Rollup": "//packages/rollup:README.md",
     "Terser": "//packages/terser:README.md",
     "Toolchains": "//toolchains:README.md",
@@ -52,13 +53,41 @@ _READMES = {
 }
 
 [
-    generated_file_test(
+    diff_test(
         name = "check_" + k.lower(),
-        src = k + ".md",
-        generated = v,
+        failure_message = "Please run:  bazel run //docs:update",
+        file1 = k + ".md",
+        file2 = v,
+        # No need to run on more than one platform
+        # Also there's some delta here, probably line endings
+        tags = ["no-bazelci-windows"],
     )
     for [
         k,
         v,
     ] in _READMES.items()
 ]
+
+write_file(
+    name = "gen_update",
+    out = "update.sh",
+    content = [
+        "#!/usr/bin/env bash",
+        "cd $BUILD_WORKSPACE_DIRECTORY",
+    ] + [
+        "cp -fv dist/bin/{1} docs/{0}.md".format(
+            k,
+            v.replace(":", "/"),
+        )
+        for [
+            k,
+            v,
+        ] in _READMES.items()
+    ],
+)
+
+sh_binary(
+    name = "update",
+    srcs = ["update.sh"],
+    data = _READMES.values(),
+)
