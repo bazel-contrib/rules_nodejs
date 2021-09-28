@@ -1,3 +1,21 @@
+# [4.3.0](https://github.com/bazelbuild/rules_nodejs/compare/4.2.0...4.3.0) (2021-09-28)
+
+
+### Bug Fixes
+
+* **cypress:** use correct label to reference plugins/base.js ([#2977](https://github.com/bazelbuild/rules_nodejs/issues/2977)) ([6acec9d](https://github.com/bazelbuild/rules_nodejs/commit/6acec9d)), closes [#2976](https://github.com/bazelbuild/rules_nodejs/issues/2976)
+* **esbuild:** fix depending on testonly targets  ([#2984](https://github.com/bazelbuild/rules_nodejs/issues/2984)) ([4278ef1](https://github.com/bazelbuild/rules_nodejs/commit/4278ef1))
+* **runfiles:** don't use false as a no-error value ([#2974](https://github.com/bazelbuild/rules_nodejs/issues/2974)) ([de1eaf6](https://github.com/bazelbuild/rules_nodejs/commit/de1eaf6))
+
+
+### Features
+
+* **builtin:** expose a concrete toolchain for rules that don't under… ([#2960](https://github.com/bazelbuild/rules_nodejs/issues/2960)) ([64ad805](https://github.com/bazelbuild/rules_nodejs/commit/64ad805))
+* **esbuild:** bump version of esbuild to 0.13.2 ([#2985](https://github.com/bazelbuild/rules_nodejs/issues/2985)) ([4bb25bf](https://github.com/bazelbuild/rules_nodejs/commit/4bb25bf))
+* **typescript:** support for ESM variant of the Angular compiler plugin ([#2982](https://github.com/bazelbuild/rules_nodejs/issues/2982)) ([6f97a7c](https://github.com/bazelbuild/rules_nodejs/commit/6f97a7c))
+
+
+
 # [4.2.0](https://github.com/bazelbuild/rules_nodejs/compare/4.1.0...4.2.0) (2021-09-17)
 
 
