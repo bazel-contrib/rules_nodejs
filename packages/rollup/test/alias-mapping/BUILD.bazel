@@ -1,0 +1,31 @@
+load("//:index.bzl", "generated_file_test")
+load("//packages/rollup:index.bzl", "rollup_bundle")
+
+rollup_bundle(
+    name = "bundle",
+    config_file = "rollup.config.js",
+    entry_point = "main.js",
+    sourcemap = "hidden",
+    deps = [
+        "//packages/rollup/test/alias-mapping/module-one",
+        "//packages/rollup/test/alias-mapping/module-two",
+        "@npm//@rollup/plugin-node-resolve",
+    ],
+)
+
+# rollup will put the filepath in a comment within the non-minified file,
+# on different platforms this will cause the golden test to differ
+# strip them here
+# note that this regex doesn't strip the sourcemap URI comment
+genrule(
+    name = "strip_bundle_comments",
+    srcs = ["bundle.js"],
+    outs = ["bundle.stripped.js"],
+    cmd = "cat $(location :bundle.js) | sed \"s#// .*##\" > $@",
+)
+
+generated_file_test(
+    name = "bundle_test",
+    src = "bundle.golden.txt",
+    generated = "bundle.stripped.js",
+)

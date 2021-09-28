@@ -1,0 +1,7 @@
+const getId$1 = () => 'module-one';
+
+const getId = () => 'module-two';
+
+var main = `Full ID: ${getId$1} - ${getId}`;
+
+export default main;
