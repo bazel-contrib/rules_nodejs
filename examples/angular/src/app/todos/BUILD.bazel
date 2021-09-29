@@ -1,5 +1,5 @@
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
-load("//tools:angular_ts_library.bzl", "ng_ts_library")
+load("//tools:angular_ts_project.bzl", "ng_ts_project")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -8,7 +8,7 @@ sass_binary(
     src = "todos.component.scss",
 )
 
-ng_ts_library(
+ng_ts_project(
     name = "todos",
     srcs = [
         "todos.component.ts",
@@ -18,7 +18,6 @@ ng_ts_library(
         "todos.component.html",
         ":todos-styles",
     ],
-    tsconfig = "//src:tsconfig.json",
     deps = [
         "//src/app/todos/reducers",
         "//src/shared/material",

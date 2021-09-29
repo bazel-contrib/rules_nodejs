@@ -17,7 +17,7 @@ module.exports = function(config) {
   // is the configured.
   const isProdserver = path.basename(config.server, path.extname(config.server)) === 'prodserver';
   return protractorUtils
-      .runServer(config.workspace, config.server, isProdserver ? '-p' : '-port', [])
+      .runServer(config.workspace, config.server, '-p', [])
       .then(serverSpec => {
         // Example app is hosted under `/example` in the prodserver and under `/` in devserver
         const serverUrl = `http://localhost:${serverSpec.port}` + (isProdserver ? '/example' : '');

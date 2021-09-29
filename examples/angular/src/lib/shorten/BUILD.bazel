@@ -1,14 +1,19 @@
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("//tools:typescript.bzl", "ts_project")
 
 package(default_visibility = ["//:__subpackages__"])
 
 # TODO: change entry to something other than index.js & add a package.json here
 # with a main field to show how to create a first-party npm lib with a package.json
-ts_library(
+ts_project(
+    name = "shorten-ts",
+    srcs = ["index.ts"],
+)
+
+js_library(
     name = "shorten",
     package_name = "@bazel/shorten",
-    srcs = ["index.ts"],
-    module_name = "@bazel/shorten",
+    deps = [":shorten-ts"],
 )
 
 # TODO(alexeagle): show how it can be deployed to npm

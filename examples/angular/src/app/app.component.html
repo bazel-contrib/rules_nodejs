@@ -1,21 +1,25 @@
 <nav>
   <mat-toolbar class="mat-secondary">
-    <p class="show-small"><button mat-button (click)="drawer.toggle()">
+    <p class="show-small">
+      <button mat-button (click)="drawer.toggle()">
         <mat-icon>menu</mat-icon>
-      </button></p>
+      </button>
+    </p>
     <a mat-button href="http://angular.io" class="hide-small">
-      <img class="nav-logo" src="/assets/angular-logo-with-text.svg">
+      <img class="nav-logo" src="/assets/angular-logo-with-text.svg" />
     </a>
     <span class="hide-small">+</span>
     <a mat-button href="https://bazel.build">
-      <img class="nav-logo" src="/assets/bazel-navbar.svg">
+      <img class="nav-logo" src="/assets/bazel-navbar.svg" />
     </a>
     <span class="flex-spacer"></span>
     <a mat-button href="https://next.angular.io/guide/bazel">
       Documentation
     </a>
-    <a href="https://github.com/angular/angular-bazel-example">
-      <img class="nav-logo" src="/assets/github-circle-white-transparent.svg">
+    <a
+      href="https://github.com/bazelbuild/rules_nodejs/tree/master/examples/angular"
+    >
+      <img class="nav-logo" src="/assets/github-circle-white-transparent.svg" />
     </a>
   </mat-toolbar>
 </nav>
@@ -26,26 +30,6 @@
       <a mat-list-item routerLink="/"> Home </a>
       <a mat-list-item routerLink="/hello"> Hello World </a>
       <a mat-list-item routerLink="/todos"> Todos </a>
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
     </mat-nav-list>
   </mat-drawer>
 
