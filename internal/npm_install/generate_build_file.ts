@@ -79,6 +79,12 @@ if (require.main === module) {
   main();
 }
 
+const compareDep = (a: Dep, b: Dep) => {
+  if(a._dir < b._dir) return -1;
+  if(a._dir > b._dir) return 1; 
+  return 0;
+}
+
 const constant = <T>(c: T) => () => c
 
 async function exists(p: string) {
@@ -140,7 +146,12 @@ export async function main() {
   const deps = await getDirectDependencySet(config.package_json);
 
   // find all packages (including packages in nested node_modules)
-  const pkgs: Dep[] = await findPackages('node_modules', deps);
+  const pkgs: Dep[] = [];
+
+  await findPackagesAndPush(pkgs, 'node_modules', deps);
+
+  // Sort the files to ensure the order
+  pkgs.sort(compareDep);
 
   // flatten dependencies
   flattenDependencies(pkgs);
@@ -496,50 +507,26 @@ function stripBom(s: string) {
 }
 
 /**
- * Returns an array of all the files under a directory as relative
- * paths to the directory.
+ * List all the files under a directory as relative
+ * paths to the directory and push them to files.
  */
-async function listFiles(rootDir: string, subDir: string = ''): Promise<string[]> {
-  const files: string[] = [];
-  const _listFiles = async (rootDir: string, subDir: string = '') => {
-    const dir = path.posix.join(rootDir, subDir);
-    if (!isDirectory(dir)) {
-      return;
-    }
-    const filelist = await fs.readdir(dir);
-    for (const file of filelist) {
-      const fullPath = path.posix.join(dir, file);
-      const relPath = path.posix.join(subDir, file);
-      const isSymbolicLink = (await fs.lstat(fullPath)).isSymbolicLink();
-      let stat;
-      try {
-        stat = await fs.stat(fullPath);
-      } catch (e) {
-        if (isSymbolicLink) {
-          // Filter out broken symbolic links. These cause fs.statSync(fullPath)
-          // to fail with `ENOENT: no such file or directory ...`
-          if (config.exports_directories_only) {
-            // Delete the symlink if we are exporting directory artifacts so the problematic symlink
-            // doesn't show up in runfiles. These problematic symlinks cause bazel failures such as
-            // ERROR: internal/npm_install/test/BUILD.bazel:118:19:
-            //   Testing //internal/npm_install/test:test_yarn_directory_artifacts
-            //   failed: Exec failed due to IOException: The file type of
-            //   'bazel-out/darwin-fastbuild/bin/internal/npm_install/test/test_yarn_directory_artifacts.sh.runfiles/fine_grained_deps_yarn_directory_artifacts/node_modules/ecstatic/test/public/containsSymlink/problematic'
-            //   is not supported.
-            await fs.unlink(fullPath);
-          }
-          continue;
-        }
-        throw e;
-      }
-      const isDirectory = stat.isDirectory();
-      if (isDirectory && isSymbolicLink) {
-        // Filter out symbolic links to directories. An issue in yarn versions
-        // older than 1.12.1 creates symbolic links to folders in the .bin folder
-        // which leads to Bazel targets that cross package boundaries.
-        // See https://github.com/bazelbuild/rules_nodejs/issues/428 and
-        // https://github.com/bazelbuild/rules_nodejs/issues/438.
-        // This is tested in /e2e/fine_grained_symlinks.
+async function listFilesAndPush(files: string[], rootDir: string, subDir: string = ''): Promise<void> {
+  const dir = path.posix.join(rootDir, subDir);
+  if (!isDirectory(dir)) {
+    return;
+  }
+  const filelist = await fs.readdir(dir);
+  for (const file of filelist) {
+    const fullPath = path.posix.join(dir, file);
+    const relPath = path.posix.join(subDir, file);
+    const isSymbolicLink = (await fs.lstat(fullPath)).isSymbolicLink();
+    let stat;
+    try {
+      stat = await fs.stat(fullPath);
+    } catch (e) {
+      if (isSymbolicLink) {
+        // Filter out broken symbolic links. These cause fs.statSync(fullPath)
+        // to fail with `ENOENT: no such file or directory ...`
         if (config.exports_directories_only) {
           // Delete the symlink if we are exporting directory artifacts so the problematic symlink
           // doesn't show up in runfiles. These problematic symlinks cause bazel failures such as
@@ -552,14 +539,31 @@ async function listFiles(rootDir: string, subDir: string = ''): Promise<string[]
         }
         continue;
       }
-      if (isDirectory) (await _listFiles(rootDir, relPath));
-      else files.push(relPath);
+      throw e;
     }
-  };
-  await _listFiles(rootDir, subDir);
-  // We return a sorted array so that the order of files
-  // is the same regardless of platform
-  return files.sort();
+    const isDirectory = stat.isDirectory();
+    if (isDirectory && isSymbolicLink) {
+      // Filter out symbolic links to directories. An issue in yarn versions
+      // older than 1.12.1 creates symbolic links to folders in the .bin folder
+      // which leads to Bazel targets that cross package boundaries.
+      // See https://github.com/bazelbuild/rules_nodejs/issues/428 and
+      // https://github.com/bazelbuild/rules_nodejs/issues/438.
+      // This is tested in /e2e/fine_grained_symlinks.
+      if (config.exports_directories_only) {
+        // Delete the symlink if we are exporting directory artifacts so the problematic symlink
+        // doesn't show up in runfiles. These problematic symlinks cause bazel failures such as
+        // ERROR: internal/npm_install/test/BUILD.bazel:118:19:
+        //   Testing //internal/npm_install/test:test_yarn_directory_artifacts
+        //   failed: Exec failed due to IOException: The file type of
+        //   'bazel-out/darwin-fastbuild/bin/internal/npm_install/test/test_yarn_directory_artifacts.sh.runfiles/fine_grained_deps_yarn_directory_artifacts/node_modules/ecstatic/test/public/containsSymlink/problematic'
+        //   is not supported.
+        await fs.unlink(fullPath);
+      }
+      continue;
+    }
+    if (isDirectory) await listFilesAndPush(files, rootDir, relPath);
+    else files.push(relPath);
+  }
 }
 
 /**
@@ -595,45 +599,30 @@ export async function getDirectDependencySet(pkgJsonPath: string): Promise<Set<s
 }
 
 /**
- * Finds and returns an array of all packages under a given path.
+ * Finds all packages under a given path and push to pkgs.
  */
-async function findPackages(p: string, dependencies: Set<string>): Promise<Dep[]> {
-  const pkgs: Dep[] = [];
-  const _findPackages = async (p: string) => {
-    if (!await isDirectory(p)) {
-      return;
-    }
+async function findPackagesAndPush(pkgs: Dep[], p: string, dependencies: Set<string>): Promise<void> {
+  if (!await isDirectory(p)) {
+    return;
+  }
 
-    const listing = await fs.readdir(p);
+  const listing = await fs.readdir(p);
 
-    await Promise.all(listing.map(async f => {
-      // filter out folders such as `.bin` which can create
-      // issues on Windows since these are "hidden" by default
-      if (f.startsWith('.')) return [];
-      const pf = path.posix.join(p, f);
-      
-      if (await isDirectory(pf)) {
-        if (f.startsWith('@')) {
-          await _findPackages(pf);
-        } else {
-          pkgs.push(await parsePackage(pf, dependencies));
-          await _findPackages(path.posix.join(pf, 'node_modules'));
-        }
+  await Promise.all(listing.map(async f => {
+    // filter out folders such as `.bin` which can create
+    // issues on Windows since these are "hidden" by default
+    if (f.startsWith('.')) return [];
+    const pf = path.posix.join(p, f);
+    
+    if (await isDirectory(pf)) {
+      if (f.startsWith('@')) {
+        await findPackagesAndPush(pkgs, pf, dependencies);
+      } else {
+        pkgs.push(await parsePackage(pf, dependencies));
+        await findPackagesAndPush(pkgs, path.posix.join(pf, 'node_modules'), dependencies);
       }
-    }));
-  };
-
-  await _findPackages(p);
-
-  // We return a sorted array so that the order of files
-  // is the same regardless of platform
-  pkgs.sort((a, b) => {
-    if(a._dir < b._dir) return -1;
-    if(a._dir > b._dir) return 1; 
-    return 0;
-  });
-
-  return pkgs;
+    }
+  }));
 }
 
 /**
@@ -689,7 +678,12 @@ export async function parsePackage(p: string, dependencies: Set<string> = new Se
   pkg._isNested = /\/node_modules\//.test(pkg._dir);
 
   // List all the files in the npm package for later use
-  pkg._files = await listFiles(p);
+  pkg._files = [];
+
+  await listFilesAndPush(pkg._files, p);
+
+  // Sort the files to ensure the order
+  pkg._files.sort();
 
   // The subset of files that are valid in runfiles.
   // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
