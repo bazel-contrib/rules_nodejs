@@ -104,8 +104,8 @@ async function mkdirp(p: string) {
   if (!promise) {
     promise = (async () => {
       if (await exists(p)) return;
-        await mkdirp(path.dirname(p));
-        await fs.mkdir(p);
+      await mkdirp(path.dirname(p));
+      await fs.mkdir(p);
     })();
     // Store mkdir call
     mkdirPromiseMap.set(p, promise);
