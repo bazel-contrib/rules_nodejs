@@ -25,6 +25,8 @@ OS_ARCH_NAMES = [
     ("linux", "arm64"),
     ("linux", "s390x"),
     ("linux", "ppc64le"),
+    ("freebsd", "amd64"),
+    ("freebsd", "arm64"),
 ]
 
 OS_NAMES = ["_".join(os_arch_name) for os_arch_name in OS_ARCH_NAMES]
@@ -58,6 +60,11 @@ def os_name(rctx):
             return OS_NAMES[5]
         elif arch == "ppc64le":
             return OS_NAMES[6]
+    elif os_name.startswith("freebsd"):
+        if arch == "amd64":
+            return OS_NAMES[7]
+        elif arch == "aarch64":
+            return OS_NAMES[8]
 
     fail("Unsupported operating system {} architecture {}".format(os_name, arch))
 
@@ -71,6 +78,10 @@ def is_darwin_os(rctx):
 def is_linux_os(rctx):
     name = os_name(rctx)
     return name == OS_NAMES[3] or name == OS_NAMES[4] or name == OS_NAMES[5] or name == OS_NAMES[6]
+
+def is_freebsd_os(rctx):
+    name = os_name(rctx)
+    return name == OS_NAMES[7] or name == OS_NAMES[8]
 
 def node_exists_for_os(node_version, os_name):
     return "-".join([node_version, os_name]) in NODE_VERSIONS.keys()
