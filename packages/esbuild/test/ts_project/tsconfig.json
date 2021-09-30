@@ -13,9 +13,11 @@
     "rootDirs": [
         ".",
         "../../../../bazel-out/darwin-fastbuild/bin/packages/esbuild/test/ts_project",
+        "../../../../bazel-out/freebsd-fastbuild/bin/packages/esbuild/test/ts_project",
         "../../../../bazel-out/k8-fastbuild/bin/packages/esbuild/test/ts_project",
         "../../../../bazel-out/x64_windows-fastbuild/bin/packages/esbuild/test/ts_project",
         "../../../../bazel-out/darwin-dbg/bin/packages/esbuild/test/ts_project",
+        "../../../../bazel-out/freebsd-dbg/bin/packages/esbuild/test/ts_project",
         "../../../../bazel-out/k8-dbg/bin/packages/esbuild/test/ts_project",
         "../../../../bazel-out/x64_windows-dbg/bin/packages/esbuild/test/ts_project",
     ],
