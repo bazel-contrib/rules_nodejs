@@ -10,6 +10,8 @@ const MAX_VERSION = [16, 99, 99];
 const REPOSITORY_TYPES = {
   "darwin-arm64.tar.gz": "darwin_arm64",
   "darwin-x64.tar.gz": "darwin_amd64",
+  "freebsd-arm64.tar.gz": "freebsd_arm64",
+  "freebsd-x64.tar.gz": "freebsd_amd64",
   "linux-x64.tar.xz": "linux_amd64",
   "linux-arm64.tar.xz": "linux_arm64",
   "linux-s390x.tar.xz": "linux_s390x",

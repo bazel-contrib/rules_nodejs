@@ -46,6 +46,16 @@ go_binary(
 )
 
 go_binary(
+    name = "devserver-freebsd",
+    out = "devserver-freebsd_x64",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "freebsd",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
     name = "devserver-linux",
     out = "devserver-linux_x64",
     embed = [":go_default_library"],

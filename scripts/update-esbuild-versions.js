@@ -7,6 +7,8 @@ const { tmpdir } = require('os');
 const PLATFORMS = {
   "_DARWIN_AMD64": "esbuild-darwin-64",
   "_DARWIN_ARM64": "esbuild-darwin-arm64",
+  "_FREEBSD_AMD64": "esbuild-freebsd-64",
+  "_FREEBSD_ARM64": "esbuild-freebsd-arm64",
   "_LINUX_AMD64": "esbuild-linux-64",
   "_LINUX_ARM64": "esbuild-linux-arm64",
   "_WINDOWS_AMD64": "esbuild-windows-64"

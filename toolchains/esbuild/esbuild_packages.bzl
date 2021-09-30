@@ -4,6 +4,8 @@
 _VERSION = "0.13.4"
 _DARWIN_AMD64_SHA = "203880ab2a7204a669cd15c4ef7c41647cdc790c4f7802ffe7d56a3ac82a0e8f"
 _DARWIN_ARM64_SHA = "cd861ca11b5684bbcf40242c1a3eb905a3ea4e7206911afe37d1363d8bba93f0"
+_FREEBSD_AMD64_SHA = "398588735c1b769e5e281b86b58eb32667e3f2833e522d3c28a66eefc1da9149"
+_FREEBSD_ARM64_SHA = "4e5a392b3bc95270e71e035cfe1f8799d8845b37334020622dad59a78b2851ab"
 _LINUX_AMD64_SHA = "5b2b0bdd2d4b22321e232e8749108c4bc2d737a62d691f805a34920599d45a2a"
 _LINUX_ARM64_SHA = "91e2f6e9ceac9f3f22fe0e9d4b2cdfeded71188383ef86b0be048af3526f1cc4"
 _WINDOWS_AMD64_SHA = "0b764c580111eded47cd4c4257a0b4ea86c4d8af90b48d778d78ab62af141317"
@@ -30,6 +32,28 @@ ESBUILD_PACKAGES = struct(
             binary_path = "bin/esbuild",
             exec_compatible_with = [
                 "@platforms//os:macos",
+                "@platforms//cpu:aarch64",
+            ],
+        ),
+        "freebsd_amd64": struct(
+            sha = _FREEBSD_AMD64_SHA,
+            urls = [
+                "https://registry.npmjs.org/esbuild-freebsd-64/-/esbuild-freebsd-64-%s.tgz" % _VERSION,
+            ],
+            binary_path = "bin/esbuild",
+            exec_compatible_with = [
+                "@platforms//os:freebsd",
+                "@platforms//cpu:x86_64",
+            ],
+        ),
+        "freebsd_arm64": struct(
+            sha = _FREEBSD_ARM64_SHA,
+            urls = [
+                "https://registry.npmjs.org/esbuild-freebsd-arm64/-/esbuild-freebsd-arm64-%s.tgz" % _VERSION,
+            ],
+            binary_path = "bin/esbuild",
+            exec_compatible_with = [
+                "@platforms//os:freebsd",
                 "@platforms//cpu:aarch64",
             ],
         ),

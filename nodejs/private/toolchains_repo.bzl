@@ -30,6 +30,18 @@ PLATFORMS = {
             "@platforms//cpu:aarch64",
         ],
     ),
+    "freebsd_amd64": struct(
+        compatible_with = [
+            "@platforms//os:freebsd",
+            "@platforms//cpu:x86_64",
+        ],
+    ),
+    "freebsd_arm64": struct(
+        compatible_with = [
+            "@platforms//os:freebsd",
+            "@platforms//cpu:aarch64",
+        ],
+    ),
     "linux_amd64": struct(
         compatible_with = [
             "@platforms//os:linux",
