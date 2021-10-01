@@ -17,7 +17,7 @@
     ],
     "main": "index.js",
     "dependencies": {
-        "jasmine-reporters": "~2.4.0",
+        "jasmine-reporters": "~2.5.0",
         "c8": "~7.5.0"
     },
     "//1": "jasmine depends on jasmine-core, however since we require() it we need it hoisted to the top",
