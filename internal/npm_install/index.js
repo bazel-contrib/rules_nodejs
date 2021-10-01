@@ -1,7 +1,7 @@
 /* THIS FILE GENERATED FROM .ts; see BUILD.bazel */ /* clang-format off */'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.printIndexBzl = exports.printPackageBin = exports.parsePackage = exports.getDirectDependencySet = exports.main = void 0;
-const fs = require("fs");
+const fs_1 = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 function log_verbose(...m) {
@@ -34,41 +34,64 @@ package(default_visibility = ["${visibility}"])
 if (require.main === module) {
     main();
 }
-function mkdirp(p) {
-    if (!fs.existsSync(p)) {
-        mkdirp(path.dirname(p));
-        fs.mkdirSync(p);
+const compareDep = (a, b) => {
+    if (a._dir < b._dir)
+        return -1;
+    if (a._dir > b._dir)
+        return 1;
+    return 0;
+};
+const constant = (c) => () => c;
+async function exists(p) {
+    return fs_1.promises.access(p, fs_1.constants.F_OK | fs_1.constants.W_OK)
+        .then(constant(true), constant(false));
+}
+const mkdirPromiseMap = new Map();
+async function mkdirp(p) {
+    let promise = mkdirPromiseMap.get(p);
+    if (!promise) {
+        promise = (async () => {
+            if (await exists(p))
+                return;
+            await mkdirp(path.dirname(p));
+            await fs_1.promises.mkdir(p);
+        })();
+        mkdirPromiseMap.set(p, promise);
     }
+    await promise;
 }
-function writeFileSync(p, content) {
-    mkdirp(path.dirname(p));
-    fs.writeFileSync(p, content);
+async function writeFile(p, content) {
+    await mkdirp(path.dirname(p));
+    await fs_1.promises.writeFile(p, content);
 }
-function createFileSymlinkSync(target, p) {
-    mkdirp(path.dirname(p));
-    fs.symlinkSync(target, p, 'file');
+async function createFileSymlink(target, p) {
+    await mkdirp(path.dirname(p));
+    await fs_1.promises.symlink(target, p, 'file');
 }
-function main() {
+async function main() {
     config = require('./generate_config.json');
     config.limited_visibility = `@${config.workspace}//:__subpackages__`;
     if (config.exports_directories_only) {
         NODE_MODULES_PACKAGE_NAME = '$node_modules_dir$';
     }
-    const deps = getDirectDependencySet(config.package_json);
-    const pkgs = findPackages('node_modules', deps);
+    const deps = await getDirectDependencySet(config.package_json);
+    const pkgs = [];
+    await findPackagesAndPush(pkgs, 'node_modules', deps);
+    pkgs.sort(compareDep);
     flattenDependencies(pkgs);
-    generateBazelWorkspaces(pkgs);
-    generateBuildFiles(pkgs);
-    writeFileSync('.bazelignore', `node_modules\n${config.workspace_rerooted_path}`);
+    await generateBazelWorkspaces(pkgs);
+    await generateBuildFiles(pkgs);
+    await writeFile('.bazelignore', `node_modules\n${config.workspace_rerooted_path}`);
 }
 exports.main = main;
-function generateBuildFiles(pkgs) {
-    generateRootBuildFile(pkgs.filter(pkg => !pkg._isNested));
-    pkgs.filter(pkg => !pkg._isNested).forEach(pkg => generatePackageBuildFiles(pkg));
-    findScopes().forEach(scope => generateScopeBuildFiles(scope, pkgs));
-    generateLinksBuildFiles(config.links);
+async function generateBuildFiles(pkgs) {
+    const notNestedPkgs = pkgs.filter(pkg => !pkg._isNested);
+    await generateRootBuildFile(notNestedPkgs);
+    await notNestedPkgs.reduce((p, pkg) => p.then(() => generatePackageBuildFiles(pkg)), Promise.resolve());
+    await (await findScopes()).reduce((prev, scope) => prev.then(() => generateScopeBuildFiles(scope, pkgs)), Promise.resolve());
+    await generateLinksBuildFiles(config.links);
 }
-function generateLinksBuildFiles(links) {
+async function generateLinksBuildFiles(links) {
     for (const packageName of Object.keys(links)) {
         const target = links[packageName];
         const basename = packageName.split('/').pop();
@@ -80,7 +103,7 @@ npm_link(
     package_name = "${packageName}",
     package_path = "${config.package_path}",
 )`;
-        writeFileSync(path.posix.join(packageName, 'BUILD.bazel'), starlark);
+        await writeFile(path.posix.join(packageName, 'BUILD.bazel'), starlark);
     }
 }
 function flattenDependencies(pkgs) {
@@ -88,7 +111,7 @@ function flattenDependencies(pkgs) {
     pkgs.forEach(pkg => pkgsMap.set(pkg._dir, pkg));
     pkgs.forEach(pkg => flattenPkgDependencies(pkg, pkg, pkgsMap));
 }
-function generateRootBuildFile(pkgs) {
+async function generateRootBuildFile(pkgs) {
     let pkgFilesStarlark = '';
     if (pkgs.length) {
         let list = '';
@@ -140,30 +163,32 @@ js_library(
 
 `;
     try {
-        buildFile += fs.readFileSync(`manual_build_file_contents`, { encoding: 'utf8' });
+        buildFile += await fs_1.promises.readFile(`manual_build_file_contents`, { encoding: 'utf8' });
     }
     catch (e) {
     }
-    writeFileSync('BUILD.bazel', buildFile);
+    await writeFile('BUILD.bazel', buildFile);
 }
-function generatePackageBuildFiles(pkg) {
+async function generatePackageBuildFiles(pkg) {
     let buildFilePath;
     if (pkg._files.includes('BUILD'))
         buildFilePath = 'BUILD';
     if (pkg._files.includes('BUILD.bazel'))
         buildFilePath = 'BUILD.bazel';
     const nodeModulesPkgDir = `node_modules/${pkg._dir}`;
-    const isPkgDirASymlink = fs.existsSync(nodeModulesPkgDir) && fs.lstatSync(nodeModulesPkgDir).isSymbolicLink();
+    const isPkgDirASymlink = await fs_1.promises.lstat(nodeModulesPkgDir)
+        .then(stat => stat.isSymbolicLink())
+        .catch(constant(false));
     const symlinkBuildFile = isPkgDirASymlink && buildFilePath && !config.generate_local_modules_build_files;
     if (isPkgDirASymlink && !buildFilePath && !config.generate_local_modules_build_files) {
-        console.log(`[yarn_install/npm_install]: package ${nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${fs.realpathSync(nodeModulesPkgDir)}`);
+        console.log(`[yarn_install/npm_install]: package ${nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${await fs_1.promises.realpath(nodeModulesPkgDir)}`);
     }
     let buildFile = config.exports_directories_only ?
         printPackageExperimentalDirectoryArtifacts(pkg) :
         printPackage(pkg);
     if (buildFilePath) {
         buildFile = buildFile + '\n' +
-            fs.readFileSync(path.join('node_modules', pkg._dir, buildFilePath), 'utf-8');
+            await fs_1.promises.readFile(path.join('node_modules', pkg._dir, buildFilePath), 'utf-8');
     }
     else {
         buildFilePath = 'BUILD.bazel';
@@ -174,11 +199,11 @@ function generatePackageBuildFiles(pkg) {
     if (!pkg._files.includes('bin/BUILD.bazel') && !pkg._files.includes('bin/BUILD')) {
         const binBuildFile = printPackageBin(pkg);
         if (binBuildFile.length) {
-            writeFileSync(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), generateBuildFileHeader(visibility) + binBuildFile);
+            await writeFile(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), generateBuildFileHeader(visibility) + binBuildFile);
         }
     }
     if (pkg._files.includes('index.bzl')) {
-        pkg._files.filter(f => f !== 'BUILD' && f !== 'BUILD.bazel').forEach(file => {
+        await pkg._files.filter(f => f !== 'BUILD' && f !== 'BUILD.bazel').reduce(async (prev, file) => {
             if (/^node_modules[/\\]/.test(file)) {
                 return;
             }
@@ -189,14 +214,15 @@ function generatePackageBuildFiles(pkg) {
                 destFile = path.posix.join(path.dirname(destFile), basename.substr(1));
             }
             const src = path.posix.join('node_modules', pkg._dir, file);
-            mkdirp(path.dirname(destFile));
-            fs.copyFileSync(src, destFile);
-        });
+            await prev;
+            await mkdirp(path.dirname(destFile));
+            await fs_1.promises.copyFile(src, destFile);
+        }, Promise.resolve());
     }
     else {
         const indexFile = printIndexBzl(pkg);
         if (indexFile.length) {
-            writeFileSync(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
+            await writeFile(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
             buildFile += `
 # For integration testing
 exports_files(["index.bzl"])
@@ -204,14 +230,14 @@ exports_files(["index.bzl"])
         }
     }
     if (!symlinkBuildFile) {
-        writeFileSync(path.posix.join(pkg._dir, buildFilePath), generateBuildFileHeader(visibility) + buildFile);
+        await writeFile(path.posix.join(pkg._dir, buildFilePath), generateBuildFileHeader(visibility) + buildFile);
     }
     else {
-        const realPathBuildFileForPkg = fs.realpathSync(path.posix.join(nodeModulesPkgDir, buildFilePath));
-        createFileSymlinkSync(realPathBuildFileForPkg, path.posix.join(pkg._dir, buildFilePath));
+        const realPathBuildFileForPkg = await fs_1.promises.realpath(path.posix.join(nodeModulesPkgDir, buildFilePath));
+        await createFileSymlink(realPathBuildFileForPkg, path.posix.join(pkg._dir, buildFilePath));
     }
 }
-function generateBazelWorkspaces(pkgs) {
+async function generateBazelWorkspaces(pkgs) {
     const workspaces = {};
     for (const pkg of pkgs) {
         if (!pkg.bazelWorkspaces) {
@@ -223,12 +249,12 @@ function generateBazelWorkspaces(pkgs) {
                     `package ${pkg._dir}@${pkg.version}. Already setup by ${workspaces[workspace]}`);
                 process.exit(1);
             }
-            generateBazelWorkspace(pkg, workspace);
+            await generateBazelWorkspace(pkg, workspace);
             workspaces[workspace] = `${pkg._dir}@${pkg.version}`;
         }
     }
 }
-function generateBazelWorkspace(pkg, workspace) {
+async function generateBazelWorkspace(pkg, workspace) {
     let bzlFile = `# Generated by the yarn_install/npm_install rule
 load("@build_bazel_rules_nodejs//internal/copy_repository:copy_repository.bzl", "copy_repository")
 
@@ -243,8 +269,8 @@ def _maybe(repo_rule, name, **kwargs):
         process.exit(1);
     }
     const workspaceSourcePath = path.posix.join('_workspaces', workspace);
-    mkdirp(workspaceSourcePath);
-    pkg._files.forEach(file => {
+    await mkdirp(workspaceSourcePath);
+    await Promise.all(pkg._files.map(async (file) => {
         if (/^node_modules[/\\]/.test(file)) {
             return;
         }
@@ -259,15 +285,15 @@ def _maybe(repo_rule, name, **kwargs):
         }
         const src = path.posix.join('node_modules', pkg._dir, file);
         const dest = path.posix.join(workspaceSourcePath, destFile);
-        mkdirp(path.dirname(dest));
-        fs.copyFileSync(src, dest);
-    });
+        await mkdirp(path.dirname(dest));
+        await fs_1.promises.copyFile(src, dest);
+    }));
     if (!hasRootBuildFile(pkg, rootPath)) {
-        writeFileSync(path.posix.join(workspaceSourcePath, 'BUILD.bazel'), '# Marker file that this directory is a bazel package');
+        await writeFile(path.posix.join(workspaceSourcePath, 'BUILD.bazel'), '# Marker file that this directory is a bazel package');
     }
     const sha256sum = crypto.createHash('sha256');
-    sha256sum.update(fs.readFileSync(config.package_lock, { encoding: 'utf8' }));
-    writeFileSync(path.posix.join(workspaceSourcePath, '_bazel_workspace_marker'), `# Marker file to used by custom copy_repository rule\n${sha256sum.digest('hex')}`);
+    sha256sum.update(await fs_1.promises.readFile(config.package_lock, { encoding: 'utf8' }));
+    await writeFile(path.posix.join(workspaceSourcePath, '_bazel_workspace_marker'), `# Marker file to used by custom copy_repository rule\n${sha256sum.digest('hex')}`);
     bzlFile += `def install_${workspace}():
     _maybe(
         copy_repository,
@@ -275,54 +301,60 @@ def _maybe(repo_rule, name, **kwargs):
         marker_file = "@${config.workspace}//_workspaces/${workspace}:_bazel_workspace_marker",
     )
 `;
-    writeFileSync(`install_${workspace}.bzl`, bzlFile);
+    await writeFile(`install_${workspace}.bzl`, bzlFile);
 }
-function generateScopeBuildFiles(scope, pkgs) {
+async function generateScopeBuildFiles(scope, pkgs) {
     const buildFile = generateBuildFileHeader() + printScope(scope, pkgs);
-    writeFileSync(path.posix.join(scope, 'BUILD.bazel'), buildFile);
+    await writeFile(path.posix.join(scope, 'BUILD.bazel'), buildFile);
 }
-function isFile(p) {
-    return fs.existsSync(p) && fs.statSync(p).isFile();
+async function isFile(p) {
+    return fs_1.promises.stat(p)
+        .then(stat => stat.isFile())
+        .catch(constant(false));
 }
-function isDirectory(p) {
-    return fs.existsSync(p) && fs.statSync(p).isDirectory();
+async function isDirectory(p) {
+    return fs_1.promises.stat(p)
+        .then((stat) => stat.isDirectory())
+        .catch(constant(false));
 }
 function stripBom(s) {
     return s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
 }
-function listFiles(rootDir, subDir = '') {
+async function listFilesAndPush(files, rootDir, subDir = '') {
     const dir = path.posix.join(rootDir, subDir);
     if (!isDirectory(dir)) {
-        return [];
+        return;
     }
-    return fs.readdirSync(dir)
-        .reduce((files, file) => {
+    const filelist = await fs_1.promises.readdir(dir);
+    for (const file of filelist) {
         const fullPath = path.posix.join(dir, file);
         const relPath = path.posix.join(subDir, file);
-        const isSymbolicLink = fs.lstatSync(fullPath).isSymbolicLink();
+        const isSymbolicLink = (await fs_1.promises.lstat(fullPath)).isSymbolicLink();
         let stat;
         try {
-            stat = fs.statSync(fullPath);
+            stat = await fs_1.promises.stat(fullPath);
         }
         catch (e) {
             if (isSymbolicLink) {
                 if (config.exports_directories_only) {
-                    fs.unlinkSync(fullPath);
+                    await fs_1.promises.unlink(fullPath);
                 }
-                return files;
+                continue;
             }
             throw e;
         }
         const isDirectory = stat.isDirectory();
         if (isDirectory && isSymbolicLink) {
             if (config.exports_directories_only) {
-                fs.unlinkSync(fullPath);
+                await fs_1.promises.unlink(fullPath);
             }
-            return files;
+            continue;
         }
-        return isDirectory ? files.concat(listFiles(rootDir, relPath)) : files.concat(relPath);
-    }, [])
-        .sort();
+        if (isDirectory)
+            await listFilesAndPush(files, rootDir, relPath);
+        else
+            files.push(relPath);
+    }
 }
 function hasRootBuildFile(pkg, rootPath) {
     for (const file of pkg._files) {
@@ -334,8 +366,8 @@ function hasRootBuildFile(pkg, rootPath) {
     }
     return false;
 }
-function getDirectDependencySet(pkgJsonPath) {
-    const pkgJson = JSON.parse(stripBom(fs.readFileSync(pkgJsonPath, { encoding: 'utf8' })));
+async function getDirectDependencySet(pkgJsonPath) {
+    const pkgJson = JSON.parse(stripBom(await fs_1.promises.readFile(pkgJsonPath, { encoding: 'utf8' })));
     return new Set([
         ...Object.keys(pkgJson.dependencies || {}),
         ...Object.keys(pkgJson.devDependencies || {}),
@@ -343,48 +375,55 @@ function getDirectDependencySet(pkgJsonPath) {
     ]);
 }
 exports.getDirectDependencySet = getDirectDependencySet;
-function findPackages(p, dependencies) {
-    if (!isDirectory(p)) {
-        return [];
+async function findPackagesAndPush(pkgs, p, dependencies) {
+    if (!await isDirectory(p)) {
+        return;
     }
-    const pkgs = [];
-    const listing = fs.readdirSync(p);
-    const packages = listing
-        .filter(f => !f.startsWith('@'))
-        .filter(f => !f.startsWith('.'))
-        .map(f => path.posix.join(p, f))
-        .filter(f => isDirectory(f));
-    packages.forEach(f => {
-        pkgs.push(parsePackage(f, dependencies), ...findPackages(path.posix.join(f, 'node_modules'), dependencies));
-    });
-    const scopes = listing.filter(f => f.startsWith('@'))
-        .map(f => path.posix.join(p, f))
-        .filter(f => isDirectory(f));
-    scopes.forEach(f => pkgs.push(...findPackages(f, dependencies)));
-    return pkgs;
+    const listing = await fs_1.promises.readdir(p);
+    await Promise.all(listing.map(async (f) => {
+        if (f.startsWith('.'))
+            return [];
+        const pf = path.posix.join(p, f);
+        if (await isDirectory(pf)) {
+            if (f.startsWith('@')) {
+                await findPackagesAndPush(pkgs, pf, dependencies);
+            }
+            else {
+                pkgs.push(await parsePackage(pf, dependencies));
+                await findPackagesAndPush(pkgs, path.posix.join(pf, 'node_modules'), dependencies);
+            }
+        }
+    }));
 }
-function findScopes() {
+async function findScopes() {
     const p = 'node_modules';
-    if (!isDirectory(p)) {
+    if (!await isDirectory(p)) {
         return [];
     }
-    const listing = fs.readdirSync(p);
-    const scopes = listing.filter(f => f.startsWith('@'))
-        .map(f => path.posix.join(p, f))
-        .filter(f => isDirectory(f))
-        .map(f => f.substring('node_modules/'.length));
+    const listing = await fs_1.promises.readdir(p);
+    const scopes = (await Promise.all(listing.map(async (f) => {
+        if (!f.startsWith('@'))
+            return;
+        f = path.posix.join(p, f);
+        if (await isDirectory(f)) {
+            return f.substring('node_modules/'.length);
+        }
+    })))
+        .filter((f) => typeof f === 'string');
     return scopes;
 }
-function parsePackage(p, dependencies = new Set()) {
+async function parsePackage(p, dependencies = new Set()) {
     const packageJson = path.posix.join(p, 'package.json');
-    const pkg = isFile(packageJson) ?
-        JSON.parse(stripBom(fs.readFileSync(packageJson, { encoding: 'utf8' }))) :
+    const pkg = (await isFile(packageJson)) ?
+        JSON.parse(stripBom(await fs_1.promises.readFile(packageJson, { encoding: 'utf8' }))) :
         { version: '0.0.0' };
     pkg._dir = p.substring('node_modules/'.length);
     pkg._name = pkg._dir.split('/').pop();
     pkg._moduleName = pkg.name || `${pkg._dir}/${pkg._name}`;
     pkg._isNested = /\/node_modules\//.test(pkg._dir);
-    pkg._files = listFiles(p);
+    pkg._files = [];
+    await listFilesAndPush(pkg._files, p);
+    pkg._files.sort();
     pkg._runfiles = pkg._files.filter((f) => !/[^\x21-\x7E]/.test(f));
     pkg._dependencies = [];
     pkg._directDependency = dependencies.has(pkg._moduleName) || dependencies.has(pkg._name) || dependencies.has(pkg._dir);
@@ -484,7 +523,7 @@ function flattenPkgDependencies(pkg, dep, pkgsMap) {
             }
             return null;
         })
-            .filter(dep => !!dep)
+            .filter((dep) => Boolean(dep))
             .forEach(dep => flattenPkgDependencies(pkg, dep, pkgsMap));
     };
     if (dep.dependencies && dep.optionalDependencies) {
@@ -497,7 +536,7 @@ function flattenPkgDependencies(pkg, dep, pkgsMap) {
     findDeps(dep.optionalDependencies, false, 'optional dependency');
 }
 function printJson(pkg) {
-    const cloned = Object.assign({}, pkg);
+    const cloned = { ...pkg };
     cloned._dependencies = pkg._dependencies.map(dep => dep._dir);
     delete cloned._files;
     delete cloned._runfiles;
@@ -552,12 +591,6 @@ function findFile(pkg, m) {
     return undefined;
 }
 function printPackageExperimentalDirectoryArtifacts(pkg) {
-    function starlarkFiles(attr, files, comment = '') {
-        return `
-    ${comment ? comment + '\n    ' : ''}${attr} = [
-        ${files.map((f) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
-    ],`;
-    }
     const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
     const depsStarlark = deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
     let result = `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")

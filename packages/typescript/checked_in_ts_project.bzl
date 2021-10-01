@@ -3,7 +3,7 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load("//packages/typescript:index.bzl", "ts_project")
 
-def checked_in_ts_project(name, src, checked_in_js = None, **kwargs):
+def checked_in_ts_project(name, src, checked_in_js = None, tsconfig = None, **kwargs):
     """
     In rules_nodejs "builtin" package, we are creating the toolchain for building
     tsc-wrapped and executing ts_library, so we cannot depend on them.
@@ -14,9 +14,7 @@ def checked_in_ts_project(name, src, checked_in_js = None, **kwargs):
     if not checked_in_js:
         checked_in_js = src[:-3] + ".js"
 
-    ts_project(
-        name = name,
-        srcs = [src],
+    if tsconfig == None:
         tsconfig = {
             "compilerOptions": {
                 "declaration": True,
@@ -27,7 +25,12 @@ def checked_in_ts_project(name, src, checked_in_js = None, **kwargs):
                 "strict": True,
                 "target": "es2015",
             },
-        },
+        }
+
+    ts_project(
+        name = name,
+        srcs = [src],
+        tsconfig = tsconfig,
         **kwargs
     )
 

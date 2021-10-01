@@ -37,10 +37,10 @@ describe('build file generator', () => {
   });
 
   describe('parsing package.json', () => {
-    it('should strip leading Byte-Order Mark character', () => {
+    it('should strip leading Byte-Order Mark character', async () => {
       const pkgPath = path.join(process.env['TEST_TMPDIR'], 'package.json');
       fs.writeFileSync(pkgPath, `\uFEFF{"name": "foo"}`, 'utf-8');
-      expect(parsePackage(path.dirname(pkgPath)).name).toBe('foo');
+      expect((await parsePackage(path.dirname(pkgPath))).name).toBe('foo');
     });
   });
 
@@ -120,10 +120,10 @@ describe('build file generator', () => {
   });
 
   describe('getDirectDependencySet', () => {
-    it('returns a set of all dependencies in a package.json file', () => {
+    it('returns a set of all dependencies in a package.json file', async () => {
       const runfiles = require(process.env.BAZEL_NODE_RUNFILES_HELPER);
       const relPath = runfiles.resolvePackageRelative('package.spec.json');
-      const deps = getDirectDependencySet(relPath);
+      const deps = await getDirectDependencySet(relPath);
 
       expect(deps.has('@angular/core')).toBeTruthy();
       expect(deps.has('@angular/common')).toBeTruthy();

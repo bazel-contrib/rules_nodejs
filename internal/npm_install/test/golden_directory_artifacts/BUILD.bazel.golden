@@ -2,6 +2,9 @@
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 exports_files([
+    "node_modules/@angular/core",
+    "node_modules/@gregmagolan/test-a",
+    "node_modules/@gregmagolan/test-b",
     "node_modules/ajv",
     "node_modules/balanced-match",
     "node_modules/brace-expansion",
@@ -25,15 +28,15 @@ exports_files([
     "node_modules/unidiff",
     "node_modules/wrappy",
     "node_modules/zone.js",
-    "node_modules/@angular/core",
-    "node_modules/@gregmagolan/test-a",
-    "node_modules/@gregmagolan/test-b",
 ])
 js_library(
     name = "node_modules",
     package_name = "$node_modules_dir$",
     package_path = "",
     srcs = [
+        "//@angular/core:core__files",
+        "//@gregmagolan/test-a:test-a__files",
+        "//@gregmagolan/test-b:test-b__files",
         "//ajv:ajv__files",
         "//balanced-match:balanced-match__files",
         "//brace-expansion:brace-expansion__files",
@@ -57,11 +60,11 @@ js_library(
         "//unidiff:unidiff__files",
         "//wrappy:wrappy__files",
         "//zone.js:zone.js__files",
-        "//@angular/core:core__files",
-        "//@gregmagolan/test-a:test-a__files",
-        "//@gregmagolan/test-b:test-b__files",
     ],
     deps = [
+        "//@angular/core:core__contents",
+        "//@gregmagolan/test-a:test-a__contents",
+        "//@gregmagolan/test-b:test-b__contents",
         "//ajv:ajv__contents",
         "//balanced-match:balanced-match__contents",
         "//brace-expansion:brace-expansion__contents",
@@ -85,9 +88,6 @@ js_library(
         "//unidiff:unidiff__contents",
         "//wrappy:wrappy__contents",
         "//zone.js:zone.js__contents",
-        "//@angular/core:core__contents",
-        "//@gregmagolan/test-a:test-a__contents",
-        "//@gregmagolan/test-b:test-b__contents",
     ],
 )
 filegroup(
