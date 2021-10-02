@@ -1,5 +1,5 @@
 ---
-bazel: 4.0.0
+bazel: 4.1.0
 tasks:
   ubuntu1604:
     name: ubuntu1604

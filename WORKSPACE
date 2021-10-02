@@ -516,11 +516,12 @@ load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
 # for rbe_ubuntu1604
 rbe_autoconfig(
     name = "buildkite_config",
+    bazel_version = "4.0.0",
 )
 
 rbe_autoconfig(
     name = "rbe_default",
-    bazel_version = BAZEL_VERSION,
+    bazel_version = "4.0.0",
 )
 
 load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")

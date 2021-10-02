@@ -81,6 +81,8 @@ alias(
     name = "toolchain",
     actual = select({
         "@bazel_tools//src/conditions:darwin": "@nodejs_darwin_amd64_config//:toolchain",
+        "@bazel_tools//src/conditions:darwin_arm64": "@nodejs_darwin_arm64_config//:toolchain",
+        "@bazel_tools//src/conditions:darwin_arm64e": "@nodejs_darwin_arm64e_config//:toolchain",
         "@bazel_tools//src/conditions:linux_aarch64": "@nodejs_linux_arm64_config//:toolchain",
         "@bazel_tools//src/conditions:linux_s390x": "@nodejs_linux_s390x_config//:toolchain",
         "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64_config//:toolchain",
@@ -131,6 +133,26 @@ toolchain(
         "@platforms//cpu:x86_64",
     ],
     toolchain = "@nodejs_darwin_amd64_config//:toolchain",
+    toolchain_type = ":toolchain_type",
+)
+
+toolchain(
+    name = "node_darwin_arm64_toolchain",
+    target_compatible_with = [
+        "@platforms//os:osx",
+        "@platforms//cpu:arm64",
+    ],
+    toolchain = "@nodejs_darwin_arm64_config//:toolchain",
+    toolchain_type = ":toolchain_type",
+)
+
+toolchain(
+    name = "node_darwin_arm64e_toolchain",
+    target_compatible_with = [
+        "@platforms//os:macos",
+        "@platforms//cpu:arm64e",
+    ],
+    toolchain = "@nodejs_darwin_arm64e_config//:toolchain",
     toolchain_type = ":toolchain_type",
 )
 
