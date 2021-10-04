@@ -98,7 +98,7 @@ This will create an output directory containing all the code split chunks, along
 **USAGE**
 
 <pre>
-esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-args_file">args_file</a>, <a href="#esbuild-config">config</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-entry_points">entry_points</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>,
+esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-args_json">args_json</a>, <a href="#esbuild-config">config</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-entry_points">entry_points</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>,
         <a href="#esbuild-launcher">launcher</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>, <a href="#esbuild-minify">minify</a>, <a href="#esbuild-node_context_data">node_context_data</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_css">output_css</a>,
         <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-splitting">splitting</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>)
 </pre>
@@ -123,11 +123,11 @@ Values are subject to $(location ...) expansion
 
 Defaults to `{}`
 
-<h4 id="esbuild-args_file">args_file</h4>
+<h4 id="esbuild-args_json">args_json</h4>
 
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Internal use only
+(*String*): Internal use only
 
-Defaults to `None`
+Defaults to `""`
 
 <h4 id="esbuild-config">config</h4>
 

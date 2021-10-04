@@ -2,7 +2,7 @@
 esbuild rule
 """
 
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "params_file")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "LinkerPackageMappingInfo", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/common:expand_variables.bzl", "expand_variables")
@@ -151,9 +151,14 @@ def _esbuild_impl(ctx):
     launcher_args.add("--metafile=%s" % meta_file.path)
 
     # add reference to the users args file, these are merged within the launcher
-    if ctx.attr.args_file:
-        inputs.append(ctx.file.args_file)
-        launcher_args.add("--user_args=%s" % ctx.file.args_file.path)
+    if ctx.attr.args_json:
+        user_args_file = ctx.actions.declare_file("%s.user.args.json" % ctx.attr.name)
+        inputs.append(user_args_file)
+        ctx.actions.write(
+            output = user_args_file,
+            content = ctx.expand_location(ctx.attr.args_json),
+        )
+        launcher_args.add("--user_args=%s" % user_args_file.path)
 
     if ctx.attr.config:
         configs = ctx.attr.config[JSEcmaScriptModuleInfo].sources.to_list()
@@ -204,8 +209,7 @@ esbuild = rule(
             doc = """A dict of extra arguments that are included in the call to esbuild, where the key is the argument name.
 Values are subject to $(location ...) expansion""",
         ),
-        "args_file": attr.label(
-            allow_single_file = True,
+        "args_json": attr.string(
             mandatory = False,
             doc = "Internal use only",
         ),
@@ -393,24 +397,17 @@ def esbuild_macro(name, output_dir = False, splitting = False, **kwargs):
     deps = kwargs.pop("deps", []) + ["@esbuild_npm//esbuild"]
     entry_points = kwargs.get("entry_points", None)
 
-    # TODO(mattem): remove `args` and `args_file` in 5.x and everything can go via `config`
-    args_file = kwargs.pop("args_file", None)
-    if args_file:
-        fail("Setting 'args_file' is not supported, set 'config' instead")
+    # TODO(mattem): remove `args` and `args_json` in 5.x and everything can go via `config`
+    args_json = kwargs.pop("args_json", None)
+    if args_json:
+        fail("Setting 'args_json' is not supported, set 'config' instead")
 
     args = kwargs.pop("args", {})
     if args:
         if type(args) != type(dict()):
             fail("Expected 'args' to be of type dict")
 
-        args_file = "%s.user.args.json" % name
-        params_file(
-            name = "%s_args" % name,
-            testonly = kwargs.get("testonly", False),
-            out = args_file,
-            args = [json.encode(args)],
-            data = deps + srcs,
-        )
+        args_json = json.encode(args)
 
     config = kwargs.pop("config", None)
     if config:
@@ -423,7 +420,7 @@ def esbuild_macro(name, output_dir = False, splitting = False, **kwargs):
             srcs = srcs,
             splitting = splitting,
             output_dir = True,
-            args_file = args_file,
+            args_json = args_json,
             launcher = _launcher,
             deps = deps,
             **kwargs
@@ -441,7 +438,7 @@ def esbuild_macro(name, output_dir = False, splitting = False, **kwargs):
         esbuild(
             name = name,
             srcs = srcs,
-            args_file = args_file,
+            args_json = args_json,
             output = output,
             output_map = output_map,
             launcher = _launcher,
