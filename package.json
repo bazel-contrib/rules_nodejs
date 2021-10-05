@@ -56,7 +56,7 @@
         "is-builtin-module": "3.0.0",
         "jasmine": "~3.4.0",
         "jasmine-core": "~3.4.0",
-        "jasmine-reporters": "~2.5.0",
+        "jasmine-reporters": "~2.4.0",
         "jest": "^27.0.4",
         "jest-cli": "^27.0.4",
         "jest-websocket-mock": "^2.2.1",
