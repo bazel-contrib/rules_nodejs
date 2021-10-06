@@ -14,6 +14,7 @@
 "Protocol Buffers"
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo")
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 
 typescript_proto_library_aspect = provider(
@@ -63,7 +64,7 @@ def _build_protoc_command(target, ctx):
 
     protoc_command += " --plugin=protoc-gen-grpc-web=%s" % (ctx.executable._protoc_gen_grpc_web.path)
 
-    protoc_output_dir = ctx.var["BINDIR"]
+    protoc_output_dir = paths.join(ctx.bin_dir.path, ctx.label.workspace_root)
     protoc_command += " --grpc-web_out=import_style=commonjs+dts,mode=grpcweb:%s" % (protoc_output_dir)
     protoc_command += " --js_out=import_style=commonjs,binary:%s" % (protoc_output_dir)
 
