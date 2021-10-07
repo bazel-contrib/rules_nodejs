@@ -107,6 +107,22 @@ toolchain_type(
     visibility = ["//visibility:public"],
 )
 
+config_setting(
+    name = "condition_freebsd_arm64",
+    constraint_values = [
+        "@platforms//os:freebsd",
+        "@platforms//cpu:aarch64",
+    ],
+)
+
+config_setting(
+    name = "condition_freebsd_amd64",
+    constraint_values = [
+        "@platforms//os:freebsd",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
 # Allow targets to use a toolchains attribute, such as sh_binary and genrule
 # This way they can reference the NODE_PATH make variable.
 alias(
@@ -114,8 +130,8 @@ alias(
     actual = select({
         "@bazel_tools//src/conditions:darwin_arm64": "@nodejs_darwin_arm64_config//:toolchain",
         "@bazel_tools//src/conditions:darwin_x86_64": "@nodejs_darwin_amd64_config//:toolchain",
-        "@bazel_tools//src/conditions:freebsd_arm64": "@nodejs_freebsd_arm64_config//:toolchain",
-        "@bazel_tools//src/conditions:freebsd_x86_64": "@nodejs_freebsd_amd64_config//:toolchain",
+        ":condition_freebsd_arm64": "@nodejs_freebsd_arm64_config//:toolchain",
+        ":condition_freebsd_x86_64": "@nodejs_freebsd_amd64_config//:toolchain",
         "@bazel_tools//src/conditions:linux_aarch64": "@nodejs_linux_arm64_config//:toolchain",
         "@bazel_tools//src/conditions:linux_s390x": "@nodejs_linux_s390x_config//:toolchain",
         "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64_config//:toolchain",
@@ -132,8 +148,8 @@ alias(
     actual = select({
         "@bazel_tools//src/conditions:darwin_arm64": "@nodejs_darwin_arm64//:node_bin",
         "@bazel_tools//src/conditions:darwin_x86_64": "@nodejs_darwin_amd64//:node_bin",
-        "@bazel_tools//src/conditions:freebsd_arm64": "@nodejs_freebsd_arm64//:node_bin",
-        "@bazel_tools//src/conditions:freebsd_x86_64": "@nodejs_freebsd_amd64//:node_bin",
+        ":condition_freebsd_arm64": "@nodejs_freebsd_arm64//:node_bin",
+        ":condition_freebsd_x86_64": "@nodejs_freebsd_amd64//:node_bin",
         "@bazel_tools//src/conditions:linux_aarch64": "@nodejs_linux_arm64//:node_bin",
         "@bazel_tools//src/conditions:linux_s390x": "@nodejs_linux_s390x//:node_bin",
         "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64//:node_bin",
