@@ -20,6 +20,7 @@ module.exports = {
         'runfiles',
         'terser',
         'typescript',
+        'vite',
         'worker',
         'docs',
       ],
