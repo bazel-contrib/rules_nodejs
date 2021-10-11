@@ -45,6 +45,10 @@ def _impl(ctx):
 
     sources = ctx.attr.package[ExternalNpmPackageInfo].sources.to_list()
 
+    for s in sources:
+        if s.is_directory:
+            fail("npm_umd_bundle does not work with directory artifacts")
+
     if ctx.attr.package[ExternalNpmPackageInfo].has_directories:
         # If sources contain directories then we cannot filter by extension
         inputs = sources
