@@ -1,7 +1,0 @@
-{
-  "extends": "../tsconfig.json",
-  "files": [
-    "app_e2e-spec.ts",
-    "app.ts"
-  ]
-}
