@@ -1,3 +1,12 @@
+## [4.4.1](https://github.com/bazelbuild/rules_nodejs/compare/4.4.0...4.4.1) (2021-10-13)
+
+
+### Bug Fixes
+
+* terser semver compatibility range ([c7439a0](https://github.com/bazelbuild/rules_nodejs/commit/c7439a0))
+
+
+
 # [4.4.0](https://github.com/bazelbuild/rules_nodejs/compare/4.3.0...4.4.0) (2021-10-11)
 
 
