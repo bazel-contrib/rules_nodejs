@@ -1,7 +1,8 @@
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
-load(":defs.bzl", "nodejs_binary", "nodejs_test")
+load(":nodejs_binary.bzl", "nodejs_binary")
+load(":nodejs_test.bzl", "nodejs_test")
 
 ###########################
 # Fixtures for tests in this file
@@ -68,14 +69,14 @@ genrule(
     outs = ["actual2"],
     cmd = """
         $(NODE_PATH) \\
-        ./$(execpath @npm_acorn-8.5.0)/bin/acorn \\
+        ./$(execpath @npm_acorn-8.4.0)/bin/acorn \\
         --compact \\
         $(execpath one.js) \\
         > $@""",
     toolchains = ["@node16_toolchains//:resolved_toolchain"],
     tools = [
         "@node16_toolchains//:resolved_toolchain",
-        "@npm_acorn-8.5.0",
+        "@npm_acorn-8.4.0",
     ],
 )
 
@@ -103,14 +104,14 @@ genrule(
     # points to the output directory we wrote, named "acorn", but node needs
     # to start its module search in a directory *containing" one called "acorn"
     cmd = """
-        NODE_PATH=./$(execpath @npm_acorn-8.5.0)/.. \\
+        NODE_PATH=./$(execpath @npm_acorn-8.4.0)/.. \\
         $(NODE_PATH) \\
         ./$(execpath require_acorn.js) \\
         $@""",
     toolchains = ["@node16_toolchains//:resolved_toolchain"],
     tools = [
         "@node16_toolchains//:resolved_toolchain",
-        "@npm_acorn-8.5.0",
+        "@npm_acorn-8.4.0",
     ],
 )
 
@@ -127,7 +128,7 @@ diff_test(
 
 nodejs_binary(
     name = "bin",
-    data = ["@npm_acorn-8.5.0"],
+    data = ["@npm_acorn-8.4.0"],
     entry_point = "require_acorn.js",
 )
 

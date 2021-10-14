@@ -9,6 +9,7 @@ http_archive(
 )
 
 load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "rules_nodejs_dependencies")
+load("npm_import.bzl", "npm_import")
 
 # This just gives us bazel-skylib
 rules_nodejs_dependencies()
@@ -18,23 +19,14 @@ nodejs_register_toolchains(
     node_version = "16.9.0",
 )
 
-http_archive(
-    name = "npm_acorn-8.5.0",
-    build_file_content = """
-load("@rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
-
-# Turn a source directory into a TreeArtifact for RBE-compat
-copy_file(
-    name = "npm_acorn-8.5.0",
-    src = "package",
-    # This attribute comes from rules_nodejs patch of
-    # https://github.com/bazelbuild/bazel-skylib/pull/323
-    is_directory = True,
-    # We must give this as the directory in order for it to appear on NODE_PATH
-    out = "acorn",
-    visibility = ["//visibility:public"],
-)
-""",
-    sha256 = "d8f9d40c4656537a60bf0c6daae6f0553f54df5ff2518f86464b7c785f20376b",
-    urls = ["https://registry.npmjs.org/acorn/-/acorn-8.5.0.tgz"],
+# TODO: we should have a translate_package_lock rule like
+# https://github.com/alexeagle/rules_nodejs/blob/stable/internal/npm_tarballs/translate_package_lock.bzl
+# that automatically creates npm_import rules for everything the project already depends on.
+# That would provide syntax sugar for the typical case where the dependencies were specified in package.json
+# and a package manager already fetched integrity hashes from the registry.
+npm_import(
+    integrity = "sha512-ULr0LDaEqQrMFGyQ3bhJkLsbtrQ8QibAseGZeaSUiT/6zb9IvIkomWHJIvgvwad+hinRAgsI51JcWk2yvwyL+w==",
+    package = "acorn",
+    version = "8.4.0",
+    deps = [],
 )

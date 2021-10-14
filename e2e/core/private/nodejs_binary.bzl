@@ -15,9 +15,11 @@ SETLOCAL ENABLEEXTENSIONS
 SETLOCAL ENABLEDELAYEDEXPANSION
 set RUNFILES_MANIFEST_ONLY=1
 {rlocation_function}
+call :rlocation "{node}" node
 call :rlocation "{entry_point}" entry_point
 call :rlocation "node_modules/acorn" nma
-for %%a in ("{node}") do set "node_dir=%%~dpa"
+
+for %%a in ("!node!") do set "node_dir=%%~dpa"
 set PATH=%node_dir%;%PATH%
 set NODE_PATH=!nma!\..
 set args=%*
@@ -26,9 +28,9 @@ if defined args (
   set args=!args:\=\\\\!
   set args=!args:"=\"!
 )
-"{node}" "!entry_point!" "!args!"
+"!node!" "!entry_point!" "!args!"
 """.format(
-            node = node_bin.target_tool_path,
+            node = _strip_external(node_bin.target_tool_path),
             rlocation_function = BATCH_RLOCATION_FUNCTION,
             entry_point = to_manifest_path(ctx, ctx.file.entry_point),
             # FIXME: wire in the args to the batch script
@@ -78,49 +80,18 @@ def _nodejs_binary_impl(ctx):
         runfiles = runfiles,
     )
 
-_ATTRS = {
-    "data": attr.label_list(allow_files = True),
-    "entry_point": attr.label(allow_single_file = True),
-    "is_windows": attr.bool(mandatory = True),
-    "_runfiles_lib": attr.label(default = "@bazel_tools//tools/bash/runfiles"),
-}
-
-_nodejs_binary = rule(
-    implementation = _nodejs_binary_impl,
-    attrs = _ATTRS,
-    executable = True,
+# Expose our library as a struct so that nodejs_binary and nodejs_test can both extend it
+nodejs_binary = struct(
+    attrs = {
+        "data": attr.label_list(allow_files = True),
+        "entry_point": attr.label(allow_single_file = True),
+        "is_windows": attr.bool(mandatory = True),
+        "_runfiles_lib": attr.label(default = "@bazel_tools//tools/bash/runfiles"),
+    },
+    nodejs_binary_impl = _nodejs_binary_impl,
     toolchains = [
         # TODO: only need bash on non-windows
         "@bazel_tools//tools/sh:toolchain_type",
         "@rules_nodejs//nodejs:toolchain_type",
     ],
 )
-
-_nodejs_test = rule(
-    implementation = _nodejs_binary_impl,
-    attrs = _ATTRS,
-    test = True,
-    toolchains = [
-        # TODO: only need bash on non-windows
-        "@bazel_tools//tools/sh:toolchain_type",
-        "@rules_nodejs//nodejs:toolchain_type",
-    ],
-)
-
-def nodejs_binary(**kwargs):
-    _nodejs_binary(
-        is_windows = select({
-            "@bazel_tools//src/conditions:host_windows": True,
-            "//conditions:default": False,
-        }),
-        **kwargs
-    )
-
-def nodejs_test(**kwargs):
-    _nodejs_test(
-        is_windows = select({
-            "@bazel_tools//src/conditions:host_windows": True,
-            "//conditions:default": False,
-        }),
-        **kwargs
-    )
