@@ -55,9 +55,14 @@ def _bash_launcher(ctx, linkable):
     launcher = ctx.actions.declare_file("_%s_launcher.sh" % ctx.label.name)
 
     if len(linkable):
-        p = linkable[0][LinkablePackageInfo].package_name
-        dots = "/".join([".."] * len(p.split("/")))
-        node_path = "export NODE_PATH=$(rlocation node_modules/{0})/{1}".format(p, dots)
+        paths = [
+            "$(rlocation node_modules/{0})/{1}".format(
+                link[LinkablePackageInfo].package_name,
+                "/".join([".."] * len(link[LinkablePackageInfo].package_name.split("/"))),
+            )
+            for link in linkable
+        ]
+        node_path = "export NODE_PATH=" + ":".join(paths)
     else:
         node_path = ""
     ctx.actions.write(
@@ -66,7 +71,7 @@ def _bash_launcher(ctx, linkable):
 {rlocation_function}
 set -o pipefail -o errexit -o nounset
 {node_path}
-$(rlocation {node}) \\
+$(rlocation {node}) --preserve-symlinks --preserve-symlinks-main \\
 $(rlocation {entry_point}) \\
 {args} $@
 """.format(
@@ -82,14 +87,6 @@ $(rlocation {entry_point}) \\
     return launcher
 
 def _nodejs_binary_impl(ctx):
-    # We use the root_symlinks feature of runfiles to make a node_modules directory
-    # containing all our modules, but you need to have --enable_runfiles for that to
-    # exist on the disk. If it doesn't we can probably do something else, like a very
-    # long NODE_PATH composed of all the locations of the packages, or adapt the linker
-    # to still fill in the runfiles case.
-    # For now we just require it if there's more than one package to resolve
-    if len(ctx.attr.data) > 1 and not ctx.attr.enable_runfiles:
-        fail("need --enable_runfiles for multiple node_modules to be resolved")
     linkable = [
         d
         for d in ctx.attr.data
@@ -97,6 +94,15 @@ def _nodejs_binary_impl(ctx):
            len(d[LinkablePackageInfo].files) == 1 and
            d[LinkablePackageInfo].files[0].is_directory
     ]
+
+    # We use the root_symlinks feature of runfiles to make a node_modules directory
+    # containing all our modules, but you need to have --enable_runfiles for that to
+    # exist on the disk. If it doesn't we can probably do something else, like a very
+    # long NODE_PATH composed of all the locations of the packages, or adapt the linker
+    # to still fill in the runfiles case.
+    # For now we just require it if there's more than one package to resolve
+    if len(linkable) > 1 and not ctx.attr.enable_runfiles:
+        fail("need --enable_runfiles for multiple node_modules to be resolved")
 
     launcher = _windows_launcher(ctx, linkable) if ctx.attr.is_windows else _bash_launcher(ctx, linkable)
     all_files = ctx.files.data + ctx.files._runfiles_lib + [ctx.file.entry_point] + ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo.tool_files

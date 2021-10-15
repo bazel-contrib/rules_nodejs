@@ -138,7 +138,7 @@ nodejs_binary(
 )
 
 run_binary(
-    name = "run",
+    name = "run4",
     srcs = [],
     outs = ["actual4"],
     args = ["$(location actual4)"],
@@ -159,4 +159,39 @@ nodejs_test(
     name = "test_test",
     data = ["@npm__types_node-15.12.2"],
     entry_point = "test.js",
+)
+
+###############################
+# Test case 6
+# a first-party library which we want to run as a program
+
+write_file(
+    name = "write6",
+    out = "case6.js",
+    content = [
+        """require('fs').writeFileSync(process.argv[2], require("@mycorp/mylib").toAst("1"))""",
+    ],
+)
+
+nodejs_binary(
+    name = "bin_w_first_party_static_link",
+    data = [
+        "//lib",
+        "@npm_acorn-8.4.0",
+    ],
+    entry_point = "case6.js",
+)
+
+run_binary(
+    name = "run6",
+    srcs = [],
+    outs = ["actual6"],
+    args = ["$(location actual6)"],
+    tool = ":bin_w_first_party_static_link",
+)
+
+diff_test(
+    name = "test6",
+    file1 = "expected_ast.json",
+    file2 = "actual6",
 )

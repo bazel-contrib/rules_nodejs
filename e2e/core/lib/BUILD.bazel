@@ -1,0 +1,13 @@
+load("//:pkg_npm.bzl", "pkg_npm")
+
+pkg_npm(
+    name = "lib",
+    package_name = "@mycorp/mylib",
+    srcs = [
+        "index.js",
+        "package.json",
+    ],
+    remap_paths = {"/lib": ""},
+    visibility = ["//visibility:public"],
+    deps = ["@npm_acorn-8.4.0"],
+)
