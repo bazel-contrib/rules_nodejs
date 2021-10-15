@@ -6,6 +6,13 @@ def _nodejs_library_impl(ctx):
     if not ctx.file.src.is_directory:
         fail("nodejs_library expects a directory as the src")
 
+    runfiles = ctx.runfiles(
+        files = ctx.files.src,
+        transitive_files = depset(ctx.files.src),
+        root_symlinks = {
+            "node_modules/" + ctx.attr.package: ctx.file.src,
+        },
+    )
     return [
         DefaultInfo(files = depset([ctx.file.src])),
         LinkablePackageInfo(package_name = ctx.attr.package, files = ctx.files.src),

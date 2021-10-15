@@ -55,12 +55,13 @@ def _bash_launcher(ctx, linkable):
     launcher = ctx.actions.declare_file("_%s_launcher.sh" % ctx.label.name)
 
     if len(linkable):
+        pkgs = [link[LinkablePackageInfo].package_name for link in linkable]
         paths = [
             "$(rlocation node_modules/{0})/{1}".format(
-                link[LinkablePackageInfo].package_name,
-                "/".join([".."] * len(link[LinkablePackageInfo].package_name.split("/"))),
+                p,
+                "/".join([".."] * len(p.split("/"))),
             )
-            for link in linkable
+            for p in pkgs
         ]
         node_path = "export NODE_PATH=" + ":".join(paths)
     else:
@@ -71,7 +72,7 @@ def _bash_launcher(ctx, linkable):
 {rlocation_function}
 set -o pipefail -o errexit -o nounset
 {node_path}
-$(rlocation {node}) --preserve-symlinks --preserve-symlinks-main \\
+$(rlocation {node}) \\
 $(rlocation {entry_point}) \\
 {args} $@
 """.format(
@@ -109,11 +110,9 @@ def _nodejs_binary_impl(ctx):
     runfiles = ctx.runfiles(
         files = all_files,
         transitive_files = depset(all_files),
-        root_symlinks = {
-            "node_modules/" + d[LinkablePackageInfo].package_name: d[LinkablePackageInfo].files[0]
-            for d in linkable
-        },
     )
+    for dep in ctx.attr.data:
+        runfiles = runfiles.merge(dep[DefaultInfo].default_runfiles)
     return DefaultInfo(
         executable = launcher,
         runfiles = runfiles,

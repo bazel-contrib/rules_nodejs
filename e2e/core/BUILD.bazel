@@ -175,10 +175,7 @@ write_file(
 
 nodejs_binary(
     name = "bin_w_first_party_static_link",
-    data = [
-        "//lib",
-        "@npm_acorn-8.4.0",
-    ],
+    data = ["//lib"],
     entry_point = "case6.js",
 )
 

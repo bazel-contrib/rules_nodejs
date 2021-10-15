@@ -55,7 +55,7 @@ else
     cp -rf "{src}/" "{dst}"
 fi
 """.format(src = src.path, dst_dir = paths.dirname(dst_path), dst = dst_path))
-        print("%s -> %s" % (src.path, dst_path))
+        # print("%s -> %s" % (src.path, dst_path))
 
     ctx.actions.run_shell(
         inputs = srcs,
@@ -68,16 +68,24 @@ fi
     )
 
 def _pkg_npm_impl(ctx):
-    out = ctx.attr.package_name.strip()
-    if not out:
-        fail("out attr must not be empty")
-    output = ctx.actions.declare_directory(out)
+    package_name = ctx.attr.package_name.strip()
+    if not package_name:
+        fail("package_name attr must not be empty")
+    output = ctx.actions.declare_directory(package_name)
     if ctx.attr.is_windows:
         fail("not yet implemented")
     else:
         _copy_bash(ctx, ctx.files.srcs, output)
     files = depset(direct = [output])
-    runfiles = ctx.runfiles(files = [output])
+    runfiles = ctx.runfiles(
+        files = [output],
+        transitive_files = depset([output]),
+        root_symlinks = {
+            "node_modules/" + package_name: output,
+        },
+    )
+    for dep in ctx.attr.deps:
+        runfiles = runfiles.merge(dep[DefaultInfo].data_runfiles)
     return [
         DefaultInfo(files = files, runfiles = runfiles),
         LinkablePackageInfo(package_name = ctx.attr.package_name, files = [output]),
@@ -86,7 +94,7 @@ def _pkg_npm_impl(ctx):
 _ATTRS = {
     "srcs": attr.label_list(mandatory = True, allow_files = True),
     "deps": attr.label_list(),
-    "package_name": attr.string(),
+    "package_name": attr.string(mandatory = True),
     "remap_paths": attr.string_dict(),
     "is_windows": attr.bool(mandatory = True),
 }
