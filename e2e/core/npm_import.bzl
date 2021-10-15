@@ -22,7 +22,7 @@ def _npm_import_impl(repository_ctx):
         fail("failed to inspect content of npm download: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
     repository_ctx.file("BUILD.bazel", """
-load("@e2e_core//:nodejs_library.bzl", "nodejs_library")
+load("@e2e_core//:nodejs_package.bzl", "nodejs_package")
 load("@rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 # Turn a source directory into a TreeArtifact for RBE-compat
@@ -37,10 +37,10 @@ copy_file(
     out = "{package_name}",
 )
 
-nodejs_library(
+nodejs_package(
     name = "{name}",
     src = "_{name}",
-    package = "{package_name}",
+    package_name = "{package_name}",
     visibility = ["//visibility:public"],
 )
 """.format(
@@ -52,7 +52,7 @@ nodejs_library(
 _npm_import = repository_rule(
     implementation = _npm_import_impl,
     attrs = {
-        # TODO(alexeagle): wire this up when we have nodejs_library
+        # TODO(alexeagle): wire this up
         "deps": attr.label_list(),
         "integrity": attr.string(),
         "package": attr.string(mandatory = True),

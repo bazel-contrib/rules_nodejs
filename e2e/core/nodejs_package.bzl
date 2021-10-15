@@ -1,4 +1,4 @@
-"Implementation of pkg_npm rules."
+"nodejs_package rule"
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@rules_nodejs//nodejs:providers.bzl", "LinkablePackageInfo")
@@ -62,20 +62,31 @@ fi
         outputs = [dst],
         command = "\n".join(cmds),
         mnemonic = "PkgNpm",
-        progress_message = "Copying files to pkg_npm directory",
+        progress_message = "Copying files to nodejs_package directory",
         use_default_shell_env = True,
         execution_requirements = _execution_requirements,
     )
 
-def _pkg_npm_impl(ctx):
+def _nodejs_package_impl(ctx):
+    if ctx.attr.src and ctx.attr.srcs:
+        fail("Only one of src or srcs may be set")
+    if not ctx.attr.src and not ctx.attr.srcs:
+        fail("At least one of src or srcs must be set")
+    if ctx.attr.src and not ctx.file.src.is_directory:
+        fail("src must be a directory (a TreeArtifact produced by another rule)")
+
     package_name = ctx.attr.package_name.strip()
     if not package_name:
         fail("package_name attr must not be empty")
-    output = ctx.actions.declare_directory(package_name)
-    if ctx.attr.is_windows:
-        fail("not yet implemented")
+    if ctx.attr.srcs:
+        output = ctx.actions.declare_directory(package_name)
+        if ctx.attr.is_windows:
+            fail("not yet implemented")
+        else:
+            _copy_bash(ctx, ctx.files.srcs, output)
     else:
-        _copy_bash(ctx, ctx.files.srcs, output)
+        output = ctx.file.src
+
     files = depset(direct = [output])
     runfiles = ctx.runfiles(
         files = [output],
@@ -92,32 +103,43 @@ def _pkg_npm_impl(ctx):
     ]
 
 _ATTRS = {
-    "srcs": attr.label_list(mandatory = True, allow_files = True),
+    "src": attr.label(
+        allow_single_file = True,
+        doc = "A TreeArtifact containing the npm package files",
+    ),
+    "srcs": attr.label_list(
+        allow_files = True,
+        doc = "Files to copy into a directory",
+    ),
     "deps": attr.label_list(),
     "package_name": attr.string(mandatory = True),
     "remap_paths": attr.string_dict(),
     "is_windows": attr.bool(mandatory = True),
 }
 
-_pkg_npm = rule(
-    implementation = _pkg_npm_impl,
+_nodejs_package = rule(
+    implementation = _nodejs_package_impl,
     provides = [DefaultInfo],
     attrs = _ATTRS,
 )
 
-def pkg_npm(name, srcs, remap_paths = {}, **kwargs):
+def nodejs_package(name, src = None, srcs = [], remap_paths = None, **kwargs):
     """Copies all source files to an an output directory.
 
     NB: This rule is not yet tested on Windows
 
     Args:
       name: Name of the rule.
+      src: a single TreeArtifact produced by a copy_file rule containing the package files
       srcs: List of files and/or directories to copy.
       remap_paths: Path mappings from source to destination
       **kwargs: further keyword arguments, e.g. `visibility`
     """
-    _pkg_npm(
+    if remap_paths == None:
+        remap_paths = {"/" + native.package_name(): ""}
+    _nodejs_package(
         name = name,
+        src = src,
         srcs = srcs,
         remap_paths = remap_paths,
         is_windows = select({

@@ -1,6 +1,6 @@
-load("//:pkg_npm.bzl", "pkg_npm")
+load("//:nodejs_package.bzl", "nodejs_package")
 
-pkg_npm(
+nodejs_package(
     name = "lib",
     package_name = "@mycorp/mylib",
     srcs = [
