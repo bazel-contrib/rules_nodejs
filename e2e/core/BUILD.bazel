@@ -4,6 +4,11 @@ load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load(":nodejs_binary.bzl", "nodejs_binary")
 load(":nodejs_test.bzl", "nodejs_test")
 
+config_setting(
+    name = "enable_runfiles",
+    values = {"enable_runfiles": "true"},
+)
+
 ###########################
 # Fixtures for tests in this file
 
@@ -152,5 +157,6 @@ diff_test(
 
 nodejs_test(
     name = "test_test",
+    data = ["@npm__types_node-15.12.2"],
     entry_point = "test.js",
 )

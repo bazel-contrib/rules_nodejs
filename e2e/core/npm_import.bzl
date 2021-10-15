@@ -3,8 +3,10 @@
 def _npm_import_impl(repository_ctx):
     repository_ctx.download_and_extract(
         output = "extract_tmp",
-        url = "https://registry.npmjs.org/{0}/-/{0}-{1}.tgz".format(
+        url = "https://registry.npmjs.org/{0}/-/{1}-{2}.tgz".format(
             repository_ctx.attr.package,
+            # scoped packages contain a slash in the name, which doesn't appear in the later part of the URL
+            repository_ctx.attr.package.split("/")[-1],
             repository_ctx.attr.version,
         ),
         integrity = repository_ctx.attr.integrity,
@@ -20,18 +22,25 @@ def _npm_import_impl(repository_ctx):
         fail("failed to inspect content of npm download: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
     repository_ctx.file("BUILD.bazel", """
+load("@e2e_core//:nodejs_library.bzl", "nodejs_library")
 load("@rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 # Turn a source directory into a TreeArtifact for RBE-compat
 copy_file(
     # The default target in this repository
-    name = "{name}",
+    name = "_{name}",
     src = "extract_tmp/{nested_folder}",
     # This attribute comes from rules_nodejs patch of
     # https://github.com/bazelbuild/bazel-skylib/pull/323
     is_directory = True,
     # We must give this as the directory in order for it to appear on NODE_PATH
     out = "{package_name}",
+)
+
+nodejs_library(
+    name = "{name}",
+    src = "_{name}",
+    package = "{package_name}",
     visibility = ["//visibility:public"],
 )
 """.format(
@@ -85,7 +94,7 @@ def npm_import(integrity, package, version, deps = []):
     """
 
     _npm_import(
-        name = "npm_{0}-{1}".format(package, version),
+        name = "npm_{0}-{1}".format(package.replace("@", "_").replace("/", "_"), version),
         deps = deps,
         integrity = integrity,
         package = package,

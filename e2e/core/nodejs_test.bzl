@@ -15,5 +15,9 @@ def nodejs_test(**kwargs):
             "@bazel_tools//src/conditions:host_windows": True,
             "//conditions:default": False,
         }),
+        enable_runfiles = select({
+            "@e2e_core//:enable_runfiles": True,
+            "//conditions:default": False,
+        }),
         **kwargs
     )

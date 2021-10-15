@@ -30,3 +30,9 @@ npm_import(
     version = "8.4.0",
     deps = [],
 )
+
+npm_import(
+    integrity = "sha512-zjQ69G564OCIWIOHSXyQEEDpdpGl+G348RAKY0XXy9Z5kU9Vzv1GMNnkar/ZJ8dzXB3COzD9Mo9NtRZ4xfgUww==",
+    package = "@types/node",
+    version = "15.12.2",
+)

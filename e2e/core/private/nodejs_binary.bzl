@@ -1,13 +1,22 @@
 "Experimental prototype of new nodejs_binary and nodejs_test"
 
+load("@rules_nodejs//nodejs:providers.bzl", "LinkablePackageInfo")
 load("@rules_nodejs//nodejs/private:runfiles_utils.bzl", "BASH_RLOCATION_FUNCTION", "BATCH_RLOCATION_FUNCTION", "to_manifest_path")
 
 def _strip_external(path):
     return path[len("external/"):] if path.startswith("external/") else path
 
-def _windows_launcher(ctx):
+def _windows_launcher(ctx, linkable):
     node_bin = ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo
     launcher = ctx.actions.declare_file("_%s_launcher.bat" % ctx.label.name)
+
+    if len(linkable):
+        p = linkable[0][LinkablePackageInfo].package_name
+        dots = "/".join([".."] * len(p.split("/")))
+        node_path = "call :rlocation \"node_modules/{0}\" node_path\nset NODE_PATH=!node_path!/{1}".format(p, dots)
+    else:
+        node_path = ""
+
     ctx.actions.write(
         output = launcher,
         content = r"""@echo off
@@ -17,11 +26,10 @@ set RUNFILES_MANIFEST_ONLY=1
 {rlocation_function}
 call :rlocation "{node}" node
 call :rlocation "{entry_point}" entry_point
-call :rlocation "node_modules/acorn" nma
 
 for %%a in ("!node!") do set "node_dir=%%~dpa"
 set PATH=%node_dir%;%PATH%
-set NODE_PATH=!nma!\..
+{node_path}
 set args=%*
 rem Escape \ and * in args before passsing it with double quote
 if defined args (
@@ -35,21 +43,29 @@ if defined args (
             entry_point = to_manifest_path(ctx, ctx.file.entry_point),
             # FIXME: wire in the args to the batch script
             args = " ".join(ctx.attr.args),
+            node_path = node_path,
         ),
         is_executable = True,
     )
     return launcher
 
-def _bash_launcher(ctx):
+def _bash_launcher(ctx, linkable):
     bash_bin = ctx.toolchains["@bazel_tools//tools/sh:toolchain_type"].path
     node_bin = ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo
     launcher = ctx.actions.declare_file("_%s_launcher.sh" % ctx.label.name)
+
+    if len(linkable):
+        p = linkable[0][LinkablePackageInfo].package_name
+        dots = "/".join([".."] * len(p.split("/")))
+        node_path = "export NODE_PATH=$(rlocation node_modules/{0})/{1}".format(p, dots)
+    else:
+        node_path = ""
     ctx.actions.write(
         launcher,
         """#!{bash}
 {rlocation_function}
 set -o pipefail -o errexit -o nounset
-NODE_PATH=$(rlocation node_modules/acorn)/.. \\
+{node_path}
 $(rlocation {node}) \\
 $(rlocation {entry_point}) \\
 {args} $@
@@ -59,20 +75,37 @@ $(rlocation {entry_point}) \\
             node = _strip_external(node_bin.target_tool_path),
             entry_point = to_manifest_path(ctx, ctx.file.entry_point),
             args = " ".join(ctx.attr.args),
+            node_path = node_path,
         ),
         is_executable = True,
     )
     return launcher
 
 def _nodejs_binary_impl(ctx):
-    launcher = _windows_launcher(ctx) if ctx.attr.is_windows else _bash_launcher(ctx)
+    # We use the root_symlinks feature of runfiles to make a node_modules directory
+    # containing all our modules, but you need to have --enable_runfiles for that to
+    # exist on the disk. If it doesn't we can probably do something else, like a very
+    # long NODE_PATH composed of all the locations of the packages, or adapt the linker
+    # to still fill in the runfiles case.
+    # For now we just require it if there's more than one package to resolve
+    if len(ctx.attr.data) > 1 and not ctx.attr.enable_runfiles:
+        fail("need --enable_runfiles for multiple node_modules to be resolved")
+    linkable = [
+        d
+        for d in ctx.attr.data
+        if LinkablePackageInfo in d and
+           len(d[LinkablePackageInfo].files) == 1 and
+           d[LinkablePackageInfo].files[0].is_directory
+    ]
+
+    launcher = _windows_launcher(ctx, linkable) if ctx.attr.is_windows else _bash_launcher(ctx, linkable)
     all_files = ctx.files.data + ctx.files._runfiles_lib + [ctx.file.entry_point] + ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo.tool_files
     runfiles = ctx.runfiles(
         files = all_files,
         transitive_files = depset(all_files),
         root_symlinks = {
-            "node_modules/acorn": d
-            for d in ctx.files.data
+            "node_modules/" + d[LinkablePackageInfo].package_name: d[LinkablePackageInfo].files[0]
+            for d in linkable
         },
     )
     return DefaultInfo(
@@ -86,6 +119,7 @@ nodejs_binary = struct(
         "data": attr.label_list(allow_files = True),
         "entry_point": attr.label(allow_single_file = True),
         "is_windows": attr.bool(mandatory = True),
+        "enable_runfiles": attr.bool(mandatory = True),
         "_runfiles_lib": attr.label(default = "@bazel_tools//tools/bash/runfiles"),
     },
     nodejs_binary_impl = _nodejs_binary_impl,
