@@ -13,6 +13,20 @@ def _maybe(repo_rule, name, **kwargs):
 def esbuild_repositories(name = "", npm_repository = "npm"):
     """Helper for fetching and setting up the esbuild versions and toolchains
 
+    This uses Bazel's downloader (via `http_archive`) to fetch the esbuild package
+    from npm, separately from any `npm_install`/`yarn_install` in your WORKSPACE.
+    To configure where the download is from, you make a file containing a rewrite rule like
+
+        rewrite (registry.nodejs.org)/(.*) artifactory.build.internal.net/artifactory/$1/$2
+
+    You can find some documentation on the rewrite patterns in the Bazel sources:
+    [UrlRewriterConfig.java](https://github.com/bazelbuild/bazel/blob/4.2.1/src/main/java/com/google/devtools/build/lib/bazel/repository/downloader/UrlRewriterConfig.java#L66)
+
+    Then use the `--experimental_downloader_config` Bazel option to point to your file.
+    For example if you created `.bazel_downloader_config` you might add to your `.bazelrc` file:
+
+        common --experimental_downloader_config=.bazel_downloader_config
+
     Args:
         name: currently unused
         npm_repository:  the name of the repository where the @bazel/esbuild package is installed
