@@ -40,6 +40,10 @@ esbuild_repositories(npm_repository = "npm")  # Note, npm is the default value f
 > In rules_nodejs 5.0 we intend to fix this layering violation by having the whole esbuild support
 > distributed independently of rules_nodejs, and not require any package to be installed from npm.
 
+See the API docs for `esbuild_repositories` for ways to customize how Bazel downloads the esbuild package
+from npm. Alternatively, advanced users can override the download altogether by defining the esbuild repository
+earlier in your WORKSPACE file, so that the `maybe` inside `esbuild_repositories` is skipped.
+
 ## Overview
 
 The `esbuild` rule can take a JS or TS dependency tree and bundle it to a single file, or split across multiple files, outputting a directory. 
