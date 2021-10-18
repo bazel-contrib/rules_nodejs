@@ -23,7 +23,7 @@
     },
     "//": "NOTE: Typescript does not follow SemVer. Usually the minor digit signifies a major version.",
     "peerDependencies": {
-        "typescript": ">=3.0.0 <4.4.0"
+        "typescript": ">=3.0.0 <4.5.0"
     },
     "dependencies": {
         "protobufjs": "6.8.8",
