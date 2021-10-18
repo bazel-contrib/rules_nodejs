@@ -155,5 +155,6 @@ def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
         arguments = arguments,
         executable = exec_exec,
         env = env,
+        use_default_shell_env = True,
         **kwargs
     )
