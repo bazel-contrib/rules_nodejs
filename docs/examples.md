@@ -23,10 +23,6 @@ Example: [examples/angular_bazel_architect](https://github.com/bazelbuild/rules_
 
 The example has its own guide: [examples/angular](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/angular)
 
-**View Engine**: If you're stuck on the older Angular compiler/runtime before Ivy, called View Engine, then your options are more limited. We don't support Angular 9 + View Engine + Bazel.
-
-Example: [examples/angular_view_engine](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/angular_view_engine)
-
 **Custom**: Bazel is excellent for advanced use cases where you need to customize your toolchain.
 Take any off-the-shelf tools, follow their README's to call their CLI, and assemble them together in a custom way.
 This lets you take advantage of the latest JS ecosystem innovations without waiting for tooling vendors to
