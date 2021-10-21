@@ -63,15 +63,15 @@ function main(argv, error = console.error, log = console.log) {
     boolean: ['typescript'],
   });
 
+  if (args['help']) {
+    usage(error);
+    return 0;
+  }
+
   if (!args['_'] || args['_'].length < 1) {
     error('Please specify the workspace directory\n');
     usage(error);
     return 1;
-  }
-
-  if (args['help']) {
-    usage(error);
-    return 0;
   }
 
   // Which package manager will be used in the new project
