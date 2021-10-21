@@ -78,3 +78,6 @@ let pkgContent = read('with_ts/package.json');
 if (pkgContent.indexOf('"@bazel/typescript": "latest"') < 0) {
   fail('should install @bazel/typescript dependency', pkgContent);
 }
+
+exitCode = main(['--help'], captureError);
+if (exitCode != 0) fail('should be success');
