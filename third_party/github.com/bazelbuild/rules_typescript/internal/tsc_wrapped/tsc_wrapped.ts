@@ -527,7 +527,7 @@ export function emitWithTsickle(
     // tslint:disable-next-line:no-require-imports
     optTsickle = require('tsickle');
   } catch (e) {
-    if (e.code !== 'MODULE_NOT_FOUND') {
+    if (e instanceof Error && (e as NodeJS.ErrnoException).code !== 'MODULE_NOT_FOUND') {
       throw e;
     }
     throw new Error(

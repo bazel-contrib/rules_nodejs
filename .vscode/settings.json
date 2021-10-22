@@ -1,3 +1,4 @@
 {
-    "bazel.buildifierFixOnFormat": true
+    "bazel.buildifierFixOnFormat": true,
+    "typescript.tsdk": "node_modules/typescript/lib"
 }

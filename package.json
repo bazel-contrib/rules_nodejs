@@ -14,10 +14,10 @@
         "yarn": ">=1.13.0"
     },
     "devDependencies": {
-        "@angular/common": "^12.1.0-next.5",
-        "@angular/compiler": "^12.1.0-next.5",
-        "@angular/compiler-cli": "^12.1.0-next.5",
-        "@angular/core": "^12.1.0-next.5",
+        "@angular/common": "^13.0.0-rc.1",
+        "@angular/compiler": "^13.0.0-rc.1",
+        "@angular/compiler-cli": "^13.0.0-rc.1",
+        "@angular/core": "^13.0.0-rc.1",
         "@babel/cli": "^7.14.8",
         "@babel/core": "^7.14.8",
         "@babel/parser": "^7.14.8",

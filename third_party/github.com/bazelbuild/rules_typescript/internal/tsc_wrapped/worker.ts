@@ -197,7 +197,9 @@ export async function runWorkerLoop(
         throw new Error('buffer not empty after reading all messages');
       }
     } catch (e) {
-      log('Compilation failed', e.stack);
+      if (e instanceof Error) {
+        log('Compilation failed', e.stack);
+      }
       process.stdout.write(
           workerpb.WorkResponse
               .encodeDelimited({exitCode: 1, output: consoleOutput})

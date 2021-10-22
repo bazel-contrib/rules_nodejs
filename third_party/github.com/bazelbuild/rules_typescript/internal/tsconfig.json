@@ -15,7 +15,8 @@
       // This will need to become es2018.asynciterable when
       // bumping the version of TypeScript in rules_typescript/package.json
       "es2018.asynciterable"
-    ]
+    ],
+    "esModuleInterop": true
   },
   // We run the plain tsc compiler so we need to exclude files we don't want it to visit
   "exclude": [
