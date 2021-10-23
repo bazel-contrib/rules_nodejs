@@ -27,6 +27,7 @@
             // See https://github.com/microsoft/TypeScript/issues/37257
             "../bazel-out/darwin-dbg/bin/src",
             "../bazel-out/darwin-fastbuild/bin/src",
+            "../bazel-out/darwin_arm64-fastbuild/bin/src",
             "../bazel-out/freebsd-dbg/bin/src",
             "../bazel-out/freebsd-fastbuild/bin/src",
             "../bazel-out/k8-dbg/bin/src",

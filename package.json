@@ -1,7 +1,7 @@
 {
     "name": "@bazel/javascript",
     "description": "Build JavaScript with Bazel",
-    "version": "4.3.0",
+    "version": "4.4.1",
     "keywords": [
         "javascript",
         "bazel"
@@ -124,6 +124,7 @@
         "update-codeowners": "./scripts/update_codeowners.sh",
         "update-nodejs-versions": "node ./scripts/update-nodejs-versions.js > nodejs/private/node_versions.bzl",
         "update-esbuild-versions": "node ./scripts/update-esbuild-versions.js",
+        "update-yarn-versions": "node ./scripts/update-yarn-versions.js > nodejs/private/yarn_versions.bzl",
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "version": "conventional-changelog -p angular -i CHANGELOG.md -s && node ./scripts/on-version.js && bazel build //:release //:release-core && node ./scripts/on-release.js && git stage version.bzl docs/install.md packages/create/index.js README.md CHANGELOG.md e2e/*/WORKSPACE examples/*/WORKSPACE",

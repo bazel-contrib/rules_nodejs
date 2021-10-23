@@ -320,63 +320,37 @@ function main(args, runfiles) {
         }
         for (const packagePath of Object.keys(roots)) {
             const workspace = roots[packagePath];
-            if (workspace) {
-                const workspaceNodeModules = yield resolveWorkspaceNodeModules(workspace, startCwd, isExecroot, execroot, runfiles);
+            let workspaceNodeModules = yield resolveWorkspaceNodeModules(workspace, startCwd, isExecroot, execroot, runfiles);
+            if (yield exists(workspaceNodeModules)) {
                 log_verbose(`resolved ${workspace} workspace node modules path to ${workspaceNodeModules}`);
-                if (packagePath) {
-                    if (yield exists(workspaceNodeModules)) {
-                        yield mkdirp(packagePath);
-                        yield symlinkWithUnlink(workspaceNodeModules, `${packagePath}/node_modules`);
-                        if (!isExecroot) {
-                            const runfilesPackagePath = `${startCwd}/${packagePath}`;
-                            if (yield exists(runfilesPackagePath)) {
-                                yield symlinkWithUnlink(`${packagePath}/node_modules`, `${runfilesPackagePath}/node_modules`);
-                            }
-                        }
-                        const packagePathBin = `${bin}/${packagePath}`;
-                        if (yield exists(packagePathBin)) {
-                            yield symlinkWithUnlink(`${packagePath}/node_modules`, `${packagePathBin}/node_modules`);
-                        }
-                    }
-                    else {
-                        log_verbose(`no npm workspace node_modules folder under ${packagePath} to link to; creating node_modules directories in ${process.cwd()} for ${packagePath} 1p deps`);
-                        yield mkdirp(`${packagePath}/node_modules`);
-                        if (!isExecroot) {
-                            const runfilesPackagePath = `${startCwd}/${packagePath}`;
-                            yield mkdirp(`${runfilesPackagePath}/node_modules`);
-                            yield symlinkWithUnlink(`${packagePath}/node_modules`, `${runfilesPackagePath}/node_modules`);
-                        }
-                        const packagePathBin = `${bin}/${packagePath}`;
-                        yield mkdirp(`${packagePathBin}/node_modules`);
-                        yield symlinkWithUnlink(`${packagePath}/node_modules`, `${packagePathBin}/node_modules`);
-                    }
-                }
-                else {
-                    if (yield exists(workspaceNodeModules)) {
-                        yield symlinkWithUnlink(workspaceNodeModules, `node_modules`);
-                    }
-                    else {
-                        log_verbose(`no root npm workspace node_modules folder to link to; creating node_modules directory in ${process.cwd()}`);
-                        yield mkdirp('node_modules');
-                    }
-                }
             }
             else {
-                if (packagePath) {
-                    log_verbose(`no 3p deps at ${packagePath}; creating node_modules directories in ${process.cwd()} for ${packagePath} 1p deps`);
-                    yield mkdirp(`${packagePath}/node_modules`);
-                    if (!isExecroot) {
-                        const runfilesPackagePath = `${startCwd}/${packagePath}`;
-                        yield mkdirp(`${runfilesPackagePath}/node_modules`);
-                        yield symlinkWithUnlink(`${packagePath}/node_modules`, `${runfilesPackagePath}/node_modules`);
-                    }
-                    const packagePathBin = `${bin}/${packagePath}`;
-                    yield mkdirp(`${packagePathBin}/node_modules`);
-                    yield symlinkWithUnlink(`${packagePath}/node_modules`, `${packagePathBin}/node_modules`);
-                }
-                else {
-                    log_verbose(`no 3p deps at root; creating node_modules directory in ${process.cwd()} for root 1p deps`);
-                    yield mkdirp('node_modules');
+                workspaceNodeModules = undefined;
+            }
+            if (packagePath) {
+                yield mkdirp(packagePath);
+            }
+            const execrootNodeModules = path.posix.join(packagePath, `node_modules`);
+            if (workspaceNodeModules) {
+                yield symlinkWithUnlink(workspaceNodeModules, execrootNodeModules);
+            }
+            else {
+                yield mkdirp(execrootNodeModules);
+            }
+            const packagePathBin = path.posix.join(bin, packagePath);
+            yield mkdirp(`${packagePathBin}`);
+            yield symlinkWithUnlink(execrootNodeModules, `${packagePathBin}/node_modules`);
+            if (!isExecroot) {
+                const runfilesPackagePath = path.posix.join(startCwd, packagePath);
+                yield mkdirp(`${runfilesPackagePath}`);
+                yield symlinkWithUnlink(execrootNodeModules, `${runfilesPackagePath}/node_modules`);
+            }
+            if (process.env['RUNFILES']) {
+                const stat = yield gracefulLstat(process.env['RUNFILES']);
+                if (stat && stat.isDirectory()) {
+                    const runfilesPackagePath = path.posix.join(process.env['RUNFILES'], packagePath);
+                    yield mkdirp(`${runfilesPackagePath}`);
+                    yield symlinkWithUnlink(execrootNodeModules, `${runfilesPackagePath}/node_modules`);
                 }
             }
         }

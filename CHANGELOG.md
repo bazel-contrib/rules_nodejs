@@ -1,3 +1,29 @@
+## [4.4.1](https://github.com/bazelbuild/rules_nodejs/compare/4.4.0...4.4.1) (2021-10-13)
+
+
+### Bug Fixes
+
+* terser semver compatibility range ([c7439a0](https://github.com/bazelbuild/rules_nodejs/commit/c7439a0))
+
+
+
+# [4.4.0](https://github.com/bazelbuild/rules_nodejs/compare/4.3.0...4.4.0) (2021-10-11)
+
+
+### Bug Fixes
+
+* ts_proto_library: use correct output path for external protos ([#3002](https://github.com/bazelbuild/rules_nodejs/issues/3002)) ([b48176f](https://github.com/bazelbuild/rules_nodejs/commit/b48176f))
+* **typescript:** typescript downleveling breaking ESM variant of Angular v13 compiler ([#2987](https://github.com/bazelbuild/rules_nodejs/issues/2987)) ([5e4d17d](https://github.com/bazelbuild/rules_nodejs/commit/5e4d17d))
+* update jasmine-reporters to v2.5.0 to fix xmldom vulnerability ([#2994](https://github.com/bazelbuild/rules_nodejs/issues/2994)) ([8ca234b](https://github.com/bazelbuild/rules_nodejs/commit/8ca234b))
+
+
+### Features
+
+* **core:** patch bazel-skylib; core can use npm ([#3008](https://github.com/bazelbuild/rules_nodejs/issues/3008)) ([e6ead39](https://github.com/bazelbuild/rules_nodejs/commit/e6ead39))
+* **examples:** change angular example to ts_project ([#2209](https://github.com/bazelbuild/rules_nodejs/issues/2209)) ([73e625a](https://github.com/bazelbuild/rules_nodejs/commit/73e625a))
+
+
+
 # [4.3.0](https://github.com/bazelbuild/rules_nodejs/compare/4.2.0...4.3.0) (2021-09-28)
 
 
