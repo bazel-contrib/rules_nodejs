@@ -24,6 +24,8 @@ write_file(
 #     actual = select({
 #         "@bazel_tools//src/conditions:darwin_arm64": "@node16_darwin_arm64//:node_bin",
 #         "@bazel_tools//src/conditions:darwin_x86_64": "@node16_darwin_amd64//:node_bin",
+#         "@bazel_tools//src/conditions:freebsd_arm64": "@node16_fresbsd_arm64//:node_bin",
+#         "@bazel_tools//src/conditions:freebsd_x86_64": "@node16_freebsd_amd64//:node_bin",
 #         "@bazel_tools//src/conditions:linux_aarch64": "@node16_linux_arm64//:node_bin",
 #         "@bazel_tools//src/conditions:linux_s390x": "@node16_linux_s390x//:node_bin",
 #         "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_bin",

@@ -30,6 +30,7 @@ unameOut="$(uname -s)"
 case "${unameOut}" in
     Linux*)     machine=linux ;;
     Darwin*)    machine=darwin ;;
+    FreeBSD*)   machine=freebsd ;;
     CYGWIN*)    machine=windows ;;
     MINGW*)     machine=windows ;;
     MSYS_NT*)   machine=windows ;;
@@ -44,6 +45,7 @@ case "${machine}" in
   # The following paths must match up with //packages/concatjs/devserver binaries
   # FIXME: we shouldn't hardcode "npm" repository name here
   darwin) readonly platform_main_manifest="npm/@bazel/concatjs/devserver/devserver-darwin_x64" ;;
+  freebsd) readonly platform_main_manifest="npm/@bazel/concatjs/devserver/devserver-freebsd_x64" ;;
   windows) readonly platform_main_manifest="npm/@bazel/concatjs/devserver/devserver-windows_x64.exe" ;;
   *) readonly platform_main_manifest="npm/@bazel/concatjs/devserver/devserver-linux_x64" ;;
 esac

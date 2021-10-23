@@ -417,9 +417,11 @@ def ts_project_macro(
     >         ".",
     >         "../../bazel-out/host/bin/path/to",
     >         "../../bazel-out/darwin-fastbuild/bin/path/to",
+    >         "../../bazel-out/freebsd-fastbuild/bin/path/to",
     >         "../../bazel-out/k8-fastbuild/bin/path/to",
     >         "../../bazel-out/x64_windows-fastbuild/bin/path/to",
     >         "../../bazel-out/darwin-dbg/bin/path/to",
+    >         "../../bazel-out/freebsd-dbg/bin/path/to",
     >         "../../bazel-out/k8-dbg/bin/path/to",
     >         "../../bazel-out/x64_windows-dbg/bin/path/to",
     >     ]

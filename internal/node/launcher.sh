@@ -113,6 +113,7 @@ else
   case "${unameOs}" in
       Linux*)     machine=linux ;;
       Darwin*)    machine=darwin ;;
+      FreeBSD*)   machine=freebsd ;;
       CYGWIN*)    machine=windows ;;
       MINGW*)     machine=windows ;;
       MSYS_NT*)   machine=windows ;;
@@ -126,6 +127,12 @@ else
   case "${machine}" in
     # The following paths must match up with _download_node in node_repositories
     windows) readonly node_toolchain="nodejs_windows_amd64/bin/nodejs/node.exe" ;;
+    freebsd)
+      case "${unameArch}" in
+        x86_64*) readonly node_toolchain="nodejs_freebsd_amd64/bin/nodejs/bin/node" ;;
+        *) readonly node_toolchain="nodejs_freebsd_arm64/bin/nodejs/bin/node" ;;
+      esac
+      ;;
     darwin)
       case "${unameArch}" in
         x86_64*) readonly node_toolchain="nodejs_darwin_amd64/bin/nodejs/bin/node" ;;
