@@ -25,10 +25,10 @@ The TypeScript rules integrate the TypeScript compiler with Bazel.
 
 This package provides Bazel wrappers around the TypeScript compiler.
 
-At a high level, there are three alternatives provided: `tsc`, `ts_project`, `ts_library`.
+At a high level, there are four alternatives provided.
 This section describes the trade-offs between these rules.
 
-### tsc
+### Option 1: tsc
 
 `tsc` is the TypeScript compiler published by the team at Microsoft.
 You can call it without any custom Bazel rules.
@@ -51,7 +51,7 @@ Then call it, using the [`npm_package_bin`](Built-ins#npm_package_bin) documenta
 Here is an example:
 https://github.com/bazelbuild/rules_nodejs/blob/3.2.2/internal/node/test/BUILD.bazel#L491-L507
 
-### tsc_test
+### Option 2: tsc_test
 
 `tsc_test` is generated alongside `tsc`.
 It is identical, except that Bazel treats it as a test target, producing only an exit code
@@ -65,7 +65,7 @@ To use it, add the load statement `load("@npm//typescript:index.bzl", "tsc_test"
 
 See example in https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/tsc_test
 
-### ts_project
+### Option 3: ts_project
 
 `ts_project` simply runs `tsc --project`, with Bazel knowing which outputs to expect based on the TypeScript compiler options,
 and with interoperability with other TypeScript rules via the [DeclarationInfo] Provider that transmits the type information.
@@ -83,7 +83,7 @@ And there are also many uses of it in our <examples>
 
 [DeclarationInfo]: Built-ins#declarationinfo
 
-### ts_library
+### Option 4: ts_library
 
 `ts_library` should not be used for new code, and may be deprecated in the future.
 
