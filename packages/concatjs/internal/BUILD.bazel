@@ -31,7 +31,7 @@ bzl_library(
         ],
         exclude = ["internal_*"],
     ),
-    visibility = ["//:__subpackages__"],
+    visibility = ["//visibility:public"],
     deps = [
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",

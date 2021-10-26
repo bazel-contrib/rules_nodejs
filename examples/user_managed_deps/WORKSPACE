@@ -36,7 +36,7 @@ node_repositories(
     package_json = ["//:package.json"],
 )
 
-# We have a source dependency on build_bazel_rules_typescript
+# We have a source dependency on rules_typescript
 # so we must repeat its transitive toolchain deps
 load("@build_bazel_rules_nodejs//packages/concatjs:package.bzl", "rules_typescript_dev_dependencies")
 
@@ -49,8 +49,8 @@ gazelle_dependencies()
 
 go_rules_dependencies()
 
-go_register_toolchains()
+go_register_toolchains(version = "1.15.5")
 
-load("//packages/concatjs/internal:ts_repositories.bzl", "ts_setup_dev_workspace")
+load("@build_bazel_rules_nodejs//packages/concatjs/internal:ts_repositories.bzl", "ts_setup_dev_workspace")
 
 ts_setup_dev_workspace()
