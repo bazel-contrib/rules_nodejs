@@ -24,16 +24,31 @@ async function getJson(url) {
         });
     });
 }
-function downloadFile(url, dest) {
-  return new Promise((resolve, reject) => {
+
+function httpDownload(url, dest, resolve, reject) {
+  https.get(url, (response) => {
+    if(response.statusCode === 301 || response.statusCode === 302) {
+      return httpDownload(response.headers.location, dest, resolve, reject)
+    }
+
+    if (response.statusCode === 404) {
+      reject();
+      return;
+    }
+
     const file = createWriteStream(dest);
 
-    https.get(url, (response) => response.pipe(file));
+    response.pipe(file);
+
     file.on('finish', () => {
       file.end();
       resolve();
-    }); 
+    });
   });
+}
+
+function downloadFile(url, dest) {
+  return new Promise((resolve, reject) => httpDownload(url, dest, resolve, reject));
 };
 
 function versionCompare(lhs, rhs) {
@@ -58,12 +73,14 @@ async function getYarnVersions() {
 
   return validVersions.map(version => ({
     version,
-    tar: json.versions[version].dist.tarball
+    name: `yarn-v${version}`,
+    url: `https://github.com/yarnpkg/yarn/releases/download/v${version}/yarn-v${version}.tar.gz`,
+    tar: `yarn-v${version}.tar.gz`
   }));
 }
 
-async function getYarnSha(verObj, dir) {
-  await downloadFile(verObj.tar, dir);
+async function getYarnSha(url, dir) {
+  await downloadFile(url, dir);
   return execSync(`shasum -a 256 ${dir}`, {silent: true, encoding: 'utf-8'}).split(' ')[0];
 }
 
@@ -71,12 +88,18 @@ async function getYarnVersionsSha(yarnVersions) {
     const tmpDir = tmpdir();
     mkdirSync(tmpDir, {recursive: true});
 
-    return await Promise.all(yarnVersions.map(async (obj) => {
-      return {
-        version: obj.version,
-        sha: await getYarnSha(obj, join(tmpDir, obj.version)),
+    const data = [];
+    for (const ver of yarnVersions) {
+      try {
+        const sha = await getYarnSha(ver.url, join(tmpDir, ver.version))
+        const info = { ...ver, sha }
+        data.push(info);
+      } catch (e) {
+        // not found
       }
-    }));
+    }
+
+    return data;
 }
 
 async function main() {
@@ -90,7 +113,7 @@ async function main() {
   console.log('# @unsorted-dict-items');
   console.log('YARN_VERSIONS = {');
   yarnVersions.forEach(ver => {
-    const value = `("yarn-v${ver.version}.tar.gz", "yarn-v${ver.version}", "${ver.sha}"),`;
+    const value = `("${ver.tar}", "${ver.name}", "${ver.sha}"),`;
     console.log(`    "${ver.version}": ${value}`);
   });
   console.log("}");
