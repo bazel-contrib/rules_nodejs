@@ -12,21 +12,123 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# gazelle:exclude worker_protocol.proto
+
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("//:index.bzl", "nodejs_binary")
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
+load("//packages/concatjs:index.bzl", "ts_library")
+load("@npm//typescript:index.bzl", "tsc")
 
 package(default_visibility = ["//visibility:public"])
 
 bzl_library(
     name = "bzl",
     srcs = glob(
-        ["*.bzl"],
+        [
+            "*.bzl",
+            "common/*.bzl",
+        ],
         exclude = ["internal_*"],
     ),
     visibility = ["//:__subpackages__"],
     deps = [
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
-        "@build_bazel_rules_typescript//internal:bzl",
+    ],
+)
+
+exports_files(["tsetse/tsconfig.json"])
+
+_TSC_WRAPPED_TESTS = [
+    "**/test_support.ts",
+    "**/*_test.ts",
+]
+
+_TSC_WRAPPED_SRCS = glob(
+    [
+        "tsc_wrapped/*.ts",
+        "tsetse/**/*.ts",
+    ],
+    exclude = _TSC_WRAPPED_TESTS + ["tsetse/tests/**"],
+)
+
+_TSC_WRAPPED_JS = [k[:-3] + ".js" for k in _TSC_WRAPPED_SRCS]
+
+_TSC_WRAPPED_TYPINGS = [k[:-3] + ".d.ts" for k in _TSC_WRAPPED_SRCS]
+
+# Build our custom compiler using the vanilla one
+tsc(
+    name = "tsc_wrapped",
+    outs = _TSC_WRAPPED_JS + _TSC_WRAPPED_TYPINGS,
+    args = [
+        "--declaration",
+        "-p",
+        "$(execpath //packages/concatjs/internal:tsconfig.json)",
+        "--outDir",
+        "$(RULEDIR)",
+    ],
+    data = _TSC_WRAPPED_SRCS + [
+        "//packages/concatjs/internal:tsconfig.json",
+        "@npm//@types/node",
+        "@npm//@angular/compiler-cli",
+        "@npm//protobufjs",
+        "@npm//tsickle",
+        "@npm//tsutils",
+        "@npm//typescript",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# Other ts_library rules will use this custom compiler, which calls the
+# TypeScript APIs to act like tsc, but adds capabilities like Bazel workers.
+# TODO(gregmagolan): make @npm//tsickle dependency optional
+nodejs_binary(
+    name = "tsc_wrapped_bin",
+    data = [
+        ":tsc_wrapped",
+        "//packages/concatjs/third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
+        "@npm//protobufjs",
+        "@npm//source-map-support",
+        "@npm//tsickle",
+        "@npm//tsutils",
+        "@npm//typescript",
+    ],
+    entry_point = ":tsc_wrapped/tsc_wrapped.js",
+    # With RBE or --worker_sandboxing you'll see that when supports_workers=True it doesn't run_node
+    # so it doesn't have the linker. Still needs our custom patches on require()
+    templated_args = ["--bazel_patch_module_resolver"],
+    visibility = ["//visibility:public"],
+)
+
+ts_library(
+    name = "test_lib",
+    srcs = glob(_TSC_WRAPPED_TESTS) + _TSC_WRAPPED_TYPINGS,
+    compiler = "//packages/concatjs/internal:tsc_wrapped_bin",
+    tsconfig = "//packages/concatjs/internal:tsconfig.json",
+    deps = [
+        "@npm//@angular/compiler-cli",
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+        "@npm//tsickle",
+        "@npm//typescript",
+    ],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = [],
+    tags = [
+        # TODO: it seems like this test has been broken since we brought in from rules_typescript
+        "manual",
+    ],
+    deps = _TSC_WRAPPED_JS + [
+        ":test_lib",
+        "//packages/concatjs/third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
+        "@npm//jasmine",
+        "@npm//protobufjs",
+        "@npm//source-map",
+        "@npm//typescript",
     ],
 )
 
@@ -44,6 +146,10 @@ filegroup(
     name = "package_contents",
     srcs = [
         "build_defs.bzl",
+        "common/compilation.bzl",
+        "common/json_marshal.bzl",
+        "common/module_mappings.bzl",
+        "common/tsconfig.bzl",
         "ts_config.bzl",
     ],
     visibility = ["//packages/concatjs:__subpackages__"],

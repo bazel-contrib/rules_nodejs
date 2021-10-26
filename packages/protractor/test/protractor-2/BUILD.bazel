@@ -29,8 +29,8 @@ terser_minified(
 
 concatjs_devserver(
     name = "devserver",
-    devserver = "@build_bazel_rules_typescript//devserver:devserver_bin",
-    devserver_host = "@build_bazel_rules_typescript//devserver:devserver_bin",
+    devserver = "//packages/concatjs/devserver:devserver_bin",
+    devserver_host = "//packages/concatjs/devserver:devserver_bin",
     serving_path = "/bundle.min.js",
     static_files = ["index.html"],
     deps = [":app"],

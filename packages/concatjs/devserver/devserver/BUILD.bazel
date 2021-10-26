@@ -6,7 +6,7 @@ go_library(
     importpath = "github.com/bazelbuild/rules_typescript/devserver/devserver",
     visibility = ["//visibility:public"],
     deps = [
-        "//devserver/runfiles:go_default_library",
+        "//packages/concatjs/devserver/runfiles:go_default_library",
     ],
 )
 
@@ -20,4 +20,6 @@ go_test(
         "@devserver_test_workspace//:sources",
     ],
     embed = [":go_default_library"],
+    # FIXME: broken on Windows ci
+    tags = ["no-bazelci-windows"],
 )

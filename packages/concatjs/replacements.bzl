@@ -23,12 +23,12 @@ TYPESCRIPT_REPLACEMENTS = dict(
         "#@external ": "",
         "//packages/concatjs/web_test:karma_bin": "@npm//karma/bin:karma",
         # This BEGIN-DEV fencing is required as files pulled in from
-        # @build_bazel_rules_typescript//:npm_bazel_typescript_package
+        # //packages/concatjs:npm_bazel_typescript_package
         # use this alternate fencing
         "(#|\\/\\/)\\s+BEGIN-DEV-ONLY[\\w\\W]+?(#|\\/\\/)\\s+END-DEV-ONLY": "",
         # This file gets vendored into our repo
-        "@build_bazel_rules_typescript//internal:common": "//@bazel/concatjs/internal:common",
+        "//packages/concatjs/internal:common": "//@bazel/concatjs/internal:common",
         # Replace the local compiler label with one that comes from npm
-        "@build_bazel_rules_typescript//internal:tsc_wrapped_bin": "//@bazel/concatjs/bin:tsc_wrapped",
+        "//packages/concatjs/internal:tsc_wrapped_bin": "//@bazel/concatjs/bin:tsc_wrapped",
     }
 )

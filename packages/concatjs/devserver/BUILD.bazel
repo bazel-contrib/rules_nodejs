@@ -14,6 +14,10 @@
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
+# BEGIN-INTERNAL
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+# END-INTERNAL
 licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = [
@@ -147,3 +151,57 @@ filegroup(
     srcs = glob(["*"]),
     visibility = ["//packages/concatjs:__pkg__"],
 )
+
+# BEGIN-INTERNAL
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "main.go",
+        "runfile-filesystem.go",
+    ],
+    importpath = "github.com/bazelbuild/rules_typescript/devserver",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//packages/concatjs/devserver/concatjs:go_default_library",
+        "//packages/concatjs/devserver/devserver:go_default_library",
+        "//packages/concatjs/devserver/runfiles:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "devserver_bin",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-darwin",
+    out = "devserver-darwin_x64",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "darwin",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-linux",
+    out = "devserver-linux_x64",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "linux",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-windows",
+    out = "devserver-windows_x64.exe",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "windows",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+# END-INTERNAL

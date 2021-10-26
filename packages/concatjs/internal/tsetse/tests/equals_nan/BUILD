@@ -12,19 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("//packages/concatjs:index.bzl", "ts_library")
 
 licenses(["notice"])  # Apache 2.0
-
-error_message = "error TS21224: Value passed.*"
-
-ts_library(
-    name = "jasmine",
-    testonly = 1,
-    srcs = [
-        "jasmine_types.ts",
-    ],
-)
 
 ts_library(
     name = "positives",
@@ -33,17 +23,13 @@ ts_library(
         "positives.ts",
     ],
     expected_diagnostics = [
-        "\\(31,5\\).*" + error_message,
-        "\\(32,5\\).*" + error_message,
-        "\\(33,5\\).*" + error_message,
-        "\\(34,5\\).*" + error_message,
-        "\\(35,5\\).*" + error_message,
-        "\\(36,5\\).*" + error_message,
-        "\\(37,5\\).*" + error_message,
-    ],
-    tsconfig = "//internal:tsetse/tsconfig.json",
-    deps = [
-        ":jasmine",
+        "\\(2,19\\): error TS21223: x === NaN is always false; use isNaN\\(x\\) instead",
+        "\\(6,5\\): error TS21223: x === NaN is always false; use isNaN\\(x\\) instead",
+        "\\(7,5\\): error TS21223: x == NaN is always false; use isNaN\\(x\\) instead",
+        "\\(8,5\\): error TS21223: x !== NaN is always true; use !isNaN\\(x\\) instead",
+        "\\(9,5\\): error TS21223: x != NaN is always true; use !isNaN\\(x\\) instead",
+        "\\(11,1\\): error TS21223: x === NaN is always false; use isNaN\\(x\\) instead",
+        "\\(12,1\\): error TS21223: x === NaN is always false; use isNaN\\(x\\) instead",
     ],
 )
 
@@ -52,9 +38,5 @@ ts_library(
     testonly = 1,
     srcs = [
         "negatives.ts",
-    ],
-    tsconfig = "//internal:tsetse/tsconfig.json",
-    deps = [
-        ":jasmine",
     ],
 )

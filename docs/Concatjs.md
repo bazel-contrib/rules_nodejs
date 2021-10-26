@@ -380,7 +380,7 @@ on packages which aren't declared as dependencies.
 For example, if you use [tsickle](https://github.com/angular/tsickle) to generate Closure Compiler-compatible JS,
 then it needs to be a data dependency of `tsc_wrapped` so that it can be loaded at runtime.
 
-Defaults to `@build_bazel_rules_typescript//internal:tsc_wrapped_bin`
+Defaults to `@npm//@bazel/concatjs/internal:tsc_wrapped_bin`
 
 <h4 id="ts_library-data">data</h4>
 

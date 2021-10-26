@@ -47,9 +47,9 @@ func TestDevserverFileHandling(t *testing.T) {
 	handler := CreateFileHandler("/app.js", "manifest.MF", []string{
 		// This verifies that we can resolve relatively to the current package. Usually the
 		// devserver Bazel rule adds the current package here.
-		"build_bazel_rules_typescript/devserver/devserver",
+		"build_bazel_rules_nodejs/packages/concatjs/devserver/devserver",
 		// Verifies that we can specify subfolders of workspaces
-		"build_bazel_rules_typescript/devserver/devserver/test",
+		"build_bazel_rules_nodejs/packages/concatjs/devserver/devserver/test",
 		// Verifies that we can specify external workspaces as root dirs.
 		"devserver_test_workspace",
 		// Verifies that we can specify subfolders from external workspaces.

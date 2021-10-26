@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("//packages/concatjs:index.bzl", "ts_library")
 
 licenses(["notice"])  # Apache 2.0
 
@@ -22,7 +22,7 @@ ts_library(
     name = "no_expected_diagnostics_test",
     testonly = 1,
     srcs = ["no_expected_diagnostics.ts"],
-    tsconfig = "//internal:tsetse/tsconfig.json",
+    tsconfig = "//packages/concatjs/internal:tsetse/tsconfig.json",
 )
 
 ts_library(
@@ -36,14 +36,14 @@ ts_library(
         "\\(16,1\\).*" + error_message,
         "\\(19,1\\).*" + error_message,
     ],
-    tsconfig = "//internal:tsetse/tsconfig.json",
+    tsconfig = "//packages/concatjs/internal:tsetse/tsconfig.json",
 )
 
 ts_library(
     name = "user_defined_check_return_value",
     testonly = 1,
     srcs = ["user_defined_check_return_value.ts"],
-    tsconfig = "//internal:tsetse/tsconfig.json",
+    tsconfig = "//packages/concatjs/internal:tsetse/tsconfig.json",
 )
 
 ts_library(
@@ -56,8 +56,9 @@ ts_library(
         "\\(7,1\\).*" + error_message,
         "\\(9,1\\).*" + error_message,
         "\\(15,1\\).*" + error_message,
+        "\\(16,1\\).*" + error_message,
     ],
-    tsconfig = "//internal:tsetse/tsconfig.json",
+    tsconfig = "//packages/concatjs/internal:tsetse/tsconfig.json",
     deps = [
         ":user_defined_check_return_value",
         "@npm//@types/jasmine",

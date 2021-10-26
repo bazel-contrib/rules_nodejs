@@ -14,3 +14,6 @@ examples/user_managed_deps/node_modules
 # **/dist
 dist
 examples/user_managed_deps/dist
+
+# Moved back into this repo
+third_party/github.com/bazelbuild/rules_typescript

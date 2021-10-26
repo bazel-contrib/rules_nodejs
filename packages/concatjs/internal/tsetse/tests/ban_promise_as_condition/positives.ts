@@ -34,6 +34,7 @@ function detectsFunctionCalls() {
 function detectsPropertyAccesses() {
   const prom = returnsPromise();
 
+  // @ts-ignore TS2801
   const ternary = prom ? 'always' : 'never';
 
   while (prom) {
@@ -42,5 +43,6 @@ function detectsPropertyAccesses() {
   }
 
   const binaryExpressionBarBar = prom || 'other thing';
+  // @ts-ignore TS2801
   const binaryExpressionAndAnd = prom && 'other thing';
 }

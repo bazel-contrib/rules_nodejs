@@ -56,8 +56,3 @@ gazelle_dependencies()
 load("//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
 
 ts_setup_dev_workspace()
-
-local_repository(
-    name = "devserver_test_workspace",
-    path = "devserver/devserver/test/test-workspace",
-)

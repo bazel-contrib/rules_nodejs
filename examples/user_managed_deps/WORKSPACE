@@ -1,7 +1,5 @@
 workspace(name = "examples_user_managed_deps")
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-
 # In your code, you'd fetch this repository with an `http_archive` call.
 # We do this local repository only because this example lives in the same
 # repository with the rules_nodejs code and we want to test them together.
@@ -38,16 +36,9 @@ node_repositories(
     package_json = ["//:package.json"],
 )
 
-# TODO(gregmagolan): keep this in sync with root WORKSPACE programatically
-git_repository(
-    name = "build_bazel_rules_typescript",
-    commit = "5d79e42953eb8614d961ccf0e3440884e974eeb3",
-    remote = "http://github.com/bazelbuild/rules_typescript.git",
-)
-
 # We have a source dependency on build_bazel_rules_typescript
 # so we must repeat its transitive toolchain deps
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
+load("@build_bazel_rules_nodejs//packages/concatjs:package.bzl", "rules_typescript_dev_dependencies")
 
 rules_typescript_dev_dependencies()
 
@@ -60,6 +51,6 @@ go_rules_dependencies()
 
 go_register_toolchains()
 
-load("@build_bazel_rules_typescript//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
+load("//packages/concatjs/internal:ts_repositories.bzl", "ts_setup_dev_workspace")
 
 ts_setup_dev_workspace()

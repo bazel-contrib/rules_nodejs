@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("//packages/concatjs:index.bzl", "ts_library")
 
 licenses(["notice"])  # Apache 2.0
 
-error_message = "error TS21226: Found a thenable.*"
+error_message = "TS21225: All Promises in async functions must either be awaited or used in an expression."
 
 ts_library(
     name = "positives",
@@ -25,23 +25,11 @@ ts_library(
         "positives.ts",
     ],
     expected_diagnostics = [
-        "\\(7,7\\).*" + error_message,
-        "\\(15,7\\).*" + error_message,
-        "\\(23,19\\).*" + error_message,
-        "\\(25,10\\).*" + error_message,
-        "\\(30,34\\).*" + error_message,
-        "\\(31,34\\).*" + error_message,
-        "\\(37,19\\).*" + error_message,
-        "\\(39,10\\).*" + error_message,
-        "\\(44,34\\).*" + error_message,
-        "\\(45,34\\).*" + error_message,
+        "\\(29,3\\)" + error_message,
+        "\\(30,3\\)" + error_message,
+        "\\(31,3\\)" + error_message,
+        "\\(32,3\\)" + error_message,
+        "\\(34,3\\)" + error_message,
     ],
-    tsconfig = "//internal:tsetse/tsconfig.json",
-)
-
-ts_library(
-    name = "negatives",
-    testonly = 1,
-    srcs = ["negatives.ts"],
-    tsconfig = "//internal:tsetse/tsconfig.json",
+    tsconfig = "//packages/concatjs/internal:tsetse/tsconfig.json",
 )
