@@ -4,7 +4,7 @@ load("//internal/node:context.bzl", "node_context_data")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 load("//packages/terser:index.bzl", "terser_minified")
-load("//packages/typescript:index.bzl", "ts_library")
+load("//packages/concatjs:index.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 

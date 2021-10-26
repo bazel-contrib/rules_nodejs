@@ -1,0 +1,50 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
+load("//packages/concatjs:index.bzl", "ts_library")
+load(":ts_jest_test.bzl", "ts_jest_test")
+
+ts_library(
+    name = "lib",
+    srcs = [
+        "lib.tsx",
+    ],
+    # NB: hacky hidden configuration setting so that es6_sources does not include tsickle
+    #     .externs.js outputs
+    runtime = "nodejs",
+    deps = [
+        "@npm//@types/node",
+    ],
+)
+
+# Shenanigans for Windows which doesn't have runfiles symlinks
+# We need the jest config to be in the output tree where the specs are
+copy_to_bin(
+    name = "jest_config",
+    srcs = [
+        "jest.config.js",
+    ],
+)
+
+# Same goes for babelrc. We can't add it to the jest_config copy_to_bin
+# since must be a file that is passed to jest in the --config arg.
+copy_to_bin(
+    name = "babel_rc",
+    srcs = [
+        ".babelrc",
+    ],
+)
+
+ts_jest_test(
+    name = "test",
+    srcs = [
+        "lib.test.ts",
+    ],
+    data = [
+        ":babel_rc",
+    ],
+    jest_config = ":jest_config",
+    deps = [
+        ":lib",
+        "@npm//@babel/preset-env",
+        "@npm//babel-jest",
+    ],
+)

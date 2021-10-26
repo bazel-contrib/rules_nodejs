@@ -1,6 +1,6 @@
 load("//packages/esbuild:index.bzl", "esbuild", "esbuild_config")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
-load("//packages/typescript:index.bzl", "ts_library")
+load("//packages/concatjs:index.bzl", "ts_library")
 load("//internal/node:context.bzl", "node_context_data")
 
 ts_library(

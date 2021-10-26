@@ -95,8 +95,7 @@ To use `concatjs_devserver`, you simply `load` the rule, and call it with `deps`
 point to your `ts_library` target(s):
 
 ```python
-load("//packages/concatjs:index.bzl", "concatjs_devserver")
-load("//packages/typescript:index.bzl", "ts_library")
+load("//packages/concatjs:index.bzl", "concatjs_devserver", "ts_library")
 
 ts_library(
     name = "app",
@@ -191,7 +190,9 @@ load(
     _karma_web_test = "karma_web_test",
     _karma_web_test_suite = "karma_web_test_suite",
 )
+load("//packages/concatjs/internal:build_defs.bzl", _ts_library = "ts_library")
 
+ts_library = _ts_library
 karma_web_test = _karma_web_test
 karma_web_test_suite = _karma_web_test_suite
 concatjs_devserver = _concatjs_devserver

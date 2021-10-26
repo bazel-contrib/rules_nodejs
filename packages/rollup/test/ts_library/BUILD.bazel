@@ -1,6 +1,6 @@
 load("//:index.bzl", "generated_file_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
-load("//packages/typescript:index.bzl", "ts_library")
+load("//packages/concatjs:index.bzl", "ts_library")
 
 exports_files(["tsconfig.json"])
 

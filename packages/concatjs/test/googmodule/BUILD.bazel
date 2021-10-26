@@ -1,0 +1,20 @@
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
+load("//packages/concatjs:index.bzl", "ts_library")
+load("//packages/concatjs/test/devmode_consumer:devmode_consumer.bzl", "devmode_consumer")
+
+ts_library(
+    name = "googmodule",
+    srcs = ["a.ts"],
+    tsconfig = ":tsconfig-googmodule.json",
+)
+
+devmode_consumer(
+    name = "devmode_output",
+    deps = [":googmodule"],
+)
+
+jasmine_node_test(
+    name = "googmodule_output_test",
+    srcs = ["googmodule_output_test.js"],
+    data = [":devmode_output"],
+)

@@ -17,11 +17,9 @@
 Users should not load files under "/internal"
 """
 
-load("//packages/typescript/internal:build_defs.bzl", _ts_library = "ts_library_macro")
 load("//packages/typescript/internal:ts_config.bzl", _ts_config = "ts_config")
 load("//packages/typescript/internal:ts_project.bzl", _ts_project = "ts_project_macro")
 
-ts_library = _ts_library
 ts_config = _ts_config
 ts_project = _ts_project
 # If adding rules here also add to index.docs.bzl

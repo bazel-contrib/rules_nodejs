@@ -13,9 +13,8 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
-load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver")
+load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver", "ts_library")
 load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
 
 exports_files([
     "red-body-style.css",

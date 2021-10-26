@@ -172,10 +172,8 @@ See many examples in our test cases:
 https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project
 """
 
-load("//packages/typescript/internal:build_defs.bzl", _ts_library = "ts_library")
 load("//packages/typescript/internal:ts_config.bzl", _ts_config = "ts_config")
 load("//packages/typescript/internal:ts_project.bzl", _ts_project = "ts_project_macro")
 
-ts_library = _ts_library
 ts_config = _ts_config
 ts_project = _ts_project

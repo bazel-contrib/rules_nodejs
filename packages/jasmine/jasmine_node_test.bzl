@@ -83,7 +83,7 @@ def jasmine_node_test(
       name: Name of the resulting label
       srcs: JavaScript source files containing Jasmine specs
       data: Runtime dependencies which will be loaded while the test executes
-      deps: Other targets which produce JavaScript, such as ts_library
+      deps: Other targets which produce JavaScript, such as ts_project
       expected_exit_code: The expected exit code for the test.
       tags: Bazel tags applied to test
       config_file: (experimental) label of a file containing Jasmine JSON config.

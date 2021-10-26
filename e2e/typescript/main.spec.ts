@@ -7,10 +7,9 @@ describe('main', () => {
     expect(main.test()).toEqual('test hello 02/Tu/2014');
   });
 
-  it('should successfully require @bazel/typescript', () => {
+  it('should successfully require @bazel/concatjs', () => {
     try {
-      const {debug} = require('@bazel/typescript');
-      debug('test');
+      require('@bazel/concatjs/internal/tsc_wrapped');
     } catch (e) {
       fail(e.toString())
     }

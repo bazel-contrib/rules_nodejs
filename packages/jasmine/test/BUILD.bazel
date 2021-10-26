@@ -1,7 +1,7 @@
 load("//:index.bzl", "js_library")
 load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
-load("//packages/typescript:index.bzl", "ts_library")
+load("//packages/typescript:index.bzl", "ts_project")
 
 jasmine_node_test(
     name = "underscore_spec_test",
@@ -110,12 +110,13 @@ jasmine_node_test(
     expected_exit_code = 3,
 )
 
-ts_library(
+ts_project(
     name = "coverage_test_srcs",
     srcs = [
         "coverage_source.ts",
         "coverage_source_uncovered.ts",
     ],
+    tsconfig = {},
 )
 
 jasmine_node_test(

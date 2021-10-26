@@ -1,5 +1,5 @@
 load("@build_bazel_rules_nodejs//packages/cypress:index.bzl", "cypress_web_test")
-load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//packages/concatjs:index.bzl", "ts_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 js_library(
