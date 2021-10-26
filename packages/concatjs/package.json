@@ -16,6 +16,11 @@
     ],
     "main": "./index.js",
     "typings": "./index.d.ts",
+    "//main": "./internal/tsc_wrapped/index.js",
+    "//typings": "./internal/tsc_wrapped/index.d.ts",
+    "bin": {
+        "tsc_wrapped": "./internal/tsc_wrapped/tsc_wrapped.js"
+    },
     "dependencies": {
         "protobufjs": "6.8.8",
         "source-map-support": "0.5.9",

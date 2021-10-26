@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "rootDirs": [
+            ".",
+            "bazel-out/k8-fastbuild/bin",
+            "bazel-out/windows-fastbuild/bin",
+            "bazel-out/linux-fastbuild/bin",
+        ]
+    }
+}

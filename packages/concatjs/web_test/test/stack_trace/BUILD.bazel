@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//packages/concatjs:index.bzl", "karma_web_test_suite")
-load("//packages/typescript:index.bzl", "ts_library")
+load("//packages/concatjs:index.bzl", "karma_web_test_suite", "ts_library")
 
 ts_library(
     name = "test_lib",

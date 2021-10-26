@@ -23,7 +23,11 @@ load(
     _karma_web_test = "karma_web_test",
     _karma_web_test_suite = "karma_web_test_suite",
 )
+load("//packages/concatjs/internal:build_defs.bzl", _ts_library = "ts_library_macro")
+load("//packages/concatjs/internal:ts_config.bzl", _ts_config = "ts_config")
 
 karma_web_test = _karma_web_test
 karma_web_test_suite = _karma_web_test_suite
 concatjs_devserver = _concatjs_devserver
+ts_library = _ts_library
+ts_config = _ts_config

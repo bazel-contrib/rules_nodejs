@@ -1,0 +1,42 @@
+load("//packages/concatjs:index.bzl", "ts_library")
+
+ts_library(
+    name = "types",
+    srcs = ["types.d.ts"],
+)
+
+ts_library(
+    name = "foo_ts_library",
+    srcs = [
+        "conflict.d.ts",
+        "foo.ts",
+    ],
+    tsconfig = ":tsconfig-foo.json",
+    deps = [
+        ":types",
+        "//packages/concatjs/test/generated_ts",
+    ],
+)
+
+ts_library(
+    name = "bar_ts_library",
+    srcs = ["bar.ts"],
+    tsconfig = ":tsconfig-bar.json",
+    visibility = [
+        "//packages/concatjs/test/devmode_consumer:__pkg__",
+        "//packages/concatjs/test/es6_consumer:__pkg__",
+    ],
+    deps = [
+        ":foo_ts_library",
+        "//packages/concatjs/test/generated_ts",
+        "//packages/concatjs/test/some_library:lib",
+        "@npm//typescript",
+        # Example of using the `@npm//@types` target to depend on all
+        # @types packages and with the types attribute of tsconfig not
+        # specified. In this case, typescript will automatically discover
+        # all types under node_modules/@types and included them in the compile.
+        # See getAutomaticTypeDirectiveNames in
+        # https://github.com/Microsoft/TypeScript/blob/master/src/compiler/moduleNameResolver.ts.
+        "@npm//@types",
+    ],
+)

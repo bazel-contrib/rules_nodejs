@@ -55,7 +55,7 @@ Defaults to `[]`
 
 <h4 id="jasmine_node_test-deps">deps</h4>
 
-Other targets which produce JavaScript, such as ts_library
+Other targets which produce JavaScript, such as ts_project
 
 Defaults to `[]`
 

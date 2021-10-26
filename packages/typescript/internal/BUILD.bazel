@@ -43,7 +43,6 @@ bzl_library(
     deps = [
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
-        "@build_bazel_rules_typescript//internal:bzl",
     ],
 )
 
@@ -60,7 +59,6 @@ genrule(
 filegroup(
     name = "package_contents",
     srcs = [
-        "build_defs.bzl",
         "ts_config.bzl",
         "ts_project.bzl",
         "//packages/typescript/internal/worker:package_contents",

@@ -71,13 +71,7 @@ pkg_npm(
         "//packages/typescript/internal:package_contents",
     ],
     build_file_content = "",
-    nested_packages = [
-        "@build_bazel_rules_typescript//:npm_bazel_typescript_package",
-    ],
     substitutions = TYPESCRIPT_REPLACEMENTS,
-    vendor_external = [
-        "build_bazel_rules_typescript",
-    ],
     deps = [
         ":README.md",
         ":npm_version_check",

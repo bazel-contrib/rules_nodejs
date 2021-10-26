@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//packages/typescript:index.bzl", "ts_library")
+load("//packages/concatjs:index.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
