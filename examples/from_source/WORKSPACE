@@ -11,20 +11,11 @@ local_repository(
     path = "../../",
 )
 
-# This is hard for users to grab hold of, as long as rules_typescript is a
-# nested workspace within rules_nodejs. Until we've fixed that, you can
-# replace this local_repository call with this code to fetch it
-# https://github.com/bazelbuild/rules_nodejs/blob/2.2.2/package.bzl#L123-L134
-local_repository(
-    name = "build_bazel_rules_typescript",
-    path = "../../third_party/github.com/bazelbuild/rules_typescript",
-)
-
 load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
 
 rules_nodejs_dev_dependencies()
 
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
+load("@build_bazel_rules_nodejs//packages/concatjs:package.bzl", "rules_typescript_dev_dependencies")
 
 rules_typescript_dev_dependencies()
 

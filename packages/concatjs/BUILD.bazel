@@ -59,7 +59,6 @@ bzl_library(
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
         "@build_bazel_rules_nodejs//internal/node:bzl",
-        "@build_bazel_rules_typescript//internal:bzl",
     ],
 )
 
@@ -94,21 +93,21 @@ pkg_npm(
         "package.json",
         "//packages/concatjs/devserver:package_contents",
         "//packages/concatjs/internal:package_contents",
+        "//packages/concatjs/third_party/github.com/bazelbuild/bazel/src/main/protobuf:npm_package_assets",
         "//packages/concatjs/third_party/npm/requirejs:package_contents",
         "//packages/concatjs/web_test:package_contents",
     ],
     build_file_content = "",
-    nested_packages = [
-        "@build_bazel_rules_typescript//:npm_bazel_typescript_package",
-    ],
     substitutions = TYPESCRIPT_REPLACEMENTS,
-    vendor_external = [
-        "build_bazel_rules_typescript",
-    ],
     deps = [
         ":README.md",
         ":bazel_concatjs_lib",
         ":npm_version_check",
+        "//packages/concatjs/devserver:devserver-darwin",
+        "//packages/concatjs/devserver:devserver-linux",
+        "//packages/concatjs/devserver:devserver-windows",
         "//packages/concatjs/internal:BUILD",
+        "//packages/concatjs/internal:generated_BUILD",
+        "//packages/concatjs/internal:tsc_wrapped",
     ],
 )

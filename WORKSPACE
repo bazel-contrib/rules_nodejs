@@ -45,11 +45,6 @@ rules_nodejs_dev_dependencies()
 #
 
 local_repository(
-    name = "build_bazel_rules_typescript",
-    path = "third_party/github.com/bazelbuild/rules_typescript",
-)
-
-local_repository(
     name = "internal_npm_package_test_vendored_external",
     path = "internal/pkg_npm/test/vendored_external",
 )
@@ -75,11 +70,14 @@ load("@npm_node_patches_lock//:index.bzl", _npm_patches_repositories = "npm_repo
 # Declare an external repository for each npm package fetchable by the lock file
 _npm_patches_repositories()
 
-# We have a source dependency on build_bazel_rules_typescript
-# so we must repeat its transitive toolchain deps
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
+load("//packages/concatjs:package.bzl", "rules_typescript_dev_dependencies")
 
 rules_typescript_dev_dependencies()
+
+local_repository(
+    name = "devserver_test_workspace",
+    path = "packages/concatjs/devserver/devserver/test/test-workspace",
+)
 
 # Install labs dependencies
 load("//packages/labs:package.bzl", "npm_bazel_labs_dependencies")
@@ -101,7 +99,7 @@ go_register_toolchains(version = "1.16")
 
 gazelle_dependencies()
 
-load("@build_bazel_rules_typescript//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
+load("//packages/concatjs/internal:ts_repositories.bzl", "ts_setup_dev_workspace")
 
 ts_setup_dev_workspace()
 

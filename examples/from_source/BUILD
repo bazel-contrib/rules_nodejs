@@ -25,8 +25,8 @@ bzl_library(
         "index.bzl",
     ],
     deps = [
+        "@build_bazel_rules_nodejs//packages/concatjs/internal:bzl",
         "@build_bazel_rules_nodejs//packages/typescript:bzl",
-        "@build_bazel_rules_typescript//internal:bzl",
     ],
 )
 
