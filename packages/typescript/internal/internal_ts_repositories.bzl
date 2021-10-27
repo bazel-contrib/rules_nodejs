@@ -24,7 +24,7 @@ def ts_setup_dev_workspace():
 
     go_repository(
         name = "com_github_kylelemons_godebug",
-        commit = "9ff306d4fbead574800b66369df5b6144732d58e",  # v1.1.0
+        commit = "undefined",  # v1.1.0
         importpath = "github.com/kylelemons/godebug",
     )
 
