@@ -2,31 +2,31 @@
 # yarn lockfile v1
 
 
-"@bazel/buildifier@^4.2.2":
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-4.2.2.tgz#cdc0b560dc68368bc5d1e82377cf0abc7ba66a85"
-  integrity sha512-BGgd3vv+JiAAIPKzMp0avB0v3HwqokFN6sd60F19spaK0XstLP7IZrUcPGaRS+oKcYzYSQ6MGKVNqkP3161ipg==
+"@bazel/buildifier@^4.2.3":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-4.2.3.tgz#2c6e54faa12e31b75051834cf1cfa68c71678262"
+  integrity sha512-19GqPhxlyh376mJT6kvvNAJbRCjDj4WFjqy+sT2LAMt5THMGSES8+lwde5J1jwpud/mqrNUIRjEzVZR5A/6+BA==
 
 "@bazel/ibazel@^0.15.10":
   version "0.15.10"
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.15.10.tgz#cf0cff1aec6d8e7bb23e1fc618d09fbd39b7a13f"
   integrity sha512-0v+OwCQ6fsGFa50r6MXWbUkSGuWOoZ22K4pMSdtWiL5LKFIE4kfmMmtQS+M7/ICNwk2EIYob+NRreyi/DGUz5A==
 
-"@bazel/typescript@^4.4.0":
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-4.4.0.tgz#c421a0d54e3385b5218ca277c3fa8d60659b6f89"
-  integrity sha512-2qmcQ95yCWHZzbCgjJ4SnqgWfkv3dhnNfZudjro/k11txPJfKbWgUK/PCzcqOTiwR9vkzV3QJTGV9jdNbkT3bw==
+"@bazel/typescript@^4.4.2":
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-4.4.2.tgz#987000806043d9df1388debcd576420ce5b8c860"
+  integrity sha512-dTt/AvlnwWiUXF7T25FpAozmLKN9Z+me07iSOcjDv7+6aVcxV5vJTbhpktZO1Ij0oSaYew4I8e/NlRf/mS2k7g==
   dependencies:
-    "@bazel/worker" "4.4.0"
+    "@bazel/worker" "4.4.2"
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@4.4.0":
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-4.4.0.tgz#d4f469ece137727244fc7798f6455efe0d653903"
-  integrity sha512-ASehVjUWF13wAFPhycT8/s1VIBg/jsG1D+EjdA8oNpuNacsDSmbJJu5a00dSqjp2GM0jTR3Vmj/SRKgYrvYSuA==
+"@bazel/worker@4.4.2":
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-4.4.2.tgz#01dcfa873786d4ad0b7150b8f9d03a23aa0c19e4"
+  integrity sha512-EkxgsV2o6nPd/+ujnyCuKU3C57sjYDdtQVPLdBBIiOmx37RPBw+tRMrp6XYgU3PkhqgMqNQPpS/9Exbj0XSihQ==
   dependencies:
     google-protobuf "^3.6.1"
 
