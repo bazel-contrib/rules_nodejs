@@ -1,5 +1,9 @@
 # Angular support for Bazel
 
+## MOVING
+
+**This package is moving from rules_nodejs to https://github.com/just-jeb/angular-builders. It will no longer be maintained in rules_nodejs and will be removed in the next major (5.0)**
+
 This package is a replacement for parts of the deprecated @angular/bazel package previously maintained by the Angular team.
 
 Currently, this only provides an Angular CLI Builder, which can execute Bazel when triggered by `ng build`, `ng test`, etc.
