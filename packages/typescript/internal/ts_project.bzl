@@ -340,11 +340,16 @@ def _replace_ext(f, ext_map):
 
 def _out_paths(srcs, outdir, rootdir, allow_js, ext_map):
     rootdir_replace_pattern = rootdir + "/" if rootdir else ""
-    return [
-        _join(outdir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + _replace_ext(f, ext_map))
-        for f in srcs
-        if _is_ts_src(f, allow_js)
-    ]
+    outs = []
+    for f in srcs:
+        if _is_ts_src(f, allow_js):
+            out = _join(outdir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + _replace_ext(f, ext_map))
+
+            # Don't declare outputs that collide with inputs
+            # for example, a.js -> a.js
+            if out != f:
+                outs.append(out)
+    return outs
 
 def ts_project_macro(
         name = "tsconfig",
