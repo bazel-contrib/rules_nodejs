@@ -1,0 +1,66 @@
+load("//:index.bzl", "generated_file_test")
+load("//packages/esbuild:index.bzl", "esbuild")
+
+esbuild(
+    name = "banner",
+    args = {
+        "banner": {
+            "js": "//hello",
+        },
+    },
+    entry_point = "main.js",
+)
+
+esbuild(
+    name = "banner_newline",
+    args = {
+        "banner": {
+            "js": "//header\n//comments",
+        },
+    },
+    entry_point = "main.js",
+)
+
+esbuild(
+    name = "banner_quotes",
+    args = {
+        "banner": {
+            "js": "\"use strict\"",
+        },
+    },
+    entry_point = "main.js",
+)
+
+esbuild(
+    name = "banner_spaces",
+    args = {
+        "banner": {
+            "js": "#!/usr/bin/env node",
+        },
+    },
+    entry_point = "main.js",
+)
+
+generated_file_test(
+    name = "banner_test",
+    src = "banner.golden.txt",
+    generated = "banner.js",
+)
+
+generated_file_test(
+    name = "banner_newline_test",
+    src = "banner.newline.golden.txt",
+    generated = "banner_newline.js",
+)
+
+generated_file_test(
+    name = "banner_quotes_test",
+    src = "banner.quotes.golden.txt",
+    generated = "banner_quotes.js",
+)
+
+generated_file_test(
+    name = "banner_spaces_test",
+    src = "banner.spaces.golden.txt",
+    generated = "banner_spaces.js",
+)

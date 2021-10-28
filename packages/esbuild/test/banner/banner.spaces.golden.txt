@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+(() => {
+  // packages/esbuild/test/banner/main.js
+  console.log("a script");
+})();
+//# sourceMappingURL=banner_spaces.js.map
