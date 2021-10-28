@@ -1,3 +1,17 @@
+## [4.4.2](https://github.com/bazelbuild/rules_nodejs/compare/4.4.1...4.4.2) (2021-10-28)
+
+
+### Bug Fixes
+
+* **builtin:** retrieve yarn shasums from Github releases, rather than npm registry ([b233b07](https://github.com/bazelbuild/rules_nodejs/commit/b233b07))
+* **create:** relocate help argument evaluation ([f67c584](https://github.com/bazelbuild/rules_nodejs/commit/f67c584))
+* **esbuild:** allow whitespace within args ([#2998](https://github.com/bazelbuild/rules_nodejs/issues/2998)) ([3446425](https://github.com/bazelbuild/rules_nodejs/commit/3446425)), closes [#2997](https://github.com/bazelbuild/rules_nodejs/issues/2997)
+* **examples:** run jest updateSnapshot in the workspace ([#3041](https://github.com/bazelbuild/rules_nodejs/issues/3041)) ([6ee1e52](https://github.com/bazelbuild/rules_nodejs/commit/6ee1e52))
+* **typescript:** don't declare outputs that collide with inputs ([#3046](https://github.com/bazelbuild/rules_nodejs/issues/3046)) ([bd8b7f3](https://github.com/bazelbuild/rules_nodejs/commit/bd8b7f3))
+* simplify portion of linker and fix case where runfiles node_modules symlinks are missing under bazel run ([f6db6c9](https://github.com/bazelbuild/rules_nodejs/commit/f6db6c9))
+
+
+
 ## [4.4.1](https://github.com/bazelbuild/rules_nodejs/compare/4.4.0...4.4.1) (2021-10-13)
 
 
