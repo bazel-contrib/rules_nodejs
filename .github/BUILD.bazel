@@ -11,7 +11,6 @@ generate_codeowners(
         "//packages/labs:OWNERS",
         "//packages/rollup:OWNERS",
         "//packages/cypress:OWNERS",
-        "//packages/angular:OWNERS",
         "//examples:OWNERS.examples_jest",
         "//examples:OWNERS.examples_nestjs",
         "//examples:OWNERS.examples_cypress",

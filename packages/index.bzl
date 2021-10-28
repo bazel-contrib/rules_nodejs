@@ -16,7 +16,6 @@
 """
 
 NPM_PACKAGES = ["@bazel/%s" % pkg for pkg in [
-    "angular",
     "concatjs",
     "create",
     "jasmine",

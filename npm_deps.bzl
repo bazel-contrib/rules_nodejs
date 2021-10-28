@@ -530,12 +530,6 @@ filegroup(
         package_lock_json = "//packages/node-patches:package-lock.json",
     )
 
-    npm_install(
-        name = "angular_deps",
-        package_json = "//packages/angular:package.json",
-        package_lock_json = "//packages/angular:package-lock.json",
-    )
-
     yarn_install(
         name = "cypress_deps",
         package_json = "//packages/cypress/test:package.json",

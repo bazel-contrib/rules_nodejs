@@ -6,7 +6,6 @@ module.exports = {
       2,
       'always',
       [
-        'angular',
         'builtin',
         'concatjs',
         'create',
