@@ -14,6 +14,7 @@ bzl_library(
     visibility = ["//visibility:public"],
     deps = [
         "//nodejs/private:bzl",
+        "//nodejs/private/providers:bzl",
         "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
     ],
 )

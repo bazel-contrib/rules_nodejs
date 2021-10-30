@@ -20,7 +20,4 @@ bzl_library(
         "rules/**/*.bzl",
     ]),
     visibility = ["//visibility:public"],
-    deps = [
-        "//internal/npm_install:bzl",
-    ],
 )
