@@ -396,6 +396,9 @@ def ts_project_macro(
 
     Any code that works with `tsc` should work with `ts_project` with a few caveats:
 
+    - `ts_project` always produces some output files, or else Bazel would never run it.
+      Therefore you shouldn't use it with TypeScript's `noEmit` option.
+      See `tsc_test` under the Alternatives section above.
     - Bazel requires that the `outDir` (and `declarationDir`) be set to
       `bazel-out/[target architecture]/bin/path/to/package`
       so we override whatever settings appear in your tsconfig.
