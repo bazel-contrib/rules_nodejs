@@ -16,6 +16,10 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.4.0/rules_nodejs-4.4.0.tar.gz"],
 )
 
+load("@build_bazel_rules_nodejs//nodejs:repositories.bzl", "rules_nodejs_dependencies")
+
+rules_nodejs_dependencies()
+
 # The yarn_install rule runs yarn anytime the package.json or yarn.lock file changes.
 # It also extracts and installs any Bazel rules distributed in an npm package.
 load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")

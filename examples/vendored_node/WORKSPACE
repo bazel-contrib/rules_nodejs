@@ -25,6 +25,10 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.4.0/rules_nodejs-4.4.0.tar.gz"],
 )
 
+load("@build_bazel_rules_nodejs//nodejs:repositories.bzl", "rules_nodejs_dependencies")
+
+rules_nodejs_dependencies()
+
 http_archive(
     name = "vendored_node_15_0_1",
     build_file_content = """exports_files(["node-v15.0.1-linux-x64/bin/node"])""",
