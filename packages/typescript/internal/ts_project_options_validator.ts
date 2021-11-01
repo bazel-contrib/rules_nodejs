@@ -74,8 +74,7 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
         [ts.JsxEmit.ReactJSXDev]: 'react-jsx-dev',
       }
 
-  function
-  check_preserve_jsx() {
+  function check_preserve_jsx() {
     const attr = 'preserve_jsx'
     const jsxVal = options['jsx'] as ts.JsxEmit
     if ((jsxVal === ts.JsxEmit.Preserve) !== Boolean(attrs[attr])) {
@@ -84,6 +83,16 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
       buildozerCmds.push(`set ${attr} ${jsxVal === ts.JsxEmit.Preserve ? 'True' : 'False'}`);
     }
   }
+
+  if (options.noEmit) {
+    console.error(`ERROR: ts_project rule ${
+      target} cannot be built because the 'noEmit' option is specified in the tsconfig.`);
+    console.error('This is not compatible with ts_project, which always produces outputs.');
+    console.error('- If you mean to only typecheck the code, use the tsc_test rule instead.');
+    console.error('  (See the Alternatives section in the documentation.)');
+    console.error('- Otherwise, remove the noEmit option from tsconfig and try again.');
+    return 1;
+  } 
 
   check('allowJs', 'allow_js');
   check('declarationMap', 'declaration_map');
@@ -103,8 +112,6 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
     console.error('You can automatically fix this by running:');
     console.error(
         `    npx @bazel/buildozer ${buildozerCmds.map(c => `'${c}'`).join(' ')} ${target}`);
-    console.error('Or to suppress this error, run:');
-    console.error(`    npx @bazel/buildozer 'set validate False' ${target}`);
     return 1;
   }
 
@@ -130,6 +137,10 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
 if (require.main === module) {
   try {
     process.exitCode = main(process.argv.slice(2));
+    if (process.exitCode != 0) {
+      console.error('Or to suppress this error, run:');
+      console.error(`    npx @bazel/buildozer 'set validate False' ${process.argv[4]}`);
+    }
   } catch (e) {
     console.error(process.argv[1], e);
   }
