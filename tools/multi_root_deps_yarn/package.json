@@ -1,0 +1,6 @@
+{
+  "description": "runtime dependencies multi_root_deps e2e test",
+  "dependencies": {
+    "rxjs": "6.5.0"
+  }
+}

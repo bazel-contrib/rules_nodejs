@@ -39,6 +39,10 @@ function log_verbose(...m) {
   if (VERBOSE_LOGS) console.error(`[${path.basename(__filename)}]`, ...m);
 }
 
+function pretty_json(m) {
+  return JSON.stringify(m, undefined, 2);
+}
+
 /**
  * The module roots as pairs of a RegExp to match the require path, and a
  * module_root to substitute for the require path.
@@ -54,14 +58,23 @@ const BIN_DIR = 'TEMPLATED_bin_dir';
 const GEN_DIR = 'TEMPLATED_gen_dir';
 const TARGET = 'TEMPLATED_target';
 
+/**
+ * The node_modules roots as a list for importing modules from multiple roots.
+ *
+ * There is currently no support for duplicate modules across roots. Avoid
+ * including identical packages from multiple roots, such as
+ * ['@npm_a//jest', '@npm_b//jest']
+ */
+const NODE_MODULES_ROOTS = NODE_MODULES_ROOT.split(':')
+
 log_verbose(`patching require for ${TARGET}
   cwd: ${process.cwd()}
   RUNFILES: ${process.env.RUNFILES}
   TARGET: ${TARGET}
   BIN_DIR: ${BIN_DIR}
   GEN_DIR: ${GEN_DIR}
-  MODULE_ROOTS: ${JSON.stringify(MODULE_ROOTS, undefined, 2)}
-  NODE_MODULES_ROOT: ${NODE_MODULES_ROOT}
+  MODULE_ROOTS: ${pretty_json(MODULE_ROOTS)}
+  NODE_MODULES_ROOTS: ${pretty_json(NODE_MODULES_ROOT)}
   USER_WORKSPACE_NAME: ${USER_WORKSPACE_NAME}
 `);
 
@@ -456,16 +469,18 @@ module.constructor._resolveFilename =
   }
 
   // If import was not resolved above then attempt to resolve
-  // within the node_modules filegroup in use
-  try {
-    const resolved = originalResolveFilename(
-        resolveRunfiles(undefined, NODE_MODULES_ROOT, request), parent, isMain, options);
-    log_verbose(
-        `resolved ${request} within node_modules (${NODE_MODULES_ROOT}) to ` +
-        `${resolved} from ${parentFilename}`);
-    return resolved;
-  } catch (e) {
-    failedResolutions.push(`node_modules attribute (${NODE_MODULES_ROOT}) - ${e.toString()}`);
+  // within the node_modules filegroups in use
+  for (const nodeModulesRoot of NODE_MODULES_ROOTS) {
+    try {
+      const resolved = originalResolveFilename(
+          resolveRunfiles(undefined, nodeModulesRoot, request), parent, isMain, options);
+      log_verbose(
+          `resolved ${request} within node_modules (${nodeModulesRoot}) to ` +
+          `${resolved} from ${parentFilename}`);
+      return resolved;
+    } catch (e) {
+      failedResolutions.push(`node_modules attribute (${nodeModulesRoot}) - ${e.toString()}`);
+    }
   }
 
   // Print the same error message that vanilla nodejs does.

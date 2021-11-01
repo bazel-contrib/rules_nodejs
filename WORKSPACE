@@ -506,6 +506,21 @@ filegroup(
     yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
 )
 
+yarn_install(
+    name = "multi_root_deps_yarn",
+    package_json = "//:tools/multi_root_deps_yarn/package.json",
+    symlink_node_modules = False,
+    yarn_lock = "//:tools/multi_root_deps_yarn/yarn.lock",
+)
+
+npm_install(
+    name = "multi_root_deps_npm",
+    npm_command = "install",
+    package_json = "//:tools/multi_root_deps_npm/package.json",
+    package_lock_json = "//:tools/multi_root_deps_npm/package-lock.json",
+    symlink_node_modules = False,
+)
+
 #
 # RBE configuration
 #

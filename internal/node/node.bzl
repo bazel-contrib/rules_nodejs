@@ -172,8 +172,9 @@ def _nodejs_binary_impl(ctx):
 
     node_modules_roots = _compute_node_modules_roots(ctx)
 
-    if "" in node_modules_roots:
-        node_modules_root = node_modules_roots[""] + "/node_modules"
+    node_modules_roots_key = node_modules_roots.keys()
+    if len(node_modules_roots_key) > 0:
+        node_modules_root = ":".join([root + "/node_modules" for root in node_modules_roots])
     else:
         # there are no fine grained deps but we still need a node_modules_root even if it is a non-existant one
         node_modules_root = "build_bazel_rules_nodejs/node_modules"

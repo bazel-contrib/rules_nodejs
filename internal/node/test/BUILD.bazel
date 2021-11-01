@@ -90,7 +90,7 @@ nodejs_test(
 )
 
 nodejs_test(
-    name = "mode_resolution_test",
+    name = "module_resolution_test",
     data = [
         "//internal/node/test/lib1",
         "//internal/node/test/lib2",
@@ -209,7 +209,7 @@ write_file(
 )
 
 nodejs_test(
-    name = "mode_resolution_built_test",
+    name = "module_resolution_built_test",
     data = [
         "//internal/node/test/lib1",
         "//internal/node/test/lib2",
@@ -222,6 +222,17 @@ nodejs_test(
         "@npm//node_resolve_nested_main",
     ],
     entry_point = ":module_resolution_built.spec.js",
+    # TODO: passes locally without this flag but fails on CircleCI
+    templated_args = ["--bazel_patch_module_resolver"],
+)
+
+nodejs_test(
+    name = "multi_module_resolution_built_test",
+    data = [
+        "@multi_root_deps_npm//rxjs",
+        "@multi_root_deps_yarn//rxjs",
+    ],
+    entry_point = ":multi_module_resolution.spec.js",
     # TODO: passes locally without this flag but fails on CircleCI
     templated_args = ["--bazel_patch_module_resolver"],
 )
