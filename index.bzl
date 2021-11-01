@@ -53,18 +53,8 @@ js_library = _js_library
 directory_file_path = _directory_file_path
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
 
-# Allows us to avoid a transitive dependency on bazel_skylib from leaking to users
-def dummy_bzl_library(name, srcs = [], deps = [], visibility = ["//visibility:public"], **kwargs):
-    native.filegroup(
-        name = name,
-        srcs = srcs + deps,
-        visibility = visibility,
-    )
-
 # @unsorted-dict-items
 COMMON_REPLACEMENTS = {
-    # Replace loads from @bazel_skylib with the dummy rule above
-    "(load\\(\"@bazel_skylib//:bzl_library.bzl\", \"bzl_library\"\\))": "# bazel_skylib mocked out\n# $1\nload(\"@build_bazel_rules_nodejs//:index.bzl\", bzl_library = \"dummy_bzl_library\")",
     # Make sure we don't try to load from under tools/ which isn't in the distro
     "(load\\(\"//:tools/defaults.bzl\", .*\\))": "# defaults.bzl not included in distribution\n# $1",
     # Cleanup up package.json @bazel/foobar package deps for published packages:
