@@ -339,7 +339,12 @@ function main(args, runfiles) {
             }
             const packagePathBin = path.posix.join(bin, packagePath);
             yield mkdirp(`${packagePathBin}`);
-            yield symlinkWithUnlink(execrootNodeModules, `${packagePathBin}/node_modules`);
+            if (workspace && !packagePath && (yield exists(execrootNodeModules))) {
+                yield symlinkWithUnlink(execrootNodeModules, `node_modules`);
+            }
+            else {
+                yield symlinkWithUnlink(execrootNodeModules, `${packagePathBin}/node_modules`);
+            }
             if (!isExecroot) {
                 const runfilesPackagePath = path.posix.join(startCwd, packagePath);
                 yield mkdirp(`${runfilesPackagePath}`);
