@@ -337,9 +337,11 @@ function main(args, runfiles) {
             else {
                 yield mkdirp(execrootNodeModules);
             }
-            const packagePathBin = path.posix.join(bin, packagePath);
-            yield mkdirp(`${packagePathBin}`);
-            yield symlinkWithUnlink(execrootNodeModules, `${packagePathBin}/node_modules`);
+            if (packagePath) {
+                const packagePathBin = path.posix.join(bin, packagePath);
+                yield mkdirp(`${packagePathBin}`);
+                yield symlinkWithUnlink(execrootNodeModules, `${packagePathBin}/node_modules`);
+            }
             if (!isExecroot) {
                 const runfilesPackagePath = path.posix.join(startCwd, packagePath);
                 yield mkdirp(`${runfilesPackagePath}`);
