@@ -10,9 +10,12 @@ function normPath(p) {
     // On Windows, we normalize to lowercase for so path mismatches such as 'C:/Users' and
     // 'c:/users' don't break the specs.
     result = result.toLowerCase();
-    if (/[a-zA-Z]\:/.test(result)) {
+    if (/^[a-z]\:/.test(result)) {
       // Handle c:/ and /c/ mismatch
       result = `/${result[0]}${result.slice(2)}`;
+    } else if (/^[a-z];[a-z]\:/.test(result)) {
+      // Handle c;b:/ and /c/b/ mismatch
+      result = `/${result[0]}/${result[2]}${result.slice(4)}`;
     }
   }
   return result;
@@ -40,11 +43,14 @@ describe('launcher.sh environment', function() {
     expectPathsToMatch(process.cwd(), `${process.env['RUNFILES_DIR']}/build_bazel_rules_nodejs`);
     expectPathsToMatch(process.env['PWD'], `${process.env['RUNFILES_DIR']}/build_bazel_rules_nodejs`);
     expectPathsToMatch(process.env['BAZEL_NODE_MODULES_ROOTS'], ':npm');
+    console.log(process.env['RUNFILES'])
     const expectedRoots = [
       `${execroot}`,
       `${execroot}/node_modules`,
       `${runfilesRoot}`,
       `${runfilesRoot}/build_bazel_rules_nodejs/node_modules`,
+      `${process.env['RUNFILES']}`,
+      `${process.env['RUNFILES']}/${process.env['BAZEL_WORKSPACE']}/node_modules`,
       `${execroot}/external/npm/node_modules`,
       `${runfilesRoot}/npm/node_modules`,
       `${runfilesRoot}/build_bazel_rules_nodejs/external/npm/node_modules`,
@@ -71,6 +77,8 @@ describe('launcher.sh environment', function() {
        const expectedRoots = [
          `${execroot}`,
          `${execroot}/node_modules`,
+         `${env['RUNFILES']}`,
+         `${env['RUNFILES']}/${env['BAZEL_WORKSPACE']}/node_modules`,
        ]
        expectPathsToMatch(env['BAZEL_PATCH_ROOTS'].split(','), expectedRoots);
      });
@@ -92,6 +100,8 @@ describe('launcher.sh environment', function() {
        const expectedRoots = [
          `${execroot}`,
          `${execroot}/node_modules`,
+         `${env['RUNFILES']}`,
+         `${env['RUNFILES']}/${env['BAZEL_WORKSPACE']}/node_modules`,
          `${execroot}/external/npm/node_modules`,
        ]
        expectPathsToMatch(env['BAZEL_PATCH_ROOTS'].split(','), expectedRoots);
