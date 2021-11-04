@@ -15,7 +15,7 @@ This repository is maintained by volunteers in the Bazel community. Neither Goog
 We follow semantic versioning. Patch releases have bugfixes, minor releases have new features. Only major releases (1.x, 2.x) have breaking changes. We support [LTS releases](https://blog.bazel.build/2020/11/10/long-term-support-release.html) of Bazel (starting at 4.x), see `SUPPORTED_BAZEL_VERSIONS` in our `/index.bzl` for the list we test against.
 
 We strive to give you an easy upgrade path when we do introduce a breaking change by documenting a migration path.
-If you use code from an `/internal` path, or the labs package, these are not subject to our support policy and may have breaking changes or removals with no warning or migration path.
+If you use code from an `/internal` path, these are not subject to our support policy and may have breaking changes or removals with no warning or migration path.
 
 ## Documentation
 
