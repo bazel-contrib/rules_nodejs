@@ -1,3 +1,15 @@
+## [4.4.3](https://github.com/bazelbuild/rules_nodejs/compare/4.4.2...4.4.3) (2021-11-04)
+
+
+### Bug Fixes
+
+* [#3054](https://github.com/bazelbuild/rules_nodejs/issues/3054) regression in linker behavior in 4.4.2 ([#3059](https://github.com/bazelbuild/rules_nodejs/issues/3059)) ([ccf54bc](https://github.com/bazelbuild/rules_nodejs/commit/ccf54bc))
+* correct bzl_library target graph ([#3049](https://github.com/bazelbuild/rules_nodejs/issues/3049)) ([5ac721a](https://github.com/bazelbuild/rules_nodejs/commit/5ac721a))
+* don't link runfiles node_modules to execroot node_modules if there is an external workspace node_modules ([#3060](https://github.com/bazelbuild/rules_nodejs/issues/3060)) ([a76d000](https://github.com/bazelbuild/rules_nodejs/commit/a76d000))
+* **typescript:** give better error when noEmit is set ([#3047](https://github.com/bazelbuild/rules_nodejs/issues/3047)) ([eedc065](https://github.com/bazelbuild/rules_nodejs/commit/eedc065))
+
+
+
 ## [4.4.2](https://github.com/bazelbuild/rules_nodejs/compare/4.4.1...4.4.2) (2021-10-28)
 
 
