@@ -80,7 +80,8 @@ rollup_bundle(
     name = "bundle-es2015",
     config_file = "rollup.config.js",
     entry_points = {
-        ":main.prod.ts": "index",
+        ":main.prod.ts": "index.prod",
+        ":main.dev.ts": "index.dev",
     },
     output_dir = True,
     deps = [
@@ -117,7 +118,7 @@ html_insert_assets(
         "--roots=. $(RULEDIR)",
         "--assets",
     ] + ["$(execpath %s)" % s for s in _ASSETS] + [
-        "--scripts --module $(execpath :bundle-es2015)/index.js",
+        "--scripts --module $(execpath :bundle-es2015)/index.dev.js",
     ],
     data = [
         "//src:example/index.html",
@@ -172,8 +173,8 @@ html_insert_assets(
         "--roots=. $(RULEDIR)",
         "--assets",
     ] + ["$(execpath %s)" % s for s in _ASSETS] + [
-        "--scripts --module $(execpath :bundle-es2015.min)/index.js",
-        "--scripts --nomodule $(execpath :bundle-es5.min)/index.js",
+        "--scripts --module $(execpath :bundle-es2015.min)/index.prod.js",
+        "--scripts --nomodule $(execpath :bundle-es5.min)/index.prod.js",
     ],
     data = [
         "//src:example/index.html",
