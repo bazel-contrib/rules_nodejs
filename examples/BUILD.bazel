@@ -23,7 +23,10 @@ example_integration_test(
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
-    owners = ["@alan-agius4"],
+    owners = [
+        "@alan-agius4",
+        "@jbedard",
+    ],
 
     # bazel-in-bazel examples_angular fails on Windows on bazelci cloning a git repo:
     # ```
@@ -238,7 +241,10 @@ example_integration_test(
     bazel_commands = [
         "test ...",
     ],
-    owners = ["@alan-agius4"],
+    owners = [
+        "@alan-agius4",
+        "@jbedard",
+    ],
     tags = [
         # TODO(alexeagle): re-enable when it stops timing out on 4.x branch
         "manual",
