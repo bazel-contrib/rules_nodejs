@@ -166,7 +166,6 @@ replaced in all integration tests. For example,
 ```
 check_npm_packages = [
     "@bazel/jasmine",
-    "@bazel/labs",
     "@bazel/protractor",
     "@bazel/typescript",
 ],

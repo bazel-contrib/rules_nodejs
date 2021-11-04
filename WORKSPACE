@@ -78,17 +78,6 @@ local_repository(
     path = "packages/concatjs/devserver/devserver/test/test-workspace",
 )
 
-# Install labs dependencies
-load("//packages/labs:package.bzl", "npm_bazel_labs_dependencies")
-
-npm_bazel_labs_dependencies()
-
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-
-rules_proto_dependencies()
-
-rules_proto_toolchains()
-
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 

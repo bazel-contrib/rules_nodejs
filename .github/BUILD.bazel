@@ -8,14 +8,12 @@ generate_codeowners(
     # do not sort
     owners = [
         "//:OWNERS",
-        "//packages/labs:OWNERS",
         "//packages/rollup:OWNERS",
         "//packages/cypress:OWNERS",
         "//examples:OWNERS.examples_jest",
         "//examples:OWNERS.examples_nestjs",
         "//examples:OWNERS.examples_cypress",
         "//examples:OWNERS.examples_angular",
-        "//examples:OWNERS.examples_protocol_buffers",
         "//examples:OWNERS.examples_angular_bazel_architect",
     ],
 )

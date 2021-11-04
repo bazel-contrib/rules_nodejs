@@ -3,12 +3,10 @@
 #    yarn update-codeowners
 
 * @mattem @gregmagolan @soldair @alexeagle
-/packages/labs/** @mrmeku @alexeagle @gregmagolan @mattem
 /packages/rollup/** @jbedard @alexeagle @gregmagolan @mattem
 /packages/cypress/** @mrmeku @alexeagle @gregmagolan @mattem
 /examples/jest/** @mrmeku @alexeagle @gregmagolan @mattem
 /examples/nestjs/** @zachgrayio @zMotivat0r @rayman1104 @siberex @alexeagle @gregmagolan @mattem
 /examples/cypress/** @mrmeku @alexeagle @gregmagolan @mattem
 /examples/angular/** @alan-agius4 @alexeagle @gregmagolan @mattem
-/examples/protocol_buffers/** @mrmeku @alexeagle @gregmagolan @mattem
 /examples/angular_bazel_architect/** @alan-agius4 @alexeagle @gregmagolan @mattem

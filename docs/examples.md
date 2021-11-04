@@ -125,18 +125,19 @@ Example at [examples/kotlin](https://github.com/bazelbuild/rules_nodejs/tree/sta
 
 ### Protocol Buffers and gRPC
 
-Note: this is under active development. Come chat in the #javascript channel on Slack to get the latest.
-Support and stability are not great but expected to improve.
+rules_nodejs doesn't provide any support for protos or gRPC.
+Even outside Bazel, there are many alternative implementations for them, all the way from protoc plugins, code generation, type-checking, and runtime support.
+Under Bazel there are many options for each of these, and they don't have good compatibility with each other.
 
-There are many alternative implementations for protobuf and RPC.
-We generally intend to support all of them, with a small layer in rules_nodejs that allows you to build around any of those tools.
+Sadly Google isn't driving the ecosystem to shared solutions, so there is tremendous fragmentation. This isn't a problem rules_nodejs can solve with the resources we have.
+We can't even provide useful guidance about which alternatives to use.
 
-<https://github.com/rules-proto-grpc/rules_proto_grpc> is an excellent, broad ruleset based on the tooling from <http://grpc.io>. We may point to this as the canonical example in the future.
+<https://github.com/stackb/rules_proto> is undergoing a rewrite to version 2.
+Check for a BazelCon 2021 talk by @pcj about it.
 
-The `@bazel/labs` package has an experimental `ts_proto_library` rule.
-It integrates with the "concatjs" bundler and is suitable for projects using `ts_library`.
-However it's not clear whether this will be promoted to a stable API.
-See the example in [examples/protocol_buffers](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/protocol_buffers)
+<https://github.com/rules-proto-grpc/rules_proto_grpc> is a fork of stackb/rules_proto that has become popular.
+
+<https://github.com/Dig-Doug/rules_typescript_proto> seems promising.
 
 [protobuf.js](https://github.com/protobufjs/protobuf.js) from https://github.com/dcodeIO is a simple alternative.
 See the example in [examples/protobufjs](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/protobufjs)

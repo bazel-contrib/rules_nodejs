@@ -42,7 +42,6 @@ _READMES = {
     "Concatjs": "//packages/concatjs:README.md",
     "Cypress": "//packages/cypress:README.md",
     "Jasmine": "//packages/jasmine:README.md",
-    "Labs": "//packages/labs:README.md",
     "Protractor": "//packages/protractor:README.md",
     "Providers": "//docs:providers.md_",
     "Rollup": "//packages/rollup:README.md",

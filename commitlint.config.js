@@ -13,7 +13,6 @@ module.exports = {
         'esbuild',
         'examples',
         'jasmine',
-        'labs',
         'protractor',
         'rollup',
         'runfiles',

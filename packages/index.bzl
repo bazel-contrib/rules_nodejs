@@ -19,7 +19,6 @@ NPM_PACKAGES = ["@bazel/%s" % pkg for pkg in [
     "concatjs",
     "create",
     "jasmine",
-    "labs",
     "protractor",
     "rollup",
     "runfiles",
