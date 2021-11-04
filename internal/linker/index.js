@@ -136,9 +136,9 @@ function symlink(target, p) {
         }
     });
 }
-function resolveWorkspaceNodeModules(workspace, startCwd, isExecroot, execroot, runfiles) {
+function resolveWorkspaceNodeModules(externalWorkspace, startCwd, isExecroot, execroot, runfiles) {
     return __awaiter(this, void 0, void 0, function* () {
-        const targetManifestPath = `${workspace}/node_modules`;
+        const targetManifestPath = `${externalWorkspace}/node_modules`;
         if (isExecroot) {
             return `${execroot}/external/${targetManifestPath}`;
         }
@@ -319,10 +319,10 @@ function main(args, runfiles) {
             });
         }
         for (const packagePath of Object.keys(roots)) {
-            const workspace = roots[packagePath];
-            let workspaceNodeModules = yield resolveWorkspaceNodeModules(workspace, startCwd, isExecroot, execroot, runfiles);
+            const externalWorkspace = roots[packagePath];
+            let workspaceNodeModules = yield resolveWorkspaceNodeModules(externalWorkspace, startCwd, isExecroot, execroot, runfiles);
             if (yield exists(workspaceNodeModules)) {
-                log_verbose(`resolved ${workspace} workspace node modules path to ${workspaceNodeModules}`);
+                log_verbose(`resolved ${externalWorkspace} external workspace node modules path to ${workspaceNodeModules}`);
             }
             else {
                 workspaceNodeModules = undefined;
@@ -345,14 +345,14 @@ function main(args, runfiles) {
             if (!isExecroot) {
                 const runfilesPackagePath = path.posix.join(startCwd, packagePath);
                 yield mkdirp(`${runfilesPackagePath}`);
-                yield symlinkWithUnlink(execrootNodeModules, `${runfilesPackagePath}/node_modules`);
+                yield symlinkWithUnlink(!packagePath && workspaceNodeModules ? workspaceNodeModules : execrootNodeModules, `${runfilesPackagePath}/node_modules`);
             }
             if (process.env['RUNFILES']) {
                 const stat = yield gracefulLstat(process.env['RUNFILES']);
                 if (stat && stat.isDirectory()) {
-                    const runfilesPackagePath = path.posix.join(process.env['RUNFILES'], packagePath);
+                    const runfilesPackagePath = path.posix.join(process.env['RUNFILES'], workspace, packagePath);
                     yield mkdirp(`${runfilesPackagePath}`);
-                    yield symlinkWithUnlink(execrootNodeModules, `${runfilesPackagePath}/node_modules`);
+                    yield symlinkWithUnlink(!packagePath && workspaceNodeModules ? workspaceNodeModules : execrootNodeModules, `${runfilesPackagePath}/node_modules`);
                 }
             }
         }

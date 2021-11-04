@@ -285,6 +285,12 @@ if [[ "${RUNFILES_ROOT}" ]]; then
   # (e.g., /private/.../execroot/build_bazel_rules_nodejs/bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/build_bazel_rules_nodejs/node_modules)
   export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${BAZEL_WORKSPACE}/node_modules"
 fi
+if [[ "${RUNFILES}" ]]; then
+  # If in runfiles, guard the RUNFILES root itself
+  export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES}"
+  # If RUNFILES is set, guard the RUNFILES node_modules as well
+  export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES}/${BAZEL_WORKSPACE}/node_modules"
+fi
 if [[ -n "${BAZEL_NODE_MODULES_ROOTS:-}" ]]; then
   # BAZEL_NODE_MODULES_ROOTS is in the format "<path>:<workspace>,<path>:<workspace>"
   # (e.g., "internal/linker/test:npm_internal_linker_test,:npm")
