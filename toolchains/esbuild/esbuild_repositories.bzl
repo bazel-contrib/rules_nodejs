@@ -10,7 +10,7 @@ def _maybe(repo_rule, name, **kwargs):
     if name not in native.existing_rules():
         repo_rule(name = name, **kwargs)
 
-def esbuild_repositories(name = "", npm_repository = "npm"):
+def esbuild_repositories(name = "", npm_repository = "npm", npm_args = []):
     """Helper for fetching and setting up the esbuild versions and toolchains
 
     This uses Bazel's downloader (via `http_archive`) to fetch the esbuild package
@@ -31,6 +31,7 @@ def esbuild_repositories(name = "", npm_repository = "npm"):
         name: currently unused
         npm_repository:  the name of the repository where the @bazel/esbuild package is installed
             by npm_install or yarn_install.
+        npm_args: additional args to pass to the npm install rule
     """
 
     for name, meta in ESBUILD_PACKAGES.platforms.items():
@@ -68,7 +69,7 @@ def esbuild_repositories(name = "", npm_repository = "npm"):
             "--no-optional",
             # Disable scripts as we don't need the javascript shim replaced wit the binary.
             "--ignore-scripts",
-        ],
+        ] + npm_args,
         symlink_node_modules = False,
         package_path = package_path,
     )
