@@ -395,7 +395,7 @@ Any other common attributes
 **USAGE**
 
 <pre>
-esbuild_repositories(<a href="#esbuild_repositories-name">name</a>, <a href="#esbuild_repositories-npm_repository">npm_repository</a>)
+esbuild_repositories(<a href="#esbuild_repositories-name">name</a>, <a href="#esbuild_repositories-npm_repository">npm_repository</a>, <a href="#esbuild_repositories-npm_args">npm_args</a>)
 </pre>
 
 Helper for fetching and setting up the esbuild versions and toolchains
@@ -430,5 +430,11 @@ the name of the repository where the @bazel/esbuild package is installed
 by npm_install or yarn_install.
 
 Defaults to `"npm"`
+
+<h4 id="esbuild_repositories-npm_args">npm_args</h4>
+
+additional args to pass to the npm install rule
+
+Defaults to `[]`
 
 
