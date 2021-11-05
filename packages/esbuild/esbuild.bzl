@@ -70,7 +70,7 @@ def _esbuild_impl(ctx):
         # Also disable the log limit and show all logs
         "logLevel": "warning",
         "logLimit": 0,
-        "metafile": True,
+        "metafile": ctx.attr.metafile,
         "platform": ctx.attr.platform,
         "preserveSymlinks": True,
         "sourcesContent": ctx.attr.sources_content,
@@ -146,9 +146,10 @@ def _esbuild_impl(ctx):
     launcher_args.add("--esbuild_args=%s" % args_file.path)
 
     # add metafile
-    meta_file = ctx.actions.declare_file("%s_metadata.json" % ctx.attr.name)
-    outputs.append(meta_file)
-    launcher_args.add("--metafile=%s" % meta_file.path)
+    if ctx.attr.metafile:
+        meta_file = ctx.actions.declare_file("%s_metadata.json" % ctx.attr.name)
+        outputs.append(meta_file)
+        launcher_args.add("--metafile=%s" % meta_file.path)
 
     # add reference to the users args file, these are merged within the launcher
     if ctx.attr.args_json:
@@ -282,6 +283,11 @@ This can be useful if running many esbuild rule invocations in parallel, which h
 For general use, leave this attribute unset.
             """,
         ),
+        "metafile": attr.bool(
+            default = True,
+            doc = "if true, esbuild creates a metafile along the output",
+            mandatory = False,
+        ),
         "minify": attr.bool(
             default = False,
             doc = """Minifies the bundle with the built in minification.
@@ -350,7 +356,7 @@ See https://esbuild.github.io/api/#splitting and https://esbuild.github.io/api/#
         ),
         "target": attr.string(
             default = "es2015",
-            doc = """Environment target (e.g. es2017, chrome58, firefox57, safari11, 
+            doc = """Environment target (e.g. es2017, chrome58, firefox57, safari11,
 edge16, node10, esnext). Default es2015.
 
 See https://esbuild.github.io/api/#target for more details
