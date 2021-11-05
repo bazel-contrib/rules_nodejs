@@ -34,6 +34,7 @@ YARN_VERSIONS = {
     "0.21.3": ("yarn-v0.21.3.tar.gz", "yarn-v0.21.3", "0946a4d1abc106c131b700cc31e5c3aa5f2205eb3bb9d17411f8115354a97d5d"),
     "0.22.0": ("yarn-v0.22.0.tar.gz", "yarn-v0.22.0", "e295042279b644f2bc3ea3407a2b2fb417a200d35590b0ec535422d21cf19a09"),
     "0.23.0": ("yarn-v0.23.0.tar.gz", "yarn-v0.23.0", "8cbd733e6bf253e0f5e2e5db7dbd165311150754b33df7c00bcaec175a3b33c2"),
+    "0.23.1": ("yarn-v0.23.1.tar.gz", "yarn-v0.23.1", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
     "0.23.2": ("yarn-v0.23.2.tar.gz", "yarn-v0.23.2", "2e4f3c5eb0bddad10fdc08a300ab43fe0f626544893deb9e07a4497e998cb82f"),
     "0.23.3": ("yarn-v0.23.3.tar.gz", "yarn-v0.23.3", "9f7569b9b89bbe4c3c0bbd8917f551ec26935802668b6e6139ea45db67e3a314"),
     "0.23.4": ("yarn-v0.23.4.tar.gz", "yarn-v0.23.4", "bab03e63593295969a3ec95c08a476c80eb821e6ea787829a1ac4b4b1c2298d7"),
