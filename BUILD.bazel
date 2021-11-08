@@ -40,9 +40,12 @@ bzl_library(
     name = "bzl",
     srcs = [
         "index.bzl",
-        "index.for_docs.bzl",
         "providers.bzl",
         "version.bzl",
+        # BEGIN-INTERNAL
+    ] + [
+        "index.for_docs.bzl",
+        # END-INTERNAL
     ],
     visibility = ["//visibility:public"],
     deps = [
