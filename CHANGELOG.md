@@ -1,3 +1,13 @@
+## [4.4.4](https://github.com/bazelbuild/rules_nodejs/compare/4.4.3...4.4.4) (2021-11-08)
+
+
+### Bug Fixes
+
+* **builtin:** fixed missing dist targets ([#3068](https://github.com/bazelbuild/rules_nodejs/issues/3068)) ([c30a26c](https://github.com/bazelbuild/rules_nodejs/commit/c30a26c))
+* **esbuild:** allow passing additional args to the npm install for esbuild ([#3063](https://github.com/bazelbuild/rules_nodejs/issues/3063)) ([31d5094](https://github.com/bazelbuild/rules_nodejs/commit/31d5094))
+
+
+
 ## [4.4.3](https://github.com/bazelbuild/rules_nodejs/compare/4.4.2...4.4.3) (2021-11-04)
 
 
