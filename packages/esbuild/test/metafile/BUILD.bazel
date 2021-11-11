@@ -1,0 +1,24 @@
+load("//packages/esbuild:index.bzl", "esbuild")
+
+esbuild(
+    name = "lib",
+    srcs = [
+        ":main.js",
+    ],
+    entry_point = "main.js",
+    metafile = False,
+)
+
+sh_test(
+    name = "test",
+    size = "small",
+    srcs = [
+        "test.sh",
+    ],
+    args = [
+        "$(locations :lib)",
+    ],
+    data = [
+        ":lib",
+    ],
+)
