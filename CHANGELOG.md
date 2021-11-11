@@ -1,3 +1,19 @@
+## [4.4.5](https://github.com/bazelbuild/rules_nodejs/compare/4.4.4...4.4.5) (2021-11-11)
+
+
+### Bug Fixes
+
+* **builtin:** handle external repository file paths in js_library strip_prefix check ([c6ba226](https://github.com/bazelbuild/rules_nodejs/commit/c6ba226))
+* **builtin:** provide a DeclarationInfo from js_library is any input files are directories (TreeArtifacts) ([0b247c3](https://github.com/bazelbuild/rules_nodejs/commit/0b247c3))
+* **typescript:** don't set resolveJsonModule in generated tsconfig if tsconfig is dict and resolve_json_module is unset ([e026387](https://github.com/bazelbuild/rules_nodejs/commit/e026387))
+
+
+### Features
+
+* **esbuild:** add option to disable metafile generation ([#3066](https://github.com/bazelbuild/rules_nodejs/issues/3066)) ([2960f54](https://github.com/bazelbuild/rules_nodejs/commit/2960f54))
+
+
+
 ## [4.4.4](https://github.com/bazelbuild/rules_nodejs/compare/4.4.3...4.4.4) (2021-11-08)
 
 
