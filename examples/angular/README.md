@@ -107,7 +107,7 @@ The dynamic `import()` statements will resolve to modules that are served in the
 ## Npm dependencies
 
 Having a local `node_modules` folder setup by `yarn` or `npm` is not necessary when building this example with Bazel.
-This example makes use of Bazel managed npm dependencies (https://github.com/bazelbuild/rules_nodejs#using-bazel-managed-dependencies) which means Bazel will setup the npm dependencies in your `package.json` for you outside of your local workspace for use in the build.
+This example makes use of Bazel managed npm dependencies (https://bazelbuild.github.io/rules_nodejs/dependencies.html) which means Bazel will setup the npm dependencies in your `package.json` for you outside of your local workspace for use in the build.
 
 However, you may still want to run `yarn` or `npm` to manually setup a local `node_modules` folder for editor and tooling support.
 
