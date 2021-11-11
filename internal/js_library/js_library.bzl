@@ -157,7 +157,10 @@ def _impl(ctx):
             js_files.append(file)
 
         # register typings
-        if (
+        if file.is_directory:
+            # assume a directory contains typings since we can't know that it doesn't
+            typings.append(file)
+        elif (
             (
                 file.path.endswith(".d.ts") or
                 file.path.endswith(".d.ts.map") or
