@@ -362,7 +362,7 @@ def ts_project_macro(
         declaration = False,
         source_map = False,
         declaration_map = False,
-        resolve_json_module = False,
+        resolve_json_module = None,
         preserve_jsx = False,
         composite = False,
         incremental = False,
@@ -596,7 +596,10 @@ def ts_project_macro(
         allow_js: boolean; Specifies whether TypeScript will read .js and .jsx files. When used with declaration,
             TypeScript will generate .d.ts files from .js files.
 
-        resolve_json_module: boolean; Specifies whether TypeScript will read .json files.
+        resolve_json_module: None | boolean; Specifies whether TypeScript will read .json files. Defaults to None.
+            If set to True or False and tsconfig is a dict, resolveJsonModule is set in the generated config file.
+            If set to None and tsconfig is a dict, resolveJsonModule is unset in the generated config and typescript
+            default or extended tsconfig value will be load bearing.
 
         declaration_dir: a string specifying a subdirectory under the bazel-out folder where generated declaration
             outputs are written. Equivalent to the TypeScript --declarationDir option.
@@ -649,7 +652,8 @@ def ts_project_macro(
         declaration_map = compiler_options.setdefault("declarationMap", declaration_map)
         emit_declaration_only = compiler_options.setdefault("emitDeclarationOnly", emit_declaration_only)
         allow_js = compiler_options.setdefault("allowJs", allow_js)
-        resolve_json_module = compiler_options.setdefault("resolveJsonModule", resolve_json_module)
+        if resolve_json_module != None:
+            resolve_json_module = compiler_options.setdefault("resolveJsonModule", resolve_json_module)
 
         # These options are always passed on the tsc command line so don't include them
         # in the tsconfig. At best they're redundant, but at worst we'll have a conflict
