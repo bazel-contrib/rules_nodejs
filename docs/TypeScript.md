@@ -426,9 +426,12 @@ Defaults to `False`
 
 <h4 id="ts_project-resolve_json_module">resolve_json_module</h4>
 
-boolean; Specifies whether TypeScript will read .json files.
+None | boolean; Specifies whether TypeScript will read .json files. Defaults to None.
+If set to True or False and tsconfig is a dict, resolveJsonModule is set in the generated config file.
+If set to None and tsconfig is a dict, resolveJsonModule is unset in the generated config and typescript
+default or extended tsconfig value will be load bearing.
 
-Defaults to `False`
+Defaults to `None`
 
 <h4 id="ts_project-preserve_jsx">preserve_jsx</h4>
 
