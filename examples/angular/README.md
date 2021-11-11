@@ -127,7 +127,7 @@ A smoke test is also included with `ng_prerender_test` macro, which checks key e
 
 Having a local `node_modules` folder setup by `yarn` or `npm` is not
 necessary when building this example with Bazel. This example makes use
-of Bazel managed npm dependencies (https://github.com/bazelbuild/rules_nodejs#using-bazel-managed-dependencies)
+of Bazel managed npm dependencies (https://bazelbuild.github.io/rules_nodejs/dependencies.html)
 which means Bazel will setup the npm dependencies in your `package.json` for you
 outside of your local workspace for use in the build.
 
