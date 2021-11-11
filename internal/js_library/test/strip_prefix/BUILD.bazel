@@ -15,3 +15,9 @@ nodejs_test(
     ],
     entry_point = "test.js",
 )
+
+nodejs_test(
+    name = "external_test",
+    data = ["@npm//very_testy"],
+    entry_point = "external_test.js",
+)
