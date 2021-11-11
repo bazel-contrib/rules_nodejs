@@ -102,6 +102,12 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
                 amd_names_shim_content += "define(\"%s\", function() { return %s });\n" % n
     actions.write(amd_names_shim, amd_names_shim_content)
 
+def _to_manifest_path(ctx, file):
+    if file.short_path.startswith("../"):
+        return file.short_path[3:]
+    else:
+        return ctx.workspace_name + "/" + file.short_path
+
 def _link_path(ctx, all_files):
     link_path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
 
@@ -110,10 +116,14 @@ def _link_path(ctx, all_files):
         link_path += "/" + ctx.attr.strip_prefix
 
         # Check that strip_prefix contains at least one src path
-        check_prefix = "/".join([p for p in [ctx.label.package, ctx.attr.strip_prefix] if p])
+        check_prefix = "/".join([p for p in [
+            ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name,
+            ctx.label.package,
+            ctx.attr.strip_prefix,
+        ] if p])
         prefix_contains_src = False
         for file in all_files:
-            if file.short_path.startswith(check_prefix):
+            if _to_manifest_path(ctx, file).startswith(check_prefix):
                 prefix_contains_src = True
                 break
         if not prefix_contains_src:

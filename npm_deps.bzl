@@ -43,9 +43,27 @@ def npm_deps():
             "@test_multi_linker/lib-c2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_c",
             "@test_multi_linker/lib-d": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
             "@test_multi_linker/lib-d2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
+            "very_testy": "@npm//:testy_copy_js_library",
         },
         package_json = "//:package.json",
         yarn_lock = "//:yarn.lock",
+        manual_build_file_contents = """
+# re-link node_modules/testy as node_modules/very_testy
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library", "copy_to_bin")
+copy_to_bin(
+    name = "testy_copy",
+    srcs = [
+        "node_modules/testy/package.json",
+        "node_modules/testy/index.js",
+    ],
+)
+js_library(
+    name = "testy_copy_js_library",
+    srcs = [":testy_copy"],
+    strip_prefix = "node_modules/testy",
+    visibility = ["//very_testy:__pkg__"],
+)
+""",
     )
 
     yarn_install(
