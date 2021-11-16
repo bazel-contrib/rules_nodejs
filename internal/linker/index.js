@@ -433,6 +433,9 @@ function main(args, runfiles) {
                         if (runfilesPath.startsWith(externalPrefix)) {
                             runfilesPath = runfilesPath.slice(externalPrefix.length);
                         }
+                        else if (runfilesPath === '') {
+                            runfilesPath = workspace;
+                        }
                         else {
                             runfilesPath = path.posix.join(workspace, runfilesPath);
                         }
