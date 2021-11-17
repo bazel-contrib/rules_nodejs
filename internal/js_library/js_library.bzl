@@ -102,6 +102,15 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
                 amd_names_shim_content += "define(\"%s\", function() { return %s });\n" % n
     actions.write(amd_names_shim, amd_names_shim_content)
 
+JS_EXTENSIONS = ["js", "mjs", "cjs"]
+
+def _is_javascript_file(file):
+    for extension in JS_EXTENSIONS:
+        if file.basename.endswith(".%s" % extension) or \
+           file.basename.endswith(".%s.map" % extension):
+            return True
+    return False
+
 def _to_manifest_path(ctx, file):
     if file.short_path.startswith("../"):
         return file.short_path[3:]
@@ -153,7 +162,7 @@ def _impl(ctx):
             file = dst
 
         # register js files
-        if file.basename.endswith(".js") or file.basename.endswith(".js.map") or file.basename.endswith(".json"):
+        if _is_javascript_file(file) or file.basename.endswith(".json"):
             js_files.append(file)
 
         # register typings
