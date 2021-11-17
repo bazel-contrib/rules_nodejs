@@ -1,0 +1,9 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+
+package(default_visibility = ["//visibility:public"])
+
+js_library(
+    name = "js_lib",
+    package_name = "internal_linker_external_library_wksp",
+    srcs = ["index.mjs"],
+)

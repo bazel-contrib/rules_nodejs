@@ -140,6 +140,10 @@ def _link_path(ctx, all_files):
 
     return link_path
 
+def _is_part_of_owning_package(ctx, file):
+    """Gets whether the given file is part of the owning package as per the given context."""
+    return file.short_path.startswith(ctx.label.package)
+
 def _impl(ctx):
     input_files = ctx.files.srcs + ctx.files.named_module_srcs
     all_files = []
@@ -150,8 +154,11 @@ def _impl(ctx):
     for idx, f in enumerate(input_files):
         file = f
 
-        # copy files into bin if needed
-        if file.is_source and not file.path.startswith("external/"):
+        # Note: If sources which are not part of the current owning package have
+        # been added as `srcs`, we have to ignore copying as we cannot copy outside
+        # of the owning package. This exists for backwards compatibility. Ideally users
+        # would only add targets/files to `srcs` which are part of the owning package.
+        if file.is_source and _is_part_of_owning_package(ctx, file):
             dst = ctx.actions.declare_file(file.basename, sibling = file)
             if ctx.attr.is_windows:
                 copy_cmd(ctx, file, dst)

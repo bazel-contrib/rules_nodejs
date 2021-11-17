@@ -54,6 +54,11 @@ local_repository(
     path = "internal/pkg_npm/test/vendored_external",
 )
 
+local_repository(
+    name = "internal_linker_external_library_wksp",
+    path = "internal/linker/test/external_library/workspace",
+)
+
 #
 # Setup rules_nodejs npm dependencies
 #

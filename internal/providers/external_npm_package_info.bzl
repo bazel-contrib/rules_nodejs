@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""ExternalNpmPackageInfo providers and apsect to collect node_modules from deps.
+"""ExternalNpmPackageInfo providers and aspect to collect node_modules from deps.
 """
 
 # ExternalNpmPackageInfo provider is provided by targets that are external npm packages by
