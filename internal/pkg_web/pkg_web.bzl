@@ -41,6 +41,13 @@ See the section on stamping in the README.""",
     ),
 })
 
+# Hints for Bazel spawn strategy
+_execution_requirements = {
+    # Copying files is entirely IO-bound and there is no point doing this work
+    # remotely.
+    "no-remote-exec": "1",
+}
+
 def _move_files(ctx, root_paths):
     """Moves files into an output directory
 
@@ -73,7 +80,7 @@ def _move_files(ctx, root_paths):
         outputs = [www_dir],
         executable = ctx.executable._assembler,
         arguments = [args],
-        execution_requirements = {"local": "1"},
+        execution_requirements = _execution_requirements,
         env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
     )
     return depset([www_dir])
