@@ -73,8 +73,7 @@ genrule(
     name = "docs_scrub_platform",
     srcs = ["README.md_"],
     outs = ["README.md"],
-    cmd = "sed -e 's#devserver:devserver_.*_amd64#devserver:devserver_[platform]#' <$< >$@ ; " +
-          "sed -e 's#devserver:devserver_.*_arm64#devserver:devserver_[platform]#' <$< >$@",
+    cmd = "sed -e 's#devserver:devserver_.*_a[mr][dm]64#devserver:devserver_[platform]#' <$< >$@",
     visibility = ["//docs:__pkg__"],
 )
 
