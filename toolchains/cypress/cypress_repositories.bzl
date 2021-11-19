@@ -24,6 +24,8 @@ def cypress_repositories(
         linux_sha256 = "",
         darwin_urls = [],
         darwin_sha256 = "",
+        darwin_arm64_urls = [],
+        darwin_arm64_sha256 = "",
         windows_urls = [],
         windows_sha256 = ""):
     """
@@ -84,6 +86,32 @@ filegroup(
     )
 
     http_archive(
+        name = "cypress_darwin_arm64".format(name),
+        sha256 = darwin_arm64_sha256,
+        # Cypress checks that the binary path matches **/Contents/MacOS/Cypress so we do not strip that particular prefix.
+        urls = darwin_arm64_urls + [
+            # Note: there is currently no arm64 builds of cypress, so here we'll default to
+            # the x64 version so apple silicon macs can run the binary using Rosetta.
+            # Once a native arm64 build is available, this should be updated
+            "https://cdn.cypress.io/desktop/{}/darwin-x64/cypress.zip".format(version),
+        ],
+        build_file_content = """
+filegroup(
+    name = "files",
+    srcs = ["Cypress.app"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "bin",
+    # Cypress checks that the binary path matches **/Contents/MacOS/Cypress
+    srcs = ["Cypress.app/Contents/MacOS/Cypress"],
+    visibility = ["//visibility:public"],
+)
+""",
+    )
+
+    http_archive(
         name = "cypress_linux".format(name),
         sha256 = linux_sha256,
         urls = linux_urls + [
@@ -105,6 +133,6 @@ filegroup(
     )
 
     # This needs to be setup so toolchains can access nodejs for all different versions
-    for os_name in ["windows", "darwin", "linux"]:
+    for os_name in ["windows", "darwin", "darwin_arm64", "linux"]:
         toolchain_label = Label("@build_bazel_rules_nodejs//toolchains/cypress:cypress_{}_toolchain".format(os_name))
         native.register_toolchains("@{}//{}:{}".format(toolchain_label.workspace_name, toolchain_label.package, toolchain_label.name))

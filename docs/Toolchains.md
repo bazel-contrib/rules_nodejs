@@ -154,7 +154,7 @@ Defaults to `{}`
 
 <pre>
 cypress_repositories(<a href="#cypress_repositories-name">name</a>, <a href="#cypress_repositories-version">version</a>, <a href="#cypress_repositories-linux_urls">linux_urls</a>, <a href="#cypress_repositories-linux_sha256">linux_sha256</a>, <a href="#cypress_repositories-darwin_urls">darwin_urls</a>, <a href="#cypress_repositories-darwin_sha256">darwin_sha256</a>,
-                     <a href="#cypress_repositories-windows_urls">windows_urls</a>, <a href="#cypress_repositories-windows_sha256">windows_sha256</a>)
+                     <a href="#cypress_repositories-darwin_arm64_urls">darwin_arm64_urls</a>, <a href="#cypress_repositories-darwin_arm64_sha256">darwin_arm64_sha256</a>, <a href="#cypress_repositories-windows_urls">windows_urls</a>, <a href="#cypress_repositories-windows_sha256">windows_sha256</a>)
 </pre>
 
     Repository rule used to install cypress binary.
@@ -195,6 +195,16 @@ Defaults to `[]`
 <h4 id="cypress_repositories-darwin_sha256">darwin_sha256</h4>
 
 (Optional) SHA-256 of the darwin cypress binary
+
+Defaults to `""`
+
+<h4 id="cypress_repositories-darwin_arm64_urls">darwin_arm64_urls</h4>
+
+
+Defaults to `[]`
+
+<h4 id="cypress_repositories-darwin_arm64_sha256">darwin_arm64_sha256</h4>
+
 
 Defaults to `""`
 
