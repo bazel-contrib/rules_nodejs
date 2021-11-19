@@ -188,7 +188,7 @@ Defaults to `""`
 
 <h4 id="cypress_repositories-darwin_urls">darwin_urls</h4>
 
-(Optional) URLs at which the cypress binary for darwin distros of linux can be downloaded. If omitted, https://cdn.cypress.io/desktop will be used.
+(Optional) URLs at which the cypress binary for darwin can be downloaded. If omitted, https://cdn.cypress.io/desktop will be used.
 
 Defaults to `[]`
 
@@ -200,11 +200,13 @@ Defaults to `""`
 
 <h4 id="cypress_repositories-darwin_arm64_urls">darwin_arm64_urls</h4>
 
+(Optional) URLs at which the cypress binary for darwin arm64 can be downloaded. If omitted, https://cdn.cypress.io/desktop will be used (note: as of this writing (11/2021), Cypress does not have native arm64 builds, and this URL will link to the x86_64 build to run under Rosetta).
 
 Defaults to `[]`
 
 <h4 id="cypress_repositories-darwin_arm64_sha256">darwin_arm64_sha256</h4>
 
+(Optional) SHA-256 of the darwin arm64 cypress binary
 
 Defaults to `""`
 
