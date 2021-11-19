@@ -7,6 +7,7 @@
         "rootDirs": [
             ".",
             "../../../../../bazel-out/darwin-fastbuild/bin/packages/typescript/test/ts_project/js_library",
+            "../../../../../bazel-out/darwin_arm64-fastbuild/bin/packages/typescript/test/ts_project/js_library",
             "../../../../../bazel-out/k8-fastbuild/bin/packages/typescript/test/ts_project/js_library",
             "../../../../../bazel-out/x64_windows-fastbuild/bin/packages/typescript/test/ts_project/js_library",
             "../../../../../bazel-out/darwin-dbg/bin/packages/typescript/test/ts_project/js_library",
