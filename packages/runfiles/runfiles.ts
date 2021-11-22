@@ -114,6 +114,9 @@ export class Runfiles {
 
   /** Resolves the given module path. */
   resolve(modulePath: string) {
+    // Normalize path by converting to forward slashes and removing all trailing
+    // forward slashes
+    modulePath = modulePath.replace(/\\/g, '/').replace(/\/+$/g, '')
     if (path.isAbsolute(modulePath)) {
       return modulePath;
     }
@@ -128,6 +131,9 @@ export class Runfiles {
 
   /** Resolves the given path relative to the current Bazel workspace. */
   resolveWorkspaceRelative(modulePath: string) {
+    // Normalize path by converting to forward slashes and removing all trailing
+    // forward slashes
+    modulePath = modulePath.replace(/\\/g, '/').replace(/\/+$/g, '')
     if (!this.workspace) {
       throw new Error(
         'workspace could not be determined from the environment; make sure BAZEL_WORKSPACE is set');
@@ -137,6 +143,9 @@ export class Runfiles {
 
   /** Resolves the given path relative to the current Bazel package. */
   resolvePackageRelative(modulePath: string) {
+    // Normalize path by converting to forward slashes and removing all trailing
+    // forward slashes
+    modulePath = modulePath.replace(/\\/g, '/').replace(/\/+$/g, '')
     if (!this.workspace) {
       throw new Error(
         'workspace could not be determined from the environment; make sure BAZEL_WORKSPACE is set');
