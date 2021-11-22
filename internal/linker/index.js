@@ -416,7 +416,7 @@ function main(args, runfiles) {
                             runfilesPath = runfilesPath.slice(externalPrefix.length);
                         }
                         else {
-                            runfilesPath = `${workspace}/${runfilesPath}`;
+                            runfilesPath = path.posix.join(workspace, runfilesPath);
                         }
                         try {
                             target = runfiles.resolve(runfilesPath);
