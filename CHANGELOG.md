@@ -1,3 +1,16 @@
+## [4.4.6](https://github.com/bazelbuild/rules_nodejs/compare/4.4.5...4.4.6) (2021-11-23)
+
+
+### Bug Fixes
+
+* add arm64 as a platform to //packages/concatjs:docs_scrub_platform ([#3089](https://github.com/bazelbuild/rules_nodejs/issues/3089)) ([bc2803a](https://github.com/bazelbuild/rules_nodejs/commit/bc2803a))
+* normalize module path passed to runfiles helper for robustness ([#3094](https://github.com/bazelbuild/rules_nodejs/issues/3094)) ([3c44f51](https://github.com/bazelbuild/rules_nodejs/commit/3c44f51))
+* remove trailing forward slash when resolving workspace root link in runfiles MANIFEST ([#3093](https://github.com/bazelbuild/rules_nodejs/issues/3093)) ([6af7317](https://github.com/bazelbuild/rules_nodejs/commit/6af7317))
+* update tsconfigs to include darwin_arm64-fastbuild in rootDirs ([#3087](https://github.com/bazelbuild/rules_nodejs/issues/3087)) ([104420b](https://github.com/bazelbuild/rules_nodejs/commit/104420b))
+* **builtin:** don't use local:1 spawn ([#3084](https://github.com/bazelbuild/rules_nodejs/issues/3084)) ([f886b82](https://github.com/bazelbuild/rules_nodejs/commit/f886b82))
+
+
+
 ## [4.4.5](https://github.com/bazelbuild/rules_nodejs/compare/4.4.4...4.4.5) (2021-11-11)
 
 
