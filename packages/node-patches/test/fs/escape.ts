@@ -27,6 +27,21 @@ describe('escape function', () => {
     assert.ok(!isOutPath('/a/b', '/a/b/c/d'));
   });
 
+  it('isOutPath with wildcard is correct', () => {
+    assert.ok(isOutPath('/a/*', '/a'));
+    assert.ok(!isOutPath('/a/*', '/a/c/b'));
+    assert.ok(!isOutPath('/a/*', '/a/b'));
+    assert.ok(!isOutPath('/a/*', '/a/b/c/d'));
+    assert.ok(isOutPath('/a/*', '/b/b'));
+    assert.ok(isOutPath('/a/*', '/b/b/c/d'));
+    assert.ok(isOutPath('/*/b', '/a'));
+    assert.ok(isOutPath('/*/b', '/a/c/b'));
+    assert.ok(!isOutPath('/*/b', '/a/b'));
+    assert.ok(!isOutPath('/*/b', '/a/b/c/d'));
+    assert.ok(!isOutPath('/*/b', '/b/b'));
+    assert.ok(!isOutPath('/*/b', '/b/b/c/d'));
+  });
+
   it('isEscape is correct', () => {
     const roots = [
       '/a/b',

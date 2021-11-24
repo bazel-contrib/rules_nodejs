@@ -471,7 +471,18 @@ export const patcher = (fs: any = _fs, roots: string[]) => {
 };
 
 export function isOutPath(root: string, str: string) {
-  return !root || (!str.startsWith(root + path.sep) && str !== root);
+  if (!root)
+    return true;
+  let strParts = str.split(path.sep);
+  let rootParts = root.split(path.sep);
+  let i=0;
+  for (; i<rootParts.length && i<strParts.length; i++) {
+    if (rootParts[i] === strParts[i] || rootParts[i] === '*') {
+      continue;
+    }
+    break;
+  }
+  return i<rootParts.length;
 }
 
 export const escapeFunction = (roots: string[]) => {
