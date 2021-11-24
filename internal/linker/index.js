@@ -289,6 +289,8 @@ function main(args, runfiles) {
         log_verbose('execroot:', execroot ? execroot : 'not found');
         const isExecroot = startCwd == execroot;
         log_verbose('isExecroot:', isExecroot.toString());
+        const isBazelRun = !!process.env['BUILD_WORKSPACE_DIRECTORY'];
+        log_verbose('isBazelRun:', isBazelRun.toString());
         if (!isExecroot && execroot) {
             process.chdir(execroot);
             log_verbose('changed directory to execroot', execroot);
@@ -327,32 +329,46 @@ function main(args, runfiles) {
             else {
                 workspaceNodeModules = undefined;
             }
+            let primaryNodeModules;
             if (packagePath) {
-                yield mkdirp(packagePath);
-            }
-            const execrootNodeModules = path.posix.join(packagePath, `node_modules`);
-            if (workspaceNodeModules) {
-                yield symlinkWithUnlink(workspaceNodeModules, execrootNodeModules);
+                const binNodeModules = path.posix.join(bin, packagePath, 'node_modules');
+                yield mkdirp(path.dirname(binNodeModules));
+                if (workspaceNodeModules) {
+                    yield symlinkWithUnlink(workspaceNodeModules, binNodeModules);
+                    primaryNodeModules = workspaceNodeModules;
+                }
+                else {
+                    yield mkdirp(binNodeModules);
+                    primaryNodeModules = binNodeModules;
+                }
+                if (!isBazelRun) {
+                    const execrootNodeModules = path.posix.join(packagePath, 'node_modules');
+                    yield mkdirp(path.dirname(execrootNodeModules));
+                    yield symlinkWithUnlink(primaryNodeModules, execrootNodeModules);
+                }
             }
             else {
-                yield mkdirp(execrootNodeModules);
-            }
-            if (packagePath) {
-                const packagePathBin = path.posix.join(bin, packagePath);
-                yield mkdirp(`${packagePathBin}`);
-                yield symlinkWithUnlink(execrootNodeModules, `${packagePathBin}/node_modules`);
+                const execrootNodeModules = 'node_modules';
+                if (workspaceNodeModules) {
+                    yield symlinkWithUnlink(workspaceNodeModules, execrootNodeModules);
+                    primaryNodeModules = workspaceNodeModules;
+                }
+                else {
+                    yield mkdirp(execrootNodeModules);
+                    primaryNodeModules = execrootNodeModules;
+                }
             }
             if (!isExecroot) {
-                const runfilesPackagePath = path.posix.join(startCwd, packagePath);
-                yield mkdirp(`${runfilesPackagePath}`);
-                yield symlinkWithUnlink(!packagePath && workspaceNodeModules ? workspaceNodeModules : execrootNodeModules, `${runfilesPackagePath}/node_modules`);
+                const runfilesNodeModules = path.posix.join(startCwd, packagePath, 'node_modules');
+                yield mkdirp(path.dirname(runfilesNodeModules));
+                yield symlinkWithUnlink(primaryNodeModules, runfilesNodeModules);
             }
             if (process.env['RUNFILES']) {
                 const stat = yield gracefulLstat(process.env['RUNFILES']);
                 if (stat && stat.isDirectory()) {
-                    const runfilesPackagePath = path.posix.join(process.env['RUNFILES'], workspace, packagePath);
-                    yield mkdirp(`${runfilesPackagePath}`);
-                    yield symlinkWithUnlink(!packagePath && workspaceNodeModules ? workspaceNodeModules : execrootNodeModules, `${runfilesPackagePath}/node_modules`);
+                    const runfilesNodeModules = path.posix.join(process.env['RUNFILES'], workspace, 'node_modules');
+                    yield mkdirp(path.dirname(runfilesNodeModules));
+                    yield symlinkWithUnlink(primaryNodeModules, runfilesNodeModules);
                 }
             }
         }
@@ -393,7 +409,9 @@ function main(args, runfiles) {
         }
         function linkModules(package_path, m) {
             return __awaiter(this, void 0, void 0, function* () {
-                const symlinkIn = package_path ? `${package_path}/node_modules` : 'node_modules';
+                const symlinkIn = package_path ?
+                    path.posix.join(bin, package_path, 'node_modules') :
+                    'node_modules';
                 if (path.dirname(m.name)) {
                     yield mkdirp(`${symlinkIn}/${path.dirname(m.name)}`);
                 }

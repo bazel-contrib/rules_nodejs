@@ -23,3 +23,6 @@ test --flaky_test_attempts=2
 # Expose the SSH_AUTH_SOCK variable to integration tests that need to run git_repository repository rules
 # This is needed by the CircleCI git-over-ssh environment
 test --test_env=SSH_AUTH_SOCK
+
+# Keep going after first failure
+build --keep_going

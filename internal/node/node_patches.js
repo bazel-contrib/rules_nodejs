@@ -486,7 +486,18 @@ const patcher = (fs = fs__default['default'], roots) => {
 };
 exports.patcher = patcher;
 function isOutPath(root, str) {
-    return !root || (!str.startsWith(root + path__default['default'].sep) && str !== root);
+    if (!root)
+        return true;
+    let strParts = str.split(path__default['default'].sep);
+    let rootParts = root.split(path__default['default'].sep);
+    let i = 0;
+    for (; i < rootParts.length && i < strParts.length; i++) {
+        if (rootParts[i] === strParts[i] || rootParts[i] === '*') {
+            continue;
+        }
+        break;
+    }
+    return i < rootParts.length;
 }
 exports.isOutPath = isOutPath;
 const escapeFunction = (roots) => {
