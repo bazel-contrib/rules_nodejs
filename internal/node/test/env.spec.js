@@ -13,6 +13,9 @@ function normPath(p) {
     if (/^[a-z]\:/.test(result)) {
       // Handle c:/ and /c/ mismatch
       result = `/${result[0]}${result.slice(2)}`;
+    } else if (/^[a-z];[a-z]\:\/msys64/.test(result)) {
+      // Handle c;b:/msys64/ and /b/ mismatch
+      result = `/${result[2]}${result.slice(11)}`;
     } else if (/^[a-z];[a-z]\:/.test(result)) {
       // Handle c;b:/ and /c/b/ mismatch
       result = `/${result[0]}/${result[2]}${result.slice(4)}`;
@@ -43,73 +46,69 @@ describe('launcher.sh environment', function() {
     expectPathsToMatch(process.cwd(), `${process.env['RUNFILES_DIR']}/build_bazel_rules_nodejs`);
     expectPathsToMatch(process.env['PWD'], `${process.env['RUNFILES_DIR']}/build_bazel_rules_nodejs`);
     expectPathsToMatch(process.env['BAZEL_NODE_MODULES_ROOTS'], ':npm');
-    console.log(process.env['RUNFILES'])
     const expectedRoots = [
       `${execroot}`,
       `${execroot}/node_modules`,
       `${runfilesRoot}`,
       `${runfilesRoot}/build_bazel_rules_nodejs/node_modules`,
-      `${process.env['RUNFILES']}`,
-      `${process.env['RUNFILES']}/${process.env['BAZEL_WORKSPACE']}/node_modules`,
-      `${execroot}/external/npm/node_modules`,
-      `${runfilesRoot}/npm/node_modules`,
-      `${runfilesRoot}/build_bazel_rules_nodejs/external/npm/node_modules`,
     ]
+    if (isWindows) {
+      expectedRoots.push(
+        process.env['RUNFILES'],
+        `${process.env['RUNFILES']}/build_bazel_rules_nodejs/node_modules`,
+      )
+    }
     expectPathsToMatch(process.env['BAZEL_PATCH_ROOTS'].split(','), expectedRoots);
   });
-
-  it('should setup correct bazel environment variables when in execroot with no third party deps',
-     function() {
-       const env = require(runfiles.resolvePackageRelative('dump_build_env.json'));
-       // On Windows, the RUNFILES path ends in a /MANIFEST segment in this context
-       const runfilesRoot = normPath(isWindows ? path.dirname(env['RUNFILES']) : env['RUNFILES']);
-       const match = runfilesRoot.match(/\/bazel-out\//);
-       expect(!!match).toBe(true);
-       const execroot = runfilesRoot.slice(0, match.index);
-       expectPathsToMatch(path.basename(runfilesRoot), `dump_build_env.${runfilesExt}.runfiles`);
-       expectPathsToMatch(env['BAZEL_WORKSPACE'], 'build_bazel_rules_nodejs');
-       expectPathsToMatch(env['BAZEL_TARGET'], '//internal/node/test:dump_build_env');
-       expectPathsToMatch(env['PWD'], execroot);
-       // On Windows, an empty string value for 'BAZEL_NODE_MODULES_ROOTS' does not make it into
-       // dump_build_env.json
-       expectPathsToMatch(
-           env['BAZEL_NODE_MODULES_ROOTS'] ? env['BAZEL_NODE_MODULES_ROOTS'] : '', '');
-       const expectedRoots = [
-         `${execroot}`,
-         `${execroot}/node_modules`,
-         `${env['RUNFILES']}`,
-         `${env['RUNFILES']}/${env['BAZEL_WORKSPACE']}/node_modules`,
-       ]
-       expectPathsToMatch(env['BAZEL_PATCH_ROOTS'].split(','), expectedRoots);
-     });
-
-  it('should setup correct bazel environment variables when in execroot with third party deps',
-     function() {
-       const env = require(runfiles.resolvePackageRelative('dump_build_env_alt.json'));
-       // On Windows, the RUNFILES path ends in a /MANIFEST segment in this context
-       const runfilesRoot = normPath(isWindows ? path.dirname(env['RUNFILES']) : env['RUNFILES']);
-       const match = runfilesRoot.match(/\/bazel-out\//);
-       expect(!!match).toBe(true);
-       const execroot = runfilesRoot.slice(0, match.index);
-       expectPathsToMatch(
-           path.basename(runfilesRoot), `dump_build_env_alt.${runfilesExt}.runfiles`);
-       expectPathsToMatch(env['BAZEL_WORKSPACE'], 'build_bazel_rules_nodejs');
-       expectPathsToMatch(env['BAZEL_TARGET'], '//internal/node/test:dump_build_env_alt');
-       expectPathsToMatch(env['PWD'], execroot);
-       expectPathsToMatch(env['BAZEL_NODE_MODULES_ROOTS'], ':npm');
-       const expectedRoots = [
-         `${execroot}`,
-         `${execroot}/node_modules`,
-         `${env['RUNFILES']}`,
-         `${env['RUNFILES']}/${env['BAZEL_WORKSPACE']}/node_modules`,
-         `${execroot}/external/npm/node_modules`,
-       ]
-       expectPathsToMatch(env['BAZEL_PATCH_ROOTS'].split(','), expectedRoots);
-     });
-
+  
+  it('should setup correct bazel environment variables when in execroot with no third party deps', function() {
+    const env = require(runfiles.resolvePackageRelative('dump_build_env.json'));
+    // On Windows, the RUNFILES path ends in a /MANIFEST segment in this context
+    const runfilesRoot = normPath(isWindows ? path.dirname(env['RUNFILES']) : env['RUNFILES']);
+    const match = runfilesRoot.match(/\/bazel-out\//);
+    expect(!!match).toBe(true);
+    const execroot = runfilesRoot.slice(0, match.index);
+    expectPathsToMatch(path.basename(runfilesRoot), `dump_build_env.${runfilesExt}.runfiles`);
+    expectPathsToMatch(env['BAZEL_WORKSPACE'], 'build_bazel_rules_nodejs');
+    expectPathsToMatch(env['BAZEL_TARGET'], '//internal/node/test:dump_build_env');
+    expectPathsToMatch(env['PWD'], execroot);
+    // On Windows, an empty string value for 'BAZEL_NODE_MODULES_ROOTS' does not make it into
+    // dump_build_env.json
+    expectPathsToMatch(env['BAZEL_NODE_MODULES_ROOTS'] ? env['BAZEL_NODE_MODULES_ROOTS'] : '', '');
+    const expectedRoots = [
+      `${execroot}`,
+      `${execroot}/node_modules`,
+      `${env['RUNFILES']}`,
+      `${env['RUNFILES']}/${env['BAZEL_WORKSPACE']}/node_modules`,
+    ];
+    expectPathsToMatch(env['BAZEL_PATCH_ROOTS'].split(','), expectedRoots);
+  });
+    
+  it('should setup correct bazel environment variables when in execroot with third party deps', function() {
+    const env = require(runfiles.resolvePackageRelative('dump_build_env_alt.json'));
+    // On Windows, the RUNFILES path ends in a /MANIFEST segment in this context
+    const runfilesRoot = normPath(isWindows ? path.dirname(env['RUNFILES']) : env['RUNFILES']);
+    const match = runfilesRoot.match(/\/bazel-out\//);
+    expect(!!match).toBe(true);
+    const execroot = runfilesRoot.slice(0, match.index);
+    expectPathsToMatch(path.basename(runfilesRoot), `dump_build_env_alt.${runfilesExt}.runfiles`);
+    expectPathsToMatch(env['BAZEL_WORKSPACE'], 'build_bazel_rules_nodejs');
+    expectPathsToMatch(env['BAZEL_TARGET'], '//internal/node/test:dump_build_env_alt');
+    expectPathsToMatch(env['PWD'], execroot);
+    expectPathsToMatch(env['BAZEL_NODE_MODULES_ROOTS'], ':npm');
+    const expectedRoots = [
+      `${execroot}`,
+      `${execroot}/node_modules`,
+      `${env['RUNFILES']}`,
+      `${env['RUNFILES']}/${env['BAZEL_WORKSPACE']}/node_modules`,
+    ];
+    expectPathsToMatch(env['BAZEL_PATCH_ROOTS'].split(','), expectedRoots);
+  });
+    
   it('should setup correct bazel environment variables from env attr', function() {
     const env = require(runfiles.resolvePackageRelative('dump_build_env_attr.json'));
     expect(env['FOO']).toBe('BAR');
     expect(env['LOC']).toBe('build_bazel_rules_nodejs/internal/node/test/dump_build_env.js');
   });
 });
+    
