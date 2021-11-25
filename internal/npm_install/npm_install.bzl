@@ -843,17 +843,32 @@ def _yarn_install_impl(repository_ctx):
     # The entry points for npm install for osx/linux and windows
     if not is_windows_host:
         # Prefix filenames with _ so they don't conflict with the npm packages.
+        #
         # Unset YARN_IGNORE_PATH before calling yarn incase it is set so that
-        # .yarnrc yarn-path is followed if set. This is for the case when calling
-        # bazel from yarn with `yarn bazel ...` and yarn follows yarn-path in
-        # .yarnrc it will set YARN_IGNORE_PATH=1 which will prevent the bazel
-        # call into yarn from also following the yarn-path as desired.
+        # .yarnrc yarn-path is followed if set. This is for the case when
+        # calling bazel from yarn with `yarn bazel ...` and yarn follows
+        # yarn-path in .yarnrc it will set YARN_IGNORE_PATH=1 which will prevent
+        # the bazel call into yarn from also following the yarn-path as desired.
+        #
+        # Unset INIT_CWD before calling yarn. This env variable can be set by an
+        # outer yarn if bazel is invoked from a package.json script. It can
+        # confuse post-install scripts if they use this env var.
+        #
+        # Unset npm_config_registry before calling yarn. This env variable can
+        # be set by an outer yarn if bazel is invoked from a package.json script
+        # and they can break the yarn install in some cases. The case observed
+        # was an .npmrc file with a registry override in the user WORKSPACE
+        # breaking the install with the error: (error An unexpected error
+        # occurred: “Cannot create property ‘https’ on string
+        # ‘https://domain/artifactory/api/npm/npm/’“.)
         repository_ctx.file(
             "_yarn.sh",
             content = """#!/usr/bin/env bash
 # Immediately exit if any command fails.
 set -e
 unset YARN_IGNORE_PATH
+unset INIT_CWD
+unset npm_config_registry
 (cd "{root}"; "{yarn}" {yarn_args})
 """.format(
                 root = root,
@@ -867,6 +882,8 @@ unset YARN_IGNORE_PATH
             "_yarn.cmd",
             content = """@echo off
 set "YARN_IGNORE_PATH="
+set “INIT_CWD=”
+set “npm_config_registry=”
 cd /D "{root}" && "{yarn}" {yarn_args}
 """.format(
                 root = root,
