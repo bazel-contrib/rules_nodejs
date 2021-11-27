@@ -20,7 +20,13 @@ http_archive(
     ],
 )
 
-load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
+
+# M1 Macs require Node 16+
+node_repositories(
+    package_json = ["//:package.json"],
+    node_version = "16.5.0",
+)
 
 yarn_install(
     # Name this npm so that Bazel Label references look like @npm//package
