@@ -41,11 +41,11 @@ http_archive(
         # Updates @bazel/work dep to 4.0.0 inside rules_sass so it is compatible
         "//:io_bazel_rules_sass.patch",
     ],
-    sha256 = "5313032124ff191eed68efcfbdc6ee9b5198093b2b80a8e640ea34feabbffc69",
-    strip_prefix = "rules_sass-1.34.0",
+    sha256 = "0b4a623302d73a66fa19e0f861cae8afe8d3f8d6dfbc4b679f4f024f0112e3bd",
+    strip_prefix = "rules_sass-1.44.0",
     urls = [
-        "https://github.com/bazelbuild/rules_sass/archive/1.34.0.zip",
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.34.0.zip",
+        "https://github.com/bazelbuild/rules_sass/archive/1.44.0.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.44.0.zip",
     ],
 )
 
