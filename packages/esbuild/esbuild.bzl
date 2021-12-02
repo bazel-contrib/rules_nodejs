@@ -84,10 +84,6 @@ def _esbuild_impl(ctx):
 
     if ctx.attr.minify:
         args.update({"minify": True})
-    else:
-        # by default, esbuild will tree-shake 'pure' functions
-        # disable this unless also minifying
-        args.update({"ignoreAnnotations": True})
 
     if ctx.attr.splitting:
         if not ctx.attr.output_dir:
