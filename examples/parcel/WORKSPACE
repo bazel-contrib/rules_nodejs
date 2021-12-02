@@ -29,7 +29,29 @@ load("@build_bazel_rules_nodejs//nodejs:repositories.bzl", "rules_nodejs_depende
 
 rules_nodejs_dependencies()
 
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "npm_install")
+
+node_repositories(
+    # with node 16, this example fails on circleCI, because
+    # parcel has a gyp build on install that fails due to wrong
+    # version of the python interpreter:
+    # npm ERR! code 1
+    # npm ERR! path /tmp/tmp-22804uFaivyUQN3f5/node_modules/deasync
+    # npm ERR! command failed
+    # npm ERR! command sh -c node ./build.js
+    # npm ERR! gyp info it worked if it ends with ok
+    # npm ERR! gyp info using node-gyp@8.2.0
+    # npm ERR! gyp info using node@16.12.0 | linux | x64
+    # npm ERR! gyp ERR! find Python
+    # npm ERR! gyp ERR! find Python Python is not set from command line or npm configuration
+    # npm ERR! gyp ERR! find Python Python is not set from environment variable PYTHON
+    # npm ERR! gyp ERR! find Python checking if "python3" can be used
+    # npm ERR! gyp ERR! find Python - executable path is "/usr/bin/python3"
+    # npm ERR! gyp ERR! find Python - version is "3.5.3"
+    # npm ERR! gyp ERR! find Python - version is 3.5.3 - should be >=3.6.0
+    # npm ERR! gyp ERR! find Python - THIS VERSION OF PYTHON IS NOT SUPPORTED
+    node_version = "14.17.5",
+)
 
 npm_install(
     name = "npm",

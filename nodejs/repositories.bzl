@@ -8,7 +8,7 @@ load("//nodejs/private:yarn_versions.bzl", "YARN_VERSIONS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-DEFAULT_NODE_VERSION = "14.17.5"
+DEFAULT_NODE_VERSION = "16.12.0"
 
 BUILT_IN_NODE_PLATFORMS = PLATFORMS.keys()
 
