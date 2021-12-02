@@ -93,6 +93,9 @@ def _esbuild_impl(ctx):
             "splitting": True,
         })
 
+    if ctx.attr.format:
+        args.update({"format": ctx.attr.format})
+
     if ctx.attr.output_dir:
         js_out = ctx.actions.declare_directory("%s" % ctx.attr.name)
         outputs.append(js_out)
@@ -113,9 +116,6 @@ def _esbuild_impl(ctx):
 
         if ctx.outputs.output_css:
             outputs.append(ctx.outputs.output_css)
-
-        if ctx.attr.format:
-            args.update({"format": ctx.attr.format})
 
         args.update({"outfile": js_out.path})
 
