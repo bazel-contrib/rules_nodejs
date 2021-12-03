@@ -17,9 +17,9 @@ jobs:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
 
         # The number of days old an issue can be before marking it stale.
-        days-before-stale: 90
+        days-before-stale: 183
         # Number of days of inactivity before a stale issue is closed
-        days-before-close: 14
+        days-before-close: 30
 
         # If an issue/PR is assigned, trust the assignee to stay involved
         # Can revisit if these get stale
@@ -33,22 +33,22 @@ jobs:
 
         stale-issue-message: >
           This issue has been automatically marked as stale because it has not had
-          any activity for 90 days.
-          It will be closed if no further activity occurs in two weeks.
+          any activity for 6 months.
+          It will be closed if no further activity occurs in 30 days.
           Collaborators can add a "cleanup" or "need: discussion" label to keep it open indefinitely.
           Thanks for your contributions to rules_nodejs!
 
         stale-pr-message: >
           This Pull Request has been automatically marked as stale because it has not had
-          any activity for 90 days.
-          It will be closed if no further activity occurs in two weeks.
+          any activity for 6 months.
+          It will be closed if no further activity occurs in 30 days.
           Collaborators can add a "cleanup" or "need: discussion" label to keep it open indefinitely.
           Thanks for your contributions to rules_nodejs!
 
         close-issue-message: >
-          This issue was automatically closed because it went two weeks without a reply
+          This issue was automatically closed because it went 30 days without any activity
           since it was labeled "Can Close?"
 
         close-pr-message: >
-          This PR was automatically closed because it went two weeks without a reply
+          This PR was automatically closed because it went 30 days without any activity
           since it was labeled "Can Close?"
