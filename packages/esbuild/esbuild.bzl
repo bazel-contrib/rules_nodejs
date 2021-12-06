@@ -2,6 +2,7 @@
 esbuild rule
 """
 
+load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "LinkerPackageMappingInfo", "module_mappings_aspect")
@@ -49,7 +50,6 @@ def _esbuild_impl(ctx):
     inputs = [d for d in inputs if not (d.path.endswith(".d.ts") or d.path.endswith(".tsbuildinfo"))]
 
     outputs = []
-
     args = dict({
         "bundle": True,
         "define": dict([
@@ -58,6 +58,12 @@ def _esbuild_impl(ctx):
                 expand_variables(ctx, ctx.expand_location(v), attribute_name = "define"),
             ]
             for k, v in ctx.attr.define.items()
+        ] + [
+            [
+                placeholder,
+                json.encode(setting[BuildSettingInfo].value),
+            ]
+            for setting, placeholder in ctx.attr.define_settings.items()
         ]),
         # the entry point files to bundle
         "entryPoints": [
@@ -225,6 +231,31 @@ esbuild(
 
 See https://esbuild.github.io/api/#define for more details
             """,
+        ),
+        "define_settings": attr.label_keyed_string_dict(
+            default = {},
+            doc = """A dict of labels of Starlark build settings and identifiers to be replaced with their values.
+Example:
+```python
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+
+string_flag(
+    name = "api_endpoint",
+    build_setting_default = "https://example.com/v1",
+)
+
+esbuild(
+    name = "bundle",
+    define_settings = {
+        ":api_endpoint": "API_ENDPOINT",
+    },
+)
+```
+
+The build setting has to provide [`BuildSettingInfo`](https://github.com/bazelbuild/bazel-skylib/blob/6e30a77347071ab22ce346b6d20cf8912919f644/rules/common_settings.bzl#L24).
+The value is automatically converted to a JS literal.
+See https://docs.bazel.build/versions/main/skylark/config.html#predefined-settings for more details on Starlark build settings.""",
+            providers = [BuildSettingInfo],
         ),
         "deps": attr.label_list(
             default = [],

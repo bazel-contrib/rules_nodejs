@@ -102,10 +102,10 @@ This will create an output directory containing all the code split chunks, along
 **USAGE**
 
 <pre>
-esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-args_json">args_json</a>, <a href="#esbuild-config">config</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-entry_points">entry_points</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>,
-        <a href="#esbuild-launcher">launcher</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>, <a href="#esbuild-metafile">metafile</a>, <a href="#esbuild-minify">minify</a>, <a href="#esbuild-node_context_data">node_context_data</a>, <a href="#esbuild-output">output</a>,
-        <a href="#esbuild-output_css">output_css</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-splitting">splitting</a>, <a href="#esbuild-srcs">srcs</a>,
-        <a href="#esbuild-target">target</a>)
+esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-args_json">args_json</a>, <a href="#esbuild-config">config</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-define_settings">define_settings</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-entry_points">entry_points</a>,
+        <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-launcher">launcher</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>, <a href="#esbuild-metafile">metafile</a>, <a href="#esbuild-minify">minify</a>,
+        <a href="#esbuild-node_context_data">node_context_data</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_css">output_css</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>,
+        <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-splitting">splitting</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>)
 </pre>
 
 Runs the esbuild bundler under Bazel
@@ -156,6 +156,33 @@ esbuild(
 ```
 
 See https://esbuild.github.io/api/#define for more details
+
+Defaults to `{}`
+
+<h4 id="esbuild-define_settings">define_settings</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: Label -> String</a>*): A dict of labels of Starlark build settings and identifiers to be replaced with their values.
+Example:
+```python
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+
+string_flag(
+    name = "api_endpoint",
+    build_setting_default = "https://example.com/v1",
+)
+
+esbuild(
+    name = "bundle",
+    define_settings = {
+        ":api_endpoint": "API_ENDPOINT",
+    },
+)
+```
+
+The build setting has to provide [`BuildSettingInfo`](https://github.com/bazelbuild/bazel-skylib/blob/6e30a77347071ab22ce346b6d20cf8912919f644/rules/common_settings.bzl#L24).
+The value is automatically converted to a JS literal.
+See https://docs.bazel.build/versions/main/skylark/config.html#predefined-settings for more details on Starlark build settings.  The dependencies of this attribute must provide: Unknown Provider
+
 
 Defaults to `{}`
 
