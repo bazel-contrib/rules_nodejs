@@ -112,6 +112,7 @@ load("//packages/cypress:index.bzl", "cypress_repositories")
 
 cypress_repositories(
     name = "cypress",
+    darwin_arm64_sha256 = "101a0ced77fb74b356800cb3a3919f5288d23cc63fdd39a0c500673159e954fc",
     darwin_sha256 = "101a0ced77fb74b356800cb3a3919f5288d23cc63fdd39a0c500673159e954fc",
     linux_sha256 = "d8ea8d16fed33fdae8f17178bcae076aaf532fa7ccb48f377df1f143e60abd59",
     version = "7.3.0",

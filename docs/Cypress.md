@@ -350,7 +350,7 @@ Defaults to `[]`
 
 <pre>
 cypress_repositories(<a href="#cypress_repositories-name">name</a>, <a href="#cypress_repositories-version">version</a>, <a href="#cypress_repositories-linux_urls">linux_urls</a>, <a href="#cypress_repositories-linux_sha256">linux_sha256</a>, <a href="#cypress_repositories-darwin_urls">darwin_urls</a>, <a href="#cypress_repositories-darwin_sha256">darwin_sha256</a>,
-                     <a href="#cypress_repositories-windows_urls">windows_urls</a>, <a href="#cypress_repositories-windows_sha256">windows_sha256</a>)
+                     <a href="#cypress_repositories-darwin_arm64_urls">darwin_arm64_urls</a>, <a href="#cypress_repositories-darwin_arm64_sha256">darwin_arm64_sha256</a>, <a href="#cypress_repositories-windows_urls">windows_urls</a>, <a href="#cypress_repositories-windows_sha256">windows_sha256</a>)
 </pre>
 
     Repository rule used to install cypress binary.
@@ -384,13 +384,25 @@ Defaults to `""`
 
 <h4 id="cypress_repositories-darwin_urls">darwin_urls</h4>
 
-(Optional) URLs at which the cypress binary for darwin distros of linux can be downloaded. If omitted, https://cdn.cypress.io/desktop will be used.
+(Optional) URLs at which the cypress binary for darwin can be downloaded. If omitted, https://cdn.cypress.io/desktop will be used.
 
 Defaults to `[]`
 
 <h4 id="cypress_repositories-darwin_sha256">darwin_sha256</h4>
 
 (Optional) SHA-256 of the darwin cypress binary
+
+Defaults to `""`
+
+<h4 id="cypress_repositories-darwin_arm64_urls">darwin_arm64_urls</h4>
+
+(Optional) URLs at which the cypress binary for darwin arm64 can be downloaded. If omitted, https://cdn.cypress.io/desktop will be used (note: as of this writing (11/2021), Cypress does not have native arm64 builds, and this URL will link to the x86_64 build to run under Rosetta).
+
+Defaults to `[]`
+
+<h4 id="cypress_repositories-darwin_arm64_sha256">darwin_arm64_sha256</h4>
+
+(Optional) SHA-256 of the darwin arm64 cypress binary
 
 Defaults to `""`
 
