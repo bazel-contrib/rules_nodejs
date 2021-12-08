@@ -158,3 +158,89 @@ diff_test(
     file1 = "actual3",
     file2 = "expected_ast.json",
 )
+
+################################################
+# Tests and setup for the toolchain changes
+
+# Create file for use in test cases later to get the version of node that is run
+write_file(
+    name = "version",
+    out = "version.js",
+    content = ["require('fs').writeFileSync(process.argv[2], process.version)"],
+)
+
+# Used in nodejs_bianry later to help see which version of node is run
+write_file(
+    name = "binary_version",
+    out = "binary_version.js",
+    content = ["console.log(process.version)"],
+)
+
+# Files used in test cases later that contain the correct nodejs version
+# that is imported into the workspace.
+write_file(
+    name = "write_node_version_15",
+    out = "expected_node_15",
+    content = ["v15.14.0"],
+)
+
+write_file(
+    name = "write_node_version_16",
+    out = "expected_node_16",
+    content = ["v16.9.0"],
+)
+
+# To see what nodejs version is used by default
+my_nodejs(
+    name = "run_no_toolchain",
+    out = "thing_no_toolchain",
+    entry_point = "version.js",
+)
+
+# this tests to make sure that the first version imported in the workspace is used as default
+diff_test(
+    name = "node_version_default_toolchain_test",
+    file1 = "write_node_version_15",
+    file2 = "thing_no_toolchain",
+)
+
+# Output contains the version number of node that is used.
+# This is used in tests later to verify the toolchain specified is resolved correctly
+my_nodejs(
+    name = "run_15",
+    out = "thing_toolchain_15",
+    entry_point = "version.js",
+    # using the select statement will download toolchains for all three platforms
+    # you can also just provide an individual toolchain if you don't want to download them all
+    toolchain = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "@node15_linux_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:darwin": "@node15_darwin_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:windows": "@node15_windows_amd64//:node_toolchain",
+    }),
+)
+
+# Section of test the verify the toolchain work as expected matching node version used with expected
+diff_test(
+    name = "test_node_version_15",
+    file1 = "write_node_version_15",
+    file2 = "thing_toolchain_15",
+)
+
+my_nodejs(
+    name = "run_16",
+    out = "thing_toolchain_16",
+    entry_point = "version.js",
+    # using the select statement will download toolchains for all three platforms
+    # you can also just provide an individual toolchain if you don't want to download them all
+    toolchain = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:darwin": "@node16_darwin_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_toolchain",
+    }),
+)
+
+diff_test(
+    name = "test_node_version_16",
+    file1 = "write_node_version_16",
+    file2 = "thing_toolchain_16",
+)

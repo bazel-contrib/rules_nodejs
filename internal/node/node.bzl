@@ -248,7 +248,9 @@ fi
     #
     # Rules such as nodejs_image should use only ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
     # when building the image as that will reflect the selected --platform.
-    node_tool_files = ctx.files._node[:]
+    node_tool_files = ctx.files.node[:]
+
+    # this should be resolved the same as above
     node_tool_files.extend(ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files)
 
     node_tool_files.append(ctx.file._link_modules_script)
@@ -258,7 +260,7 @@ fi
     node_tool_files.append(ctx.file._lcov_merger_script)
     node_tool_files.append(node_modules_manifest)
 
-    is_builtin = ctx.attr._node.label.workspace_name in ["nodejs_%s" % p for p in BUILT_IN_NODE_PLATFORMS]
+    is_builtin = ctx.attr.node.label.workspace_name in ["nodejs_%s" % p for p in BUILT_IN_NODE_PLATFORMS]
 
     runfiles = runfiles[:]
     runfiles.extend(node_tool_files)
@@ -317,7 +319,7 @@ fi
         "TEMPLATED_repository_args": _to_manifest_path(ctx, ctx.file._repository_args),
         "TEMPLATED_require_patch_script": _to_manifest_path(ctx, ctx.outputs.require_patch_script),
         "TEMPLATED_runfiles_helper_script": _to_manifest_path(ctx, ctx.file._runfile_helpers_main),
-        "TEMPLATED_vendored_node": "" if is_builtin else strip_external(ctx.file._node.path),
+        "TEMPLATED_vendored_node": "" if is_builtin else strip_external(ctx.file.node.path),
     }
 
     # TODO when we have "link_all_bins" we will only need to look in one place for the entry point
@@ -591,7 +593,7 @@ Predefined genrule variables are not supported in this context.
         default = Label("//internal/node:loader.js"),
         allow_single_file = True,
     ),
-    "_node": attr.label(
+    "node": attr.label(
         default = Label("@nodejs//:node_bin"),
         allow_single_file = True,
     ),
