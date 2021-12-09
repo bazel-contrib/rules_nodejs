@@ -105,7 +105,6 @@ resolved_toolchain(name = "resolved_toolchain", visibility = ["//visibility:publ
 toolchain(
     name = "{platform}_toolchain",
     exec_compatible_with = {compatible_with},
-    target_compatible_with = {compatible_with},
     toolchain = "@{user_node_repository_name}_{platform}//:node_toolchain",
     toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
 )

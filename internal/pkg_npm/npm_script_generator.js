@@ -24,8 +24,7 @@ const fs = require('fs');
 
 function main(args) {
   const
-      [outDir, packPath, publishPath, runNpmTemplatePath, packBatPath, publishBatPath,
-       runNpmBatTemplatePath] = args;
+      [outDir, packPath, publishPath, runNpmTemplatePath, packBatPath, publishBatPath] = args;
   const cwd = process.cwd();
   if (/[\//]sandbox[\//]/.test(cwd)) {
     console.error('Error: npm_script_generator must be run with no sandbox');
@@ -36,10 +35,8 @@ function main(args) {
   fs.writeFileSync(packPath, npmTemplate.replace('TMPL_args', `pack "${cwd}/${outDir}"`));
   fs.writeFileSync(publishPath, npmTemplate.replace('TMPL_args', `publish "${cwd}/${outDir}"`));
 
-  const npmBatTemplate = fs.readFileSync(runNpmBatTemplatePath, {encoding: 'utf-8'});
-  fs.writeFileSync(packBatPath, npmBatTemplate.replace('TMPL_args', `pack "${cwd}/${outDir}"`));
-  fs.writeFileSync(
-      publishBatPath, npmBatTemplate.replace('TMPL_args', `publish "${cwd}/${outDir}"`));
+  fs.writeFileSync(packBatPath, npmTemplate.replace('TMPL_args', `pack "${cwd}/${outDir}"`));
+  fs.writeFileSync(publishBatPath, npmTemplate.replace('TMPL_args', `publish "${cwd}/${outDir}"`));
 }
 
 if (require.main === module) {

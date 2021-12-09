@@ -143,21 +143,13 @@ See the section on stamping in the [README](stamping)
     ),
     "_npm_script_generator": attr.label(
         default = Label("//internal/pkg_npm:npm_script_generator"),
-        cfg = "host",
+        cfg = "exec",
         executable = True,
     ),
     "_packager": attr.label(
         default = Label("//internal/pkg_npm:packager"),
-        cfg = "host",
+        cfg = "exec",
         executable = True,
-    ),
-    "_run_npm_bat_template": attr.label(
-        default = Label("@nodejs//:run_npm.bat.template"),
-        allow_single_file = True,
-    ),
-    "_run_npm_template": attr.label(
-        default = Label("@nodejs//:run_npm.sh.template"),
-        allow_single_file = True,
     ),
 })
 
@@ -283,22 +275,22 @@ def create_package(ctx, deps_files, nested_packages):
 
 def _create_npm_scripts(ctx, package_dir):
     args = ctx.actions.args()
+    toolchain = ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo
 
     args.add_all([
         package_dir.path,
         ctx.outputs.pack_sh.path,
         ctx.outputs.publish_sh.path,
-        ctx.file._run_npm_template.path,
+        toolchain.run_npm.path,
         ctx.outputs.pack_bat.path,
         ctx.outputs.publish_bat.path,
-        ctx.file._run_npm_bat_template.path,
     ])
 
     ctx.actions.run(
         progress_message = "Generating npm pack & publish scripts",
         mnemonic = "GenerateNpmScripts",
         executable = ctx.executable._npm_script_generator,
-        inputs = [ctx.file._run_npm_template, ctx.file._run_npm_bat_template, package_dir],
+        inputs = [toolchain.run_npm, package_dir],
         outputs = [ctx.outputs.pack_sh, ctx.outputs.publish_sh, ctx.outputs.pack_bat, ctx.outputs.publish_bat],
         arguments = [args],
         # Must be run local (no sandbox) so that the pwd is the actual execroot
@@ -362,6 +354,7 @@ pkg_npm = rule(
     attrs = PKG_NPM_ATTRS,
     doc = _DOC,
     outputs = PKG_NPM_OUTPUTS,
+    toolchains = ["@rules_nodejs//nodejs:toolchain_type"],
 )
 
 def pkg_npm_macro(name, tgz = None, **kwargs):

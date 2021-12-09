@@ -22,6 +22,8 @@ NodeInfo = provider(
         "tool_files": """Files required in runfiles to make the nodejs executable available.
 
 May be empty if the target_tool_path points to a locally installed node binary.""",
+        "run_npm": """A template for a script that wraps npm.
+        On Windows, this is a Batch script, otherwise it uses Bash.""",
     },
 )
 
@@ -57,6 +59,7 @@ def _node_toolchain_impl(ctx):
     nodeinfo = NodeInfo(
         target_tool_path = target_tool_path,
         tool_files = tool_files,
+        run_npm = ctx.file.run_npm,
     )
 
     # Export all the providers inside our ToolchainInfo
@@ -83,6 +86,10 @@ node_toolchain = rule(
         "target_tool_path": attr.string(
             doc = "Path to an existing nodejs executable for the target platform.",
             mandatory = False,
+        ),
+        "run_npm": attr.label(
+            doc = "A template file that allows us to execute npm",
+            allow_single_file = True,
         ),
     },
     doc = """Defines a node toolchain.
