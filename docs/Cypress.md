@@ -34,8 +34,8 @@ cypress_repositories(name = "cypress", version = "MATCH_VERSION_IN_PACKAGE_JSON"
 ## Example use of cypress_web_test
 This example assumes you've named your external repository for node_modules as `npm` and for cypress as `cypress`
 ```python
-load("@npm//@bazel/cypress//:index.bzl", "cypress_web_test")
 load("@npm//@bazel/concatjs:index.bzl", "ts_library")
+load("@npm//@bazel/cypress:index.bzl", "cypress_web_test")
 
 # You must create a cypress plugin in order to boot a server to serve your application. It can be written as a javascript file or in typescript using ts_library or ts_project.
 ts_library(
