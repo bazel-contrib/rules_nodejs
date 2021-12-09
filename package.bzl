@@ -18,6 +18,7 @@ Fulfills similar role as the package.json file.
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def rules_nodejs_dev_dependencies():
     """
@@ -28,7 +29,7 @@ def rules_nodejs_dev_dependencies():
     """
 
     # Dependencies for generating documentation
-    _maybe(
+    maybe(
         http_archive,
         name = "io_bazel_rules_sass",
         sha256 = "c6249cf64dffbc81312191800b0984b5197d77864c13d0dc4d469937cc3f8108",
@@ -40,7 +41,7 @@ def rules_nodejs_dev_dependencies():
     )
 
     # Needed for com_google_protobuf
-    _maybe(
+    maybe(
         http_archive,
         name = "zlib",
         build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
@@ -52,7 +53,7 @@ def rules_nodejs_dev_dependencies():
         ],
     )
 
-    _maybe(
+    maybe(
         http_archive,
         name = "io_bazel_stardoc",
         sha256 = "d681269c40a368c6eb7e9eccfee44a9919d22f84f80e331e41e74bdf99a3108e",
@@ -62,7 +63,7 @@ def rules_nodejs_dev_dependencies():
         ],
     )
 
-    _maybe(
+    maybe(
         http_archive,
         name = "bazel_skylib",
         sha256 = "58f558d04a936cade1d4744d12661317e51f6a21e3dd7c50b96dc14f3fa3b87d",
@@ -74,7 +75,7 @@ def rules_nodejs_dev_dependencies():
 
     # Needed for Remote Build Execution
     # See https://releases.bazel.build/bazel-toolchains.html
-    _maybe(
+    maybe(
         http_archive,
         name = "bazel_toolchains",
         sha256 = "179ec02f809e86abf56356d8898c8bd74069f1bd7c56044050c2cd3d79d0e024",
@@ -85,7 +86,7 @@ def rules_nodejs_dev_dependencies():
         ],
     )
 
-    _maybe(
+    maybe(
         http_archive,
         name = "build_bazel_integration_testing",
         urls = [
@@ -95,7 +96,7 @@ def rules_nodejs_dev_dependencies():
         sha256 = "2401b1369ef44cc42f91dc94443ef491208dbd06da1e1e10b702d8c189f098e3",
     )
 
-    _maybe(
+    maybe(
         http_archive,
         name = "rules_codeowners",
         strip_prefix = "rules_codeowners-27fe3bbe6e5b0df196e360fc9e081835f22a10be",
@@ -105,7 +106,7 @@ def rules_nodejs_dev_dependencies():
         ],
     )
 
-    _maybe(
+    maybe(
         http_archive,
         name = "rules_pkg",
         urls = [
@@ -115,13 +116,9 @@ def rules_nodejs_dev_dependencies():
         sha256 = "aeca78988341a2ee1ba097641056d168320ecc51372ef7ff8e64b139516a4937",
     )
 
-    _maybe(
+    maybe(
         http_archive,
         name = "io_bazel_rules_webtesting",
         sha256 = "e9abb7658b6a129740c0b3ef6f5a2370864e102a5ba5ffca2cea565829ed825a",
         urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.5/rules_webtesting.tar.gz"],
     )
-
-def _maybe(repo_rule, name, **kwargs):
-    if name not in native.existing_rules():
-        repo_rule(name = name, **kwargs)

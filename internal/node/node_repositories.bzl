@@ -18,6 +18,7 @@ This is a set of repository rules for setting up hermetic copies of NodeJS and Y
 See https://docs.bazel.build/versions/main/skylark/repository_rules.html
 """
 
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//nodejs/private:nodejs_repo_host_os_alias.bzl", "nodejs_repo_host_os_alias")
 load("//nodejs/private:os_name.bzl", "OS_ARCH_NAMES", "node_exists_for_os", "os_name")
@@ -51,7 +52,7 @@ def node_repositories(**kwargs):
         if not node_exists_for_os(node_version, os_name):
             continue
         node_repository_name = "nodejs_%s" % os_name
-        _maybe(
+        maybe(
             node_repositories_rule,
             name = node_repository_name,
             **kwargs
@@ -65,12 +66,8 @@ def node_repositories(**kwargs):
 
     # This "nodejs" repo is just for convenience so one does not have to target @nodejs_<os_name>//...
     # All it does is create aliases to the @nodejs_<host_os>_<host_arch> repository
-    _maybe(
+    maybe(
         nodejs_repo_host_os_alias,
         name = "nodejs",
         node_version = node_version,
     )
-
-def _maybe(repo_rule, name, **kwargs):
-    if name not in native.existing_rules():
-        repo_rule(name = name, **kwargs)
