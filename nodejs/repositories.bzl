@@ -7,6 +7,7 @@ load("//nodejs/private:toolchains_repo.bzl", "PLATFORMS", "toolchains_repo")
 load("//nodejs/private:yarn_versions.bzl", "YARN_VERSIONS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 DEFAULT_NODE_VERSION = "16.12.0"
 
@@ -746,13 +747,19 @@ def nodejs_register_toolchains(name, **kwargs):
     )
 
 def rules_nodejs_dependencies():
-    if "bazel_skylib" not in native.existing_rules():
-        http_archive(
-            name = "bazel_skylib",
-            sha256 = "afbe4d9d033c007940acd24bb9becf1580a0280ae0b2ebbb5a7cb12912d2c115",
-            strip_prefix = "bazel-skylib-ffad33e9bfc60bdfa98292ca655a4e7035792046",
-            urls = [
-                "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/archive/ffad33e9bfc60bdfa98292ca655a4e7035792046.tar.gz",
-                "https://github.com/bazelbuild/bazel-skylib/archive/ffad33e9bfc60bdfa98292ca655a4e7035792046.tar.gz",
-            ],
-        )
+    maybe(
+        http_archive,
+        name = "bazel_skylib",
+        sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
+        urls = [
+            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+        ],
+    )
+    core_sha = "8f4a19de1eb16b57ac03a8e9b78344b44473e0e06b0510cec14a81f6adfdfc25"
+    maybe(
+        http_archive,
+        name = "rules_nodejs",
+        sha256 = core_sha,
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.4.6/rules_nodejs-core-4.4.6.tar.gz"],
+    )

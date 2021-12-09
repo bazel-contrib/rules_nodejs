@@ -24,6 +24,10 @@ for (const f of ['docs/install.md', 'packages/create/index.js']) {
       `download/${version}/rules_nodejs-${version}.tar.gz`, f);
   shell.sed('-i', 'sha256 = \"[0-9a-f]+\"', `sha256 = "${sha256}"`, f);
 }
+shell.sed(
+  '-i', 'download/[0-9\.]*(-(beta|rc).[0-9]+)?/rules_nodejs-core-[0-9\.]*(-(beta|rc).[0-9]+)?.tar.gz',
+  `download/${version}/rules_nodejs-core-${version}.tar.gz`, 'nodejs/repositories.bzl')
+shell.sed('-i', 'core_sha = \"[0-9a-f]+\"', `core_sha = "${coreSha256}"`, 'nodejs/repositories.bzl');
 shell.cp('-f', artifact, `rules_nodejs-${version}.tar.gz`);
 shell.cp('-f', coreArtifact, `rules_nodejs-core-${version}.tar.gz`);
 
