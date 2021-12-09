@@ -16,6 +16,7 @@
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def rules_typescript_dev_dependencies():
     """
@@ -27,7 +28,7 @@ def rules_typescript_dev_dependencies():
     Also this allows other repos to reference our sources with local_repository and install the needed deps.
     """
 
-    _maybe(
+    maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
         sha256 = "b6670f9f43faa66e3009488bbd909bc7bc46a5a9661a33f6bc578068d1837f37",
@@ -35,7 +36,7 @@ def rules_typescript_dev_dependencies():
     )
 
     # For protocol buffers
-    _maybe(
+    maybe(
         http_archive,
         name = "io_bazel",
         urls = ["https://github.com/bazelbuild/bazel/releases/download/0.25.0/bazel-0.25.0-dist.zip"],
@@ -44,7 +45,7 @@ def rules_typescript_dev_dependencies():
 
     # For building concatjs_devserver binary
     # See https://github.com/bazelbuild/rules_go#setup for the latest version.
-    _maybe(
+    maybe(
         http_archive,
         name = "io_bazel_rules_go",
         sha256 = "8e968b5fcea1d2d64071872b12737bbb5514524ee5f0a4f54f5920266c261acb",
@@ -55,7 +56,7 @@ def rules_typescript_dev_dependencies():
     )
 
     # go_repository is defined in bazel_gazelle
-    _maybe(
+    maybe(
         http_archive,
         name = "bazel_gazelle",
         sha256 = "62ca106be173579c0a167deb23358fdfe71ffa1e4cfdddf5582af26520f1c66f",
@@ -65,14 +66,10 @@ def rules_typescript_dev_dependencies():
         ],
     )
 
-    _maybe(
+    maybe(
         http_archive,
         name = "com_google_protobuf",
         sha256 = "98e615d592d237f94db8bf033fba78cd404d979b0b70351a9e5aaff725398357",
         strip_prefix = "protobuf-3.9.1",
         urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.9.1.tar.gz"],
     )
-
-def _maybe(repo_rule, name, **kwargs):
-    if not native.existing_rule(name):
-        repo_rule(name = name, **kwargs)

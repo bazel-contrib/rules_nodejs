@@ -16,6 +16,7 @@
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def npm_bazel_protractor_dependencies():
     """
@@ -26,13 +27,9 @@ def npm_bazel_protractor_dependencies():
     """
 
     # protractor rules depend on the web testing rules to provision browsers.
-    _maybe(
+    maybe(
         http_archive,
         name = "io_bazel_rules_webtesting",
         sha256 = "e9abb7658b6a129740c0b3ef6f5a2370864e102a5ba5ffca2cea565829ed825a",
         urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.5/rules_webtesting.tar.gz"],
     )
-
-def _maybe(repo_rule, name, **kwargs):
-    if name not in native.existing_rules():
-        repo_rule(name = name, **kwargs)

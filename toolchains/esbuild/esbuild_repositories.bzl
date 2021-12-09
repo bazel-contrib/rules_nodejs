@@ -3,12 +3,9 @@ Helper macro for fetching esbuild versions
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
 load(":esbuild_packages.bzl", "ESBUILD_PACKAGES")
-
-def _maybe(repo_rule, name, **kwargs):
-    if name not in native.existing_rules():
-        repo_rule(name = name, **kwargs)
 
 def esbuild_repositories(name = "", npm_repository = "npm", npm_args = []):
     """Helper for fetching and setting up the esbuild versions and toolchains
@@ -35,7 +32,7 @@ def esbuild_repositories(name = "", npm_repository = "npm", npm_args = []):
     """
 
     for name, meta in ESBUILD_PACKAGES.platforms.items():
-        _maybe(
+        maybe(
             http_archive,
             name = "esbuild_%s" % name,
             urls = meta.urls,
