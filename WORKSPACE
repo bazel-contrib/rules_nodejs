@@ -167,3 +167,28 @@ load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries
 
 # Depend on the Bazel binaries
 bazel_binaries(versions = SUPPORTED_BAZEL_VERSIONS)
+
+# Importing rules_nodejs to use with nodejs_binary and nodejs_test as they transition to using toolchains
+# provided by these rules
+
+local_repository(
+    name = "rules_nodejs",
+    path = ".",
+)
+
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "rules_nodejs_dependencies")
+
+# This just gives us bazel-skylib
+rules_nodejs_dependencies()
+
+# The order matters because Bazel will provide the first registered toolchain when a rule asks Bazel to select it
+# This applies to the resolved_toolchain
+nodejs_register_toolchains(
+    name = "node15",
+    node_version = "15.14.0",
+)
+
+nodejs_register_toolchains(
+    name = "node16",
+    node_version = "16.9.0",
+)

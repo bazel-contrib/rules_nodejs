@@ -537,3 +537,70 @@ generated_file_test(
     generated = ":protractor_directory_artifacts_version.out",
     tags = ["requires-runfiles"],
 )
+
+# Targets that can help with debugging and ensuring that node versions can be specified
+# for nodejs_binary and nodejs_test
+# Used in nodejs_bianry later to help see which version of node is run
+write_file(
+    name = "binary_version",
+    out = "binary_version.js",
+    content = ["console.log(process.version)"],
+)
+
+nodejs_binary(
+    name = "main_default_toolchain",
+    entry_point = "binary_version.js",
+)
+
+nodejs_binary(
+    name = "main_toolchain_15",
+    entry_point = "binary_version.js",
+    # using the select statement will download toolchains for all three platforms
+    # you can also just provide an individual toolchain if you don't want to download them all
+    node = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "@node15_linux_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:darwin": "@node15_darwin_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:windows": "@node15_windows_amd64//:node_toolchain",
+    }),
+)
+
+nodejs_binary(
+    name = "main_toolchain_16",
+    entry_point = "binary_version.js",
+    # using the select statement will download toolchains for all three platforms
+    # you can also just provide an individual toolchain if you don't want to download them all
+    node = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:darwin": "@node16_darwin_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_toolchain",
+    }),
+)
+
+nodejs_test(
+    name = "main_default_toolchain_test",
+    entry_point = "toolchain_test_default.js",
+)
+
+nodejs_test(
+    name = "main_toolchain_15_test",
+    entry_point = "toolchain_test_v15.14.0.js",
+    # using the select statement will download toolchains for all three platforms
+    # you can also just provide an individual toolchain if you don't want to download them all
+    node = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "@node15_linux_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:darwin": "@node15_darwin_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:windows": "@node15_windows_amd64//:node_toolchain",
+    }),
+)
+
+nodejs_test(
+    name = "main_toolchain_16_test",
+    entry_point = "toolchain_test_v16.js",
+    # using the select statement will download toolchains for all three platforms
+    # you can also just provide an individual toolchain if you don't want to download them all
+    node = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:darwin": "@node16_darwin_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_toolchain",
+    }),
+)
