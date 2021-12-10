@@ -11,7 +11,7 @@ nodejs_binary(
     entry_point = "main.js",
 )
 
-# bazel run --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //:nodejs_image
+# bazel run --platforms=@rules_nodejs//nodejs:linux_amd64 //:nodejs_image
 nodejs_image(
     name = "nodejs_image",
     binary = ":main",

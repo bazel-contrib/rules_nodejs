@@ -164,7 +164,7 @@ example_integration_test(
     bazel_commands = [
         "test ...",
         # Test cross-platform build
-        "build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //src:docker",
+        "build --platforms=@rules_nodejs//nodejs:linux_amd64 //src:docker",
     ],
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
@@ -176,6 +176,10 @@ example_integration_test(
         "@rayman1104",
         "@siberex",
     ],
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+        "//:release-core": "rules_nodejs",
+    },
     # Fails on transitive dep of rules_docker
     # error running 'git init C:/users/b/_bazel_b/3oe2yqkh/external/rules_cc' while working with @rules_cc:
     # java.io.IOException: ERROR: src/main/native/windows/process.cc(199): CreateProcessW("git" init C:/users/b/_bazel_b/3oe2yqkh/external/rules_cc): The system cannot find the file specified

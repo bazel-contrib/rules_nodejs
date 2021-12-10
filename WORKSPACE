@@ -44,6 +44,11 @@ rules_nodejs_dev_dependencies()
 #
 
 local_repository(
+    name = "rules_nodejs",
+    path = ".",
+)
+
+local_repository(
     name = "internal_npm_package_test_vendored_external",
     path = "internal/pkg_npm/test/vendored_external",
 )
@@ -51,6 +56,13 @@ local_repository(
 #
 # Setup rules_nodejs npm dependencies
 #
+
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
+
+nodejs_register_toolchains(
+    name = "node16",
+    node_version = "16.5.0",
+)
 
 load("@build_bazel_rules_nodejs//:npm_deps.bzl", "npm_deps")
 

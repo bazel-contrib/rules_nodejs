@@ -70,8 +70,12 @@ e2e_integration_test(
     bazel_commands = [
         "info",
         "test ...",
-        "run --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //:nodejs_image",
+        "run --platforms=@rules_nodejs//nodejs:linux_amd64 //:nodejs_image",
     ],
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+        "//:release-core": "rules_nodejs",
+    },
     # Only run on buildkite linux as other CI platforms have no docker available
     tags = [
         "no-bazelci-mac",
