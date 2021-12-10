@@ -19,6 +19,7 @@ Fulfills similar role as the package.json file.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+load("@rules_nodejs//nodejs:repositories.bzl", "rules_nodejs_dependencies")
 
 def rules_nodejs_dev_dependencies():
     """
@@ -27,6 +28,9 @@ def rules_nodejs_dev_dependencies():
     These are in this file to keep version information in one place, and make the WORKSPACE
     shorter.
     """
+
+    # This just gives us bazel-skylib
+    rules_nodejs_dependencies()
 
     # Dependencies for generating documentation
     maybe(
@@ -60,16 +64,6 @@ def rules_nodejs_dev_dependencies():
         strip_prefix = "stardoc-8f6d22452d088b49b13ba2c224af69ccc8ccbc90",
         urls = [
             "https://github.com/bazelbuild/stardoc/archive/8f6d22452d088b49b13ba2c224af69ccc8ccbc90.tar.gz",
-        ],
-    )
-
-    maybe(
-        http_archive,
-        name = "bazel_skylib",
-        sha256 = "58f558d04a936cade1d4744d12661317e51f6a21e3dd7c50b96dc14f3fa3b87d",
-        strip_prefix = "bazel-skylib-df3c9e2735f02a7fe8cd80db4db00fec8e13d25f",
-        urls = [
-            "https://github.com/bazelbuild/bazel-skylib/archive/df3c9e2735f02a7fe8cd80db4db00fec8e13d25f.tar.gz",
         ],
     )
 

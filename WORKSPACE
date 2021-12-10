@@ -25,20 +25,6 @@ workspace(
     },
 )
 
-load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS", "node_repositories")
-
-node_repositories(
-    node_version = "16.5.0",
-)
-
-#
-# Install rules_nodejs dev dependencies
-#
-
-load("//:package.bzl", "rules_nodejs_dev_dependencies")
-
-rules_nodejs_dev_dependencies()
-
 #
 # Setup local respositories
 #
@@ -54,14 +40,39 @@ local_repository(
 )
 
 #
+# Setup node repositories
+#
+
+load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS", "node_repositories")
+
+node_repositories(
+    node_version = "16.5.0",
+)
+
+#
+# Install rules_nodejs dev dependencies
+#
+
+load("//:package.bzl", "rules_nodejs_dev_dependencies")
+
+rules_nodejs_dev_dependencies()
+
+#
 # Setup rules_nodejs npm dependencies
 #
 
 load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
+# The order matters because Bazel will provide the first registered toolchain when a rule asks Bazel to select it
+# This applies to the resolved_toolchain
 nodejs_register_toolchains(
     name = "node16",
     node_version = "16.5.0",
+)
+
+nodejs_register_toolchains(
+    name = "node15",
+    node_version = "15.14.0",
 )
 
 load("@build_bazel_rules_nodejs//:npm_deps.bzl", "npm_deps")
@@ -179,28 +190,3 @@ load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries
 
 # Depend on the Bazel binaries
 bazel_binaries(versions = SUPPORTED_BAZEL_VERSIONS)
-
-# Importing rules_nodejs to use with nodejs_binary and nodejs_test as they transition to using toolchains
-# provided by these rules
-
-local_repository(
-    name = "rules_nodejs",
-    path = ".",
-)
-
-load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "rules_nodejs_dependencies")
-
-# This just gives us bazel-skylib
-rules_nodejs_dependencies()
-
-# The order matters because Bazel will provide the first registered toolchain when a rule asks Bazel to select it
-# This applies to the resolved_toolchain
-nodejs_register_toolchains(
-    name = "node15",
-    node_version = "15.14.0",
-)
-
-nodejs_register_toolchains(
-    name = "node16",
-    node_version = "16.9.0",
-)

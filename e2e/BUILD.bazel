@@ -96,10 +96,18 @@ e2e_integration_test(
 
 e2e_integration_test(
     name = "e2e_symlinked_node_modules_npm",
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+        "//:release-core": "rules_nodejs",
+    },
 )
 
 e2e_integration_test(
     name = "e2e_symlinked_node_modules_yarn",
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+        "//:release-core": "rules_nodejs",
+    },
 )
 
 # terser rules are tested in the e2e_webapp

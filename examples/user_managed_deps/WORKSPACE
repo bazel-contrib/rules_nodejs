@@ -7,11 +7,17 @@ local_repository(
     name = "build_bazel_rules_nodejs",
     path = "../..",
 )
+
 # http_archive(
 #     name = "build_bazel_rules_nodejs",
 #     urls = ["https://github.com/bazelbuild/rules_nodejs/archive/x.x.x.tar.gz"],
 #     strip_prefix = "rules_nodejs-x.x.x",
 # )
+
+local_repository(
+    name = "rules_nodejs",
+    path = "../..",
+)
 
 load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
 

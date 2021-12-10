@@ -187,7 +187,7 @@ write_file(
 write_file(
     name = "write_node_version_16",
     out = "expected_node_16",
-    content = ["v16.9.0"],
+    content = ["v16.5.0"],
 )
 
 # To see what nodejs version is used by default
@@ -200,7 +200,7 @@ my_nodejs(
 # this tests to make sure that the first version imported in the workspace is used as default
 diff_test(
     name = "node_version_default_toolchain_test",
-    file1 = "write_node_version_15",
+    file1 = "write_node_version_16",
     file2 = "thing_no_toolchain",
 )
 
