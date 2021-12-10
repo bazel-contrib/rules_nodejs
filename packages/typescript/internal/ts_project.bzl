@@ -179,6 +179,10 @@ def _ts_project_impl(ctx):
     else:
         json_outs = []
 
+        # If there are no js_outs, that implies we are producing declarations only.
+        # We must avoid tsc writing any JS files in this case, as it was only run for typings.
+        arguments.add("--emitDeclarationOnly")
+
     outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs
     if ctx.outputs.buildinfo_out:
         arguments.add_all([
@@ -367,6 +371,8 @@ def ts_project_macro(
         composite = False,
         incremental = False,
         emit_declaration_only = False,
+        transpiler = "tsc",
+        transpiler_kwargs = {},
         ts_build_info_file = None,
         tsc = None,
         typescript_package = _DEFAULT_TYPESCRIPT_PACKAGE,
@@ -539,6 +545,27 @@ def ts_project_macro(
             provdes `TsConfigInfo` such as `ts_config`.
 
         args: List of strings of additional command-line arguments to pass to tsc.
+
+        transpiler: What tool to run that produces the JavaScript outputs.
+            By default, this is the string `tsc` which means to produce `.js` outputs
+            in the same action that does the type-checking to produce `.d.ts` outputs.
+            This is the simplest configuration, however `tsc` is slower than alternatives.
+            It also means developers must wait for the type-checking in the developer loop.
+
+            In theory, Persistent Workers (via the `supports_workers` attribute) remedies the
+            slow compilation time, however it adds additional complexity because the worker process
+            can only see one set of dependencies, and so it cannot be shared between different
+            `ts_project` rules. That attribute is documented as experimental, and may never graduate
+            to a better support contract.
+
+            Instead, you can pass a rule or macro that accepts these arguments:
+            `(name, srcs, js_outs, map_outs, args, data, tags, visibility)`
+
+            The rules_nodejs authors believe that [SWC](https://swc.rs) is a great choice.
+
+        transpiler_kwargs: if the `transpiler` attribute is a rule or macro, then this dictionary
+            is passed as additional keyword arguments of that rule or macro.
+            For example if the transpiler accepts `args`, then use `transpiler_kwargs={"args": ["some-arg"]}`
 
         tsc: Label of the TypeScript compiler binary to run.
 
@@ -756,7 +783,29 @@ def ts_project_macro(
     if declaration_map:
         typing_maps_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, {"*": ".d.ts.map"}))
 
-    if not len(js_outs) and not len(typings_outs):
+    if type(transpiler) == "function" or type(transpiler) == "rule":
+        tsc_js_outs = []
+        tsc_map_outs = []
+        transpiler(
+            name = name + "_transpile",
+            srcs = srcs,
+            js_outs = js_outs,
+            map_outs = map_outs,
+            data = [],
+            tags = kwargs.get("tags", []),
+            visibility = kwargs.get("visibility", None),
+            testonly = kwargs.get("testonly", None),
+            **transpiler_kwargs
+        )
+    elif transpiler == "tsc":
+        tsc_js_outs = js_outs
+        tsc_map_outs = map_outs
+        if len(transpiler_kwargs.keys()):
+            fail("transpiler_kwargs should not be used with `transpiler='tsc'`, just pass them to the `args`")
+    else:
+        fail("transpiler attribute should be a rule/macro or the string 'tsc'.")
+
+    if not len(tsc_js_outs) and not len(typings_outs):
         fail("""ts_project target "//{}:{}" is configured to produce no outputs.
 
 Note that ts_project must know the srcs in advance in order to predeclare the outputs.
@@ -773,8 +822,8 @@ Check the srcs attribute to see that some .ts files are present (or .js files wi
         declaration_dir = declaration_dir,
         out_dir = out_dir,
         root_dir = root_dir,
-        js_outs = js_outs,
-        map_outs = map_outs,
+        js_outs = tsc_js_outs,
+        map_outs = tsc_map_outs,
         typings_outs = typings_outs,
         typing_maps_outs = typing_maps_outs,
         buildinfo_out = tsbuildinfo_path if composite or incremental else None,
