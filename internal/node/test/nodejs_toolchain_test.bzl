@@ -14,7 +14,7 @@
 
 """Testing for node toolchains
 
-This test verifies that if --platforms=@build_bazel_rules_nodejs//toolchains/node:<platform> is set then
+This test verifies that if --platforms=@rules_nodejs//nodejs:<platform> is set then
 the correct node path is available to rules via
 ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files[0].path
 """

@@ -223,15 +223,6 @@ if (config.bazelrcAppend) {
             repositoryKey}",\n  url="file:${archiveFile}"\n`;
 
     workspaceContents = workspaceContents.replace(regex, replacement)
-    // We have to disable the frozen lockfile option for the tests it won't match with the version
-    // from the yarn.lock file.
-    workspaceContents =
-        workspaceContents.replace(/(yarn_lock[\s\S]+?,)/gm, 'frozen_lockfile = False,\n    $1')
-
-    // We have to use npm install in favour of npm ci as the package-lock.json would not match the
-    // replaced version
-    workspaceContents = workspaceContents.replace(
-        /(package_lock_json[\s\S]+?,)/gm, 'npm_command = "install",\n    $1')
 
     if (!workspaceContents.includes(archiveFile)) {
       console.error(
@@ -239,6 +230,15 @@ if (config.bazelrcAppend) {
       process.exit(1);
     }
   }
+  // We have to disable the frozen lockfile option for the tests it won't match with the version
+  // from the yarn.lock file.
+  workspaceContents =
+      workspaceContents.replace(/(yarn_lock[\s\S]+?,)/gm, 'frozen_lockfile = False,\n    $1')
+
+  // We have to use npm install in favour of npm ci as the package-lock.json would not match the
+  // replaced version
+  workspaceContents = workspaceContents.replace(
+      /(package_lock_json[\s\S]+?,)/gm, 'npm_command = "install",\n    $1')
   fs.writeFileSync(workspaceFile, workspaceContents);
   logFileContents('WORKSPACE file with replacements:', workspaceContents);
 }

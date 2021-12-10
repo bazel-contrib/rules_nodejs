@@ -73,7 +73,7 @@ jasmine_node_test(
     ],
 )
 
-# bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //src:docker
+# bazel build --platforms=@rules_nodejs//nodejs:linux_amd64 //src:docker
 nodejs_image(
     name = "docker",
     binary = ":server",
