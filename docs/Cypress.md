@@ -126,7 +126,7 @@ Defaults to `None`
 <pre>
 cypress_web_test(<a href="#cypress_web_test-name">name</a>, <a href="#cypress_web_test-chdir">chdir</a>, <a href="#cypress_web_test-config_file">config_file</a>, <a href="#cypress_web_test-configuration_env_vars">configuration_env_vars</a>, <a href="#cypress_web_test-cypress_npm_package">cypress_npm_package</a>, <a href="#cypress_web_test-data">data</a>,
                  <a href="#cypress_web_test-default_env_vars">default_env_vars</a>, <a href="#cypress_web_test-entry_point">entry_point</a>, <a href="#cypress_web_test-env">env</a>, <a href="#cypress_web_test-expected_exit_code">expected_exit_code</a>, <a href="#cypress_web_test-link_workspace_root">link_workspace_root</a>, <a href="#cypress_web_test-node">node</a>,
-                 <a href="#cypress_web_test-plugin_file">plugin_file</a>, <a href="#cypress_web_test-srcs">srcs</a>, <a href="#cypress_web_test-templated_args">templated_args</a>)
+                 <a href="#cypress_web_test-plugin_file">plugin_file</a>, <a href="#cypress_web_test-srcs">srcs</a>, <a href="#cypress_web_test-templated_args">templated_args</a>, <a href="#cypress_web_test-toolchain">toolchain</a>)
 </pre>
 
 
@@ -348,6 +348,12 @@ See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variabl
 Predefined genrule variables are not supported in this context.
 
 Defaults to `[]`
+
+<h4 id="cypress_web_test-toolchain">toolchain</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*)
+
+Defaults to `None`
 
 
 ## cypress_repositories
