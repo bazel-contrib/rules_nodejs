@@ -19,8 +19,8 @@ This is necessary to bootstrap Bazel to run the package manager to download othe
 
 <pre>
 node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>,
-                  <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-platform">platform</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>, <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-use_nvmrc">use_nvmrc</a>, <a href="#node_repositories-vendored_node">vendored_node</a>,
-                  <a href="#node_repositories-vendored_yarn">vendored_yarn</a>, <a href="#node_repositories-yarn_download_auth">yarn_download_auth</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>, <a href="#node_repositories-yarn_version">yarn_version</a>)
+                  <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-platform">platform</a>, <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-use_nvmrc">use_nvmrc</a>, <a href="#node_repositories-vendored_node">vendored_node</a>, <a href="#node_repositories-vendored_yarn">vendored_yarn</a>,
+                  <a href="#node_repositories-yarn_download_auth">yarn_download_auth</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>, <a href="#node_repositories-yarn_version">yarn_version</a>)
 </pre>
 
 To be run in user's WORKSPACE to install rules_nodejs dependencies.
@@ -184,18 +184,6 @@ Defaults to `[]`
 
 Defaults to `""`
 
-<h4 id="node_repositories-preserve_symlinks">preserve_symlinks</h4>
-
-(*Boolean*): Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
-
-When this option is turned on, node will preserve the symlinked path for resolves instead of the default
-behavior of resolving to the real path. This means that all required files must be in be included in your
-runfiles as it prevents the default behavior of potentially resolving outside of the runfiles. For example,
-all required files need to be included in your node_modules filegroup. This option is desirable as it gives
-a stronger guarantee of hermeticity which is required for remote execution.
-
-Defaults to `True`
-
 <h4 id="node_repositories-repo_mapping">repo_mapping</h4>
 
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
@@ -266,7 +254,9 @@ nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-ch
               <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-templated_args">templated_args</a>, <a href="#nodejs_binary-toolchain">toolchain</a>)
 </pre>
 
-Runs some JavaScript code in NodeJS.
+Runs some JavaScript code in NodeJS. You can also change the default args that are sent to nodejs. This can be done through a flag. The default is --preserve-symlinks while anything
+can be passed. The flag is --@build_bazel_rules_nodejs//nodejs:default_args="" ex: bazel build --@build_bazel_rules_nodejs//nodejs:default_args="--preserve-symlinks --no-warnings" main
+This will pass --preserve-symlinks and --no-warnings flags to nodejs. Available node flags can be found here: https://nodejs.org/api/cli.html.
 
 **ATTRIBUTES**
 
@@ -520,6 +510,10 @@ test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test
 Now you can add `--config=debug` to any `bazel test` command line.
 The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
+
+You can also change the default args that are sent to nodejs. This can be done through a flag. The default is --preserve-symlinks while anything
+can be passed. The flag is --@build_bazel_rules_nodejs//nodejs:default_args="" ex: bazel test --@build_bazel_rules_nodejs//nodejs:default_args="--preserve-symlinks --no-warnings" main
+This will pass --preserve-symlinks and --no-warnings flags to nodejs. Available node flags can be found here: https://nodejs.org/api/cli.html.
 
 
 **ATTRIBUTES**

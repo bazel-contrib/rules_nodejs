@@ -43,9 +43,9 @@ yarn_install(
 
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "20dfc1d9bc6a251455c4f306d3dea030b323ea3f22e0600698fab9665eb273b8",
-    strip_prefix = "rules_docker-0086a29d19b124b04a864e3913cfa7a2cba46349",
-    urls = ["https://github.com/bazelbuild/rules_docker/archive/0086a29d19b124b04a864e3913cfa7a2cba46349.tar.gz"],
+    sha256 = "db427107e4c36a3713c24daf5fcdf7719fe664e0c36e089b5b16d15cf331ce60",
+    strip_prefix = "rules_docker-8a4f73fb29a64ba813087220b200f49a1ca10faa",
+    urls = ["https://github.com/bazelbuild/rules_docker/archive/8a4f73fb29a64ba813087220b200f49a1ca10faa.tar.gz"],
 )
 
 load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
@@ -59,3 +59,17 @@ container_deps()
 load("@io_bazel_rules_docker//nodejs:image.bzl", nodejs_image_repositories = "repositories")
 
 nodejs_image_repositories()
+
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
+
+# The order matters because Bazel will provide the first registered toolchain when a rule asks Bazel to select it
+# This applies to the resolved_toolchain
+nodejs_register_toolchains(
+    name = "node16",
+    node_version = "16.5.0",
+)
+
+nodejs_register_toolchains(
+    name = "node15",
+    node_version = "15.14.0",
+)

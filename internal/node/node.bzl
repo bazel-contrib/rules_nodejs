@@ -28,6 +28,7 @@ load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:preserve_legacy_templated_args.bzl", "preserve_legacy_templated_args")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("//internal/linker:link_node_modules.bzl", "LinkerPackageMappingInfo", "module_mappings_aspect", "write_node_modules_manifest")
+load("//nodejs:providers.bzl", "UserBuildSettingInfo")
 
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
@@ -267,7 +268,6 @@ fi
     runfiles.extend(ctx.files._bash_runfile_helper)
     runfiles.append(ctx.outputs.loader_script)
     runfiles.append(ctx.outputs.require_patch_script)
-    runfiles.append(ctx.file._repository_args)
 
     # First replace any instances of "$(rlocation " with "$$(rlocation " to preserve
     # legacy uses of "$(rlocation"
@@ -316,10 +316,10 @@ fi
         "TEMPLATED_loader_script": _to_manifest_path(ctx, ctx.outputs.loader_script),
         "TEMPLATED_modules_manifest": _to_manifest_path(ctx, node_modules_manifest),
         "TEMPLATED_node_patches_script": _to_manifest_path(ctx, ctx.file._node_patches_script),
-        "TEMPLATED_repository_args": _to_manifest_path(ctx, ctx.file._repository_args),
         "TEMPLATED_require_patch_script": _to_manifest_path(ctx, ctx.outputs.require_patch_script),
         "TEMPLATED_runfiles_helper_script": _to_manifest_path(ctx, ctx.file._runfile_helpers_main),
         "TEMPLATED_vendored_node": strip_external(node_toolchain.nodeinfo.target_tool_path),
+        "TEMPLATED_node_args": ctx.attr._node_args[UserBuildSettingInfo].value,
     }
 
     # TODO when we have "link_all_bins" we will only need to look in one place for the entry point
@@ -594,10 +594,7 @@ Predefined genrule variables are not supported in this context.
         allow_single_file = True,
     ),
     "toolchain": attr.label(),
-    "_repository_args": attr.label(
-        default = Label("@nodejs//:bin/node_repo_args.sh"),
-        allow_single_file = True,
-    ),
+    "_node_args": attr.label(default = "//nodejs:default_args"),
     "_node_patches_script": attr.label(
         default = Label("//internal/node:node_patches.js"),
         allow_single_file = True,
@@ -632,7 +629,9 @@ _NODEJS_EXECUTABLE_OUTPUTS = {
 
 nodejs_binary_kwargs = {
     "attrs": _NODEJS_EXECUTABLE_ATTRS,
-    "doc": "Runs some JavaScript code in NodeJS.",
+    "doc": """Runs some JavaScript code in NodeJS. You can also change the default args that are sent to nodejs. This can be done through a flag. The default is --preserve-symlinks while anything
+can be passed. The flag is --@build_bazel_rules_nodejs//nodejs:default_args="" ex: bazel build --@build_bazel_rules_nodejs//nodejs:default_args="--preserve-symlinks --no-warnings" main
+This will pass --preserve-symlinks and --no-warnings flags to nodejs. Available node flags can be found here: https://nodejs.org/api/cli.html.""",
     "executable": True,
     "implementation": _nodejs_binary_impl,
     "outputs": _NODEJS_EXECUTABLE_OUTPUTS,
@@ -695,6 +694,10 @@ test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test
 Now you can add `--config=debug` to any `bazel test` command line.
 The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
+
+You can also change the default args that are sent to nodejs. This can be done through a flag. The default is --preserve-symlinks while anything
+can be passed. The flag is --@build_bazel_rules_nodejs//nodejs:default_args="" ex: bazel test --@build_bazel_rules_nodejs//nodejs:default_args="--preserve-symlinks --no-warnings" main
+This will pass --preserve-symlinks and --no-warnings flags to nodejs. Available node flags can be found here: https://nodejs.org/api/cli.html.
 """,
     test = True,
 )

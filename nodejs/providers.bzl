@@ -20,6 +20,10 @@ load(
     "//nodejs/private/providers:directory_file_path_info.bzl",
     _DirectoryFilePathInfo = "DirectoryFilePathInfo",
 )
+load(
+    "//nodejs/private/providers:user_build_settings.bzl",
+    _UserBuildSettingInfo = "UserBuildSettingInfo",
+)
 
 DeclarationInfo = _DeclarationInfo
 declaration_info = _declaration_info
@@ -27,3 +31,4 @@ JSModuleInfo = _JSModuleInfo
 js_module_info = _js_module_info
 LinkablePackageInfo = _LinkablePackageInfo
 DirectoryFilePathInfo = _DirectoryFilePathInfo
+UserBuildSettingInfo = _UserBuildSettingInfo

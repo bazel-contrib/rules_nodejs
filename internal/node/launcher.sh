@@ -170,13 +170,11 @@ if [[ "${BAZEL_NODE_PATCH_REQUIRE}" != /* ]] && [[ ! "${BAZEL_NODE_PATCH_REQUIRE
   export BAZEL_NODE_PATCH_REQUIRE=$(pwd)/${BAZEL_NODE_PATCH_REQUIRE}
 fi
 
-readonly repository_args=$(rlocation "TEMPLATED_repository_args")
 readonly lcov_merger_script=$(rlocation "TEMPLATED_lcov_merger_script")
 
-source $repository_args
-
 ARGS=()
-LAUNCHER_NODE_OPTIONS=($NODE_REPOSITORY_ARGS)
+NODE_ARGS=("TEMPLATED_node_args")
+LAUNCHER_NODE_OPTIONS=($NODE_ARGS)
 USER_NODE_OPTIONS=()
 ALL_ARGS=(TEMPLATED_args "$@")
 STDOUT_CAPTURE=""
@@ -390,7 +388,6 @@ if [[ -n "$NODE_WORKING_DIR" ]]; then
   cd "$NODE_WORKING_DIR"
 fi
 set +e
-
 if [[ -n "${STDOUT_CAPTURE}" ]] && [[ -n "${STDERR_CAPTURE}" ]]; then
   "${node}" ${LAUNCHER_NODE_OPTIONS[@]+"${LAUNCHER_NODE_OPTIONS[@]}"} ${USER_NODE_OPTIONS[@]+"${USER_NODE_OPTIONS[@]}"} "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 >$STDOUT_CAPTURE 2>$STDERR_CAPTURE &
 elif [[ -n "${STDOUT_CAPTURE}" ]]; then
