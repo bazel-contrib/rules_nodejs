@@ -9,7 +9,6 @@ package(default_visibility = ["//visibility:public"])
 # aliases for exports_files
 alias(name = "run_npm.sh.template",     actual = "@{node_repository}_{os_name}//:run_npm.sh.template")
 alias(name = "run_npm.bat.template",    actual = "@{node_repository}_{os_name}//:run_npm.bat.template")
-alias(name = "bin/node_repo_args.sh",   actual = "@{node_repository}_{os_name}//:bin/node_repo_args.sh")
 
 # aliases for other aliases
 alias(name = "node_bin",                actual = "@{node_repository}_{os_name}//:node_bin")

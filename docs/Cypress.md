@@ -156,6 +156,10 @@ Now you can add `--config=debug` to any `bazel test` command line.
 The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
 
+You can also change the default args that are sent to nodejs. This can be done through a flag. The default is --preserve-symlinks while anything
+can be passed. The flag is --@build_bazel_rules_nodejs//nodejs:default_args="" ex: bazel test --@build_bazel_rules_nodejs//nodejs:default_args="--preserve-symlinks --no-warnings" main
+This will pass --preserve-symlinks and --no-warnings flags to nodejs. Available node flags can be found here: https://nodejs.org/api/cli.html.
+
 
 **ATTRIBUTES**
 

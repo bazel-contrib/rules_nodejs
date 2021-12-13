@@ -77,4 +77,5 @@ jasmine_node_test(
 nodejs_image(
     name = "docker",
     binary = ":server",
+    include_node_repo_args = False,
 )

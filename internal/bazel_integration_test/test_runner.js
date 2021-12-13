@@ -384,7 +384,6 @@ for (const bazelCommand of config.bazelCommands) {
     'GTEST_TMP_DIR',
     'INIT_CWD',
     'JAVA_RUNFILES',
-    'NODE_REPOSITORY_ARGS',
     'OLDPWD',
     'PYTHON_RUNFILES',
     'RUN_UNDER_RUNFILES',

@@ -22,7 +22,7 @@ export const patcher = (requireScriptName: string, nodeDir?: string) => {
       fs.writeFileSync(nodeEntry, `@if not defined DEBUG_HELPER @ECHO OFF
 set NP_SUBPROCESS_NODE_DIR=${nodeDir}
 set Path=${nodeDir};%Path%
-"${process.execPath}" ${process.env.NODE_REPOSITORY_ARGS} --require "${requireScriptName}" %*
+"${process.execPath}" --require "${requireScriptName}" %*
 `);
     }
   } else {
@@ -33,9 +33,9 @@ set Path=${nodeDir};%Path%
 export NP_SUBPROCESS_NODE_DIR="${nodeDir}"
 export PATH="${nodeDir}":\$PATH
 if [[ ! "\${@}" =~ "${file}" ]]; then
-  exec ${process.execPath} ${process.env.NODE_REPOSITORY_ARGS} --require "${requireScriptName}" "$@"
+  exec ${process.execPath} --require "${requireScriptName}" "$@"
 else
-  exec ${process.execPath} ${process.env.NODE_REPOSITORY_ARGS} "$@"
+  exec ${process.execPath} "$@"
 fi
 `,
           {mode: 0o777});

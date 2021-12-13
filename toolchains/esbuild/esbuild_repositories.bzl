@@ -31,7 +31,7 @@ def esbuild_repositories(name = "", npm_repository = "npm", npm_args = []):
         npm_args: additional args to pass to the npm install rule
     """
 
-    _maybe(
+    maybe(
         http_archive,
         name = "bazel_skylib",
         sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",

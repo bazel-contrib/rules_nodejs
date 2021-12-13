@@ -117,9 +117,9 @@ http_archive(
 
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "7863f4fb51e4801b91942ab3cf00a673c53ed555d27a56f4287c2619d13830eb",
-    strip_prefix = "rules_docker-86c54e5a3a2a4ae9c0cc39b3af7d94c04ac689ab",
-    urls = ["https://github.com/bazelbuild/rules_docker/archive/86c54e5a3a2a4ae9c0cc39b3af7d94c04ac689ab.tar.gz"],
+    sha256 = "db427107e4c36a3713c24daf5fcdf7719fe664e0c36e089b5b16d15cf331ce60",
+    strip_prefix = "rules_docker-8a4f73fb29a64ba813087220b200f49a1ca10faa",
+    urls = ["https://github.com/bazelbuild/rules_docker/archive/8a4f73fb29a64ba813087220b200f49a1ca10faa.tar.gz"],
 )
 
 load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
