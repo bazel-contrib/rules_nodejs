@@ -263,7 +263,7 @@ Defaults to `"1.22.11"`
 
 <pre>
 nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-chdir">chdir</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>, <a href="#nodejs_binary-env">env</a>,
-              <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-node">node</a>, <a href="#nodejs_binary-templated_args">templated_args</a>)
+              <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-node">node</a>, <a href="#nodejs_binary-templated_args">templated_args</a>, <a href="#nodejs_binary-toolchain">toolchain</a>)
 </pre>
 
 Runs some JavaScript code in NodeJS.
@@ -484,6 +484,12 @@ Predefined genrule variables are not supported in this context.
 
 Defaults to `[]`
 
+<h4 id="nodejs_binary-toolchain">toolchain</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*)
+
+Defaults to `None`
+
 
 ## nodejs_test
 
@@ -491,7 +497,7 @@ Defaults to `[]`
 
 <pre>
 nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-chdir">chdir</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>, <a href="#nodejs_test-env">env</a>,
-            <a href="#nodejs_test-expected_exit_code">expected_exit_code</a>, <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-node">node</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
+            <a href="#nodejs_test-expected_exit_code">expected_exit_code</a>, <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-node">node</a>, <a href="#nodejs_test-templated_args">templated_args</a>, <a href="#nodejs_test-toolchain">toolchain</a>)
 </pre>
 
 
@@ -743,6 +749,12 @@ See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variabl
 Predefined genrule variables are not supported in this context.
 
 Defaults to `[]`
+
+<h4 id="nodejs_test-toolchain">toolchain</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*)
+
+Defaults to `None`
 
 
 ## npm_install

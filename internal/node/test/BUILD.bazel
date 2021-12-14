@@ -604,3 +604,111 @@ nodejs_test(
         "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_toolchain",
     }),
 )
+
+# these rules create different targets for each toolchain that is supplied in the list for toolchains
+# this makes it easy to build or test against multiple versions of a toolchain at the same time with less duplicate work
+# this will create 2 nodejs_binary targets
+# bazel build //internal/node/test:main_multiple_loop_node16
+# bazel build //internal/node/test:main_multiple_loop_node15
+# the numbers are based on the order that the toolchains are passed to the rule
+[
+    nodejs_binary(
+        name = "main_multiple_loop_" + id,
+        entry_point = "binary_version.js",
+        node = tc,
+        toolchain = tc,
+    )
+    for id, tc in zip(
+        [
+            "node16",
+            "node15",
+        ],
+        [
+            # using the select statement will download toolchains for all platforms
+            # you can also just provide an individual toolchain if you don't want to download them all
+            select({
+                "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:darwin": "@node16_darwin_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_toolchain",
+            }),
+            select({
+                "@bazel_tools//src/conditions:linux_x86_64": "@node15_linux_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:darwin": "@node15_darwin_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:windows": "@node15_windows_amd64//:node_toolchain",
+            }),
+        ],
+    )
+]
+
+# this will create 2 test:
+# bazel test //internal/node/test:main_test_multiple_loop_node16
+# bazel test //internal/node/test:main_test_multiple_loop_node15
+# the numbers are based on the order that the toolchains are passed to the rule
+[
+    nodejs_test(
+        name = "main_test_multiple_loop_" + id,
+        data = [
+            "data/data.json",
+        ],
+        entry_point = ":data_resolution.spec.js",
+        node = tc,
+        toolchain = tc,
+    )
+    for id, tc in zip(
+        [
+            "node16",
+            "node15",
+        ],
+        [
+            # using the select statement will download toolchains for all platforms
+            # you can also just provide an individual toolchain if you don't want to download them all
+            select({
+                "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:darwin": "@node16_darwin_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_toolchain",
+            }),
+            select({
+                "@bazel_tools//src/conditions:linux_x86_64": "@node15_linux_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:darwin": "@node15_darwin_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:windows": "@node15_windows_amd64//:node_toolchain",
+            }),
+        ],
+    )
+]
+
+# this will create 2 test:
+# bazel test //internal/node/test:main_test_multiple_version_node16
+# bazel test //internal/node/test:main_test_multiple_version_node15
+# the numbers are based on the order that the toolchains are passed to the rule
+[
+    nodejs_test(
+        name = "main_test_multiple_version_" + id,
+        entry_point = entry,
+        node = tc,
+        toolchain = tc,
+    )
+    for id, entry, tc in zip(
+        [
+            "node16",
+            "node15",
+        ],
+        [
+            "toolchain_test_v16.js",
+            "toolchain_test_v15.14.0.js",
+        ],
+        [
+            # using the select statement will download toolchains for all platforms
+            # you can also just provide an individual toolchain if you don't want to download them all
+            select({
+                "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:darwin": "@node16_darwin_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_toolchain",
+            }),
+            select({
+                "@bazel_tools//src/conditions:linux_x86_64": "@node15_linux_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:darwin": "@node15_darwin_amd64//:node_toolchain",
+                "@bazel_tools//src/conditions:windows": "@node15_windows_amd64//:node_toolchain",
+            }),
+        ],
+    )
+]

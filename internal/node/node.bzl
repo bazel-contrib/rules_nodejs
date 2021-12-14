@@ -250,9 +250,12 @@ fi
     # when building the image as that will reflect the selected --platform.
     node_tool_files = ctx.files.node[:]
 
-    # this should be resolved the same as above
-    node_tool_files.extend(ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files)
+    if ctx.attr.toolchain:
+        node_toolchain = ctx.attr.toolchain[platform_common.ToolchainInfo]
+    else:
+        node_toolchain = ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"]
 
+    node_tool_files.extend(node_toolchain.nodeinfo.tool_files)
     node_tool_files.append(ctx.file._link_modules_script)
     node_tool_files.append(ctx.file._runfile_helpers_bundle)
     node_tool_files.append(ctx.file._runfile_helpers_main)
@@ -597,12 +600,13 @@ Predefined genrule variables are not supported in this context.
         default = Label("@nodejs//:node_bin"),
         allow_single_file = True,
     ),
-    "_node_patches_script": attr.label(
-        default = Label("//internal/node:node_patches.js"),
-        allow_single_file = True,
-    ),
+    "toolchain": attr.label(),
     "_repository_args": attr.label(
         default = Label("@nodejs//:bin/node_repo_args.sh"),
+        allow_single_file = True,
+    ),
+    "_node_patches_script": attr.label(
+        default = Label("//internal/node:node_patches.js"),
         allow_single_file = True,
     ),
     "_require_patch_template": attr.label(
