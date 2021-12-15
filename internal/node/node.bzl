@@ -28,7 +28,6 @@ load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:preserve_legacy_templated_args.bzl", "preserve_legacy_templated_args")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("//internal/linker:link_node_modules.bzl", "LinkerPackageMappingInfo", "module_mappings_aspect", "write_node_modules_manifest")
-load("//nodejs:repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
@@ -248,13 +247,13 @@ fi
     #
     # Rules such as nodejs_image should use only ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
     # when building the image as that will reflect the selected --platform.
-    node_tool_files = ctx.files.node[:]
 
     if ctx.attr.toolchain:
         node_toolchain = ctx.attr.toolchain[platform_common.ToolchainInfo]
     else:
         node_toolchain = ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"]
 
+    node_tool_files = []
     node_tool_files.extend(node_toolchain.nodeinfo.tool_files)
     node_tool_files.append(ctx.file._link_modules_script)
     node_tool_files.append(ctx.file._runfile_helpers_bundle)
@@ -262,8 +261,6 @@ fi
     node_tool_files.append(ctx.file._node_patches_script)
     node_tool_files.append(ctx.file._lcov_merger_script)
     node_tool_files.append(node_modules_manifest)
-
-    is_builtin = ctx.attr.node.label.workspace_name in ["nodejs_%s" % p for p in BUILT_IN_NODE_PLATFORMS]
 
     runfiles = runfiles[:]
     runfiles.extend(node_tool_files)
@@ -322,7 +319,7 @@ fi
         "TEMPLATED_repository_args": _to_manifest_path(ctx, ctx.file._repository_args),
         "TEMPLATED_require_patch_script": _to_manifest_path(ctx, ctx.outputs.require_patch_script),
         "TEMPLATED_runfiles_helper_script": _to_manifest_path(ctx, ctx.file._runfile_helpers_main),
-        "TEMPLATED_vendored_node": "" if is_builtin else strip_external(ctx.file.node.path),
+        "TEMPLATED_vendored_node": strip_external(node_toolchain.nodeinfo.target_tool_path),
     }
 
     # TODO when we have "link_all_bins" we will only need to look in one place for the entry point
@@ -594,10 +591,6 @@ Predefined genrule variables are not supported in this context.
     ),
     "_loader_template": attr.label(
         default = Label("//internal/node:loader.js"),
-        allow_single_file = True,
-    ),
-    "node": attr.label(
-        default = Label("@nodejs//:node_bin"),
         allow_single_file = True,
     ),
     "toolchain": attr.label(),
