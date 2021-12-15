@@ -359,6 +359,8 @@ tasks:
   rbe_ubuntu1604:
     name: rbe_ubuntu1604
     platform: rbe_ubuntu1604
+    soft_fail:
+      - exit_status: 1
     build_targets:
     - "//..."
     build_flags:
