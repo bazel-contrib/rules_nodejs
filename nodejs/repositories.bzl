@@ -714,7 +714,7 @@ node_repositories = repository_rule(
 )
 
 # Wrapper macro around everything above, this is the primary API
-def nodejs_register_toolchains(name, **kwargs):
+def nodejs_register_toolchains(name, register = True, **kwargs):
     """Convenience macro for users which does typical setup.
 
     - create a repository for each built-in platform like "node16_linux_amd64" -
@@ -727,6 +727,9 @@ def nodejs_register_toolchains(name, **kwargs):
 
     Args:
         name: base name for all created repos, like "node16"
+        register: whether to call Bazel register_toolchains on the created toolchains.
+            Should be True when used from a WORKSPACE file, and False used from bzlmod
+            which has its own toolchain registration syntax.
         **kwargs: passed to each node_repositories call
     """
     for platform in BUILT_IN_NODE_PLATFORMS:
@@ -735,7 +738,8 @@ def nodejs_register_toolchains(name, **kwargs):
             platform = platform,
             **kwargs
         )
-        native.register_toolchains("@%s_toolchains//:%s_toolchain" % (name, platform))
+        if register:
+            native.register_toolchains("@%s_toolchains//:%s_toolchain" % (name, platform))
 
     nodejs_repo_host_os_alias(
         name = name + "_host",
