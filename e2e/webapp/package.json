@@ -2,8 +2,8 @@
     "name": "e2e-terser",
     "private": true,
     "devDependencies": {
-        "@bazel/rollup": "^4.4.5",
-        "@bazel/terser": "^4.4.5",
+        "@bazel/rollup": "^4.5.0",
+        "@bazel/terser": "^4.5.0",
         "rollup": "2.3.0",
         "terser": "4.3.1"
     },

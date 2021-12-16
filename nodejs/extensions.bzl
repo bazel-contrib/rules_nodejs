@@ -15,7 +15,7 @@ def _toolchain_extension(module_ctx):
                 if toolchain.node_version == registrations[toolchain.name]:
                     # No problem to register a matching toolchain twice
                     continue
-                fail("Multiple conflicting toolchains declared for name {} ({} and {}".format(
+                fail("Multiple conflicting toolchains declared for name {} ({} and {})".format(
                     toolchain.name,
                     toolchain.node_version,
                     registrations[toolchain.name],
