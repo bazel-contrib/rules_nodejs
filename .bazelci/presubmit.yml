@@ -359,6 +359,9 @@ tasks:
   rbe_ubuntu1604:
     name: rbe_ubuntu1604
     platform: rbe_ubuntu1604
+    # Remove soft_fail once https://github.com/bazelbuild/rules_nodejs/issues/3121 is fixed
+    soft_fail:
+      - exit_status: 1
     build_targets:
     - "//..."
     build_flags:
