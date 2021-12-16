@@ -9,6 +9,8 @@ describe('esbuild define', () => {
     const bundle = readFileSync(location, {encoding: 'utf8'});
     expect(bundle).toContain(`nodeEnv = "defined_in_bundle"`);
     expect(bundle).toContain(`env = "some_value"`);
+    expect(bundle).toContain(`someStringFlag = "default_\`'\\"flag\\"'\`_value"`);
+    expect(bundle).toContain(`someBoolFlag = true`);
     expect(bundle).toContain(`cwd: () => "rules_nodejs"`);
     expect(bundle).toContain(`version = BUILD_SCM_VERSION`);
   });
@@ -17,6 +19,8 @@ describe('esbuild define', () => {
     const bundle = readFileSync(stampedLocation, {encoding: 'utf8'});
     expect(bundle).toContain(`nodeEnv = "defined_on_rule"`);
     expect(bundle).toContain(`env = "some_value"`);
+    expect(bundle).toContain(`someStringFlag = "default_\`'\\"flag\\"'\`_value"`);
+    expect(bundle).toContain(`someBoolFlag = true`);
     expect(bundle).toContain(`version = "v1.2.3"`);
   });
 });

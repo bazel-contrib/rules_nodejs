@@ -2,6 +2,7 @@ load("//packages/esbuild:index.bzl", "esbuild", "esbuild_config")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/typescript:index.bzl", "ts_library")
 load("//internal/node:context.bzl", "node_context_data")
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag", "string_flag")
 
 ts_library(
     name = "main",
@@ -25,6 +26,10 @@ esbuild(
     define = {
         "process.env.NODE_ENV": "\"defined_in_bundle\"",
         "SOME_TEST_ENV": "'$(SOME_TEST_ENV)'",
+    },
+    define_settings = {
+        ":some_bool_flag": "SOME_BOOL_FLAG_VALUE",
+        ":some_string_flag": "SOME_STRING_FLAG_VALUE",
     },
     entry_point = "main.ts",
     deps = [":main"],
@@ -53,6 +58,10 @@ esbuild(
         "process.env.NODE_ENV": "\"defined_on_rule\"",
         "SOME_TEST_ENV": "'$(SOME_TEST_ENV)'",
     },
+    define_settings = {
+        ":some_bool_flag": "SOME_BOOL_FLAG_VALUE",
+        ":some_string_flag": "SOME_STRING_FLAG_VALUE",
+    },
     entry_point = "main.ts",
     node_context_data = ":context_data",
     deps = [":main"],
@@ -65,4 +74,14 @@ jasmine_node_test(
         ":bundle",
         ":stamped_bundle",
     ],
+)
+
+bool_flag(
+    name = "some_bool_flag",
+    build_setting_default = True,
+)
+
+string_flag(
+    name = "some_string_flag",
+    build_setting_default = "default_`'\"flag\"'`_value",
 )
