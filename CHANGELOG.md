@@ -1,3 +1,23 @@
+# [4.5.0](https://github.com/bazelbuild/rules_nodejs/compare/4.4.6...4.5.0) (2021-12-16)
+
+
+### Bug Fixes
+
+* allow cypress to run on m1 macs ([#3088](https://github.com/bazelbuild/rules_nodejs/issues/3088)) ([c1778f4](https://github.com/bazelbuild/rules_nodejs/commit/c1778f4))
+* **builtin:** support mjs/cjs files as javascript files in `js_library` ([2b4e903](https://github.com/bazelbuild/rules_nodejs/commit/2b4e903))
+* **esbuild:** do not ignore annotations when the `minify` shorthand attribute is disabled ([#3106](https://github.com/bazelbuild/rules_nodejs/issues/3106)) ([af70835](https://github.com/bazelbuild/rules_nodejs/commit/af70835))
+* **esbuild:** format attribute not working with multiple entry points ([#3103](https://github.com/bazelbuild/rules_nodejs/issues/3103)) ([8d7b542](https://github.com/bazelbuild/rules_nodejs/commit/8d7b542))
+* don't symlink execroot node_modules when under bazel run ([f72e956](https://github.com/bazelbuild/rules_nodejs/commit/f72e956))
+* unset INIT_CWD and npm_config_registry before calling yarn in yarn_install ([653600d](https://github.com/bazelbuild/rules_nodejs/commit/653600d))
+
+
+### Features
+
+* **esbuild:** make Starlark build settings usable as defines ([#3122](https://github.com/bazelbuild/rules_nodejs/issues/3122)) ([e47f339](https://github.com/bazelbuild/rules_nodejs/commit/e47f339))
+* add bzlmod extension ([#3146](https://github.com/bazelbuild/rules_nodejs/issues/3146)) ([ed23145](https://github.com/bazelbuild/rules_nodejs/commit/ed23145))
+
+
+
 ## [4.4.6](https://github.com/bazelbuild/rules_nodejs/compare/4.4.5...4.4.6) (2021-11-23)
 
 
