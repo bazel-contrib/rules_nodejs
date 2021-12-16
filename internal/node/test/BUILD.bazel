@@ -557,7 +557,7 @@ nodejs_binary(
     entry_point = "binary_version.js",
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
-    node = select({
+    toolchain = select({
         "@bazel_tools//src/conditions:linux_x86_64": "@node15_linux_amd64//:node_toolchain",
         "@bazel_tools//src/conditions:darwin": "@node15_darwin_amd64//:node_toolchain",
         "@bazel_tools//src/conditions:windows": "@node15_windows_amd64//:node_toolchain",
@@ -569,7 +569,7 @@ nodejs_binary(
     entry_point = "binary_version.js",
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
-    node = select({
+    toolchain = select({
         "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_toolchain",
         "@bazel_tools//src/conditions:darwin": "@node16_darwin_amd64//:node_toolchain",
         "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_toolchain",
@@ -586,7 +586,7 @@ nodejs_test(
     entry_point = "toolchain_test_v15.14.0.js",
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
-    node = select({
+    toolchain = select({
         "@bazel_tools//src/conditions:linux_x86_64": "@node15_linux_amd64//:node_toolchain",
         "@bazel_tools//src/conditions:darwin": "@node15_darwin_amd64//:node_toolchain",
         "@bazel_tools//src/conditions:windows": "@node15_windows_amd64//:node_toolchain",
@@ -598,7 +598,7 @@ nodejs_test(
     entry_point = "toolchain_test_v16.js",
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
-    node = select({
+    toolchain = select({
         "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_toolchain",
         "@bazel_tools//src/conditions:darwin": "@node16_darwin_amd64//:node_toolchain",
         "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_toolchain",
@@ -615,7 +615,6 @@ nodejs_test(
     nodejs_binary(
         name = "main_multiple_loop_" + id,
         entry_point = "binary_version.js",
-        node = tc,
         toolchain = tc,
     )
     for id, tc in zip(
@@ -651,7 +650,6 @@ nodejs_test(
             "data/data.json",
         ],
         entry_point = ":data_resolution.spec.js",
-        node = tc,
         toolchain = tc,
     )
     for id, tc in zip(
@@ -684,7 +682,6 @@ nodejs_test(
     nodejs_test(
         name = "main_test_multiple_version_" + id,
         entry_point = entry,
-        node = tc,
         toolchain = tc,
     )
     for id, entry, tc in zip(
