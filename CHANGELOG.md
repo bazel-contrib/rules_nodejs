@@ -1,3 +1,7 @@
+## [4.5.1](https://github.com/bazelbuild/rules_nodejs/compare/4.5.0...4.5.1) (2021-12-16)
+
+
+
 # [4.5.0](https://github.com/bazelbuild/rules_nodejs/compare/4.4.6...4.5.0) (2021-12-16)
 
 
