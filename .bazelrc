@@ -52,5 +52,4 @@ build:docker-sandbox --experimental_docker_image=gcr.io/cloud-marketplace/google
 build --incompatible_no_implicit_file_export
 # TODO(mattem): flip this when dependencies allow
 # build --incompatible_struct_has_no_methods
-# TODO(alexeagle): turn on this flag when dependencies allow
-# build --incompatible_use_platforms_repo_for_constraints
+build --incompatible_use_platforms_repo_for_constraints

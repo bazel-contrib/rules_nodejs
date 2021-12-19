@@ -209,7 +209,7 @@ def copy_file(name, src, out, is_directory = False, is_executable = False, allow
         src = src,
         out = out,
         is_windows = select({
-            "@bazel_tools//src/conditions:host_windows": True,
+            "@rules_nodejs//nodejs:is_windows_amd64": True,
             "//conditions:default": False,
         }),
         is_executable = is_executable,

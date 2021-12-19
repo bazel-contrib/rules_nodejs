@@ -36,3 +36,11 @@ toolchain_type(
     )
     for key, values in PLATFORMS.items()
 ]
+
+[
+    config_setting(
+        name = "is_%s" % key,
+        constraint_values = values.compatible_with,
+    )
+    for key, values in PLATFORMS.items()
+]
