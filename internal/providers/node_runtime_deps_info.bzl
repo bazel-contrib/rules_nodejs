@@ -17,6 +17,7 @@
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/linker:link_node_modules.bzl", "add_arg", "write_node_modules_manifest")
 load("//internal/providers:external_npm_package_info.bzl", "ExternalNpmPackageInfo")
+load("//nodejs/private/providers:stamp_setting_info.bzl", "StampSettingInfo")
 
 NodeRuntimeDepsInfo = provider(
     doc = """Stores runtime dependencies of a nodejs_binary or nodejs_test
@@ -140,6 +141,15 @@ def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
             bazel_node_module_roots = bazel_node_module_roots + ","
         bazel_node_module_roots = bazel_node_module_roots + "%s:%s" % (path, root)
     env["BAZEL_NODE_MODULES_ROOTS"] = bazel_node_module_roots
+
+    stamp = ctx.attr.stamp[StampSettingInfo].value if hasattr(ctx.attr, "stamp") else False
+    if stamp:
+        env["BAZEL_VERSION_FILE"] = ctx.version_file.path
+        env["BAZEL_INFO_FILE"] = ctx.info_file.path
+        if type(inputs) == "list":
+            inputs.extend([ctx.version_file, ctx.info_file])
+        else:
+            inputs = depset([ctx.version_file, ctx.info_file], transitive = [inputs])
 
     # ctx.actions.run accepts both lists and a depset for inputs. Coerce the original inputs to a
     # depset if they're a list, so that extra inputs can be combined in a performant manner.

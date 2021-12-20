@@ -1,5 +1,4 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
-load("//internal/node:context.bzl", "node_context_data")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 load("//packages/concatjs:index.bzl", "ts_library")
@@ -31,13 +30,6 @@ pkg_npm(
     srcs = ["dependent_file"],
 )
 
-# Force stamping behavior even in builds without --stamp config
-# by mocking out the config data
-node_context_data(
-    name = "force_stamp",
-    stamp = True,
-)
-
 pkg_npm(
     name = "test_pkg",
     package_name = "test-pkg",
@@ -47,7 +39,7 @@ pkg_npm(
         "@internal_npm_package_test_vendored_external//:vendored_external_file",
     ],
     nested_packages = [":dependent_pkg"],
-    node_context_data = ":force_stamp",
+    stamp = "@build_bazel_rules_nodejs//nodejs:always_stamp",
     substitutions = {
         "0.0.0-PLACEHOLDER": "{BUILD_SCM_VERSION}",
         "replace_me": "replaced",

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//:index.bzl", "BAZEL_VERSION", "nodejs_test")
-load("//internal/node:context.bzl", "node_context_data")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -33,20 +32,4 @@ nodejs_test(
     ],
     entry_point = ":check_bazel_version.js",
     templated_args = [BAZEL_VERSION],
-)
-
-# Detect if the build is running under --stamp
-config_setting(
-    name = "stamp",
-    values = {"stamp": "true"},
-)
-
-# Modelled after go_context_data from rules_go
-# passes config values to starlark via a provider
-node_context_data(
-    name = "node_context_data",
-    stamp = select({
-        "@build_bazel_rules_nodejs//internal:stamp": True,
-        "//conditions:default": False,
-    }),
 )

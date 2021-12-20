@@ -198,7 +198,7 @@ rollup_bundle(
 
 <pre>
 rollup_bundle(<a href="#rollup_bundle-name">name</a>, <a href="#rollup_bundle-args">args</a>, <a href="#rollup_bundle-config_file">config_file</a>, <a href="#rollup_bundle-deps">deps</a>, <a href="#rollup_bundle-entry_point">entry_point</a>, <a href="#rollup_bundle-entry_points">entry_points</a>, <a href="#rollup_bundle-format">format</a>, <a href="#rollup_bundle-link_workspace_root">link_workspace_root</a>,
-              <a href="#rollup_bundle-node_context_data">node_context_data</a>, <a href="#rollup_bundle-output_dir">output_dir</a>, <a href="#rollup_bundle-rollup_bin">rollup_bin</a>, <a href="#rollup_bundle-rollup_worker_bin">rollup_worker_bin</a>, <a href="#rollup_bundle-silent">silent</a>, <a href="#rollup_bundle-sourcemap">sourcemap</a>, <a href="#rollup_bundle-srcs">srcs</a>,
+              <a href="#rollup_bundle-output_dir">output_dir</a>, <a href="#rollup_bundle-rollup_bin">rollup_bin</a>, <a href="#rollup_bundle-rollup_worker_bin">rollup_worker_bin</a>, <a href="#rollup_bundle-silent">silent</a>, <a href="#rollup_bundle-sourcemap">sourcemap</a>, <a href="#rollup_bundle-srcs">srcs</a>, <a href="#rollup_bundle-stamp">stamp</a>,
               <a href="#rollup_bundle-supports_workers">supports_workers</a>)
 </pre>
 
@@ -319,18 +319,6 @@ If source files need to be required then they can be copied to the bin_dir with 
 
 Defaults to `False`
 
-<h4 id="rollup_bundle-node_context_data">node_context_data</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Provides info about the build context, such as stamping.
-        
-By default it reads from the bazel command line, such as the `--stamp` argument.
-Use this to override values for this target, such as enabling or disabling stamping.
-You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
-to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
-
-
-Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
-
 <h4 id="rollup_bundle-output_dir">output_dir</h4>
 
 (*Boolean*): Whether to produce a directory output.
@@ -380,6 +368,23 @@ Defaults to `"inline"`
 You must not repeat file(s) passed to entry_point/entry_points.
 
 Defaults to `[]`
+
+<h4 id="rollup_bundle-stamp">stamp</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Whether to encode build information into the output. Possible values:
+    - `@build_bazel_rules_nodejs//nodejs:always_stamp`:
+        Always stamp the build information into the output, even in [--nostamp][stamp] builds.
+        This setting should be avoided, since it potentially causes cache misses remote caching for
+        any downstream actions that depend on it.
+    - `@build_bazel_rules_nodejs//nodejs:never_stamp`:
+        Always replace build information by constant values. This gives good build result caching.
+    - `@build_bazel_rules_nodejs//nodejs:use_stamp_flag`:
+        Embedding of build information is controlled by the [--[no]stamp][stamp] flag.
+        Stamped binaries are not rebuilt unless their dependencies change.
+    [stamp]: https://docs.bazel.build/versions/main/user-manual.html#flag--stamp  The dependencies of this attribute must provide: StampSettingInfo
+
+
+Defaults to `@build_bazel_rules_nodejs//nodejs:use_stamp_flag`
 
 <h4 id="rollup_bundle-supports_workers">supports_workers</h4>
 

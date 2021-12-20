@@ -4,7 +4,7 @@ esbuild rule
 
 load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "STAMP_ATTR", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "LinkerPackageMappingInfo", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/common:expand_variables.bzl", "expand_variables")
 load("@build_bazel_rules_nodejs//toolchains/esbuild:toolchain.bzl", "TOOLCHAIN")
@@ -171,14 +171,6 @@ def _esbuild_impl(ctx):
         inputs.append(configs[0])
         launcher_args.add("--config_file=%s" % configs[0].path)
 
-    stamp = ctx.attr.node_context_data[NodeContextInfo].stamp
-    if stamp:
-        inputs.append(ctx.info_file)
-        env["BAZEL_INFO_FILE"] = ctx.info_file.path
-
-        inputs.append(ctx.version_file)
-        env["BAZEL_VERSION_FILE"] = ctx.version_file.path
-
     run_node(
         ctx = ctx,
         inputs = depset(inputs),
@@ -206,7 +198,7 @@ def _esbuild_impl(ctx):
     ]
 
 esbuild = rule(
-    attrs = dict({
+    attrs = {
         "args": attr.string_dict(
             default = {},
             doc = """A dict of extra arguments that are included in the call to esbuild, where the key is the argument name.
@@ -381,6 +373,7 @@ See https://esbuild.github.io/api/#splitting and https://esbuild.github.io/api/#
             default = [],
             doc = """Source files to be made available to esbuild""",
         ),
+        "stamp": STAMP_ATTR,
         "target": attr.string(
             default = "es2015",
             doc = """Environment target (e.g. es2017, chrome58, firefox57, safari11,
@@ -396,7 +389,7 @@ See https://esbuild.github.io/api/#target for more details
 See https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/esbuild/test/plugins/BUILD.bazel for examples of using esbuild_config and plugins.
             """,
         ),
-    }, **NODE_CONTEXT_ATTRS),
+    },
     implementation = _esbuild_impl,
     toolchains = [
         str(TOOLCHAIN),

@@ -51,13 +51,26 @@ load(
     _DirectoryFilePathInfo = "DirectoryFilePathInfo",
 )
 load(
-    "//internal/providers:node_context.bzl",
-    _NODE_CONTEXT_ATTRS = "NODE_CONTEXT_ATTRS",
-    _NodeContextInfo = "NodeContextInfo",
+    "//nodejs/private/providers:stamp_setting_info.bzl",
+    _StampSettingInfo = "StampSettingInfo",
 )
 
-NodeContextInfo = _NodeContextInfo
-NODE_CONTEXT_ATTRS = _NODE_CONTEXT_ATTRS
+StampSettingInfo = _StampSettingInfo
+STAMP_ATTR = attr.label(
+    default = "@build_bazel_rules_nodejs//nodejs:use_stamp_flag",
+    providers = [StampSettingInfo],
+    doc = """Whether to encode build information into the output. Possible values:
+    - `@build_bazel_rules_nodejs//nodejs:always_stamp`:
+        Always stamp the build information into the output, even in [--nostamp][stamp] builds.
+        This setting should be avoided, since it potentially causes cache misses remote caching for
+        any downstream actions that depend on it.
+    - `@build_bazel_rules_nodejs//nodejs:never_stamp`:
+        Always replace build information by constant values. This gives good build result caching.
+    - `@build_bazel_rules_nodejs//nodejs:use_stamp_flag`:
+        Embedding of build information is controlled by the [--[no]stamp][stamp] flag.
+        Stamped binaries are not rebuilt unless their dependencies change.
+    [stamp]: https://docs.bazel.build/versions/main/user-manual.html#flag--stamp""",
+)
 
 DeclarationInfo = _DeclarationInfo
 declaration_info = _declaration_info

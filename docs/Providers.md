@@ -204,23 +204,6 @@ or a source file path such as,
 `external/<external_wksp>/path/to/package` 
 
 
-## NodeContextInfo
-
-**USAGE**
-
-<pre>
-NodeContextInfo(<a href="#NodeContextInfo-stamp">stamp</a>)
-</pre>
-
-Provides data about the build context, like config_setting's
-
-**FIELDS**
-
-<h4 id="NodeContextInfo-stamp">stamp</h4>
-
- If stamping is enabled for this build 
-
-
 ## NodeRuntimeDepsInfo
 
 **USAGE**
@@ -282,6 +265,23 @@ Provides information about one or more external npm packages
 <h4 id="NpmPackageInfo-workspace">workspace</h4>
 
  The workspace name that these external npm package(s) are provided from 
+
+
+## StampSettingInfo
+
+**USAGE**
+
+<pre>
+StampSettingInfo(<a href="#StampSettingInfo-value">value</a>)
+</pre>
+
+
+
+**FIELDS**
+
+<h4 id="StampSettingInfo-value">value</h4>
+
+ Whether stamping is enabled 
 
 
 ## declaration_info

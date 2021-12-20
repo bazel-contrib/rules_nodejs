@@ -1176,8 +1176,8 @@ Defaults to `3600`
 **USAGE**
 
 <pre>
-pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-package_path">package_path</a>, <a href="#pkg_npm-srcs">srcs</a>,
-        <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-tgz">tgz</a>, <a href="#pkg_npm-validate">validate</a>, <a href="#pkg_npm-vendor_external">vendor_external</a>)
+pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-package_path">package_path</a>, <a href="#pkg_npm-srcs">srcs</a>, <a href="#pkg_npm-stamp">stamp</a>, <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-tgz">tgz</a>,
+        <a href="#pkg_npm-validate">validate</a>, <a href="#pkg_npm-vendor_external">vendor_external</a>)
 </pre>
 
 The pkg_npm rule creates a directory containing a publishable npm artifact.
@@ -1284,18 +1284,6 @@ Defaults to `[]`
 
 Defaults to `[]`
 
-<h4 id="pkg_npm-node_context_data">node_context_data</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Provides info about the build context, such as stamping.
-        
-By default it reads from the bazel command line, such as the `--stamp` argument.
-Use this to override values for this target, such as enabling or disabling stamping.
-You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
-to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
-
-
-Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
-
 <h4 id="pkg_npm-package_name">package_name</h4>
 
 (*String*): The package name that the linker will link this npm package as.
@@ -1319,6 +1307,23 @@ Defaults to `""`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Files inside this directory which are simply copied into the package.
 
 Defaults to `[]`
+
+<h4 id="pkg_npm-stamp">stamp</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Whether to encode build information into the output. Possible values:
+    - `@build_bazel_rules_nodejs//nodejs:always_stamp`:
+        Always stamp the build information into the output, even in [--nostamp][stamp] builds.
+        This setting should be avoided, since it potentially causes cache misses remote caching for
+        any downstream actions that depend on it.
+    - `@build_bazel_rules_nodejs//nodejs:never_stamp`:
+        Always replace build information by constant values. This gives good build result caching.
+    - `@build_bazel_rules_nodejs//nodejs:use_stamp_flag`:
+        Embedding of build information is controlled by the [--[no]stamp][stamp] flag.
+        Stamped binaries are not rebuilt unless their dependencies change.
+    [stamp]: https://docs.bazel.build/versions/main/user-manual.html#flag--stamp  The dependencies of this attribute must provide: StampSettingInfo
+
+
+Defaults to `@build_bazel_rules_nodejs//nodejs:use_stamp_flag`
 
 <h4 id="pkg_npm-substitutions">substitutions</h4>
 
@@ -1358,7 +1363,7 @@ Defaults to `[]`
 **USAGE**
 
 <pre>
-pkg_web(<a href="#pkg_web-name">name</a>, <a href="#pkg_web-additional_root_paths">additional_root_paths</a>, <a href="#pkg_web-node_context_data">node_context_data</a>, <a href="#pkg_web-srcs">srcs</a>, <a href="#pkg_web-substitutions">substitutions</a>)
+pkg_web(<a href="#pkg_web-name">name</a>, <a href="#pkg_web-additional_root_paths">additional_root_paths</a>, <a href="#pkg_web-srcs">srcs</a>, <a href="#pkg_web-stamp">stamp</a>, <a href="#pkg_web-substitutions">substitutions</a>)
 </pre>
 
 Assembles a web application from source files.
@@ -1377,23 +1382,28 @@ Assembles a web application from source files.
 
 Defaults to `[]`
 
-<h4 id="pkg_web-node_context_data">node_context_data</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Provides info about the build context, such as stamping.
-        
-By default it reads from the bazel command line, such as the `--stamp` argument.
-Use this to override values for this target, such as enabling or disabling stamping.
-You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
-to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
-
-
-Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
-
 <h4 id="pkg_web-srcs">srcs</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Files which should be copied into the package
 
 Defaults to `[]`
+
+<h4 id="pkg_web-stamp">stamp</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Whether to encode build information into the output. Possible values:
+    - `@build_bazel_rules_nodejs//nodejs:always_stamp`:
+        Always stamp the build information into the output, even in [--nostamp][stamp] builds.
+        This setting should be avoided, since it potentially causes cache misses remote caching for
+        any downstream actions that depend on it.
+    - `@build_bazel_rules_nodejs//nodejs:never_stamp`:
+        Always replace build information by constant values. This gives good build result caching.
+    - `@build_bazel_rules_nodejs//nodejs:use_stamp_flag`:
+        Embedding of build information is controlled by the [--[no]stamp][stamp] flag.
+        Stamped binaries are not rebuilt unless their dependencies change.
+    [stamp]: https://docs.bazel.build/versions/main/user-manual.html#flag--stamp  The dependencies of this attribute must provide: StampSettingInfo
+
+
+Defaults to `@build_bazel_rules_nodejs//nodejs:use_stamp_flag`
 
 <h4 id="pkg_web-substitutions">substitutions</h4>
 

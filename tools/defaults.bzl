@@ -65,7 +65,7 @@ def pkg_npm(**kwargs):
         tgz = "%s.tgz" % name,
         deps = deps,
         substitutions = select({
-            "@build_bazel_rules_nodejs//internal:stamp": stamped_substitutions,
+            "@rules_nodejs//nodejs:stamp": stamped_substitutions,
             "//conditions:default": substitutions,
         }),
         visibility = visibility,

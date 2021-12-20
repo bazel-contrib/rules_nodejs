@@ -103,9 +103,9 @@ This will create an output directory containing all the code split chunks, along
 
 <pre>
 esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-args_json">args_json</a>, <a href="#esbuild-config">config</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-define_settings">define_settings</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-entry_points">entry_points</a>,
-        <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-launcher">launcher</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>, <a href="#esbuild-metafile">metafile</a>, <a href="#esbuild-minify">minify</a>,
-        <a href="#esbuild-node_context_data">node_context_data</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_css">output_css</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>,
-        <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-splitting">splitting</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>)
+        <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-launcher">launcher</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>, <a href="#esbuild-metafile">metafile</a>, <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>,
+        <a href="#esbuild-output_css">output_css</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-splitting">splitting</a>, <a href="#esbuild-srcs">srcs</a>,
+        <a href="#esbuild-stamp">stamp</a>, <a href="#esbuild-target">target</a>)
 </pre>
 
 Runs the esbuild bundler under Bazel
@@ -263,18 +263,6 @@ See https://esbuild.github.io/api/#minify for more details
 
 Defaults to `False`
 
-<h4 id="esbuild-node_context_data">node_context_data</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Provides info about the build context, such as stamping.
-        
-By default it reads from the bazel command line, such as the `--stamp` argument.
-Use this to override values for this target, such as enabling or disabling stamping.
-You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
-to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
-
-
-Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
-
 <h4 id="esbuild-output">output</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Name of the output file when bundling
@@ -337,6 +325,23 @@ Defaults to `False`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Source files to be made available to esbuild
 
 Defaults to `[]`
+
+<h4 id="esbuild-stamp">stamp</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Whether to encode build information into the output. Possible values:
+    - `@build_bazel_rules_nodejs//nodejs:always_stamp`:
+        Always stamp the build information into the output, even in [--nostamp][stamp] builds.
+        This setting should be avoided, since it potentially causes cache misses remote caching for
+        any downstream actions that depend on it.
+    - `@build_bazel_rules_nodejs//nodejs:never_stamp`:
+        Always replace build information by constant values. This gives good build result caching.
+    - `@build_bazel_rules_nodejs//nodejs:use_stamp_flag`:
+        Embedding of build information is controlled by the [--[no]stamp][stamp] flag.
+        Stamped binaries are not rebuilt unless their dependencies change.
+    [stamp]: https://docs.bazel.build/versions/main/user-manual.html#flag--stamp  The dependencies of this attribute must provide: StampSettingInfo
+
+
+Defaults to `@build_bazel_rules_nodejs//nodejs:use_stamp_flag`
 
 <h4 id="esbuild-target">target</h4>
 
