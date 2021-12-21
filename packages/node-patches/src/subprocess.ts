@@ -29,7 +29,7 @@ set Path=${nodeDir};%Path%
     const nodeEntry = path.join(nodeDir, 'node');
     if (!fs.existsSync(nodeEntry)) {
       fs.writeFileSync(
-          nodeEntry, `#!/bin/bash
+          nodeEntry, `#!/usr/bin/env bash
 export NP_SUBPROCESS_NODE_DIR="${nodeDir}"
 export PATH="${nodeDir}":\$PATH
 if [[ ! "\${@}" =~ "${file}" ]]; then
