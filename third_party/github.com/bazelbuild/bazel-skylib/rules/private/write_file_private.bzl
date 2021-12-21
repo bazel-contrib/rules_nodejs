@@ -95,7 +95,7 @@ def write_file(
             out = out,
             newline = newline or "auto",
             is_windows = select({
-                "@rules_nodejs//nodejs:is_windows_amd64": True,
+                "@bazel_tools//src/conditions:host_windows": True,
                 "//conditions:default": False,
             }),
             **kwargs
@@ -107,7 +107,7 @@ def write_file(
             out = out,
             newline = newline or "auto",
             is_windows = select({
-                "@rules_nodejs//nodejs:is_windows_amd64": True,
+                "@bazel_tools//src/conditions:host_windows": True,
                 "//conditions:default": False,
             }),
             **kwargs

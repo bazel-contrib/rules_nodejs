@@ -558,9 +558,9 @@ nodejs_binary(
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
     toolchain = select({
-        "@rules_nodejs//nodejs:is_linux_amd64": "@node15_linux_amd64//:node_toolchain",
-        "@rules_nodejs//nodejs:is_darwin_amd64": "@node15_darwin_amd64//:node_toolchain",
-        "@rules_nodejs//nodejs:is_windows_amd64": "@node15_windows_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": "@node15_linux_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": "@node15_darwin_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": "@node15_windows_amd64//:node_toolchain",
     }),
 )
 
@@ -570,9 +570,9 @@ nodejs_binary(
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
     toolchain = select({
-        "@rules_nodejs//nodejs:is_linux_amd64": "@node16_linux_amd64//:node_toolchain",
-        "@rules_nodejs//nodejs:is_darwin_amd64": "@node16_darwin_amd64//:node_toolchain",
-        "@rules_nodejs//nodejs:is_windows_amd64": "@node16_windows_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": "@node16_linux_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": "@node16_darwin_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": "@node16_windows_amd64//:node_toolchain",
     }),
 )
 
@@ -587,9 +587,9 @@ nodejs_test(
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
     toolchain = select({
-        "@rules_nodejs//nodejs:is_linux_amd64": "@node15_linux_amd64//:node_toolchain",
-        "@rules_nodejs//nodejs:is_darwin_amd64": "@node15_darwin_amd64//:node_toolchain",
-        "@rules_nodejs//nodejs:is_windows_amd64": "@node15_windows_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": "@node15_linux_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": "@node15_darwin_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": "@node15_windows_amd64//:node_toolchain",
     }),
 )
 
@@ -599,9 +599,9 @@ nodejs_test(
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
     toolchain = select({
-        "@rules_nodejs//nodejs:is_linux_amd64": "@node16_linux_amd64//:node_toolchain",
-        "@rules_nodejs//nodejs:is_darwin_amd64": "@node16_darwin_amd64//:node_toolchain",
-        "@rules_nodejs//nodejs:is_windows_amd64": "@node16_windows_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": "@node16_linux_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": "@node16_darwin_amd64//:node_toolchain",
+        "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": "@node16_windows_amd64//:node_toolchain",
     }),
 )
 
@@ -626,14 +626,14 @@ nodejs_test(
             # using the select statement will download toolchains for all platforms
             # you can also just provide an individual toolchain if you don't want to download them all
             select({
-                "@rules_nodejs//nodejs:is_linux_amd64": "@node16_linux_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_darwin_amd64": "@node16_darwin_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_windows_amd64": "@node16_windows_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": "@node16_linux_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": "@node16_darwin_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": "@node16_windows_amd64//:node_toolchain",
             }),
             select({
-                "@rules_nodejs//nodejs:is_linux_amd64": "@node15_linux_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_darwin_amd64": "@node15_darwin_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_windows_amd64": "@node15_windows_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": "@node15_linux_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": "@node15_darwin_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": "@node15_windows_amd64//:node_toolchain",
             }),
         ],
     )
@@ -661,14 +661,14 @@ nodejs_test(
             # using the select statement will download toolchains for all platforms
             # you can also just provide an individual toolchain if you don't want to download them all
             select({
-                "@rules_nodejs//nodejs:is_linux_amd64": "@node16_linux_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_darwin_amd64": "@node16_darwin_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_windows_amd64": "@node16_windows_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": "@node16_linux_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": "@node16_darwin_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": "@node16_windows_amd64//:node_toolchain",
             }),
             select({
-                "@rules_nodejs//nodejs:is_linux_amd64": "@node15_linux_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_darwin_amd64": "@node15_darwin_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_windows_amd64": "@node15_windows_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": "@node15_linux_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": "@node15_darwin_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": "@node15_windows_amd64//:node_toolchain",
             }),
         ],
     )
@@ -697,14 +697,14 @@ nodejs_test(
             # using the select statement will download toolchains for all platforms
             # you can also just provide an individual toolchain if you don't want to download them all
             select({
-                "@rules_nodejs//nodejs:is_linux_amd64": "@node16_linux_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_darwin_amd64": "@node16_darwin_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_windows_amd64": "@node16_windows_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": "@node16_linux_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": "@node16_darwin_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": "@node16_windows_amd64//:node_toolchain",
             }),
             select({
-                "@rules_nodejs//nodejs:is_linux_amd64": "@node15_linux_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_darwin_amd64": "@node15_darwin_amd64//:node_toolchain",
-                "@rules_nodejs//nodejs:is_windows_amd64": "@node15_windows_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": "@node15_linux_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": "@node15_darwin_amd64//:node_toolchain",
+                "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": "@node15_windows_amd64//:node_toolchain",
             }),
         ],
     )

@@ -380,7 +380,7 @@ def pkg_npm_macro(name, tgz = None, **kwargs):
     native.alias(
         name = name + ".pack",
         actual = select({
-            "@rules_nodejs//nodejs:is_windows_amd64": name + ".pack.bat",
+            "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": name + ".pack.bat",
             "//conditions:default": name + ".pack.sh",
         }),
     )
@@ -388,7 +388,7 @@ def pkg_npm_macro(name, tgz = None, **kwargs):
     native.alias(
         name = name + ".publish",
         actual = select({
-            "@rules_nodejs//nodejs:is_windows_amd64": name + ".publish.bat",
+            "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": name + ".publish.bat",
             "//conditions:default": name + ".publish.sh",
         }),
     )

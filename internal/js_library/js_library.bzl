@@ -445,7 +445,7 @@ def js_library(
         # TODO: remove once legacy module_mapping is removed
         module_name = package_name if package_name != "$node_modules$" and package_name != "$node_modules_dir$" else None,
         is_windows = select({
-            "@rules_nodejs//nodejs:is_windows_amd64": True,
+            "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": True,
             "//conditions:default": False,
         }),
         **kwargs

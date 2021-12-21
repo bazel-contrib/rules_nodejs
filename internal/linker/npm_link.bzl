@@ -148,7 +148,7 @@ set to the target's package & the files provided from the targets DefaultInfo.
         package_name = package_name,
         package_path = package_path,
         is_windows = select({
-            "@rules_nodejs//nodejs:is_windows_amd64": True,
+            "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": True,
             "//conditions:default": False,
         }),
         **kwargs

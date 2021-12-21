@@ -125,7 +125,7 @@ def params_file(
         data = data,
         newline = newline or "auto",
         is_windows = select({
-            "@rules_nodejs//nodejs:is_windows_amd64": True,
+            "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": True,
             "//conditions:default": False,
         }),
         **kwargs

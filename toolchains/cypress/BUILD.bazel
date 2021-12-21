@@ -38,10 +38,10 @@ toolchain_type(name = "toolchain_type")
 alias(
     name = "toolchain",
     actual = select({
-        "@rules_nodejs//nodejs:is_darwin_amd64": ":cypress_darwin_toolchain_config",
-        "@rules_nodejs//nodejs:is_darwin_arm64": ":cypress_darwin_arm64_toolchain_config",
-        "@rules_nodejs//nodejs:is_linux_amd64": ":cypress_linux_toolchain_config",
-        "@rules_nodejs//nodejs:is_windows_amd64": ":cypress_windows_toolchain_config",
+        "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": ":cypress_darwin_toolchain_config",
+        "@build_bazel_rules_nodejs//nodejs:is_darwin_arm64": ":cypress_darwin_arm64_toolchain_config",
+        "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": ":cypress_linux_toolchain_config",
+        "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": ":cypress_windows_toolchain_config",
         "//conditions:default": ":cypress_linux_toolchain_config",
     }),
     visibility = ["//visibility:public"],
@@ -51,10 +51,10 @@ alias(
 alias(
     name = "cypress_bin",
     actual = select({
-        "@rules_nodejs//nodejs:is_darwin_amd64": "@cypress_darwin//:bin",
-        "@rules_nodejs//nodejs:is_darwin_arm64": "@cypress_darwin_arm64//:bin",
-        "@rules_nodejs//nodejs:is_linux_amd64": "@cypress_linux//:bin",
-        "@rules_nodejs//nodejs:is_windows_amd64": "@cypress_windows//:bin",
+        "@build_bazel_rules_nodejs//nodejs:is_darwin_amd64": "@cypress_darwin//:bin",
+        "@build_bazel_rules_nodejs//nodejs:is_darwin_arm64": "@cypress_darwin_arm64//:bin",
+        "@build_bazel_rules_nodejs//nodejs:is_linux_amd64": "@cypress_linux//:bin",
+        "@build_bazel_rules_nodejs//nodejs:is_windows_amd64": "@cypress_windows//:bin",
         "//conditions:default": "@cypress_linux//:bin",
     }),
     visibility = ["//visibility:public"],
