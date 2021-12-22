@@ -78,4 +78,5 @@ nodejs_image(
     name = "docker",
     binary = ":server",
     include_node_repo_args = False,
+    node_repository_name = "nodejs_linux_amd64",
 )

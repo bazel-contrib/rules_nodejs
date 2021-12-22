@@ -1,4 +1,20 @@
 load("@npm//@bazel/jasmine:index.bzl", "jasmine_node_test")
+load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
+
+node_toolchain(
+    name = "node_toolchain",
+    target_tool = "@vendored_node_15_0_1//:node-v15.0.1-linux-x64/bin/node",
+)
+
+toolchain(
+    name = "node15_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    toolchain = ":node_toolchain",
+    toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
+)
 
 jasmine_node_test(
     name = "test",

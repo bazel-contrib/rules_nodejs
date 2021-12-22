@@ -32,6 +32,7 @@ bzl_library(
         "//nodejs:bzl",
         "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
         "//toolchains/node:bzl",
+        "@rules_nodejs//nodejs:bzl",
     ],
 )
 

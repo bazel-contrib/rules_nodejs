@@ -36,14 +36,11 @@ http_archive(
     urls = ["https://nodejs.org/dist/v15.0.1/node-v15.0.1-linux-x64.tar.xz"],
 )
 
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "npm_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
 
 # This example only works on linux as it downloads the linux node distribution
 # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
-node_repositories(
-    node_version = "15.0.1",
-    vendored_node = "@vendored_node_15_0_1//:node-v15.0.1-linux-x64",
-)
+register_toolchains("//:node15_toolchain")
 
 npm_install(
     name = "npm",

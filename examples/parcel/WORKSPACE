@@ -25,13 +25,12 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.4.0/rules_nodejs-4.4.0.tar.gz"],
 )
 
-load("@build_bazel_rules_nodejs//nodejs:repositories.bzl", "rules_nodejs_dependencies")
+load("@build_bazel_rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "rules_nodejs_dependencies")
 
 rules_nodejs_dependencies()
 
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "npm_install")
-
-node_repositories(
+nodejs_register_toolchains(
+    name = "nodejs",
     # with node 16, this example fails on circleCI, because
     # parcel has a gyp build on install that fails due to wrong
     # version of the python interpreter:
@@ -52,6 +51,8 @@ node_repositories(
     # npm ERR! gyp ERR! find Python - THIS VERSION OF PYTHON IS NOT SUPPORTED
     node_version = "14.17.5",
 )
+
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
 
 npm_install(
     name = "npm",

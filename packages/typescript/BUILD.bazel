@@ -23,11 +23,7 @@ package(default_visibility = ["//visibility:public"])
 
 bzl_library(
     name = "bzl",
-    srcs = glob(["*.bzl"]) + [
-        # Work-around since we don't have and don't want a bzl_library in the generated
-        # @nodejs//:BUILD.bazel file
-        "@nodejs//:index.bzl",
-    ],
+    srcs = glob(["*.bzl"]),
     deps = [
         "//packages/typescript/internal:bzl",
         "@build_bazel_rules_nodejs//:bzl",

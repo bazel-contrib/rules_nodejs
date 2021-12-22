@@ -20,10 +20,10 @@ See https://docs.bazel.build/versions/main/skylark/repository_rules.html
 
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
-load("//nodejs/private:nodejs_repo_host_os_alias.bzl", "nodejs_repo_host_os_alias")
 load("//nodejs/private:os_name.bzl", "OS_ARCH_NAMES", "node_exists_for_os", "os_name")
 load("//nodejs:repositories.bzl", "DEFAULT_NODE_VERSION", node_repositories_rule = "node_repositories")
 load("//toolchains/node:node_toolchain_configure.bzl", "node_toolchain_configure")
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
 def node_repositories(**kwargs):
     """
@@ -64,10 +64,5 @@ def node_repositories(**kwargs):
             target_tool = target_tool,
         )
 
-    # This "nodejs" repo is just for convenience so one does not have to target @nodejs_<os_name>//...
-    # All it does is create aliases to the @nodejs_<host_os>_<host_arch> repository
-    maybe(
-        nodejs_repo_host_os_alias,
-        name = "nodejs",
-        node_version = node_version,
-    )
+    # Install new toolchain under "nodejs" repository name prefix
+    nodejs_register_toolchains(name = "nodejs")

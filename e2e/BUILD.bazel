@@ -82,6 +82,12 @@ e2e_integration_test(
 
 e2e_integration_test(
     name = "e2e_nodejs_repository",
+    # Only run on buildkite linux as we hard-coded the platform in the test
+    tags = [
+        "no-bazelci-mac",
+        "no-bazelci-windows",
+        "no-circleci",
+    ],
 )
 
 e2e_integration_test(
