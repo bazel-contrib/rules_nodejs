@@ -52,6 +52,7 @@ bzl_library(
         "//packages/concatjs/devserver:bzl",
         "//packages/concatjs/internal:bzl",
         "//packages/concatjs/web_test:bzl",
+        "@bazel_skylib//lib:types",
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
         "@build_bazel_rules_nodejs//internal/node:bzl",

@@ -15,11 +15,11 @@
 """Contains the pkg_web rule.
 """
 
-load("//:providers.bzl", "NODE_CONTEXT_ATTRS", "NodeContextInfo")
+load("@rules_nodejs//nodejs:providers.bzl", "STAMP_ATTR", "StampSettingInfo")
 
 _DOC = """Assembles a web application from source files."""
 
-_ATTRS = dict(NODE_CONTEXT_ATTRS, **{
+_ATTRS = {
     "additional_root_paths": attr.string_list(
         doc = """Path prefixes to strip off all srcs relative to the root of the repo, in addition to the current package. Longest wins.""",
     ),
@@ -27,6 +27,7 @@ _ATTRS = dict(NODE_CONTEXT_ATTRS, **{
         allow_files = True,
         doc = """Files which should be copied into the package""",
     ),
+    "stamp": STAMP_ATTR,
     "substitutions": attr.string_dict(
         doc = """Key-value pairs which are replaced in all the files while building the package.
 
@@ -39,7 +40,7 @@ See the section on stamping in the README.""",
         executable = True,
         cfg = "host",
     ),
-})
+}
 
 # Hints for Bazel spawn strategy
 _execution_requirements = {
@@ -62,7 +63,7 @@ def _move_files(ctx, root_paths):
     args = ctx.actions.args()
     inputs = ctx.files.srcs[:]
     args.add(www_dir.path)
-    if ctx.attr.node_context_data[NodeContextInfo].stamp:
+    if ctx.attr.stamp[StampSettingInfo].value:
         args.add(ctx.version_file.path)
         inputs.append(ctx.version_file)
         args.add(ctx.info_file.path)

@@ -33,6 +33,7 @@ bzl_library(
     ),
     visibility = ["//visibility:public"],
     deps = [
+        "@bazel_skylib//lib:types",
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
         "@rules_nodejs//nodejs:bzl",

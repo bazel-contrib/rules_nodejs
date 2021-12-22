@@ -92,23 +92,6 @@ Historical note: this was the typescript.es5_sources output.
  Depset of direct and transitive JavaScript files and sourcemaps 
 
 
-## NodeContextInfo
-
-**USAGE**
-
-<pre>
-NodeContextInfo(<a href="#NodeContextInfo-stamp">stamp</a>)
-</pre>
-
-Provides data about the build context, like config_setting's
-
-**FIELDS**
-
-<h4 id="NodeContextInfo-stamp">stamp</h4>
-
- If stamping is enabled for this build 
-
-
 ## NodeRuntimeDepsInfo
 
 **USAGE**

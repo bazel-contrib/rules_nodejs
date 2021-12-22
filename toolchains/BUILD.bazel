@@ -9,6 +9,7 @@ stardoc(
     deps = [
         "//toolchains/cypress:bzl",
         "//toolchains/esbuild:bzl",
+        "@bazel_skylib//lib:types",
         "@rules_nodejs//nodejs:bzl",
     ],
 )

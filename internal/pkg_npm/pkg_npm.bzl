@@ -6,8 +6,8 @@ If all users of your library code use Bazel, they should just add your library
 to the `deps` of one of their targets.
 """
 
-load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "JSModuleInfo", "LinkablePackageInfo")
-load("//:providers.bzl", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo")
+load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "JSModuleInfo", "LinkablePackageInfo", "STAMP_ATTR", "StampSettingInfo")
+load("//:providers.bzl", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo")
 
 _DOC = """The pkg_npm rule creates a directory containing a publishable npm artifact.
 
@@ -94,7 +94,7 @@ my_rule(
 """
 
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
-PKG_NPM_ATTRS = dict(NODE_CONTEXT_ATTRS, **{
+PKG_NPM_ATTRS = {
     "deps": attr.label_list(
         doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
         allow_files = True,
@@ -119,6 +119,7 @@ If package_path is not set the this will be the root node_modules of the workspa
         doc = """Files inside this directory which are simply copied into the package.""",
         allow_files = True,
     ),
+    "stamp": STAMP_ATTR,
     "substitutions": attr.string_dict(
         doc = """Key-value pairs which are replaced in all the files while building the package.
         
@@ -152,7 +153,7 @@ See the section on stamping in the [README](stamping)
         cfg = "exec",
         executable = True,
     ),
-})
+}
 
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
 PKG_NPM_OUTPUTS = {
@@ -208,7 +209,7 @@ def create_package(ctx, deps_files, nested_packages):
       The tree artifact which is the publishable directory.
     """
 
-    stamp = ctx.attr.node_context_data[NodeContextInfo].stamp
+    stamp = ctx.attr.stamp[StampSettingInfo].value
 
     all_files = deps_files + ctx.files.srcs
 

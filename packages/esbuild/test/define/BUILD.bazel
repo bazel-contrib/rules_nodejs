@@ -1,7 +1,6 @@
 load("//packages/esbuild:index.bzl", "esbuild", "esbuild_config")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/concatjs:index.bzl", "ts_library")
-load("//internal/node:context.bzl", "node_context_data")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag", "string_flag")
 
 ts_library(
@@ -35,13 +34,6 @@ esbuild(
     deps = [":main"],
 )
 
-# Force stamping behavior even in builds without --stamp config
-# by mocking out the config data
-node_context_data(
-    name = "context_data",
-    stamp = True,
-)
-
 esbuild_config(
     name = "esbuild_config",
     config_file = "esbuild.config.mjs",
@@ -63,7 +55,7 @@ esbuild(
         ":some_string_flag": "SOME_STRING_FLAG_VALUE",
     },
     entry_point = "main.ts",
-    node_context_data = ":context_data",
+    stamp = "@rules_nodejs//nodejs/stamp:always",
     deps = [":main"],
 )
 

@@ -32,6 +32,7 @@ bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]),
     deps = [
+        "@bazel_skylib//lib:types",
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
         "@build_bazel_rules_nodejs//internal/linker:bzl",

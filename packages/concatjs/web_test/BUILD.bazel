@@ -41,6 +41,7 @@ bzl_library(
     testonly = True,
     srcs = glob(["*.bzl"]),
     deps = [
+        "@bazel_skylib//lib:types",
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/js_library:bzl",
         "@io_bazel_rules_webtesting//web",

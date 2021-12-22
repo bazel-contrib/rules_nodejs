@@ -24,6 +24,11 @@ load(
     "//nodejs/private/providers:user_build_settings.bzl",
     _UserBuildSettingInfo = "UserBuildSettingInfo",
 )
+load(
+    "//nodejs/private/providers:stamp_setting_info.bzl",
+    _STAMP_ATTR = "STAMP_ATTR",
+    _StampSettingInfo = "StampSettingInfo",
+)
 
 DeclarationInfo = _DeclarationInfo
 declaration_info = _declaration_info
@@ -32,3 +37,5 @@ js_module_info = _js_module_info
 LinkablePackageInfo = _LinkablePackageInfo
 DirectoryFilePathInfo = _DirectoryFilePathInfo
 UserBuildSettingInfo = _UserBuildSettingInfo
+StampSettingInfo = _StampSettingInfo
+STAMP_ATTR = _STAMP_ATTR
