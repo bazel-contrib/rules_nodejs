@@ -8,8 +8,9 @@ genrule(
     name = "replace_node_path",
     srcs = [":run_program.sh"],
     outs = ["run_program_with_node.sh"],
-    cmd = "sed s#NODE_PATH#$(NODE_PATH)# $< > $@",
-    toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain"],
+    # Remove leading external/ segment to account for --nolegacy_external_runfiles
+    cmd = "sed s#NODE_PATH#$(NODE_PATH)# $< | sed s#external/## > $@",
+    toolchains = ["@node16_toolchains//:resolved_toolchain"],
 )
 
 # A program from a *_test rule with a module mapped package that will
@@ -45,7 +46,7 @@ sh_binary(
         "//internal/linker/test/integration/static_linked_scoped_pkg",
         "//internal/linker/test/integration/absolute_import:index.js",
         "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
-        "//toolchains/node:node_bin",
+        "@node16_toolchains//:resolved_toolchain",
     ],
 )
 
