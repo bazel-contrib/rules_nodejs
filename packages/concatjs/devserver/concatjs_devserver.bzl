@@ -19,7 +19,6 @@ load(
     "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
     "write_amd_names_shim",
 )
-load("@nodejs//:index.bzl", "host_platform")
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -158,7 +157,7 @@ concatjs_devserver = rule(
         "devserver_host": attr.label(
             doc = """Go based devserver executable for the host platform.
             Defaults to precompiled go binary setup by @bazel/typescript npm package""",
-            default = Label("//packages/concatjs/devserver:devserver_%s" % host_platform),
+            default = Label("//packages/concatjs/devserver"),
             executable = True,
             cfg = "host",
         ),
