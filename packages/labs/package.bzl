@@ -11,14 +11,23 @@ def npm_bazel_labs_dependencies():
     If the user wants to get a different version of these, they can just fetch it
     from their WORKSPACE before calling this function, or not call this function at all.
     """
+    _maybe(
+        http_archive,
+        name = "com_google_protobuf",
+        sha256 = "efaf69303e01caccc2447064fc1832dfd23c0c130df0dc5fc98a13185bb7d1a7",
+        strip_prefix = "protobuf-678da4f76eb9168c9965afc2149944a66cd48546",
+        urls = [
+            "https://github.com/google/protobuf/archive/678da4f76eb9168c9965afc2149944a66cd48546.tar.gz",
+        ],
+    )
 
     _maybe(
         http_archive,
         name = "com_github_grpc_grpc_web",
-        sha256 = "8d9b1e9b839a5254aa79cb4068b05fdb6e1de5637c1b8551f95144159a4801f2",
-        strip_prefix = "grpc-web-1.2.0",
+        sha256 = "6ba86d2833ad0ed5e98308790bea4ad81214e1f4fc8838fe34c2e5ee053b73e6",
+        strip_prefix = "grpc-web-1.3.0",
         urls = [
-            "https://github.com/grpc/grpc-web/archive/1.2.0.tar.gz",
+            "https://github.com/grpc/grpc-web/archive/1.3.0.tar.gz",
         ],
     )
 
