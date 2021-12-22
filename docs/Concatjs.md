@@ -233,7 +233,7 @@ Defaults to `@npm//@bazel/concatjs/devserver:devserver`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Go based devserver executable for the host platform.
             Defaults to precompiled go binary setup by @bazel/typescript npm package
 
-Defaults to `@npm//@bazel/concatjs/devserver:devserver_[platform]`
+Defaults to `@npm//@bazel/concatjs/devserver:devserver`
 
 <h4 id="concatjs_devserver-entry_module">entry_module</h4>
 
