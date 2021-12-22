@@ -225,6 +225,10 @@ example_integration_test(
 example_integration_test(
     name = "examples_vue",
     npm_packages = {},
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+        "//:release-core": "rules_nodejs",
+    },
 )
 
 example_integration_test(
@@ -249,6 +253,10 @@ example_integration_test(
         "@alan-agius4",
         "@jbedard",
     ],
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+        "//:release-core": "rules_nodejs",
+    },
     tags = [
         # TODO(alexeagle): re-enable when it stops timing out on 4.x branch
         "manual",
