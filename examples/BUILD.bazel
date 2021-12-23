@@ -176,10 +176,6 @@ example_integration_test(
         "@rayman1104",
         "@siberex",
     ],
-    repositories = {
-        "//:release": "build_bazel_rules_nodejs",
-        "//:release-core": "rules_nodejs",
-    },
     # Fails on transitive dep of rules_docker
     # error running 'git init C:/users/b/_bazel_b/3oe2yqkh/external/rules_cc' while working with @rules_cc:
     # java.io.IOException: ERROR: src/main/native/windows/process.cc(199): CreateProcessW("git" init C:/users/b/_bazel_b/3oe2yqkh/external/rules_cc): The system cannot find the file specified
@@ -225,10 +221,6 @@ example_integration_test(
 example_integration_test(
     name = "examples_vue",
     npm_packages = {},
-    repositories = {
-        "//:release": "build_bazel_rules_nodejs",
-        "//:release-core": "rules_nodejs",
-    },
 )
 
 example_integration_test(
@@ -253,10 +245,6 @@ example_integration_test(
         "@alan-agius4",
         "@jbedard",
     ],
-    repositories = {
-        "//:release": "build_bazel_rules_nodejs",
-        "//:release-core": "rules_nodejs",
-    },
     tags = [
         # TODO(alexeagle): re-enable when it stops timing out on 4.x branch
         "manual",

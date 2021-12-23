@@ -234,6 +234,10 @@ repositories = {
 where `//:release` is the pkg_tar target that generates the `build_bazel_rules_nodejs` `.tar.gz` release artifact that
 is published on GitHub.
 """,
+        default = {
+            "//:release": "build_bazel_rules_nodejs",
+            "//:release-core": "rules_nodejs",
+        },
     ),
     "workspace_files": attr.label(
         doc = """A filegroup of all files in the workspace-under-test necessary to run the test.""",
@@ -269,9 +273,6 @@ def rules_nodejs_integration_test(name, **kwargs):
         "exclusive",
     ]
 
-    # replace the following repositories with the generated archives
-    repositories = kwargs.pop("repositories", {"//:release": "build_bazel_rules_nodejs"})
-
     # convert the npm packages into the tar output
     npm_packages = kwargs.pop("npm_packages", {})
     _tar_npm_packages = {}
@@ -288,7 +289,6 @@ def rules_nodejs_integration_test(name, **kwargs):
         bazel_integration_test(
             name = "%s_%s" % (name, "bazel" + bazel_version) if bazel_version != BAZEL_VERSION else name,
             check_npm_packages = NPM_PACKAGES,
-            repositories = repositories,
             bazel_binary = "@build_bazel_bazel_%s//:bazel_binary" % bazel_version.replace(".", "_"),
             # some bazelrc imports are outside of the nested workspace so
             # the test runner will handle these as special cases

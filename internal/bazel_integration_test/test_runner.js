@@ -62,18 +62,6 @@ function mkdirp(p) {
 }
 
 /**
- * Checks if a given path exists and is a directory.
- * Note: fs.statSync() is used which resolves symlinks.
- */
-function isDirectory(res) {
-  try {
-    return fs.statSync(res).isDirectory();
-  } catch (e) {
-    return false;
-  }
-}
-
-/**
  * Checks if a given path exists and is a file.
  * Note: fs.statSync() is used which resolves symlinks.
  */
@@ -215,6 +203,16 @@ if (config.bazelrcAppend) {
   // replace repositories
   for (const repositoryKey of Object.keys(config.repositories)) {
     const archiveFile = runfiles.resolve(config.repositories[repositoryKey]).replace(/\\/g, '/');
+
+    // Special case during build_bazel_rules_nodejs -> rules_nodejs migration.
+    // One of our dependencies is on antother package within our repo,
+    // so we need to override by installing our locally-built copy of it before calling the
+    // rules_nodejs_dependencies helper.
+    if (repositoryKey === "rules_nodejs") {
+      workspaceContents = workspaceContents.replace('rules_nodejs_dependencies()',
+      `http_archive(\n  name = "${repositoryKey}",\n  url="file:${archiveFile}"\n)\nrules_nodejs_dependencies()`);
+    }
+
     const regex =
         new RegExp(`(local_repository|http_archive|git_repository)\\(\\s*name\\s*\\=\\s*"${
             repositoryKey}"[^)]+`);
