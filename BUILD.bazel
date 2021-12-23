@@ -115,7 +115,6 @@ pkg_npm(
         "//third_party/npm/node_modules/named-amd:package_contents",
         "//toolchains/cypress:package_contents",
         "//toolchains/esbuild:package_contents",
-        "//toolchains/node:package_contents",
     ],
 )
 

@@ -1,11 +1,9 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("@npm//typescript:index.bzl", "tsc")
 load("//:index.bzl", "js_library")
-load("//nodejs:repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
-load(":nodejs_toolchain_test.bzl", "nodejs_toolchain_test")
 
 # You can have a nodejs_binary with no node_modules attribute
 # and no fine grained deps
@@ -340,14 +338,6 @@ jasmine_node_test(
         "minified.js",
     ],
 )
-
-[nodejs_toolchain_test(
-    name = "nodejs_toolchain_%s_test" % platform,
-    platform = platform,
-    # must be run with --platforms=@rules_nodejs//nodejs:PLATFORM
-    # where PLATFORM is one of BUILT_IN_NODE_PLATFORMS
-    tags = ["manual"],
-) for platform in BUILT_IN_NODE_PLATFORMS]
 
 nodejs_binary(
     name = "expand_variables",
