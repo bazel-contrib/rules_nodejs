@@ -14,8 +14,8 @@ tasks:
     name: ubuntu1804
     platform: ubuntu1804
     run_targets:
-    - "@nodejs//:yarn_node_repositories"
-    - "@nodejs//:yarn"
+    - "@node16_linux_amd64//:yarn_node_repositories"
+    - "@node16_linux_amd64//:yarn"
     # Regression test for #1493
     - "//packages/create:npm_package.pack"
     - "//internal/node/test:no_deps"
@@ -167,8 +167,8 @@ tasks:
     name: macos
     platform: macos
     run_targets:
-    - "@nodejs//:yarn_node_repositories"
-    - "@nodejs//:yarn"
+    - "@node16_darwin_amd64//:yarn_node_repositories"
+    - "@node16_darwin_amd64//:yarn"
     # Regression test for #1493
     - "//packages/create:npm_package.pack"
     - "//internal/node/test:no_deps"
@@ -275,8 +275,8 @@ tasks:
     name: windows
     platform: windows
     run_targets:
-    - "@nodejs//:yarn_node_repositories"
-    - "@nodejs//:yarn"
+    - "@node16_windows_amd64//:yarn_node_repositories"
+    - "@node16_windows_amd64//:yarn"
     - "//internal/node/test:no_deps"
     - "//internal/node/test:has_deps_legacy"
     - "//internal/node/test:has_deps"
