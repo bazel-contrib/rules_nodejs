@@ -22,7 +22,6 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//nodejs/private:os_name.bzl", "OS_ARCH_NAMES", "node_exists_for_os", "os_name")
 load("//nodejs:repositories.bzl", "DEFAULT_NODE_VERSION", node_repositories_rule = "node_repositories")
-load("//toolchains/node:node_toolchain_configure.bzl", "node_toolchain_configure")
 load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
 def node_repositories(**kwargs):
@@ -56,12 +55,6 @@ def node_repositories(**kwargs):
             node_repositories_rule,
             name = node_repository_name,
             **kwargs
-        )
-        target_tool = "@%s//:node_bin" % node_repository_name
-        native.register_toolchains("@build_bazel_rules_nodejs//toolchains/node:node_%s_toolchain" % os_name)
-        node_toolchain_configure(
-            name = "%s_config" % node_repository_name,
-            target_tool = target_tool,
         )
 
     # Install new toolchain under "nodejs" repository name prefix

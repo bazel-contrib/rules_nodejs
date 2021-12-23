@@ -40,9 +40,6 @@ tasks:
     - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
     test_targets:
     - "//..."
-    # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
-    # explicitly; it should pass when running on Linux with no --platform set.
-    - "//internal/node/test:nodejs_toolchain_linux_amd64_test"
   ubuntu1804_debug:
     name: ubuntu1804_debug
     platform: ubuntu1804
@@ -129,40 +126,6 @@ tasks:
     # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
     - "//examples:examples_vendored_node"
     - "//examples:examples_vendored_node_and_yarn"
-  ubuntu1804_cross_compile_darwin:
-    name: ubuntu1804_cross_compile_darwin
-    platform: ubuntu1804
-    # Build on linux with the node --platform set to darwin
-    build_flags:
-    - "--platforms=@rules_nodejs//nodejs:darwin_amd64"
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
-    - "--build_tag_filters=-cypress"
-    build_targets:
-    - "//internal/..."
-    test_flags:
-    - "--platforms=@rules_nodejs//nodejs:darwin_amd64"
-    test_targets:
-    # //internal/node/test:nodejs_toolchain_darwin_amd64_test is a "manual" test that must be run
-    # explicitly with --platforms set to darwin_amd64
-    - "//internal/node/test:nodejs_toolchain_darwin_amd64_test"
-  ubuntu1804_cross_compile_windows:
-    name: ubuntu1804_cross_compile_windows
-    platform: ubuntu1804
-    # Build on linux with the node --platform set to Windows
-    build_flags:
-    - "--platforms=@rules_nodejs//nodejs:windows_amd64"
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
-    - "--build_tag_filters=-cypress"
-    build_targets:
-    - "//internal/..."
-    test_flags:
-    - "--platforms=@rules_nodejs//nodejs:windows_amd64"
-    test_targets:
-    # //internal/node/test:nodejs_toolchain_windows_amd64_test is a "manual" test that must be run
-    # explicitly with --platforms set to windows_amd64
-    - "//internal/node/test:nodejs_toolchain_windows_amd64_test"
   macos:
     name: macos
     platform: macos
@@ -186,9 +149,6 @@ tasks:
     - "--test_tag_filters=-e2e,-examples,-manual,-browser:firefox-local"
     test_targets:
     - "//..."
-    # //internal/node/test:nodejs_toolchain_darwin_amd64_test is a "manual" test that must be run
-    # explicitly; it should pass when running on OSX with no --platform set.
-    - "//internal/node/test:nodejs_toolchain_darwin_amd64_test"
   macos_e2e:
     name: macos_e2e
     platform: macos
@@ -245,20 +205,6 @@ tasks:
     - "--test_arg=--test_tag_filters=-no-bazelci-mac,-manual,-browser:firefox-local"
     test_targets:
     - "//..."
-  macos_cross_compile_linux:
-    name: macos_cross_compile_linux
-    platform: macos
-    # Build on mac with the node --platform set to linux
-    build_flags:
-    - "--platforms=@rules_nodejs//nodejs:linux_amd64"
-    build_targets:
-    - "//internal/..."
-    test_flags:
-    - "--platforms=@rules_nodejs//nodejs:linux_amd64"
-    test_targets:
-    # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
-    # explicitly with --platforms set to linux_amd64
-    - "//internal/node/test:nodejs_toolchain_linux_amd64_test"
   # TODO(gregmagolan): fix platform configuraiton for this test job for Bazel 2.0
   # macos_fake_rbe:
   #   name: macos_fake_rbe
@@ -294,9 +240,6 @@ tasks:
     - "--test_tag_filters=-e2e,-examples,-fix-windows,-no-bazelci-windows,-requires-runfiles,-manual,-browser:firefox-local,-cypress"
     test_targets:
     - "//..."
-    # //internal/node/test:nodejs_toolchain_windows_amd64_test is a "manual" test that must be run
-    # explicitly; it should pass when running on Windows with no --platform set.
-    - "//internal/node/test:nodejs_toolchain_windows_amd64_test"
   windows_runfiles_enabled:
     name: windows_runfiles_enabled
     platform: windows
@@ -347,15 +290,6 @@ tasks:
     - "--test_arg=--test_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles,-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
     test_targets:
     - "//..."
-  windows_cross_compile_linux:
-    name: windows_cross_compile_linux
-    platform: windows
-    build_flags:
-    - "--build_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles"
-    # Build on windows with the node --platform set to linux
-    - "--platforms=@rules_nodejs//nodejs:linux_amd64"
-    build_targets:
-    - "//internal/..."
   rbe_ubuntu1604:
     name: rbe_ubuntu1604
     platform: rbe_ubuntu1604
