@@ -8,21 +8,22 @@ toc: true
 
 First, you need Bazel.
 We recommend using Bazelisk, which is a version-selection wrapper, similar to
-the `nvm` tool managing your version of Node. This is available on npm.
+the `nvm` tool managing your version of Node.
+
+It's reasonable to globally-install bazelisk so you get a `bazel` command in your PATH.
+(We don't recommend this with ibazel as the version is frequently changing.)
+
+```sh
+$ npm install -g @bazel/bazelisk
+```
+
 We also recommend installing `ibazel` which is the "watch mode" for Bazel.
 
 ```sh
-$ yarn add -D @bazel/bazelisk @bazel/ibazel
-# or
-$ npm install --save-dev @bazel/bazelisk @bazel/ibazel
+$ npm install --save-dev @bazel/ibazel
 ```
 
-You could install a current bazel distribution, following the [bazel instructions](https://docs.bazel.build/versions/main/install.html).
-
-If you use Bazelisk, see [this workaround](https://github.com/bazelbuild/bazelisk/issues/29#issuecomment-478062147) to get working command-line completion.
-
-It's reasonable to globally-install bazelisk so you get a `bazel` command in your $PATH.
-We don't recommend this with ibazel as the version is frequently changing.
+> If you use Bazelisk, see [this workaround](https://github.com/bazelbuild/bazelisk/issues/29#issuecomment-478062147) to get working command-line completion.
 
 Next, create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
@@ -34,8 +35,6 @@ http_archive(
     sha256 = "c9c5d60d6234d65b06f86abd5edc60cadd1699f739ee49d33a099d2d67eb1ae8",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.4.0/rules_nodejs-4.4.0.tar.gz"],
 )
-
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 ```
 
 Now you can choose from a few options to finish installation.
@@ -45,37 +44,30 @@ To choose a version of Node.js:
 1. (Simplest) use the version of Node.js that comes with these rules by default
 1. Choose from one of the versions we support natively
 1. Tell Bazel where to download a specific version you require
-1. Check Node.js into your repository and don't download anything
+1. Vendor Node.js into your repository or build it from sources, using a custom toolchain.
 
 These are described in more detail in the following sections.
 
 ## Simple usage
 
-Add this to your `WORKSPACE` file. It only tells Bazel how to find your
-`package.json` file. It will use default versions of Node.js and npm.
+Add this to your `WORKSPACE` file to use default versions of Node.js and npm.
 
 ```python
-# NOTE: this rule installs nodejs, npm, and yarn, but does NOT install
-# your npm dependencies into your node_modules folder.
-# You must still run the package manager to do this.
+# fetches nodejs, npm, and yarn
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 node_repositories()
 ```
-## Installation with a specific supported version of Node.js and Yarn
 
-You can choose a specific version of Node.js that's built into these rules.
-You can also choose a specific version of Yarn.
-Note that some of our packages have started to use features from Node 12, so you may see warnings if you use an older version.
+## Installation with a specific version of Node.js and Yarn
+
+You can choose a specific version of Node.js and a specific version of Yarn. We mirror all published versions, which you can see in this repo at `/nodejs/private/yarn_versions.bzl` and `/nodejs/private/node_versions.bzl`.
 
 > Now that Node 12 is LTS (Long-term support) we encourage you to upgrade, and don't intend to fix bugs which are only observed in Node 10 or lower.
-
-The available versions are documented on the `node_repositories` rule in the [Built-ins](Built-ins).
+> Some of our packages have started to use features from Node 12, so you may see warnings if you use an older version.
 
 Add to `WORKSPACE`:
 
 ```python
-# NOTE: this rule installs nodejs, npm, and yarn, but does NOT install
-# your npm dependencies into your node_modules folder.
-# You must still run the package manager to do this.
 node_repositories(
     node_version = "8.11.1",
     yarn_version = "1.5.1",
@@ -84,14 +76,12 @@ node_repositories(
 
 ## Installation with a manually specified version of NodeJS and Yarn
 
-If you'd like to use a version of NodeJS and/or Yarn that are not currently supported here, you can manually
-specify those in your `WORKSPACE`:
+If you'd like to use a version of NodeJS and/or Yarn that are not currently supported here,
+for example one that you host within your org, you can manually specify those in your `WORKSPACE`:
 
 ```python
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 
-# NOTE: this rule does NOT install your npm dependencies into your node_modules folder.
-# You must still run the package manager to do this.
 node_repositories(
   node_version = "8.10.0",
   yarn_version = "1.5.1",
@@ -111,63 +101,10 @@ Specifying `node_urls` and `yarn_urls` is optional. If omitted, the default valu
 
 ## Installation with local vendored versions of NodeJS and Yarn
 
-Finally, you could check Node.js and Yarn into your repository, and not fetch
-them from the internet. This is what we do internally at Google.
+You can use your own Node.js binary rather than fetching from the internet.
+You could check in a binary file, or build Node.js from sources.
+To use See [`node_toolchain`](./Core.md#node_toolchain) for docs.
 
-```python
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
+To use a locally vendored Yarn, use the `vendored_yarn` attribute of [`node_repositories`](./Core.md#node_repositories)
 
-# Point node_repositories to use locally installed versions of Node.js and Yarn.
-# The vendored_node and vendored_yarn labels point to the extracted contents of
-# https://nodejs.org/dist/v10.12.0/node-v10.12.0-linux-x64.tar.xz and
-# https://github.com/yarnpkg/yarn/releases/download/v1.10.0/yarn-v1.10.0.tar.gz
-# respectively. NOTE: node-v10.12.0-linux-x64 will only work on Linux.
-node_repositories(
-  vendored_node = "@wksp//:third_party/node-v10.12.0-linux-x64",
-  vendored_yarn = "@wksp//:third_party/yarn-v1.10.0",
-```
-
-In this case, the locally installed Node.js and Yarn are located in the `wksp` workspace in
-the `third_party/node-v10.12.0-linux-x64` and `third_party/yarn-v1.10.0` folders. When using
-`vendored_node`, you will be restricted to a single platform. `vendored_yarn` on the other hand,
-is platform independent. See `/examples/vendored_node` in this repository for an example of this
-in use.
-
-NOTE: Vendored Node.js and Yarn are not compatible with Remote Bazel Execution.
-
-## Toolchains
-
-When you add `node_repositories()` to your `WORKSPACE` file it will setup a node toolchain for all currently supported platforms, Linux, macOS and Windows. Amongst other things this adds support for cross-compilations as well as Remote Build Execution support. For more detailed information also see [Bazel Toolchains](https://docs.bazel.build/versions/master/toolchains.html).
-
-If you have an advanced use-case you can also register your own toolchains and call `node_toolchain_configure` directly to manually setup a toolchain.
-
-### Cross-compilation
-
-Toolchains allow us to support cross-compilation, e.g. building a linux binary from mac or windows. To tell Bazel to provide a toolchain for a different platform you have to pass in  the `--platforms` flag. Currently supported values can be queried:
-
-```shell
-bazel query 'kind(platform, @rules_nodejs//nodejs:all)'
-```
-
-So if for example you want to build a docker image from a non-linux platform you would run `bazel build --platforms=@rules_nodejs//nodejs:linux_amd64 //app`, which will ensure that the linux nodejs binary is downloaded and provided to the nodejs_binary target.
-
-Note: The toolchain currently only provides a platform-specific nodejs binary. Any native modules will still be fetched/built, by npm/yarn, for your host platform, so they will not work on the target platform. Support for cross-compilation with native dependencies will follow.
-
-Because these rules use the target platform to decide which node binary to use, you will run into trouble if you are trying to invoke these rules as part of a cross-compilation
-to a platform that is not supported by the default node repositories, eg when trying to bundle some js products into a binary targeting Android or iOS. You can work around this
-by defining your own toolchain, and specifying the host platform as an execution requirement instead. For example, if you are building on a Mac, you could add the following
-to your workspace (assuming you registered a nodejs toolchain with `name = "nodejs"`):
-
-    register_toolchains("//node_toolchain")
-
-And the following in node_toolchain/BUILD.bazel:
-
-    toolchain(
-        name = "node_toolchain",
-        exec_compatible_with = [
-            "@platforms//os:osx",
-            "@platforms//cpu:x86_64",
-        ],
-        toolchain = "@nodejs_darwin_amd64//:node_toolchain",
-        toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
-    )
+See `/examples/vendored_node` and `/examples/vendored_node_and_yarn` in this repository for an example of this in use.

@@ -11,6 +11,11 @@ filegroup(
     visibility = ["//:__pkg__"],
 )
 
+exports_files([
+    "index.for_docs.bzl",
+    "providers.bzl",
+])
+
 bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]) + ["@bazel_tools//tools:bzl_srcs"],

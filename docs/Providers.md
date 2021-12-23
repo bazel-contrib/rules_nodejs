@@ -7,6 +7,8 @@
 
 Public providers, aspects and helpers that are shipped in the built-in build_bazel_rules_nodejs repository.
 
+Note that many providers have moved to the rules_nodejs "core" package. See [Core API doc](./Core.md)
+
 Users should not load files under "/internal"
 
 

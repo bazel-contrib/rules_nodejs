@@ -12,17 +12,30 @@ Bazel rules to build and test code that targets a JavaScript runtime, including 
 
 This repository contains three layers:
 
-1. A toolchain that fetches a hermetic node, npm, and yarn (independent of what's on the developer's machine), installs dependencies using one of these tools, and generates `BUILD` files so that Bazel can refer to those dependencies. Also Bazel Providers to allow interop between JS rules. 
+1. The `@rules_nodejs` Bazel module, also referred to as the "core".
+This contains a toolchain that fetches a hermetic node, npm, and yarn (independent of what's on the developer's machine),
+and Bazel Providers to allow interop between JS rules.
+It is currently useful for Bazel Rules developers who want to make their own JavaScript support.
     - [Install and setup](install.md)
-    - [Providers](Providers.md)
+    - [Rules API](Core.md)
     - [Toolchains](Toolchains.md)
-2. "Built-in" rules distributed by a `.tgz` archive, which give the basic ability to run Node.js programs
-    - [Built-ins](Built-ins.md)
+
+2. The `@build_bazel_rules_nodejs` Bazel module depends on the `@rules_nodejs` module.
+We expect over the course of future releases that everything in this module will either be migrated to `@rules_nodejs`, move to another repository, or be deprecated.
+This module gives the ability to install third-party dependencies using npm or yarn.
+`BUILD` files are generated so that Bazel can load the third-party dependency graph and can call the CLI of installed tools.
+It also supports running Node.js programs and has a number of useful rules.
+    - [Rules API](Built-ins.md)
     - [Managing npm dependencies](dependencies.md)
-    - [Patching rules_nodejs](changing-rules.md)
+    - [Providers](Providers.md)
     - [Debugging](debugging.md)
     - [Stamping release builds](stamping.md)
-3. Custom rules that are distributed on [npm](http://npmjs.com/~bazel) that more tightly integrate particular JS tooling options with Bazel.
+    - [Patching build_bazel_rules_nodejs](changing-rules.md)
+
+3. Custom rules that are distributed under the `@bazel` scope on [npm](http://npmjs.com/~bazel).
+    This is required when rules have JavaScript code which wants to `require` from peerDependency packages,
+    since the node resolution algorithm requires the callsite of `require` to be in the node_modules tree.
+    Note: we no longer accept new npm packages, and would prefer such custom rules to be in their own repo.
     - [Concatjs](Concatjs.md)
     - [Cypress](Cypress.md)
     - [esbuild](esbuild.md)
@@ -35,8 +48,6 @@ This repository contains three layers:
     - [TypeScript](TypeScript.md)
 
 There are also numerous [examples](examples.md)
- 
-We would like to avoid adding more custom rules for specific npm packages.
 
 If you would like to write a rule outside the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.
 
