@@ -65,12 +65,6 @@ nodejs_register_toolchains(
     node_version = "15.14.0",
 )
 
-load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS", "node_repositories")
-
-node_repositories(
-    node_version = "16.5.0",
-)
-
 load("@build_bazel_rules_nodejs//:npm_deps.bzl", "npm_deps")
 
 npm_deps()
@@ -170,6 +164,7 @@ bazel_skylib_workspace()
 # RBE configuration
 #
 
+load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS")
 load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
 
 # Creates toolchain configuration for remote execution with BuildKite CI

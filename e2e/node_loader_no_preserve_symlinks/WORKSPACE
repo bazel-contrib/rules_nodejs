@@ -17,9 +17,11 @@ load("@build_bazel_rules_nodejs//nodejs:repositories.bzl", "rules_nodejs_depende
 
 rules_nodejs_dependencies()
 
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
-node_repositories()
+nodejs_register_toolchains(name = "nodejs")
+
+load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
