@@ -2,7 +2,7 @@
 # To update, run:
 #    yarn update-codeowners
 
-* @mattem @gregmagolan @soldair @alexeagle
+* @mattem @gregmagolan @alexeagle
 /packages/rollup/** @jbedard @alexeagle @gregmagolan @mattem
 /packages/esbuild/** @mattem @alexeagle @gregmagolan
 /packages/cypress/** @mrmeku @alexeagle @gregmagolan @mattem
