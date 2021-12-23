@@ -219,6 +219,11 @@ node_modules target it is recommended to switch to using
 fine grained npm dependencies.
 """,
     ),
+    "node_repository": attr.string(
+        default = "nodejs",
+        doc = """The basename for nodejs toolchains.
+        Usually this is the value of the `name` attribute given to a nodejs_register_toolchains call in WORKSPACE""",
+    ),
     "package_json": attr.label(
         mandatory = True,
         allow_single_file = True,
@@ -627,11 +632,11 @@ def _add_node_repositories_info_deps(repository_ctx):
     # Add a dep to the node_info & yarn_info files from node_repositories
     # so that if the node or yarn versions change we re-run the repository rule
     repository_ctx.symlink(
-        Label("@nodejs_%s//:node_info" % os_name(repository_ctx)),
+        Label("@{}_{}//:node_info".format(repository_ctx.attr.node_repository, os_name(repository_ctx))),
         repository_ctx.path("_node_info"),
     )
     repository_ctx.symlink(
-        Label("@nodejs_%s//:yarn_info" % os_name(repository_ctx)),
+        Label("@{}_{}//:yarn_info".format(repository_ctx.attr.node_repository, os_name(repository_ctx))),
         repository_ctx.path("_yarn_info"),
     )
 
@@ -667,7 +672,6 @@ def _check_min_bazel_version(rule, repository_ctx):
 
 def _npm_install_impl(repository_ctx):
     """Core implementation of npm_install."""
-
     _check_min_bazel_version("npm_install", repository_ctx)
 
     is_windows_host = is_windows_os(repository_ctx)
@@ -807,7 +811,6 @@ check if yarn is being run by the `npm_install` repository rule.""",
 
 def _yarn_install_impl(repository_ctx):
     """Core implementation of yarn_install."""
-
     _check_min_bazel_version("yarn_install", repository_ctx)
 
     is_windows_host = is_windows_os(repository_ctx)

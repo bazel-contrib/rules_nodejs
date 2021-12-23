@@ -19,22 +19,18 @@ Labels are different on windows and linux/OSX.
 
 load("//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
 
+def _get_label(rctx, tool):
+    ext = ".cmd" if is_windows_os(rctx) else ""
+    return Label("@{}_{}//:{}{}".format(rctx.attr.node_repository, os_name(rctx), tool, ext))
+
 def get_node_label(rctx):
-    if is_windows_os(rctx):
-        return Label("@nodejs_%s//:bin/node.cmd" % os_name(rctx))
-    return Label("@nodejs_%s//:bin/node" % os_name(rctx))
+    return _get_label(rctx, "bin/node")
 
 def get_npm_label(rctx):
-    if is_windows_os(rctx):
-        return Label("@nodejs_%s//:bin/npm.cmd" % os_name(rctx))
-    return Label("@nodejs_%s//:bin/npm" % os_name(rctx))
+    return _get_label(rctx, "bin/npm")
 
 def get_npm_node_repositories_label(rctx):
-    if is_windows_os(rctx):
-        return Label("@nodejs_%s//:bin/npm_node_repositories.cmd" % os_name(rctx))
-    return Label("@nodejs_%s//:bin/npm_node_repositories" % os_name(rctx))
+    return _get_label(rctx, "bin/npm_node_repositories")
 
 def get_yarn_label(rctx):
-    if is_windows_os(rctx):
-        return Label("@nodejs_%s//:bin/yarn.cmd" % os_name(rctx))
-    return Label("@nodejs_%s//:bin/yarn" % os_name(rctx))
+    return _get_label(rctx, "bin/yarn")

@@ -1,6 +1,18 @@
 """Define npm deps in yarn_install && npm_install repositories"""
 
-load("//:index.bzl", "npm_install", "yarn_install")
+load("//:index.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
+
+def npm_install(**kwargs):
+    _npm_install(
+        node_repository = "node16",
+        **kwargs
+    )
+
+def yarn_install(**kwargs):
+    _yarn_install(
+        node_repository = "node16",
+        **kwargs
+    )
 
 def npm_deps():
     """Organize all yarn_install and npm_install calls here to prevent WORKSPACE bloat"""
