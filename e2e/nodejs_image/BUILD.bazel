@@ -17,6 +17,7 @@ nodejs_image(
     name = "nodejs_image",
     binary = ":main",
     include_node_repo_args = False,
+    node_repository_name = "nodejs_linux_amd64",
 )
 
 container_test(

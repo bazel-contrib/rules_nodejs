@@ -19,9 +19,14 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.4.0/rules_nodejs-4.4.0.tar.gz"],
 )
 
-load("@build_bazel_rules_nodejs//nodejs:repositories.bzl", "rules_nodejs_dependencies")
+load("@build_bazel_rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "rules_nodejs_dependencies")
 
 rules_nodejs_dependencies()
+
+nodejs_register_toolchains(
+    name = "nodejs",
+    node_version = "12.14.1",
+)
 
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
@@ -44,11 +49,7 @@ http_archive(
 )
 
 # Check the bazel version and download npm dependencies
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
-
-node_repositories(
-    node_version = "12.14.1",
-)
+load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 # Setup the Node.js toolchain & install our npm dependencies into @npm
 yarn_install(

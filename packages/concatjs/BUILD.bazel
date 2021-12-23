@@ -47,11 +47,7 @@ js_library(
 bzl_library(
     name = "bzl",
     testonly = True,
-    srcs = glob(["*.bzl"]) + [
-        # Work-around since we don't have and don't wnat a bzl_library in the generated
-        # @nodejs//:BUILD.bazel file
-        "@nodejs//:index.bzl",
-    ],
+    srcs = glob(["*.bzl"]),
     deps = [
         "//packages/concatjs/devserver:bzl",
         "//packages/concatjs/internal:bzl",

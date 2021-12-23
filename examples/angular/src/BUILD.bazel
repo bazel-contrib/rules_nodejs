@@ -224,6 +224,7 @@ nodejs_image(
     name = "nodejs_image",
     binary = ":prodserver",
     include_node_repo_args = False,
+    node_repository_name = "nodejs_linux_amd64",
     # Actions created by this rule are I/O-bound,
     # so there is no benefit to running them remotely
     tags = ["local"],

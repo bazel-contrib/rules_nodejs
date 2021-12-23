@@ -1,5 +1,12 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_test")
 load(":parcel.bzl", "parcel")
+
+# Double-check that we're on the right nodejs version
+# since CircleCI fails with a python error if we are too new
+nodejs_test(
+    name = "test_version",
+    entry_point = "node_version.js",
+)
 
 parcel(
     name = "bundle",

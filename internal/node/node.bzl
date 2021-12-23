@@ -241,18 +241,18 @@ fi
 
     # Add both the node executable for the user's local machine which is in ctx.files._node and comes
     # from @nodejs//:node_bin and the node executable from the selected node --platform which comes from
-    # ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.
+    # ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo.
     # In most cases these are the same files but for RBE and when explitely setting --platform for cross-compilation
     # any given nodejs_binary should be able to run on both the user's local machine and on the RBE or selected
     # platform.
     #
-    # Rules such as nodejs_image should use only ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
+    # Rules such as nodejs_image should use only ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo
     # when building the image as that will reflect the selected --platform.
 
     if ctx.attr.toolchain:
         node_toolchain = ctx.attr.toolchain[platform_common.ToolchainInfo]
     else:
-        node_toolchain = ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"]
+        node_toolchain = ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"]
 
     node_tool_files = []
     node_tool_files.extend(node_toolchain.nodeinfo.tool_files)
@@ -636,7 +636,7 @@ This will pass --preserve-symlinks and --no-warnings flags to nodejs. Available 
     "implementation": _nodejs_binary_impl,
     "outputs": _NODEJS_EXECUTABLE_OUTPUTS,
     "toolchains": [
-        "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
+        "@rules_nodejs//nodejs:toolchain_type",
         "@bazel_tools//tools/sh:toolchain_type",
     ],
 }
