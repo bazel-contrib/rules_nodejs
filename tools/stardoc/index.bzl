@@ -20,8 +20,8 @@ def stardoc(name, out, visibility = None, **kwargs):
         name = name,
         srcs = [name + ".tmp"],
         outs = [out],
-        cmd = "./external/$(NODE_PATH) tools/stardoc/post-process-docs.js $< > $@",
-        toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain"],
-        tools = ["//tools/stardoc:post-process-docs.js", "//toolchains/node:node_bin"],
+        cmd = "$(NODE_PATH) tools/stardoc/post-process-docs.js $< > $@",
+        toolchains = ["@node16_toolchains//:resolved_toolchain"],
+        tools = ["//tools/stardoc:post-process-docs.js", "@node16_toolchains//:resolved_toolchain"],
         visibility = visibility,
     )
