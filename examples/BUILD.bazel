@@ -72,6 +72,11 @@ example_integration_test(
 )
 
 example_integration_test(
+    name = "examples_toolchain",
+    repositories = {"//:release-core": "rules_nodejs"},
+)
+
+example_integration_test(
     name = "examples_closure",
     npm_packages = {
         "//packages/runfiles:npm_package": "@bazel/runfiles",
