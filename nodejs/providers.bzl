@@ -1,6 +1,4 @@
-"""
-Public providers, aspects and helpers that are shipped in the built-in rules_nodejs repository.
-"""
+"Public providers, aspects and helpers that are shipped in the built-in rules_nodejs repository."
 
 load(
     "//nodejs/private/providers:declaration_info.bzl",

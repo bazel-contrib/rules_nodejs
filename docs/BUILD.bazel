@@ -17,6 +17,13 @@ load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("//tools/stardoc:index.bzl", "stardoc")
 
 stardoc(
+    name = "core",
+    out = "core.md_",
+    input = "//nodejs:index.for_docs.bzl",
+    deps = ["//nodejs:bzl"],
+)
+
+stardoc(
     name = "builtins",
     out = "builtins.md_",
     input = "//:index.for_docs.bzl",
@@ -44,6 +51,7 @@ stardoc(
 _READMES = {
     "Built-ins": "//docs:builtins.md_",
     "Concatjs": "//packages/concatjs:README.md",
+    "Core": "//docs:core.md_",
     "Cypress": "//packages/cypress:README.md",
     "Jasmine": "//packages/jasmine:README.md",
     "Protractor": "//packages/protractor:README.md",

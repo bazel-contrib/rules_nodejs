@@ -96,6 +96,36 @@ node_toolchain = rule(
     },
     doc = """Defines a node toolchain.
 
+You can use this to refer to a vendored nodejs binary in your repository,
+or even to compile nodejs from sources using rules_foreign_cc or other rules.
+
+First, in a BUILD.bazel file, create a node_toolchain definition:
+
+```starlark
+load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
+
+node_toolchain(
+    name = "node_toolchain",
+    target_tool = "//some/path/bin/node",
+)
+```
+
+Next, declare which execution platforms or target platforms the toolchain should be selected for:
+```starlark
+toolchain(
+    name = "my_nodejs",
+    exec_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    toolchain = ":node_toolchain",
+    toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
+)
+```
+
+Finally in your `WORKSPACE`, register it with `register_toolchains("//:my_nodejs")`
+
 For usage see https://docs.bazel.build/versions/main/toolchains.html#defining-toolchains.
+You can use the `--toolchain_resolution_debug` flag to `bazel` to help diagnose which toolchain is selected.
 """,
 )
