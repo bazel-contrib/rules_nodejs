@@ -1,6 +1,7 @@
 "ts_project rule"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "ExternalNpmPackageInfo", "declaration_info", "js_module_info", "run_node")
+load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "declaration_info", "js_module_info")
+load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 load(":ts_config.bzl", "TsConfigInfo", "write_tsconfig")

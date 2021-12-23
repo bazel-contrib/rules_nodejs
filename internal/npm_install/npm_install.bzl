@@ -21,9 +21,9 @@ as the package manager.
 See discussion in the README.
 """
 
+load("@rules_nodejs//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
 load("//:version.bzl", "VERSION")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
-load("//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{

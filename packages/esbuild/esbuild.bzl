@@ -2,9 +2,10 @@
 esbuild rule
 """
 
+load("@rules_nodejs//nodejs:providers.bzl", "JSModuleInfo")
 load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "LinkerPackageMappingInfo", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/common:expand_variables.bzl", "expand_variables")
 load("@build_bazel_rules_nodejs//toolchains/esbuild:toolchain.bzl", "TOOLCHAIN")

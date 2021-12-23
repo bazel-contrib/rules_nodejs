@@ -14,7 +14,8 @@
 
 "TypeScript compilation"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "LinkablePackageInfo", "js_ecma_script_module_info", "js_module_info", "js_named_module_info", "node_modules_aspect", "run_node")
+load("@rules_nodejs//nodejs:providers.bzl", "LinkablePackageInfo", "js_module_info")
+load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "js_ecma_script_module_info", "js_named_module_info", "node_modules_aspect", "run_node")
 
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring

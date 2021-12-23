@@ -19,9 +19,26 @@ Fulfills similar role as the package.json file.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-load("@rules_nodejs//nodejs:repositories.bzl", "rules_nodejs_dependencies")
 
-def rules_nodejs_dev_dependencies():
+def build_bazel_rules_nodejs_dependencies():
+    maybe(
+        http_archive,
+        name = "bazel_skylib",
+        sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
+        urls = [
+            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+        ],
+    )
+    core_sha = "8f4a19de1eb16b57ac03a8e9b78344b44473e0e06b0510cec14a81f6adfdfc25"
+    maybe(
+        http_archive,
+        name = "rules_nodejs",
+        sha256 = core_sha,
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.4.6/rules_nodejs-core-4.4.6.tar.gz"],
+    )
+
+def build_bazel_rules_nodejs_dev_dependencies():
     """
     Fetch dependencies needed for local development, but not needed by users.
 
@@ -29,8 +46,7 @@ def rules_nodejs_dev_dependencies():
     shorter.
     """
 
-    # This just gives us bazel-skylib
-    rules_nodejs_dependencies()
+    build_bazel_rules_nodejs_dependencies()
 
     # Dependencies for generating documentation
     maybe(

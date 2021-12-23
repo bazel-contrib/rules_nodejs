@@ -9,5 +9,6 @@ stardoc(
     deps = [
         "//toolchains/cypress:bzl",
         "//toolchains/esbuild:bzl",
+        "@rules_nodejs//nodejs:bzl",
     ],
 )

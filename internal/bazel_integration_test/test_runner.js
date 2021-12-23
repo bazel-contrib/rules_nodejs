@@ -207,10 +207,10 @@ if (config.bazelrcAppend) {
     // Special case during build_bazel_rules_nodejs -> rules_nodejs migration.
     // One of our dependencies is on antother package within our repo,
     // so we need to override by installing our locally-built copy of it before calling the
-    // rules_nodejs_dependencies helper.
+    // build_bazel_rules_nodejs_dependencies helper.
     if (repositoryKey === "rules_nodejs") {
-      workspaceContents = workspaceContents.replace('rules_nodejs_dependencies()',
-      `http_archive(\n  name = "${repositoryKey}",\n  url="file:${archiveFile}"\n)\nrules_nodejs_dependencies()`);
+      workspaceContents = workspaceContents.replace('build_bazel_rules_nodejs_dependencies()',
+      `http_archive(\n  name = "${repositoryKey}",\n  url="file:${archiveFile}"\n)\nbuild_bazel_rules_nodejs_dependencies()`);
     }
 
     const regex =

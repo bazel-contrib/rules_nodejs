@@ -37,8 +37,8 @@ This means you'll be exposed to the dev dependencies of rules_nodejs, and will n
 and call a function in your WORKSPACE file.
 
 ```
-load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
-rules_nodejs_dev_dependencies()
+load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_dev_dependencies")
+build_bazel_rules_nodejs_dev_dependencies()
 ```
 
 You then load rules from the source locations like

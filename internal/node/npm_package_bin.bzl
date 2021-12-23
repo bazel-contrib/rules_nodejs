@@ -1,6 +1,7 @@
 "A generic rule to run a tool that appears in node_modules/.bin"
 
-load("//:providers.bzl", "DeclarationInfo", "ExternalNpmPackageInfo", "JSModuleInfo", "node_modules_aspect", "run_node")
+load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "JSModuleInfo")
+load("//:providers.bzl", "ExternalNpmPackageInfo", "node_modules_aspect", "run_node")
 load("//internal/common:expand_variables.bzl", "expand_variables")
 load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 

@@ -35,6 +35,7 @@ bzl_library(
     deps = [
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
+        "@rules_nodejs//nodejs:bzl",
     ],
 )
 

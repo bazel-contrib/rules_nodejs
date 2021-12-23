@@ -15,16 +15,19 @@
 "js_library can be used to expose and share any library package."
 
 load(
-    "//:providers.bzl",
+    "@rules_nodejs//nodejs:providers.bzl",
     "DeclarationInfo",
-    "ExternalNpmPackageInfo",
-    "JSEcmaScriptModuleInfo",
     "JSModuleInfo",
-    "JSNamedModuleInfo",
     "LinkablePackageInfo",
     "declaration_info",
-    "js_ecma_script_module_info",
     "js_module_info",
+)
+load(
+    "//:providers.bzl",
+    "ExternalNpmPackageInfo",
+    "JSEcmaScriptModuleInfo",
+    "JSNamedModuleInfo",
+    "js_ecma_script_module_info",
     "js_named_module_info",
 )
 load(

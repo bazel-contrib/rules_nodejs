@@ -36,6 +36,7 @@ bzl_library(
         "@build_bazel_rules_nodejs//internal/common:bzl",
         "@build_bazel_rules_nodejs//internal/node:bzl",
         "@build_bazel_rules_nodejs//toolchains/esbuild:bzl",
+        "@rules_nodejs//nodejs:bzl",
     ],
 )
 
