@@ -67,7 +67,6 @@ codeowners(
     teams = [
         "@mattem",
         "@gregmagolan",
-        "@soldair",
     ],
 )
 
