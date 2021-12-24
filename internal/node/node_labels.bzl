@@ -17,7 +17,7 @@
 Labels are different on windows and linux/OSX.
 """
 
-load("//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
+load("@rules_nodejs//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
 
 def _get_label(rctx, tool):
     ext = ".cmd" if is_windows_os(rctx) else ""

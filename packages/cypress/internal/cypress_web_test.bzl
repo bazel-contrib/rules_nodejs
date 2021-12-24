@@ -13,7 +13,8 @@
 # limitations under the License.
 "E2E testing with Cypress"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo")
+load("@rules_nodejs//nodejs:providers.bzl", "JSModuleInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_test_kwargs")
 
 ATTRS = dict(

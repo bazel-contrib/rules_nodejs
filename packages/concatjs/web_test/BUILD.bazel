@@ -44,6 +44,7 @@ bzl_library(
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/js_library:bzl",
         "@io_bazel_rules_webtesting//web",
+        "@rules_nodejs//nodejs:bzl",
     ],
 )
 

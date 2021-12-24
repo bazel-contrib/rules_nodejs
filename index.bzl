@@ -34,10 +34,6 @@ load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/pkg_npm:pkg_npm.bzl", _pkg_npm = "pkg_npm_macro")
 load("//internal/pkg_web:pkg_web.bzl", _pkg_web = "pkg_web")
-load(
-    "//nodejs/private/providers:directory_file_path_info.bzl",
-    _directory_file_path = "directory_file_path",
-)
 
 check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary
@@ -50,7 +46,6 @@ copy_to_bin = _copy_to_bin
 params_file = _params_file
 generated_file_test = _generated_file_test
 js_library = _js_library
-directory_file_path = _directory_file_path
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
 
 # @unsorted-dict-items
@@ -85,7 +80,7 @@ BAZEL_VERSION = "4.1.0"
 # bazel_integration_test.
 SUPPORTED_BAZEL_VERSIONS = [BAZEL_VERSION]
 
-def check_rules_nodejs_version(minimum_version_string):
+def check_build_bazel_rules_nodejs_version(minimum_version_string):
     """
     Verify that a minimum build_bazel_rules_nodejs is loaded a WORKSPACE.
 
@@ -94,8 +89,8 @@ def check_rules_nodejs_version(minimum_version_string):
 
     ```
     # in WORKSPACE:
-    load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
-    check_rules_nodejs_version("0.11.2")
+    load("@build_bazel_rules_nodejs//:index.bzl", "check_build_bazel_rules_nodejs_version")
+    check_build_bazel_rules_nodejs_version("4.4.0")
     ```
 
     Args:
@@ -106,3 +101,8 @@ def check_rules_nodejs_version(minimum_version_string):
             VERSION,
             minimum_version_string,
         ))
+
+# Export check_rules_nodejs_version symbol for pre-5.0 backward compat. This
+# will eventually get removed as we move to the core @rules_nodejs package in
+# future release.
+check_rules_nodejs_version = check_build_bazel_rules_nodejs_version

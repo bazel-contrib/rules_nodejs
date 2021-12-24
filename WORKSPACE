@@ -43,9 +43,9 @@ local_repository(
 # Install rules_nodejs dev dependencies
 #
 
-load("//:package.bzl", "rules_nodejs_dev_dependencies")
+load("//:repositories.bzl", "build_bazel_rules_nodejs_dev_dependencies")
 
-rules_nodejs_dev_dependencies()
+build_bazel_rules_nodejs_dev_dependencies()
 
 #
 # Setup rules_nodejs npm dependencies

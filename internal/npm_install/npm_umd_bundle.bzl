@@ -17,7 +17,8 @@
 For use by yarn_install and npm_install. Not meant to be part of the public API.
 """
 
-load("//:providers.bzl", "DirectoryFilePathInfo", "ExternalNpmPackageInfo", "node_modules_aspect")
+load("@rules_nodejs//nodejs:providers.bzl", "DirectoryFilePathInfo")
+load("//:providers.bzl", "ExternalNpmPackageInfo", "node_modules_aspect")
 load("//internal/common:maybe_directory_file_path.bzl", "maybe_directory_file_path")
 
 def _entry_point_path(ctx):

@@ -20,7 +20,8 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("//:providers.bzl", "DirectoryFilePathInfo", "ExternalNpmPackageInfo", "JSModuleInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "node_modules_aspect")
+load("@rules_nodejs//nodejs:providers.bzl", "DirectoryFilePathInfo", "JSModuleInfo", "UserBuildSettingInfo")
+load("//:providers.bzl", "ExternalNpmPackageInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:maybe_directory_file_path.bzl", "maybe_directory_file_path")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
@@ -28,7 +29,6 @@ load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:preserve_legacy_templated_args.bzl", "preserve_legacy_templated_args")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("//internal/linker:link_node_modules.bzl", "LinkerPackageMappingInfo", "module_mappings_aspect", "write_node_modules_manifest")
-load("//nodejs:providers.bzl", "UserBuildSettingInfo")
 
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
@@ -594,7 +594,7 @@ Predefined genrule variables are not supported in this context.
         allow_single_file = True,
     ),
     "toolchain": attr.label(),
-    "_node_args": attr.label(default = "//nodejs:default_args"),
+    "_node_args": attr.label(default = "@rules_nodejs//nodejs:default_args"),
     "_node_patches_script": attr.label(
         default = Label("//internal/node:node_patches.js"),
         allow_single_file = True,

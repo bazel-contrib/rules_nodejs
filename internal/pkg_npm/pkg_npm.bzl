@@ -6,7 +6,8 @@ If all users of your library code use Bazel, they should just add your library
 to the `deps` of one of their targets.
 """
 
-load("//:providers.bzl", "DeclarationInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "JSNamedModuleInfo", "LinkablePackageInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo")
+load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "JSModuleInfo", "LinkablePackageInfo")
+load("//:providers.bzl", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo")
 
 _DOC = """The pkg_npm rule creates a directory containing a publishable npm artifact.
 

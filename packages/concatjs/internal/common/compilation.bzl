@@ -15,7 +15,7 @@
 """Used for compilation by the different implementations of build_defs.bzl.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo")
+load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo")
 load(":common/json_marshal.bzl", "json_marshal")
 load(":common/module_mappings.bzl", "module_mappings_aspect")
 

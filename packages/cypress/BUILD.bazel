@@ -35,6 +35,7 @@ bzl_library(
         "//internal/common:bzl",
         "//internal/node:bzl",
         "//toolchains/cypress:bzl",
+        "@rules_nodejs//nodejs:bzl",
     ],
 )
 

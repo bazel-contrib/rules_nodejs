@@ -19,10 +19,9 @@ See https://docs.bazel.build/versions/main/skylark/repository_rules.html
 """
 
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+load("@rules_nodejs//nodejs/private:os_name.bzl", "OS_ARCH_NAMES", "node_exists_for_os", "os_name")
+load("@rules_nodejs//nodejs:repositories.bzl", "DEFAULT_NODE_VERSION", "nodejs_register_toolchains", node_repositories_rule = "node_repositories")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
-load("//nodejs/private:os_name.bzl", "OS_ARCH_NAMES", "node_exists_for_os", "os_name")
-load("//nodejs:repositories.bzl", "DEFAULT_NODE_VERSION", node_repositories_rule = "node_repositories")
-load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
 def node_repositories(**kwargs):
     """

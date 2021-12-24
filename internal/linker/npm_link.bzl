@@ -21,12 +21,15 @@ package_name set here must match.
 """
 
 load(
-    "//:providers.bzl",
+    "@rules_nodejs//nodejs:providers.bzl",
     "DeclarationInfo",
-    "ExternalNpmPackageInfo",
     "JSModuleInfo",
-    "JSNamedModuleInfo",
     "LinkablePackageInfo",
+)
+load(
+    "//:providers.bzl",
+    "ExternalNpmPackageInfo",
+    "JSNamedModuleInfo",
 )
 load(
     "//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_file_private.bzl",

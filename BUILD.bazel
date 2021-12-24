@@ -57,7 +57,7 @@ bzl_library(
         "//internal/pkg_npm:bzl",
         "//internal/pkg_web:bzl",
         "//internal/providers:bzl",
-        "//nodejs/private/providers:bzl",
+        "@rules_nodejs//nodejs/private/providers:bzl",
     ],
 )
 
@@ -76,8 +76,8 @@ pkg_npm(
         "BUILD.bazel",
         "LICENSE",
         "index.bzl",
-        "package.bzl",
         "providers.bzl",
+        "repositories.bzl",
         "version.bzl",
     ],
     substitutions = COMMON_REPLACEMENTS,
@@ -96,8 +96,6 @@ pkg_npm(
         "//internal/pkg_web:package_contents",
         "//internal/providers:package_contents",
         "//internal/runfiles:package_contents",
-        "//nodejs:package_contents",
-        "//nodejs/private/providers:package_contents",
         "//third_party/github.com/bazelbuild/bazel:package_contents",
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles:package_contents",

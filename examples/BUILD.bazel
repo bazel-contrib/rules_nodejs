@@ -18,6 +18,7 @@ example_integration_test(
     name = "examples_angular",
     timeout = "long",
     npm_packages = {
+        "//packages/esbuild:npm_package": "@bazel/esbuild",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",

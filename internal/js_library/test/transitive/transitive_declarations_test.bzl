@@ -1,7 +1,7 @@
 "Unit tests for js_library rule"
 
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//:providers.bzl", "DeclarationInfo")
+load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo")
 
 def _impl(ctx):
     env = unittest.begin(ctx)

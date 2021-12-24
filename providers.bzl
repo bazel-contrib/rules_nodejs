@@ -19,11 +19,6 @@ Users should not load files under "/internal"
 """
 
 load(
-    "//nodejs/private/providers:declaration_info.bzl",
-    _DeclarationInfo = "DeclarationInfo",
-    _declaration_info = "declaration_info",
-)
-load(
     "//internal/providers:external_npm_package_info.bzl",
     _ExternalNpmPackageInfo = "ExternalNpmPackageInfo",
     _node_modules_aspect = "node_modules_aspect",
@@ -31,15 +26,9 @@ load(
 load(
     "//internal/providers:js_providers.bzl",
     _JSEcmaScriptModuleInfo = "JSEcmaScriptModuleInfo",
-    _JSModuleInfo = "JSModuleInfo",
     _JSNamedModuleInfo = "JSNamedModuleInfo",
     _js_ecma_script_module_info = "js_ecma_script_module_info",
-    _js_module_info = "js_module_info",
     _js_named_module_info = "js_named_module_info",
-)
-load(
-    "//nodejs/private/providers:linkable_package_info.bzl",
-    _LinkablePackageInfo = "LinkablePackageInfo",
 )
 load(
     "//internal/providers:node_runtime_deps_info.bzl",
@@ -47,34 +36,23 @@ load(
     _run_node = "run_node",
 )
 load(
-    "//nodejs/private/providers:directory_file_path_info.bzl",
-    _DirectoryFilePathInfo = "DirectoryFilePathInfo",
-)
-load(
     "//internal/providers:node_context.bzl",
     _NODE_CONTEXT_ATTRS = "NODE_CONTEXT_ATTRS",
     _NodeContextInfo = "NodeContextInfo",
 )
 
-NodeContextInfo = _NodeContextInfo
-NODE_CONTEXT_ATTRS = _NODE_CONTEXT_ATTRS
-
-DeclarationInfo = _DeclarationInfo
-declaration_info = _declaration_info
-JSModuleInfo = _JSModuleInfo
-js_module_info = _js_module_info
-JSNamedModuleInfo = _JSNamedModuleInfo
+ExternalNpmPackageInfo = _ExternalNpmPackageInfo
+js_ecma_script_module_info = _js_ecma_script_module_info
 js_named_module_info = _js_named_module_info
 JSEcmaScriptModuleInfo = _JSEcmaScriptModuleInfo
-js_ecma_script_module_info = _js_ecma_script_module_info
-ExternalNpmPackageInfo = _ExternalNpmPackageInfo
+JSNamedModuleInfo = _JSNamedModuleInfo
+NODE_CONTEXT_ATTRS = _NODE_CONTEXT_ATTRS
+node_modules_aspect = _node_modules_aspect
+NodeContextInfo = _NodeContextInfo
+NodeRuntimeDepsInfo = _NodeRuntimeDepsInfo
+run_node = _run_node
 
 # Export NpmPackageInfo for pre-3.0 legacy support in downstream rule sets
 # such as rules_docker
-# TODO(4.0): remove NpmPackageInfo
+# TODO(6.0): remove NpmPackageInfo from rules_docker & then remove it here
 NpmPackageInfo = _ExternalNpmPackageInfo
-node_modules_aspect = _node_modules_aspect
-LinkablePackageInfo = _LinkablePackageInfo
-NodeRuntimeDepsInfo = _NodeRuntimeDepsInfo
-run_node = _run_node
-DirectoryFilePathInfo = _DirectoryFilePathInfo
