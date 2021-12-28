@@ -14,6 +14,8 @@
 
 """Custom provider that mimics the Runfiles, but doesn't incur the expense of creating the runfiles symlink tree"""
 
+load("@bazel_skylib//lib:types.bzl", "types")
+load("@rules_nodejs//nodejs:providers.bzl", "StampSettingInfo")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/linker:link_node_modules.bzl", "add_arg", "write_node_modules_manifest")
 load("//internal/providers:external_npm_package_info.bzl", "ExternalNpmPackageInfo")
@@ -141,10 +143,19 @@ def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
         bazel_node_module_roots = bazel_node_module_roots + "%s:%s" % (path, root)
     env["BAZEL_NODE_MODULES_ROOTS"] = bazel_node_module_roots
 
+    stamp = ctx.attr.stamp[StampSettingInfo].value if hasattr(ctx.attr, "stamp") else False
+    if stamp:
+        env["BAZEL_VERSION_FILE"] = ctx.version_file.path
+        env["BAZEL_INFO_FILE"] = ctx.info_file.path
+        if types.is_list(inputs):
+            inputs.extend([ctx.version_file, ctx.info_file])
+        else:
+            inputs = depset([ctx.version_file, ctx.info_file], transitive = [inputs])
+
     # ctx.actions.run accepts both lists and a depset for inputs. Coerce the original inputs to a
     # depset if they're a list, so that extra inputs can be combined in a performant manner.
     inputs_depset = depset(transitive = [
-        depset(direct = inputs) if type(inputs) == "list" else inputs,
+        depset(direct = inputs) if types.is_list(inputs) else inputs,
         extra_inputs,
         depset(direct = [modules_manifest]),
     ])

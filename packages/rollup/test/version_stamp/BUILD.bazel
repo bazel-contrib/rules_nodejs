@@ -1,20 +1,12 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
-load("//internal/node:context.bzl", "node_context_data")
 load("//packages/rollup:index.bzl", "rollup_bundle")
-
-# Force stamping behavior even in builds without --stamp config
-# by mocking out the config data
-node_context_data(
-    name = "force_stamp",
-    stamp = True,
-)
 
 rollup_bundle(
     name = "version_stamp",
     config_file = "rollup.config.js",
     entry_point = "input.js",
-    node_context_data = ":force_stamp",
     sourcemap = "false",
+    stamp = "@rules_nodejs//nodejs/stamp:always",
     supports_workers = True,
 )
 

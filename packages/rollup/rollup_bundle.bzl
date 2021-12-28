@@ -1,12 +1,12 @@
 "Rules for running Rollup under Bazel"
 
-load("@rules_nodejs//nodejs:providers.bzl", "JSModuleInfo")
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo", "node_modules_aspect", "run_node")
+load("@rules_nodejs//nodejs:providers.bzl", "JSModuleInfo", "STAMP_ATTR", "StampSettingInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 _DOC = "Runs the rollup.js CLI under Bazel."
 
-_ROLLUP_ATTRS = dict(NODE_CONTEXT_ATTRS, **{
+_ROLLUP_ATTRS = {
     "args": attr.string_list(
         doc = """Command line arguments to pass to Rollup. Can be used to override config file settings.
 
@@ -156,6 +156,7 @@ You must not repeat file(s) passed to entry_point/entry_points.
         # Don't try to constrain the filenames, could be json, svg, whatever
         allow_files = True,
     ),
+    "stamp": STAMP_ATTR,
     "supports_workers": attr.bool(
         doc = """Experimental! Use only with caution.
 
@@ -164,7 +165,7 @@ When enabled, this rule invokes the "rollup_worker_bin"
 worker aware binary rather than "rollup_bin".""",
         default = False,
     ),
-})
+}
 
 def _desugar_entry_point_names(name, entry_point, entry_points):
     """Users can specify entry_point (sugar) or entry_points (long form).
@@ -302,7 +303,7 @@ def _rollup_bundle(ctx):
         # Run the rollup binary with the --silent flag
         args.add("--silent")
 
-    stamp = ctx.attr.node_context_data[NodeContextInfo].stamp
+    stamp = ctx.attr.stamp[StampSettingInfo].value
 
     config = ctx.actions.declare_file("_%s.rollup_config.js" % ctx.label.name)
     ctx.actions.expand_template(
@@ -316,10 +317,6 @@ def _rollup_bundle(ctx):
 
     args.add_all(["--config", config.path])
     inputs.append(config)
-
-    if stamp:
-        inputs.append(ctx.info_file)
-        inputs.append(ctx.version_file)
 
     # Prevent rollup's module resolver from hopping outside Bazel's sandbox
     # When set to false, symbolic links are followed when resolving a file.

@@ -26,6 +26,7 @@ bzl_library(
     srcs = glob(["*.bzl"]),
     deps = [
         "//packages/typescript/internal:bzl",
+        "@bazel_skylib//lib:types",
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
         "@build_bazel_rules_nodejs//internal/node:bzl",

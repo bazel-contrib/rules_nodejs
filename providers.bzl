@@ -35,20 +35,13 @@ load(
     _NodeRuntimeDepsInfo = "NodeRuntimeDepsInfo",
     _run_node = "run_node",
 )
-load(
-    "//internal/providers:node_context.bzl",
-    _NODE_CONTEXT_ATTRS = "NODE_CONTEXT_ATTRS",
-    _NodeContextInfo = "NodeContextInfo",
-)
 
 ExternalNpmPackageInfo = _ExternalNpmPackageInfo
 js_ecma_script_module_info = _js_ecma_script_module_info
 js_named_module_info = _js_named_module_info
 JSEcmaScriptModuleInfo = _JSEcmaScriptModuleInfo
 JSNamedModuleInfo = _JSNamedModuleInfo
-NODE_CONTEXT_ATTRS = _NODE_CONTEXT_ATTRS
 node_modules_aspect = _node_modules_aspect
-NodeContextInfo = _NodeContextInfo
 NodeRuntimeDepsInfo = _NodeRuntimeDepsInfo
 run_node = _run_node
 

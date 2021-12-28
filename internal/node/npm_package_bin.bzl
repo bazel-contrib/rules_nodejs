@@ -1,6 +1,6 @@
 "A generic rule to run a tool that appears in node_modules/.bin"
 
-load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "JSModuleInfo")
+load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "JSModuleInfo", "STAMP_ATTR")
 load("//:providers.bzl", "ExternalNpmPackageInfo", "node_modules_aspect", "run_node")
 load("//internal/common:expand_variables.bzl", "expand_variables")
 load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
@@ -24,6 +24,7 @@ _ATTRS = {
         cfg = "host",
         mandatory = True,
     ),
+    "stamp": STAMP_ATTR,
 }
 
 def _expand_locations(ctx, s):

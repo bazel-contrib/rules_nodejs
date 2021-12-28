@@ -6,6 +6,7 @@ filegroup(
     name = "package_contents",
     srcs = glob(["*"]) + [
         "//nodejs/private:package_contents",
+        "//nodejs/stamp:package_contents",
     ],
     visibility = ["//:__pkg__"],
 )

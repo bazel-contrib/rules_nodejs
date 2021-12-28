@@ -31,6 +31,7 @@ bzl_library(
         "@bazel_tools//tools:bzl_srcs",
     ],
     deps = [
+        "@bazel_skylib//lib:types",
         "@bazel_skylib//rules:common_settings",
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
