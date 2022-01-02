@@ -223,15 +223,25 @@ def _impl(ctx):
             if DefaultInfo in dep:
                 files_depsets.append(dep[DefaultInfo].files)
 
+    runfiles = ctx.runfiles(
+        files = all_files,
+        transitive_files = depset(
+            transitive = files_depsets + typings_depsets,
+        ),
+    )
+    deps_runfiles = [d[DefaultInfo].default_runfiles for d in ctx.attr.deps]
+
+    # Perf optimization available in newer Bazel releases
+    if "merge_all" in dir(runfiles):
+        runfiles = runfiles.merge_all(deps_runfiles)
+    else:
+        for d in deps_runfiles:
+            runfiles = runfiles.merge(d)
+
     providers = [
         DefaultInfo(
             files = depset(transitive = files_depsets),
-            runfiles = ctx.runfiles(
-                files = all_files,
-                transitive_files = depset(
-                    transitive = files_depsets + typings_depsets,
-                ),
-            ),
+            runfiles = runfiles,
         ),
         AmdNamesInfo(names = ctx.attr.amd_names),
         js_ecma_script_module_info(

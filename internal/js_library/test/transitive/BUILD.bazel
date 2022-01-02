@@ -1,13 +1,30 @@
 load("//:index.bzl", "js_library")
 load(":transitive_declarations_test.bzl", "transitive_declarations_test_suite")
+load("//packages/typescript:index.bzl", "ts_project")
+
+js_library(
+    name = "c",
+    srcs = [
+        "c.d.ts",
+        "c.txt",
+    ],
+)
+
+ts_project(
+    name = "b",
+    srcs = ["b.ts"],
+    tsconfig = {},
+    deps = ["c"],
+)
 
 js_library(
     name = "a",
     srcs = ["a.d.ts"],
+    deps = ["b"],
 )
 
 js_library(
-    name = "b",
+    name = "terminal",
     deps = ["a"],
 )
 
