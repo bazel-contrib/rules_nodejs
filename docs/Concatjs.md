@@ -401,7 +401,7 @@ Defines a test_suite of web_test targets that wrap a karma_web_test target.
 This macro accepts all parameters in karma_web_test and adds additional parameters
 for the suite. See karma_web_test docs for all karma_web_test.
 
-The wrapping macro is `web_test_suite` which comes from rules_websting:
+The wrapping macro is `web_test_suite` which comes from rules_webtesting:
 https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl.
 
 

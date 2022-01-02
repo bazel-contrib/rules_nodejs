@@ -223,7 +223,7 @@ directory. See the notes about the `tsconfig` attribute below.
 ## Accessing JavaScript outputs
 
 The default output of the `ts_library` rule is the `.d.ts` files.
-This is for a couple reasons:
+This is for a couple of reasons:
 
 - help ensure that downstream rules which access default outputs will not require
   a cascading re-build when only the implementation changes but not the types
@@ -379,7 +379,7 @@ Defaults to `""`
 (*String*): The package name that the linker will link this ts_library output as.
 
 If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
-If package_path is not set the this will be the root node_modules of the workspace.
+If package_path is not set this will be the root node_modules of the workspace.
 
 Defaults to `""`
 
@@ -388,7 +388,7 @@ Defaults to `""`
 (*String*): The package path in the workspace that the linker will link this ts_library output to.
 
 If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
-If package_path is not set the this will be the root node_modules of the workspace.
+If package_path is not set this will be the root node_modules of the workspace.
 
 Defaults to `""`
 
@@ -581,7 +581,7 @@ observe these problems which require workarounds:
    file is part of the other program.)
    This will result in duplicate emit for the same file, which produces an error
    since the files written to the output tree are read-only.
-   Workarounds include using using Project References, or simply grouping the whole compilation
+   Workarounds include using Project References, or simply grouping the whole compilation
    into one program (if this doesn't exceed your time budget).
 
 
@@ -664,7 +664,7 @@ Defaults to `[]`
 Label of the tsconfig file referenced in the `extends` section of tsconfig
 
 To support "chaining" of more than one extended config, this label could be a target that
-provdes `TsConfigInfo` such as `ts_config`.
+provides `TsConfigInfo` such as `ts_config`.
 
 Defaults to `None`
 

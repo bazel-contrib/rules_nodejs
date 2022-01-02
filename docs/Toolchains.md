@@ -106,7 +106,7 @@ Creates an external repository with a node_toolchain //:toolchain target properl
 
 <h4 id="node_toolchain_configure-repo_mapping">repo_mapping</h4>
 
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`), it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
 
 
 <h4 id="node_toolchain_configure-target_tool">target_tool</h4>

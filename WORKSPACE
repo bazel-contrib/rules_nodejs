@@ -41,7 +41,7 @@ load("//:package.bzl", "rules_nodejs_dev_dependencies")
 rules_nodejs_dev_dependencies()
 
 #
-# Setup local respositories
+# Setup local repositories
 #
 
 local_repository(

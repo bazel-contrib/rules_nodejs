@@ -412,8 +412,8 @@ label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths de
 
 See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_label_variables for more info.
 
-NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
-args and genrule bazel substitions. This will be fixed in a future major release.
+NB: This $(location) substitution returns the manifest file path which differs from the *_binary & *_test
+args and genrule bazel substitutions. This will be fixed in a future major release.
 See docs string of `expand_location_into_runfiles` macro in `internal/common/expand_into_runfiles.bzl`
 for more info.
 
@@ -666,8 +666,8 @@ label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths de
 
 See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_label_variables for more info.
 
-NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
-args and genrule bazel substitions. This will be fixed in a future major release.
+NB: This $(location) substitution returns the manifest file path which differs from the *_binary & *_test
+args and genrule bazel substitutions. This will be fixed in a future major release.
 See docs string of `expand_location_into_runfiles` macro in `internal/common/expand_into_runfiles.bzl`
 for more info.
 
@@ -1006,7 +1006,7 @@ for the non-bazel build but should not be installed via the package manager in t
 they will be reference as bazel targets instead.
 
 NB: removals specified are performed after preinstall_patches so if you are using both then the patch file should be relative
-to the source `package.json`. Non-existant keys are silently ignored.
+to the source `package.json`. Non-existent keys are silently ignored.
 
 Defaults to `[]`
 
@@ -1677,13 +1677,13 @@ for the non-bazel build but should not be installed via the package manager in t
 they will be reference as bazel targets instead.
 
 NB: removals specified are performed after preinstall_patches so if you are using both then the patch file should be relative
-to the source `package.json`. Non-existant keys are silently ignored.
+to the source `package.json`. Non-existent keys are silently ignored.
 
 Defaults to `[]`
 
 <h4 id="yarn_install-package_json_replace">package_json_replace</h4>
 
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Map of `package.json` keys to values to replace or create before running the package mangager.
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Map of `package.json` keys to values to replace or create before running the package manager.
 
 Keys are '.' separated. For example, a key of `scripts.postinstall` corresponds to the `package.json`
 entry,
@@ -1721,7 +1721,7 @@ Defaults to `["-p0"]`
 
 <h4 id="yarn_install-patch_tool">patch_tool</h4>
 
-(*String*): The patch(1) utility to use. If this is specified, Bazel will use the specifed patch tool instead of the Bazel-native patch implementation.
+(*String*): The patch(1) utility to use. If this is specified, Bazel will use the specified patch tool instead of the Bazel-native patch implementation.
 
 Defaults to `""`
 
@@ -2093,7 +2093,7 @@ Defaults to `[]`
 
 The name it will be imported by. Should match the "name" field in the package.json file.
 
-If package_name == "$node_modules$" this indictates that this js_library target is one or more external npm
+If package_name == "$node_modules$" this indicates that this js_library target is one or more external npm
 packages in node_modules. This is a special case that used be covered by the internal only
 `external_npm_package` attribute. NB: '$' is an illegal character
 for npm packages names so this reserved name will not conflict with any valid package_name values
@@ -2226,7 +2226,7 @@ Command-line arguments to the tool.
 
 Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/main/be/make-variables.html.
 
-1. Predefined source/output path substitions is applied first:
+1. Predefined source/output path substitutions is applied first:
 
 See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_label_variables.
 
@@ -2378,8 +2378,8 @@ label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths de
 
 See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_label_variables for more info.
 
-NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
-args and genrule bazel substitions. This will be fixed in a future major release.
+NB: This $(location) substitution returns the manifest file path which differs from the *_binary & *_test
+args and genrule bazel substitutions. This will be fixed in a future major release.
 See docs string of `expand_location_into_runfiles` macro in `internal/common/expand_into_runfiles.bzl`
 for more info.
 

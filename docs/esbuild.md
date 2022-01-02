@@ -70,7 +70,7 @@ esbuild(
 )
 ```
 
-The above will create three output files, `bundle.js`, `bundle.js.map` and `bundle_metadata.json` which contains the bundle metadata to aid in debugging and resoloution tracing.
+The above will create three output files, `bundle.js`, `bundle.js.map` and `bundle_metadata.json` which contains the bundle metadata to aid in debugging and resolution tracing.
 
 To create a code split bundle, set `splitting = True` on the `esbuild` rule.
 
@@ -255,7 +255,7 @@ Defaults to `True`
 <h4 id="esbuild-minify">minify</h4>
 
 (*Boolean*): Minifies the bundle with the built in minification.
-Removes whitespace, shortens identifieres and uses equivalent but shorter syntax.
+Removes whitespace, shortens identifiers and uses equivalent but shorter syntax.
 
 Sets all --minify-* flags
 
@@ -388,7 +388,7 @@ list of platform constraints
 esbuild_config(<a href="#esbuild_config-name">name</a>, <a href="#esbuild_config-config_file">config_file</a>, <a href="#esbuild_config-srcs">srcs</a>, <a href="#esbuild_config-deps">deps</a>, <a href="#esbuild_config-kwargs">kwargs</a>)
 </pre>
 
-Macro for an esbuild configuration file and its assoicated dependencies
+Macro for an esbuild configuration file and its associated dependencies
 
 **PARAMETERS**
 

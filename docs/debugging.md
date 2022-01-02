@@ -65,4 +65,4 @@ Once configured start your process with
 bazel run --config=debug //test:test1
 ```
 Then hit `F5` which will start the VS Code debugger with the `Attach nodejs_binary` configuration.
-VS Code will immediatenly hit a breakpoint to which you can continue and debug using all the normal debug features provided.
+VS Code will immediately hit a breakpoint to which you can continue and debug using all the normal debug features provided.
