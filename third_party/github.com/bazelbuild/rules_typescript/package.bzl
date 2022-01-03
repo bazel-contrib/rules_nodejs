@@ -68,9 +68,9 @@ def rules_typescript_dev_dependencies():
     _maybe(
         http_archive,
         name = "com_google_protobuf",
-        sha256 = "98e615d592d237f94db8bf033fba78cd404d979b0b70351a9e5aaff725398357",
-        strip_prefix = "protobuf-3.9.1",
-        urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.9.1.tar.gz"],
+        sha256 = "25f1292d4ea6666f460a2a30038eef121e6c3937ae0f61d610611dfb14b0bd32",
+        strip_prefix = "protobuf-3.19.1",
+        urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.19.1.zip"],
     )
 
 def _maybe(repo_rule, name, **kwargs):

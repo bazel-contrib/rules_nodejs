@@ -178,7 +178,7 @@ ts_proto_library_aspect = aspect(
             allow_files = True,
             executable = True,
             cfg = "host",
-            default = Label("@com_github_grpc_grpc_web//javascript/net/grpc/web:protoc-gen-grpc-web"),
+            default = Label("@com_github_grpc_grpc_web//javascript/net/grpc/web/generator:protoc-gen-grpc-web"),
         ),
         "_well_known_protos": attr.label(
             default = "@com_google_protobuf//:well_known_protos",
@@ -223,7 +223,7 @@ ts_proto_library = rule(
         "_protoc_gen_grpc_web": attr.label(
             allow_files = True,
             cfg = "host",
-            default = Label("@com_github_grpc_grpc_web//javascript/net/grpc/web:protoc-gen-grpc-web"),
+            default = Label("@com_github_grpc_grpc_web//javascript/net/grpc/web/generator:protoc-gen-grpc-web"),
             executable = True,
         ),
         "_well_known_protos": attr.label(
