@@ -15,10 +15,10 @@ def npm_bazel_labs_dependencies():
     _maybe(
         http_archive,
         name = "com_github_grpc_grpc_web",
-        sha256 = "8d9b1e9b839a5254aa79cb4068b05fdb6e1de5637c1b8551f95144159a4801f2",
-        strip_prefix = "grpc-web-1.2.0",
+        sha256 = "6ba86d2833ad0ed5e98308790bea4ad81214e1f4fc8838fe34c2e5ee053b73e6",
+        strip_prefix = "grpc-web-1.3.0",
         urls = [
-            "https://github.com/grpc/grpc-web/archive/1.2.0.tar.gz",
+            "https://github.com/grpc/grpc-web/archive/1.3.0.tar.gz",
         ],
     )
 
