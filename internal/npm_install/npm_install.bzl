@@ -306,7 +306,7 @@ for the non-bazel build but should not be installed via the package manager in t
 they will be reference as bazel targets instead.
 
 NB: removals specified are performed after preinstall_patches so if you are using both then the patch file should be relative
-to the source `package.json`. Non-existant keys are silently ignored.""",
+to the source `package.json`. Non-existent keys are silently ignored.""",
     ),
     "package_json_replace": attr.string_dict(
         doc = """Map of `package.json` keys to values to replace or create before running the package mangager.

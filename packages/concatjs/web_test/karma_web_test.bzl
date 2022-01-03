@@ -414,7 +414,7 @@ def karma_web_test_suite(
     This macro accepts all parameters in karma_web_test and adds additional parameters
     for the suite. See karma_web_test docs for all karma_web_test.
 
-    The wrapping macro is `web_test_suite` which comes from rules_websting:
+    The wrapping macro is `web_test_suite` which comes from rules_webtesting:
     https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl.
 
     Args:
@@ -446,7 +446,7 @@ def karma_web_test_suite(
     if browsers == None:
         browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"]
 
-        # rules_webesting requires the "native" tag for browsers
+        # rules_webtesting requires the "native" tag for browsers
         if not "native" in tags:
             tags = tags + ["native"]
 

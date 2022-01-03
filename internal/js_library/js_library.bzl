@@ -376,7 +376,7 @@ def js_library(
         srcs: The list of files that comprise the package
         package_name: The name it will be imported by. Should match the "name" field in the package.json file.
 
-            If package_name == "$node_modules$" this indictates that this js_library target is one or more external npm
+            If package_name == "$node_modules$" this indicates that this js_library target is one or more external npm
             packages in node_modules. This is a special case that used be covered by the internal only
             `external_npm_package` attribute. NB: '$' is an illegal character
             for npm packages names so this reserved name will not conflict with any valid package_name values

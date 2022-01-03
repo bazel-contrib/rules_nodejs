@@ -536,7 +536,7 @@ def ts_project_macro(
         extends: Label of the tsconfig file referenced in the `extends` section of tsconfig
 
             To support "chaining" of more than one extended config, this label could be a target that
-            provdes `TsConfigInfo` such as `ts_config`.
+            provides `TsConfigInfo` such as `ts_config`.
 
         args: List of strings of additional command-line arguments to pass to tsc.
 

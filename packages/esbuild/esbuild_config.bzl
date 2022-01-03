@@ -3,7 +3,7 @@
 load("@build_bazel_rules_nodejs//:index.bzl", _js_library = "js_library")
 
 def esbuild_config(name, config_file, srcs = [], deps = [], **kwargs):
-    """Macro for an esbuild configuration file and its assoicated dependencies
+    """Macro for an esbuild configuration file and its associated dependencies
 
     Args:
         name: Unique name for this rule

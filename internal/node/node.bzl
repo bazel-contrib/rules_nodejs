@@ -509,8 +509,8 @@ label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths de
 
 See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_label_variables for more info.
 
-NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
-args and genrule bazel substitions. This will be fixed in a future major release.
+NB: This $(location) substitution returns the manifest file path which differs from the *_binary & *_test
+args and genrule bazel substitutions. This will be fixed in a future major release.
 See docs string of `expand_location_into_runfiles` macro in `internal/common/expand_into_runfiles.bzl`
 for more info.
 

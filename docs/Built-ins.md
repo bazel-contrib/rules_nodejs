@@ -198,7 +198,7 @@ Defaults to `True`
 
 <h4 id="node_repositories-repo_mapping">repo_mapping</h4>
 
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`), it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
 
 
 <h4 id="node_repositories-use_nvmrc">use_nvmrc</h4>
@@ -1012,7 +1012,7 @@ Defaults to `[]`
 
 <h4 id="npm_install-package_json_replace">package_json_replace</h4>
 
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Map of `package.json` keys to values to replace or create before running the package mangager.
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Map of `package.json` keys to values to replace or create before running the package manager.
 
 Keys are '.' separated. For example, a key of `scripts.postinstall` corresponds to the `package.json`
 entry,
@@ -1055,7 +1055,7 @@ Defaults to `["-p0"]`
 
 <h4 id="npm_install-patch_tool">patch_tool</h4>
 
-(*String*): The patch(1) utility to use. If this is specified, Bazel will use the specifed patch tool instead of the Bazel-native patch implementation.
+(*String*): The patch(1) utility to use. If this is specified, Bazel will use the specified patch tool instead of the Bazel-native patch implementation.
 
 Defaults to `""`
 
@@ -1100,7 +1100,7 @@ Defaults to `True`
 
 <h4 id="npm_install-repo_mapping">repo_mapping</h4>
 
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`), it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
 
 
 <h4 id="npm_install-strict_visibility">strict_visibility</h4>
@@ -1766,7 +1766,7 @@ Defaults to `True`
 
 <h4 id="yarn_install-repo_mapping">repo_mapping</h4>
 
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`), it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
 
 
 <h4 id="yarn_install-strict_visibility">strict_visibility</h4>

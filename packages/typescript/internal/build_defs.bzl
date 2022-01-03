@@ -37,7 +37,7 @@ directory. See the notes about the `tsconfig` attribute below.
 ## Accessing JavaScript outputs
 
 The default output of the `ts_library` rule is the `.d.ts` files.
-This is for a couple reasons:
+This is for a couple of reasons:
 
 - help ensure that downstream rules which access default outputs will not require
   a cascading re-build when only the implementation changes but not the types
@@ -436,13 +436,13 @@ If source files need to be required then they can be copied to the bin_dir with 
             doc = """The package name that the linker will link this ts_library output as.
 
 If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
-If package_path is not set the this will be the root node_modules of the workspace.""",
+If package_path is not set this will be the root node_modules of the workspace.""",
         ),
         "package_path": attr.string(
             doc = """The package path in the workspace that the linker will link this ts_library output to.
 
 If package_path is set, the linker will link this package under <package_path>/node_modules/<package_name>.
-If package_path is not set the this will be the root node_modules of the workspace.""",
+If package_path is not set this will be the root node_modules of the workspace.""",
         ),
         "prodmode_module": attr.string(
             doc = """Set the typescript `module` compiler option for prodmode output.

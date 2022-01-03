@@ -142,7 +142,7 @@ def npm_package_bin(
 
             Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/main/be/make-variables.html.
 
-            1. Predefined source/output path substitions is applied first:
+            1. Predefined source/output path substitutions is applied first:
 
             See https://docs.bazel.build/versions/main/be/make-variables.html#predefined_label_variables.
 

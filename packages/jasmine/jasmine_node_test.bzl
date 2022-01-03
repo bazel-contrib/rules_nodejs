@@ -89,7 +89,7 @@ def jasmine_node_test(
       config_file: (experimental) label of a file containing Jasmine JSON config.
 
         Note that not all configuration options are honored, and
-        we expect some strange feature interations.
+        we expect some strange feature interactions.
         For example, the filter for which files are instrumented for
         code coverage doesn't understand the spec_files setting in the config.
 

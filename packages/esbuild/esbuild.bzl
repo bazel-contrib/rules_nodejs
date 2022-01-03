@@ -318,7 +318,7 @@ For general use, leave this attribute unset.
         "minify": attr.bool(
             default = False,
             doc = """Minifies the bundle with the built in minification.
-Removes whitespace, shortens identifieres and uses equivalent but shorter syntax.
+Removes whitespace, shortens identifiers and uses equivalent but shorter syntax.
 
 Sets all --minify-* flags
 

@@ -64,7 +64,7 @@ esbuild(
 )
 ```
 
-The above will create three output files, `bundle.js`, `bundle.js.map` and `bundle_metadata.json` which contains the bundle metadata to aid in debugging and resoloution tracing.
+The above will create three output files, `bundle.js`, `bundle.js.map` and `bundle_metadata.json` which contains the bundle metadata to aid in debugging and resolution tracing.
 
 To create a code split bundle, set `splitting = True` on the `esbuild` rule.
 
