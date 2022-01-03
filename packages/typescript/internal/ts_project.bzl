@@ -3,6 +3,7 @@
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "ExternalNpmPackageInfo", "declaration_info", "js_module_info", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:lib/partial.bzl", "partial")
 load(":ts_config.bzl", "TsConfigInfo", "write_tsconfig")
 
 _ValidOptionsInfo = provider()
@@ -372,7 +373,6 @@ def ts_project_macro(
         incremental = False,
         emit_declaration_only = False,
         transpiler = "tsc",
-        transpiler_kwargs = {},
         ts_build_info_file = None,
         tsc = None,
         typescript_package = _DEFAULT_TYPESCRIPT_PACKAGE,
@@ -547,8 +547,8 @@ def ts_project_macro(
         args: List of strings of additional command-line arguments to pass to tsc.
 
         transpiler: What tool to run that produces the JavaScript outputs.
-            By default, this is the string `tsc` which means to produce `.js` outputs
-            in the same action that does the type-checking to produce `.d.ts` outputs.
+            By default, this is the string `tsc`. With that value, `ts_project` expects `.js` outputs
+            to be written in the same action that does the type-checking to produce `.d.ts` outputs.
             This is the simplest configuration, however `tsc` is slower than alternatives.
             It also means developers must wait for the type-checking in the developer loop.
 
@@ -558,14 +558,15 @@ def ts_project_macro(
             `ts_project` rules. That attribute is documented as experimental, and may never graduate
             to a better support contract.
 
-            Instead, you can pass a rule or macro that accepts these arguments:
-            `(name, srcs, js_outs, map_outs, args, data, tags, visibility)`
+            Instead of the string `tsc`, this attribute also accepts a rule or macro with this signature:
+            `name, srcs, js_outs, map_outs, **kwargs`
+            where the `**kwargs` attribute propagates the tags, visibility, and testonly attributes from `ts_project`.
 
-            The rules_nodejs authors believe that [SWC](https://swc.rs) is a great choice.
-
-        transpiler_kwargs: if the `transpiler` attribute is a rule or macro, then this dictionary
-            is passed as additional keyword arguments of that rule or macro.
-            For example if the transpiler accepts `args`, then use `transpiler_kwargs={"args": ["some-arg"]}`
+            If you need to pass additional attributes to the transpiler rule, you can use a
+            [partial](https://github.com/bazelbuild/bazel-skylib/blob/main/lib/partial.bzl)
+            to bind those arguments at the "make site", then pass that partial to this attribute where it
+            will be called with the remaining arguments.
+            See the packages/typescript/test/ts_project/swc directory for an example.
 
         tsc: Label of the TypeScript compiler binary to run.
 
@@ -783,27 +784,36 @@ def ts_project_macro(
     if declaration_map:
         typing_maps_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, {"*": ".d.ts.map"}))
 
-    if type(transpiler) == "function" or type(transpiler) == "rule":
-        tsc_js_outs = []
-        tsc_map_outs = []
-        transpiler(
-            name = name + "_transpile",
-            srcs = srcs,
-            js_outs = js_outs,
-            map_outs = map_outs,
-            data = [],
-            tags = kwargs.get("tags", []),
-            visibility = kwargs.get("visibility", None),
-            testonly = kwargs.get("testonly", None),
-            **transpiler_kwargs
-        )
-    elif transpiler == "tsc":
+    tsc_js_outs = []
+    tsc_map_outs = []
+    if transpiler == "tsc":
         tsc_js_outs = js_outs
         tsc_map_outs = map_outs
-        if len(transpiler_kwargs.keys()):
-            fail("transpiler_kwargs should not be used with `transpiler='tsc'`, just pass them to the `args`")
     else:
-        fail("transpiler attribute should be a rule/macro or the string 'tsc'.")
+        transpiler_kwargs = {
+            "tags": kwargs.get("tags", []),
+            "visibility": kwargs.get("visibility", None),
+            "testonly": kwargs.get("testonly", None),
+        }
+        if type(transpiler) == "function" or type(transpiler) == "rule":
+            transpiler(
+                name = name + "_transpile",
+                srcs = srcs,
+                js_outs = js_outs,
+                map_outs = map_outs,
+                **transpiler_kwargs
+            )
+        elif partial.is_instance(transpiler):
+            partial.call(
+                transpiler,
+                name = name + "_transpile",
+                srcs = srcs,
+                js_outs = js_outs,
+                map_outs = map_outs,
+                **transpiler_kwargs
+            )
+        else:
+            fail("transpiler attribute should be a rule/macro, a skylib partial, or the string 'tsc'. Got " + type(transpiler))
 
     if not len(tsc_js_outs) and not len(typings_outs):
         fail("""ts_project target "//{}:{}" is configured to produce no outputs.

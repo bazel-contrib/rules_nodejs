@@ -474,9 +474,9 @@ Defaults to `False`
 <pre>
 ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">tsconfig</a>, <a href="#ts_project-srcs">srcs</a>, <a href="#ts_project-args">args</a>, <a href="#ts_project-deps">deps</a>, <a href="#ts_project-extends">extends</a>, <a href="#ts_project-allow_js">allow_js</a>, <a href="#ts_project-declaration">declaration</a>, <a href="#ts_project-source_map">source_map</a>,
            <a href="#ts_project-declaration_map">declaration_map</a>, <a href="#ts_project-resolve_json_module">resolve_json_module</a>, <a href="#ts_project-preserve_jsx">preserve_jsx</a>, <a href="#ts_project-composite">composite</a>, <a href="#ts_project-incremental">incremental</a>,
-           <a href="#ts_project-emit_declaration_only">emit_declaration_only</a>, <a href="#ts_project-transpiler">transpiler</a>, <a href="#ts_project-transpiler_kwargs">transpiler_kwargs</a>, <a href="#ts_project-ts_build_info_file">ts_build_info_file</a>, <a href="#ts_project-tsc">tsc</a>,
-           <a href="#ts_project-typescript_package">typescript_package</a>, <a href="#ts_project-typescript_require_path">typescript_require_path</a>, <a href="#ts_project-validate">validate</a>, <a href="#ts_project-supports_workers">supports_workers</a>, <a href="#ts_project-declaration_dir">declaration_dir</a>,
-           <a href="#ts_project-out_dir">out_dir</a>, <a href="#ts_project-root_dir">root_dir</a>, <a href="#ts_project-link_workspace_root">link_workspace_root</a>, <a href="#ts_project-kwargs">kwargs</a>)
+           <a href="#ts_project-emit_declaration_only">emit_declaration_only</a>, <a href="#ts_project-transpiler">transpiler</a>, <a href="#ts_project-ts_build_info_file">ts_build_info_file</a>, <a href="#ts_project-tsc">tsc</a>, <a href="#ts_project-typescript_package">typescript_package</a>,
+           <a href="#ts_project-typescript_require_path">typescript_require_path</a>, <a href="#ts_project-validate">validate</a>, <a href="#ts_project-supports_workers">supports_workers</a>, <a href="#ts_project-declaration_dir">declaration_dir</a>, <a href="#ts_project-out_dir">out_dir</a>, <a href="#ts_project-root_dir">root_dir</a>,
+           <a href="#ts_project-link_workspace_root">link_workspace_root</a>, <a href="#ts_project-kwargs">kwargs</a>)
 </pre>
 
 Compiles one TypeScript project using `tsc --project`
@@ -736,8 +736,8 @@ Defaults to `False`
 <h4 id="ts_project-transpiler">transpiler</h4>
 
 What tool to run that produces the JavaScript outputs.
-By default, this is the string `tsc` which means to produce `.js` outputs
-in the same action that does the type-checking to produce `.d.ts` outputs.
+By default, this is the string `tsc`. With that value, `ts_project` expects `.js` outputs
+to be written in the same action that does the type-checking to produce `.d.ts` outputs.
 This is the simplest configuration, however `tsc` is slower than alternatives.
 It also means developers must wait for the type-checking in the developer loop.
 
@@ -747,20 +747,17 @@ can only see one set of dependencies, and so it cannot be shared between differe
 `ts_project` rules. That attribute is documented as experimental, and may never graduate
 to a better support contract.
 
-Instead, you can pass a rule or macro that accepts these arguments:
-`(name, srcs, js_outs, map_outs, args, data, tags, visibility)`
+Instead of the string `tsc`, this attribute also accepts a rule or macro with this signature:
+`name, srcs, js_outs, map_outs, **kwargs`
+where the `**kwargs` attribute propagates the tags, visibility, and testonly attributes from `ts_project`.
 
-The rules_nodejs authors believe that [SWC](https://swc.rs) is a great choice.
+If you need to pass additional attributes to the transpiler rule, you can use a
+[partial](https://github.com/bazelbuild/bazel-skylib/blob/main/lib/partial.bzl)
+to bind those arguments at the "make site", then pass that partial to this attribute where it
+will be called with the remaining arguments.
+See the packages/typescript/test/ts_project/swc directory for an example.
 
 Defaults to `"tsc"`
-
-<h4 id="ts_project-transpiler_kwargs">transpiler_kwargs</h4>
-
-if the `transpiler` attribute is a rule or macro, then this dictionary
-is passed as additional keyword arguments of that rule or macro.
-For example if the transpiler accepts `args`, then use `transpiler_kwargs={"args": ["some-arg"]}`
-
-Defaults to `{}`
 
 <h4 id="ts_project-ts_build_info_file">ts_build_info_file</h4>
 

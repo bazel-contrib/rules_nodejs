@@ -1,6 +1,6 @@
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("//packages/typescript:index.bzl", "ts_project")
-load(":mock_swc.bzl", "swc")
+load(":swc.bzl", "swc", "swc_macro")
 
 write_file(
     name = "gen_ts",
@@ -14,11 +14,23 @@ write_file(
 ts_project(
     name = "transpile_with_swc",
     srcs = ["big.ts"],
-    transpiler = swc,
-    transpiler_kwargs = {
-        "args": ["--env-name=test"],
-        "swcrc": ".swcrc",
+    transpiler = swc_macro,
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+            "sourceMap": True,
+        },
     },
+)
+
+ts_project(
+    name = "transpile_with_configurable_swc",
+    srcs = ["big.ts"],
+    out_dir = "configurable",
+    transpiler = swc(
+        args = ["--env-name=test"],
+        swcrc = "//:.swcrc",
+    ),
     tsconfig = {
         "compilerOptions": {
             "declaration": True,
