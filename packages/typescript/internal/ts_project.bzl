@@ -4,6 +4,7 @@ load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "ExternalNp
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:lib/partial.bzl", "partial")
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load(":ts_config.bzl", "TsConfigInfo", "write_tsconfig")
 
 _ValidOptionsInfo = provider()
@@ -45,6 +46,7 @@ _ATTRS = {
     "srcs": attr.label_list(allow_files = True, mandatory = True),
     "supports_workers": attr.bool(default = False),
     "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "host"),
+    "transpile": attr.bool(doc = "whether tsc should be used to produce .js outputs"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
 }
 
@@ -180,10 +182,6 @@ def _ts_project_impl(ctx):
     else:
         json_outs = []
 
-        # If there are no js_outs, that implies we are producing declarations only.
-        # We must avoid tsc writing any JS files in this case, as it was only run for typings.
-        arguments.add("--emitDeclarationOnly")
-
     outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs
     if ctx.outputs.buildinfo_out:
         arguments.add_all([
@@ -193,7 +191,17 @@ def _ts_project_impl(ctx):
         outputs.append(ctx.outputs.buildinfo_out)
     runtime_outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs
     typings_outputs = ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
-    default_outputs_depset = depset(runtime_outputs) if len(runtime_outputs) else depset(typings_outputs)
+
+    if ctx.attr.transpile:
+        default_outputs_depset = depset(runtime_outputs) if len(runtime_outputs) else depset(typings_outputs)
+    else:
+        # We must avoid tsc writing any JS files in this case, as tsc was only run for typings, and some other
+        # action will try to write the JS files. We must avoid collisions where two actions write the same file.
+        arguments.add("--emitDeclarationOnly")
+
+        # We don't produce any DefaultInfo outputs in this case, because we avoid running the tsc action
+        # unless the DeclarationInfo is requested.
+        default_outputs_depset = depset([])
 
     if len(outputs) > 0:
         run_node(
@@ -245,7 +253,7 @@ def _ts_project_impl(ctx):
     ]
 
     # Only provide DeclarationInfo if there are some typings.
-    # Improves error messaging if a ts_project needs declaration = True
+    # Improves error messaging if a ts_project is missing declaration = True
     typings_in_deps = [d for d in ctx.attr.deps if DeclarationInfo in d]
     if len(typings_outputs) or len(typings_in_deps):
         providers.append(declaration_info(depset(typings_outputs), typings_in_deps))
@@ -372,7 +380,7 @@ def ts_project_macro(
         composite = False,
         incremental = False,
         emit_declaration_only = False,
-        transpiler = "tsc",
+        transpiler = None,
         ts_build_info_file = None,
         tsc = None,
         typescript_package = _DEFAULT_TYPESCRIPT_PACKAGE,
@@ -546,19 +554,9 @@ def ts_project_macro(
 
         args: List of strings of additional command-line arguments to pass to tsc.
 
-        transpiler: What tool to run that produces the JavaScript outputs.
-            By default, this is the string `tsc`. With that value, `ts_project` expects `.js` outputs
-            to be written in the same action that does the type-checking to produce `.d.ts` outputs.
-            This is the simplest configuration, however `tsc` is slower than alternatives.
-            It also means developers must wait for the type-checking in the developer loop.
+        transpiler: A custom transpiler tool to run that produces the JavaScript outputs instead of `tsc`.
 
-            In theory, Persistent Workers (via the `supports_workers` attribute) remedies the
-            slow compilation time, however it adds additional complexity because the worker process
-            can only see one set of dependencies, and so it cannot be shared between different
-            `ts_project` rules. That attribute is documented as experimental, and may never graduate
-            to a better support contract.
-
-            Instead of the string `tsc`, this attribute also accepts a rule or macro with this signature:
+            This attribute accepts a rule or macro with this signature:
             `name, srcs, js_outs, map_outs, **kwargs`
             where the `**kwargs` attribute propagates the tags, visibility, and testonly attributes from `ts_project`.
 
@@ -567,6 +565,29 @@ def ts_project_macro(
             to bind those arguments at the "make site", then pass that partial to this attribute where it
             will be called with the remaining arguments.
             See the packages/typescript/test/ts_project/swc directory for an example.
+
+            When a custom transpiler is used, then the `ts_project` macro expands to these targets:
+
+                - `[name]` - the default target is a `js_library` which can be included in the `deps` of downstream rules.
+                    Note that it will successfully build *even if there are typecheck failures* because the `tsc` binary
+                    is not needed to produce the default outputs.
+                    This is considered a feature, as it allows you to have a faster development mode where type-checking
+                    is not on the critical path.
+                - `[name]_typecheck` - this target will fail to build if the type-checking fails, useful for CI.
+                - `[name]_typings` - internal target which runs the binary from the `tsc` attribute
+                -  Any additional target(s) the custom transpiler rule/macro produces.
+                    Some rules produce one target per TypeScript input file.
+
+            By default, `ts_project` expects `.js` outputs to be written in the same action
+            that does the type-checking to produce `.d.ts` outputs.
+            This is the simplest configuration, however `tsc` is slower than alternatives.
+            It also means developers must wait for the type-checking in the developer loop.
+
+            In theory, Persistent Workers (via the `supports_workers` attribute) remedies the
+            slow compilation time, however it adds additional complexity because the worker process
+            can only see one set of dependencies, and so it cannot be shared between different
+            `ts_project` rules. That attribute is documented as experimental, and may never graduate
+            to a better support contract.
 
         tsc: Label of the TypeScript compiler binary to run.
 
@@ -666,7 +687,7 @@ def ts_project_macro(
             include.append("**/*.json")
             exclude.extend(["**/package.json", "**/package-lock.json", "**/tsconfig*.json"])
         srcs = native.glob(include, exclude)
-    extra_deps = []
+    tsc_deps = deps
 
     if type(extends) == type([]):
         fail("As of rules_nodejs 3.0, extends should have a single value, not a list.\n" +
@@ -727,7 +748,7 @@ def ts_project_macro(
                 tsconfig = tsconfig,
                 extends = extends,
             )
-            extra_deps.append("_validate_%s_options" % name)
+            tsc_deps = tsc_deps + ["_validate_%s_options" % name]
 
     if supports_workers:
         tsc_worker = "%s_worker" % name
@@ -786,34 +807,60 @@ def ts_project_macro(
 
     tsc_js_outs = []
     tsc_map_outs = []
-    if transpiler == "tsc":
+    if not transpiler:
         tsc_js_outs = js_outs
         tsc_map_outs = map_outs
+        tsc_target_name = name
     else:
-        transpiler_kwargs = {
+        # To stitch together a tree of ts_project where transpiler is a separate rule,
+        # we have to produce a few targets
+        tsc_target_name = "%s_typings" % name
+        transpile_target_name = "%s_transpile" % name
+        typecheck_target_name = "%s_typecheck" % name
+
+        common_kwargs = {
             "tags": kwargs.get("tags", []),
             "visibility": kwargs.get("visibility", None),
             "testonly": kwargs.get("testonly", None),
         }
         if type(transpiler) == "function" or type(transpiler) == "rule":
             transpiler(
-                name = name + "_transpile",
+                name = transpile_target_name,
                 srcs = srcs,
                 js_outs = js_outs,
                 map_outs = map_outs,
-                **transpiler_kwargs
+                **common_kwargs
             )
         elif partial.is_instance(transpiler):
             partial.call(
                 transpiler,
-                name = name + "_transpile",
+                name = transpile_target_name,
                 srcs = srcs,
                 js_outs = js_outs,
                 map_outs = map_outs,
-                **transpiler_kwargs
+                **common_kwargs
             )
         else:
             fail("transpiler attribute should be a rule/macro, a skylib partial, or the string 'tsc'. Got " + type(transpiler))
+
+        # Users should build this target to get a failed build when typechecking fails
+        native.filegroup(
+            name = typecheck_target_name,
+            srcs = [tsc_target_name],
+            # This causes the DeclarationInfo to be produced, which in turn triggers the tsc action to typecheck
+            output_group = "types",
+            **common_kwargs
+        )
+
+        # Default target produced by the macro gives the js and map outs, with the transitive dependencies.
+        js_library(
+            name = name,
+            srcs = js_outs + map_outs,
+            # Include the tsc target so that this js_library can be a valid dep for downstream ts_project
+            # or other DeclarationInfo-aware rules.
+            deps = deps + [tsc_target_name],
+            **common_kwargs
+        )
 
     if not len(tsc_js_outs) and not len(typings_outs):
         fail("""ts_project target "//{}:{}" is configured to produce no outputs.
@@ -823,10 +870,10 @@ Check the srcs attribute to see that some .ts files are present (or .js files wi
 """.format(native.package_name(), name))
 
     ts_project(
-        name = name,
+        name = tsc_target_name,
         srcs = srcs,
         args = args,
-        deps = deps + extra_deps,
+        deps = tsc_deps,
         tsconfig = tsconfig,
         extends = extends,
         declaration_dir = declaration_dir,
@@ -840,5 +887,6 @@ Check the srcs attribute to see that some .ts files are present (or .js files wi
         tsc = tsc,
         link_workspace_root = link_workspace_root,
         supports_workers = supports_workers,
+        transpile = not transpiler,
         **kwargs
     )
