@@ -228,8 +228,10 @@ def _impl(ctx):
 
     runfiles = ctx.runfiles(
         files = all_files,
+        # We do not include typings_depsets in the runfiles because that would cause type-check actions to occur
+        # in every development workflow.
         transitive_files = depset(
-            transitive = files_depsets + typings_depsets,
+            transitive = files_depsets,
         ),
     )
     deps_runfiles = [d[DefaultInfo].default_runfiles for d in ctx.attr.deps]
