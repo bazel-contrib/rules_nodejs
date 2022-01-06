@@ -1,3 +1,19 @@
+# [4.6.0](https://github.com/bazelbuild/rules_nodejs/compare/4.5.1...4.6.0) (2022-01-06)
+
+
+### Bug Fixes
+
+* **builtin:** js_library: propagate all default_runfiles ([#3183](https://github.com/bazelbuild/rules_nodejs/issues/3183)) ([d9f3500](https://github.com/bazelbuild/rules_nodejs/commit/d9f3500)), closes [#3182](https://github.com/bazelbuild/rules_nodejs/issues/3182)
+* **typescript:** ts_project transpiler produces js_library ([#3187](https://github.com/bazelbuild/rules_nodejs/issues/3187)) ([f593e06](https://github.com/bazelbuild/rules_nodejs/commit/f593e06))
+* bump jasmine-reporters to 2.5.0 ([#3180](https://github.com/bazelbuild/rules_nodejs/issues/3180)) ([5ac6852](https://github.com/bazelbuild/rules_nodejs/commit/5ac6852))
+
+
+### Features
+
+* **typescript:** allow alternative transpilers ([#3134](https://github.com/bazelbuild/rules_nodejs/issues/3134)) ([dc0dc8f](https://github.com/bazelbuild/rules_nodejs/commit/dc0dc8f)), closes [#3133](https://github.com/bazelbuild/rules_nodejs/issues/3133)
+
+
+
 ## [4.5.1](https://github.com/bazelbuild/rules_nodejs/compare/4.5.0...4.5.1) (2021-12-16)
 
 
