@@ -473,19 +473,9 @@ Defaults to `False`
 
 <h4 id="ts_project-transpiler">transpiler</h4>
 
-What tool to run that produces the JavaScript outputs.
-By default, this is the string `tsc`. With that value, `ts_project` expects `.js` outputs
-to be written in the same action that does the type-checking to produce `.d.ts` outputs.
-This is the simplest configuration, however `tsc` is slower than alternatives.
-It also means developers must wait for the type-checking in the developer loop.
+A custom transpiler tool to run that produces the JavaScript outputs instead of `tsc`.
 
-In theory, Persistent Workers (via the `supports_workers` attribute) remedies the
-slow compilation time, however it adds additional complexity because the worker process
-can only see one set of dependencies, and so it cannot be shared between different
-`ts_project` rules. That attribute is documented as experimental, and may never graduate
-to a better support contract.
-
-Instead of the string `tsc`, this attribute also accepts a rule or macro with this signature:
+This attribute accepts a rule or macro with this signature:
 `name, srcs, js_outs, map_outs, **kwargs`
 where the `**kwargs` attribute propagates the tags, visibility, and testonly attributes from `ts_project`.
 
@@ -495,7 +485,30 @@ to bind those arguments at the "make site", then pass that partial to this attri
 will be called with the remaining arguments.
 See the packages/typescript/test/ts_project/swc directory for an example.
 
-Defaults to `"tsc"`
+When a custom transpiler is used, then the `ts_project` macro expands to these targets:
+
+    - `[name]` - the default target is a `js_library` which can be included in the `deps` of downstream rules.
+        Note that it will successfully build *even if there are typecheck failures* because the `tsc` binary
+        is not needed to produce the default outputs.
+        This is considered a feature, as it allows you to have a faster development mode where type-checking
+        is not on the critical path.
+    - `[name]_typecheck` - this target will fail to build if the type-checking fails, useful for CI.
+    - `[name]_typings` - internal target which runs the binary from the `tsc` attribute
+    -  Any additional target(s) the custom transpiler rule/macro produces.
+        Some rules produce one target per TypeScript input file.
+
+By default, `ts_project` expects `.js` outputs to be written in the same action
+that does the type-checking to produce `.d.ts` outputs.
+This is the simplest configuration, however `tsc` is slower than alternatives.
+It also means developers must wait for the type-checking in the developer loop.
+
+In theory, Persistent Workers (via the `supports_workers` attribute) remedies the
+slow compilation time, however it adds additional complexity because the worker process
+can only see one set of dependencies, and so it cannot be shared between different
+`ts_project` rules. That attribute is documented as experimental, and may never graduate
+to a better support contract.
+
+Defaults to `None`
 
 <h4 id="ts_project-ts_build_info_file">ts_build_info_file</h4>
 
