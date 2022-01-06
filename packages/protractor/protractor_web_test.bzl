@@ -333,7 +333,7 @@ def protractor_web_test_suite(
     if browsers == None:
         browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"]
 
-        # rules_webesting requires the "native" tag for browsers
+        # rules_webtesting requires the "native" tag for browsers
         if not "native" in tags:
             tags = tags + ["native"]
 

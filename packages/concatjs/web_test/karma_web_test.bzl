@@ -17,7 +17,7 @@ load("@rules_nodejs//nodejs:providers.bzl", "JSModuleInfo")
 load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSNamedModuleInfo", "node_modules_aspect")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
-load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
+load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_TEST_SUITE_TAGS", "DEFAULT_WRAPPED_TEST_TAGS")
 
 KARMA_PEER_DEPS = [
     # NB: uncommented during pkg_npm
@@ -438,7 +438,7 @@ def karma_web_test_suite(
     # Wrapper attributes
     browser_overrides = kwargs.pop("browser_overrides", None)
     config = kwargs.pop("config", None)
-    test_suite_tags = kwargs.pop("test_suite_tags", None)
+    test_suite_tags = kwargs.pop("test_suite_tags", list(DEFAULT_TEST_SUITE_TAGS))
     visibility = kwargs.pop("visibility", None)
     tags = kwargs.pop("tags", []) + [
         # Users don't need to know that this tag is required to run under ibazel
@@ -447,7 +447,7 @@ def karma_web_test_suite(
     if browsers == None:
         browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"]
 
-        # rules_webesting requires the "native" tag for browsers
+        # rules_webtesting requires the "native" tag for browsers
         if not "native" in tags:
             tags = tags + ["native"]
 
