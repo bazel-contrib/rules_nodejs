@@ -61,9 +61,12 @@ _READMES = {
         failure_message = "Please run:  bazel run //docs:update",
         file1 = k + ".md",
         file2 = v,
-        # No need to run on more than one platform
-        # Also there's some delta here, probably line endings
-        tags = ["no-bazelci-windows"],
+        tags = [
+            # no need to run on more than one platform
+            "no-bazelci-windows",
+            # diff_test has line endings issues on Windows
+            "fix-windows",
+        ],
     )
     for [
         k,

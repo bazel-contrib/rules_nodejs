@@ -20,6 +20,6 @@ go_test(
         "@devserver_test_workspace//:sources",
     ],
     embed = [":go_default_library"],
-    # FIXME: broken on Windows ci
-    tags = ["no-bazelci-windows"],
+    # FIXME: broken on Windows
+    tags = ["fix-windows"],
 )

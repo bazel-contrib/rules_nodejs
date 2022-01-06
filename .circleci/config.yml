@@ -128,7 +128,7 @@ jobs:
       - *init_bazel
       - *hide_node_and_yarn_local_binaries
 
-      - run: bazel test --test_tag_filters=-e2e,-examples,-manual ...
+      - run: bazel test --test_tag_filters=-e2e,-examples ...
 
       - store_artifacts:
           path: dist/bin/release.tar.gz

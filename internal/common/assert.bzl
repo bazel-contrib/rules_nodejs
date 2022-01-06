@@ -23,5 +23,8 @@ def assert_program_produces_stdout(name, tool, stdout, tags = []):
         name = name,
         file1 = "expected_" + name,
         file2 = "actual_" + name,
-        tags = tags,
+        tags = tags + [
+            # diff_test has line endings issues on Windows
+            "fix-windows",
+        ],
     )

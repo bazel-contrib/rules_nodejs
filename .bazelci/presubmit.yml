@@ -37,7 +37,7 @@ tasks:
     # on bazelci apt-get fails with permission denied and there is no sudo
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
+    - "--test_tag_filters=-e2e,-examples,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
     test_targets:
     - "//..."
   ubuntu1804_debug:
@@ -55,7 +55,7 @@ tasks:
     # on bazelci apt-get fails with permission denied and there is no sudo
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
+    - "--test_tag_filters=-e2e,-examples,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
     test_targets:
     - "//..."
   ubuntu1804_e2e:
@@ -86,7 +86,7 @@ tasks:
     # on bazelci apt-get fails with permission denied and there is no sudo
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_arg=--test_tag_filters=-browser:chromium-local,-browser:firefox-local,-cypress"
     test_targets:
     - "//..."
   ubuntu1804_examples:
@@ -117,7 +117,7 @@ tasks:
     # on bazelci apt-get fails with permission denied and there is no sudo
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_arg=--test_tag_filters=-browser:chromium-local,-browser:firefox-local,-cypress"
     - "--test_output=streamed"
     test_targets:
     - "//..."
@@ -146,7 +146,7 @@ tasks:
     test_flags:
     # Firefox are missing shared libs on bazelci mac
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-e2e,-examples,-manual,-browser:firefox-local"
+    - "--test_tag_filters=-e2e,-examples,-browser:firefox-local"
     test_targets:
     - "//..."
   macos_e2e:
@@ -174,7 +174,7 @@ tasks:
     - "--test_arg=--local_ram_resources=13288"
     # Firefox are missing shared libs on bazelci mac
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_arg=--test_tag_filters=-manual,-browser:firefox-local"
+    - "--test_arg=--test_tag_filters=-browser:firefox-local"
     test_targets:
     - "//..."
   macos_examples:
@@ -195,14 +195,14 @@ tasks:
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
     skip_use_bazel_version_for_test: true
     test_flags:
-    - "--test_tag_filters=examples,-manual"
+    - "--test_tag_filters=examples"
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
     - "--test_arg=--local_ram_resources=13288"
     # Firefox are missing shared libs on bazelci mac
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_arg=--test_tag_filters=-no-bazelci-mac,-manual,-browser:firefox-local"
+    - "--test_arg=--test_tag_filters=-no-bazelci-mac,-browser:firefox-local"
     test_targets:
     - "//..."
   # TODO(gregmagolan): fix platform configuraiton for this test job for Bazel 2.0
@@ -231,20 +231,20 @@ tasks:
     # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
     #- "@fine_grained_deps_yarn//typescript/bin:tsc"
     build_flags:
-    - "--build_tag_filters=-e2e,-examples,-manual,-fix-windows,-no-bazelci-windows,-requires-runfiles"
+    - "--build_tag_filters=-e2e,-examples,-fix-windows,-no-bazelci-windows,-requires-runfiles"
     build_targets:
     - "//..."
     test_flags:
     # Firefox not supported on Windows with rules_webtesting (if run it exit with success)
     # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
-    - "--test_tag_filters=-e2e,-examples,-fix-windows,-no-bazelci-windows,-requires-runfiles,-manual,-browser:firefox-local,-cypress"
+    - "--test_tag_filters=-e2e,-examples,-fix-windows,-no-bazelci-windows,-requires-runfiles,-browser:firefox-local,-cypress"
     test_targets:
     - "//..."
   windows_runfiles_enabled:
     name: windows_runfiles_enabled
     platform: windows
     test_flags:
-    - "--test_tag_filters=requires-runfiles"
+    - "--test_tag_filters=requires-runfiles,-fix-windows,-no-bazelci-windows"
     - "--enable_runfiles"
     test_targets:
     - "//..."
@@ -266,7 +266,7 @@ tasks:
     # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
     # Chrome fails to launch on Windows inside bazel-in-bazel with: [17:12:04] E/launcher -
     # spawn D:\...\external\io_bazel_rules_webtesting\third_party\chromedriver\chromedriver.out\chromedriver_win32\chromedriver.exe ENOENT
-    - "--test_arg=--test_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles,-manual,-browser:chromium-local,-browser:firefox-local"
+    - "--test_arg=--test_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
   windows_examples:
@@ -279,7 +279,7 @@ tasks:
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
     skip_use_bazel_version_for_test: true
     test_flags:
-    - "--test_tag_filters=examples,-manual,-fix-windows,-no-bazelci-windows,-requires-runfiles,-cypress"
+    - "--test_tag_filters=examples,-fix-windows,-no-bazelci-windows,-requires-runfiles,-cypress"
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"
@@ -287,7 +287,7 @@ tasks:
     # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
     # Chrome fails to launch on Windows inside bazel-in-bazel with: [17:12:04] E/launcher -
     # spawn D:\...\external\io_bazel_rules_webtesting\third_party\chromedriver\chromedriver.out\chromedriver_win32\chromedriver.exe ENOENT
-    - "--test_arg=--test_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles,-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_arg=--test_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles,-browser:chromium-local,-browser:firefox-local,-cypress"
     test_targets:
     - "//..."
   rbe_ubuntu1604:

@@ -59,8 +59,7 @@ nodejs_binary(
 assert_program_produces_stdout(
     name = "test_a",
     stdout = ["running entry point A"],
-    # This requires runfiles
-    tags = ["no-bazelci-windows"],
+    tags = ["requires-runfiles"],
     tool = "run_a",
 )
 

@@ -9,5 +9,5 @@ tsc_test(
     name = "typecheck_only",
     args = ["$(execpath check_me.ts)"],
     data = ["check_me.ts"],
-    tags = ["no-bazelci-windows"],
+    tags = ["requires-runfiles"],
 )
