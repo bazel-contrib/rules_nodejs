@@ -51,6 +51,15 @@ type-checking and not for producing any build outputs.
 To use it, add the load statement `load("@npm//typescript:index.bzl", "tsc_test")` to your BUILD file.
 (Possibly replacing `@npm` with the name of the repository where you installed dependencies)
 
+To get the typings available in the test (as "runfiles"), you may need to gather them from dependencies if they
+are not included as default outputs of those dependencies, like so:
+
+```starlark
+filegroup(name = "types", srcs = ["//some:js_library"], output_group = "types")
+```
+
+And then include the `:types` target in the `data` of the `tsc_test`.
+
 See example in https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/tsc_test
 
 ### Option 3: ts_project
