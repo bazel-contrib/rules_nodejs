@@ -1,7 +1,7 @@
 "Unit tests for starlark API of ts_project with custom transpiler"
 
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//:providers.bzl", "DeclarationInfo", "JSModuleInfo")
+load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "JSModuleInfo")
 
 def _impl0(ctx):
     env = unittest.begin(ctx)
