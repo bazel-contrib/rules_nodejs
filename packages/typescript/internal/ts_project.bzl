@@ -5,6 +5,7 @@ load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "run
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:lib/partial.bzl", "partial")
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/build_test.bzl", "build_test")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load(":ts_config.bzl", "TsConfigInfo", "write_tsconfig")
 
@@ -574,7 +575,13 @@ def ts_project_macro(
                 is not needed to produce the default outputs.
                 This is considered a feature, as it allows you to have a faster development mode where type-checking
                 is not on the critical path.
-            - `[name]_typecheck` - this target will fail to build if the type-checking fails, useful for CI.
+            - `[name]_typecheck` - provides typings (`.d.ts` files) as the default output,
+               therefore building this target always causes the typechecker to run.
+            - `[name]_typecheck_test` - a
+               [`build_test`](https://github.com/bazelbuild/bazel-skylib/blob/main/rules/build_test.bzl)
+               target which simply depends on the `[name]_typecheck` target.
+               This ensures that typechecking will be run under `bazel test` with
+               [`--build_tests_only`](https://docs.bazel.build/versions/main/user-manual.html#flag--build_tests_only).
             - `[name]_typings` - internal target which runs the binary from the `tsc` attribute
             -  Any additional target(s) the custom transpiler rule/macro produces.
                 Some rules produce one target per TypeScript input file.
@@ -818,6 +825,7 @@ def ts_project_macro(
         tsc_target_name = "%s_typings" % name
         transpile_target_name = "%s_transpile" % name
         typecheck_target_name = "%s_typecheck" % name
+        test_target_name = "%s_typecheck_test" % name
 
         common_kwargs = {
             "tags": kwargs.get("tags", []),
@@ -850,6 +858,13 @@ def ts_project_macro(
             srcs = [tsc_target_name],
             # This causes the DeclarationInfo to be produced, which in turn triggers the tsc action to typecheck
             output_group = "types",
+            **common_kwargs
+        )
+
+        # Ensures the target above gets built under `bazel test --build_tests_only`
+        build_test(
+            name = test_target_name,
+            targets = [typecheck_target_name],
             **common_kwargs
         )
 

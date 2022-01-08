@@ -492,7 +492,13 @@ When a custom transpiler is used, then the `ts_project` macro expands to these t
     is not needed to produce the default outputs.
     This is considered a feature, as it allows you to have a faster development mode where type-checking
     is not on the critical path.
-- `[name]_typecheck` - this target will fail to build if the type-checking fails, useful for CI.
+- `[name]_typecheck` - provides typings (`.d.ts` files) as the default output,
+   therefore building this target always causes the typechecker to run.
+- `[name]_typecheck_test` - a
+   [`build_test`](https://github.com/bazelbuild/bazel-skylib/blob/main/rules/build_test.bzl)
+   target which simply depends on the `[name]_typecheck` target.
+   This ensures that typechecking will be run under `bazel test` with
+   [`--build_tests_only`](https://docs.bazel.build/versions/main/user-manual.html#flag--build_tests_only).
 - `[name]_typings` - internal target which runs the binary from the `tsc` attribute
 -  Any additional target(s) the custom transpiler rule/macro produces.
     Some rules produce one target per TypeScript input file.
