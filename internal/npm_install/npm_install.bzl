@@ -813,6 +813,17 @@ def _yarn_install_impl(repository_ctx):
     is_windows_host = is_windows_os(repository_ctx)
     node = repository_ctx.path(get_node_label(repository_ctx))
     yarn = get_yarn_label(repository_ctx)
+    result = repository_ctx.execute(
+        [repository_ctx.path(yarn), "--version"],
+        timeout = repository_ctx.attr.timeout,
+        quiet = repository_ctx.attr.quiet,
+    )
+    if result.return_code:
+        fail("yarn --version failed: %s (%s)" % (result.stdout, result.stderr))
+    if result.stdout.startswith("1."):
+        yarn_version = "classic"
+    else:
+        yarn_version = "berry"
 
     yarn_args = []
 
@@ -820,11 +831,14 @@ def _yarn_install_impl(repository_ctx):
     # file. To perform an yarn install use the vendord yarn binary with:
     # `bazel run @nodejs//:yarn install` or `bazel run @nodejs//:yarn install -- -D <dep-name>`
     if repository_ctx.attr.frozen_lockfile:
-        yarn_args.append("--frozen-lockfile")
+        if yarn_version == "classic":
+            yarn_args.append("--frozen-lockfile")
+        else:
+            fail("--frozen-lockfile should not be used with yarn 2+. Just pass arguments like --immutable.")
 
     if not repository_ctx.attr.use_global_yarn_cache:
         yarn_args.extend(["--cache-folder", str(repository_ctx.path("_yarn_cache"))])
-    else:
+    elif yarn_version == "classic":
         # Multiple yarn rules cannot run simultaneously using a shared cache.
         # See https://github.com/yarnpkg/yarn/issues/683
         # The --mutex option ensures only one yarn runs at a time, see
@@ -832,6 +846,10 @@ def _yarn_install_impl(repository_ctx):
         # The shared cache is not necessarily hermetic, but we need to cache downloaded
         # artifacts somewhere, so we rely on yarn to be correct.
         yarn_args.extend(["--mutex", "network"])
+    else:
+        # Can't tell from documentation if Yarn Berry has any replacement for the --mutex
+        # flag. We'll have to assume it's safe to run concurrently.
+        pass
     yarn_args.extend(repository_ctx.attr.args)
 
     # Run the package manager in the package.json folder
@@ -936,12 +954,17 @@ yarn_install = repository_rule(
         "args": attr.string_list(
             doc = """Arguments passed to yarn install.
 
-See yarn CLI docs https://yarnpkg.com/en/docs/cli/install for complete list of supported arguments.""",
+See yarn CLI docs for complete list of supported arguments.
+Yarn 1: https://yarnpkg.com/en/docs/cli/install
+Yarn 2+ (Berry): https://yarnpkg.com/cli/install
+""",
             default = [],
         ),
         "frozen_lockfile": attr.bool(
             default = True,
-            doc = """Use the `--frozen-lockfile` flag for yarn.
+            doc = """Use the `--frozen-lockfile` flag for yarn 1
+
+Users of Yarn 2+ (Berry) should just pass `--immutable` to the `args` attribute.
 
 Don't generate a `yarn.lock` lockfile and fail if an update is needed.
 
@@ -964,8 +987,10 @@ have bugs.
 Disabling this attribute causes every run of yarn to have a unique
 cache_directory.
 
-If True, this rule will pass `--mutex network` to yarn to ensure that
+If True and using Yarn 1, this rule will pass `--mutex network` to yarn to ensure that
 the global cache can be shared by parallelized yarn_install rules.
+
+The True value has no effect on Yarn 2+ (Berry).
 
 If False, this rule will pass `--cache-folder /path/to/external/repository/__yarn_cache`
 to yarn so that the local cache is contained within the external repository.

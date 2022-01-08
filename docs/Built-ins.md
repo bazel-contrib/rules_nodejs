@@ -1430,7 +1430,9 @@ check if yarn is being run by the `yarn_install` repository rule.
 
 (*List of strings*): Arguments passed to yarn install.
 
-See yarn CLI docs https://yarnpkg.com/en/docs/cli/install for complete list of supported arguments.
+See yarn CLI docs for complete list of supported arguments.
+Yarn 1: https://yarnpkg.com/en/docs/cli/install
+Yarn 2+ (Berry): https://yarnpkg.com/cli/install
 
 Defaults to `[]`
 
@@ -1517,7 +1519,9 @@ Defaults to `False`
 
 <h4 id="yarn_install-frozen_lockfile">frozen_lockfile</h4>
 
-(*Boolean*): Use the `--frozen-lockfile` flag for yarn.
+(*Boolean*): Use the `--frozen-lockfile` flag for yarn 1
+
+Users of Yarn 2+ (Berry) should just pass `--immutable` to the `args` attribute.
 
 Don't generate a `yarn.lock` lockfile and fail if an update is needed.
 
@@ -1841,8 +1845,10 @@ have bugs.
 Disabling this attribute causes every run of yarn to have a unique
 cache_directory.
 
-If True, this rule will pass `--mutex network` to yarn to ensure that
+If True and using Yarn 1, this rule will pass `--mutex network` to yarn to ensure that
 the global cache can be shared by parallelized yarn_install rules.
+
+The True value has no effect on Yarn 2+ (Berry).
 
 If False, this rule will pass `--cache-folder /path/to/external/repository/__yarn_cache`
 to yarn so that the local cache is contained within the external repository.
