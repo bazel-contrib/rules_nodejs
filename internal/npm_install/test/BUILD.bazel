@@ -122,9 +122,18 @@ sh_test(
         "common.spec.js",
         "@fine_grained_deps_%s//:node_modules" % pkgmgr,
     ],
-    tags = tags + ["no-local-jasmine-deps"],
-    # TODO: get this test running with just linker: failing under --config=no-runfiles
-    templated_args = ["--bazel_patch_module_resolver"],
+    tags = tags + [
+        "no-local-jasmine-deps",
+        # On Windows this test must be exclusive as it runs outside of the sandbox
+        # TODO: fix the yarn_install paths on these tests so they occupy different
+        #       directories and can run in parallel outside of the sandbox
+        "exclusive",
+    ],
+    templated_args = select({
+        # TODO: make this test work on Windows without patch module resolver
+        "@bazel_tools//src/conditions:host_windows": ["--bazel_patch_module_resolver"],
+        "//conditions:default": [],
+    }),
     deps = [
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
@@ -138,22 +147,13 @@ sh_test(
         "npm",
         [],
     ],
-    # TODO(greg.magolan): this test started failing on stable branch
-    # even at the same commit it previously passed ¯\_(ツ)_/¯
-    #
-    # Error looks like
-    # C:/b/bk-windows-67j9/bazel/rules-nodejs-nodejs/internal/npm_install/test/BUILD.bazel:118:19:
-    # Testing //internal/npm_install/test:test_yarn_directory_artifacts failed:
-    # Exec failed due to IOException:
-    # C:/b/xavfw56r/execroot/build_bazel_rules_nodejs/bazel-out/x64_windows-fastbuild/bin/internal/npm_install/test/test_yarn_directory_artifacts.bat.runfiles/fine_grained_deps_yarn_directory_artifacts/node_modules/@gregmagolan/test-a
-    # (No such file or directory)
     [
         "yarn_directory_artifacts",
-        ["no-bazelci-windows"],
+        [],
     ],
     [
         "npm_directory_artifacts",
-        ["no-bazelci-windows"],
+        [],
     ],
 ]]
 
@@ -166,9 +166,18 @@ sh_test(
         "common.spec.js",
         "fine.spec.js",
     ],
-    tags = tags + ["no-local-jasmine-deps"],
-    # TODO: get this test running with just linker: failing under --config=no-runfiles
-    templated_args = ["--bazel_patch_module_resolver"],
+    tags = tags + [
+        "no-local-jasmine-deps",
+        # On Windows this test must be exclusive as it runs outside of the sandbox
+        # TODO: fix the yarn_install paths on these tests so they occupy different
+        #       directories and can run in parallel outside of the sandbox
+        "exclusive",
+    ],
+    templated_args = select({
+        # TODO: make this test work on Windows without patch module resolver
+        "@bazel_tools//src/conditions:host_windows": ["--bazel_patch_module_resolver"],
+        "//conditions:default": [],
+    }),
     deps = [
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
@@ -191,12 +200,11 @@ sh_test(
     ],
     [
         "yarn_directory_artifacts",
-        # See above
-        ["no-bazelci-windows"],
+        [],
     ],
     [
         "npm_directory_artifacts",
-        ["no-bazelci-windows"],
+        [],
     ],
 ]]
 
