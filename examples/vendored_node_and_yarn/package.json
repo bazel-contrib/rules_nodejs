@@ -5,6 +5,8 @@
     "jasmine": "^3.5.0"
   },
   "scripts": {
+    "//": "assert that yarn version is the one we vendored",
+    "postinstall": "node -e \"require('assert').equal('yarn/1.10.0', process.env['npm_config_user_agent'].split(' ').find(x => x.startsWith('yarn/')))\"",
     "test": "bazel test ..."
   }
 }
