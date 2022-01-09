@@ -53,11 +53,11 @@ def copy_cmd(ctx, src, dst):
     if dst.is_directory:
         cmd_tmpl = "@xcopy \"%s\" \"%s\\\" /V /E /H /Y /Q >NUL"
         mnemonic = "CopyDirectory"
-        progress_message = "Copying directory"
+        progress_message = "Copying directory %s" % src.path
     else:
         cmd_tmpl = "@copy /Y \"%s\" \"%s\" >NUL"
         mnemonic = "CopyFile"
-        progress_message = "Copying file"
+        progress_message = "Copying file %s" % src.path
 
     ctx.actions.write(
         output = bat,
