@@ -9,7 +9,7 @@ function log_verbose(...m) {
         console.error('[generate_build_file.ts]', ...m);
 }
 const PUBLIC_VISIBILITY = '//visibility:public';
-let NODE_MODULES_PACKAGE_NAME = '$node_modules$';
+let LEGACY_NODE_MODULES_PACKAGE_NAME = '$node_modules$';
 let config = {
     exports_directories_only: false,
     generate_local_modules_build_files: false,
@@ -71,9 +71,6 @@ async function createFileSymlink(target, p) {
 async function main() {
     config = require('./generate_config.json');
     config.limited_visibility = `@${config.workspace}//:__subpackages__`;
-    if (config.exports_directories_only) {
-        NODE_MODULES_PACKAGE_NAME = '$node_modules_dir$';
-    }
     const deps = await getDirectDependencySet(config.package_json);
     const pkgs = [];
     await findPackagesAndPush(pkgs, 'node_modules', deps);
@@ -112,14 +109,52 @@ function flattenDependencies(pkgs) {
     pkgs.forEach(pkg => flattenPkgDependencies(pkg, pkg, pkgsMap));
 }
 async function generateRootBuildFile(pkgs) {
+    let buildFile = config.exports_directories_only ?
+        printRootExportsDirectories(pkgs) :
+        printRoot(pkgs);
+    try {
+        const manualContents = await fs_1.promises.readFile(`manual_build_file_contents`, { encoding: 'utf8' });
+        buildFile += '\n\n';
+        buildFile += manualContents;
+    }
+    catch (e) {
+    }
+    await writeFile('BUILD.bazel', buildFile);
+}
+function printRootExportsDirectories(pkgs) {
+    let filegroupsStarlark = '';
+    pkgs.forEach(pkg => filegroupsStarlark += `filegroup(
+      name = "${pkg._dir.replace("/", "_")}__source_directory",
+      srcs = ["node_modules/${pkg._dir}"],
+      visibility = ["@${config.workspace}//:__subpackages__"],
+)
+
+`);
+    let depsStarlark = '';
+    if (pkgs.length) {
+        const list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}",`).join('\n        ');
+        depsStarlark = `
+  deps = [
+      ${list}
+  ],`;
+    }
+    const result = generateBuildFileHeader() + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+
+${filegroupsStarlark}
+
+# The node_modules directory in one catch-all js_library
+js_library(
+  name = "node_modules",${depsStarlark}
+)`;
+    return result;
+}
+function printRoot(pkgs) {
     let pkgFilesStarlark = '';
     if (pkgs.length) {
         let list = '';
         list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__files",`).join('\n        ');
-        if (!config.exports_directories_only) {
-            list += '\n        ';
-            list += pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__nested_node_modules",`).join('\n        ');
-        }
+        list += '\n        ';
+        list += pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__nested_node_modules",`).join('\n        ');
         pkgFilesStarlark = `
     # direct sources listed for strict deps support
     srcs = [
@@ -136,17 +171,12 @@ async function generateRootBuildFile(pkgs) {
     ],`;
     }
     let exportsStarlark = '';
-    if (config.exports_directories_only) {
-        pkgs.forEach(pkg => exportsStarlark += `    "node_modules/${pkg._dir}",\n`);
-    }
-    else {
-        pkgs.forEach(pkg => {
-            pkg._files.forEach(f => {
-                exportsStarlark += `    "node_modules/${pkg._dir}/${f}",\n`;
-            });
+    pkgs.forEach(pkg => {
+        pkg._files.forEach(f => {
+            exportsStarlark += `    "node_modules/${pkg._dir}/${f}",\n`;
         });
-    }
-    let buildFile = generateBuildFileHeader() + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+    });
+    const result = generateBuildFileHeader() + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 exports_files([
 ${exportsStarlark}])
@@ -157,17 +187,12 @@ ${exportsStarlark}])
 # See https://github.com/bazelbuild/bazel/issues/5153.
 js_library(
     name = "node_modules",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
+    package_name = "${LEGACY_NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
 )
 
 `;
-    try {
-        buildFile += await fs_1.promises.readFile(`manual_build_file_contents`, { encoding: 'utf8' });
-    }
-    catch (e) {
-    }
-    await writeFile('BUILD.bazel', buildFile);
+    return result;
 }
 async function generatePackageBuildFiles(pkg) {
     let buildFilePath;
@@ -184,7 +209,7 @@ async function generatePackageBuildFiles(pkg) {
         console.log(`[yarn_install/npm_install]: package ${nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${await fs_1.promises.realpath(nodeModulesPkgDir)}`);
     }
     let buildFile = config.exports_directories_only ?
-        printPackageExperimentalDirectoryArtifacts(pkg) :
+        printPackageExportsDirectories(pkg) :
         printPackage(pkg);
     if (buildFilePath) {
         buildFile = buildFile + '\n' +
@@ -302,7 +327,15 @@ load("@build_bazel_rules_nodejs//internal/copy_repository:copy_repository.bzl", 
     await writeFile(`install_${workspace}.bzl`, bzlFile);
 }
 async function generateScopeBuildFiles(scope, pkgs) {
-    const buildFile = generateBuildFileHeader() + printScope(scope, pkgs);
+    pkgs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
+    let deps = [];
+    pkgs.forEach(pkg => {
+        deps = deps.concat(pkg._dependencies.filter(dep => !dep._isNested && !pkgs.includes(pkg)));
+    });
+    deps = [...pkgs, ...new Set(deps)];
+    let buildFile = config.exports_directories_only ?
+        printScopeExportsDirectories(scope, deps) :
+        printScope(scope, deps);
     await writeFile(path.posix.join(scope, 'BUILD.bazel'), buildFile);
 }
 async function isFile(p) {
@@ -340,6 +373,10 @@ async function listFilesAndPush(files, rootDir, subDir = '') {
                 continue;
             }
             throw e;
+        }
+        if (isSymbolicLink && config.exports_directories_only && path.basename(path.dirname(fullPath)) == '.bin') {
+            await fs_1.promises.unlink(fullPath);
+            continue;
         }
         const isDirectory = stat.isDirectory();
         if (isDirectory && isSymbolicLink) {
@@ -588,29 +625,26 @@ function findFile(pkg, m) {
     }
     return undefined;
 }
-function printPackageExperimentalDirectoryArtifacts(pkg) {
+function printPackageExportsDirectories(pkg) {
     const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
     const depsStarlark = deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
     let result = `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
 
-# Files that are part of the npm package
-filegroup(
-    name = "${pkg._name}__files",
-    srcs = ["//:node_modules/${pkg._dir}"],
+# To support remote-execution, we must create a tree artifact from the source directory
+copy_file(
+  name = "directory",
+  src = "@${config.workspace}//:${pkg._dir.replace("/", "_")}__source_directory",
+  is_directory = True,
+  out = "tree",
 )
 
 # The primary target for this package for use in rule deps
 js_library(
     name = "${pkg._name}",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
-    package_path = "${config.package_path}",
-    # direct sources listed for strict deps support
-    srcs = [":${pkg._name}__files"],
-    # nested node_modules for this package plus flattened list of direct and transitive dependencies
-    # hoisted to root by the package manager
     deps = [
         ${depsStarlark}
     ],
@@ -618,17 +652,30 @@ js_library(
 
 # Target is used as dep for main targets to prevent circular dependencies errors
 js_library(
-    name = "${pkg._name}__contents",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
+    name = "contents",
+    package_name = "${pkg._dir}",
     package_path = "${config.package_path}",
-    srcs = [":${pkg._name}__files"],
+    strip_prefix = "tree",
+    srcs = [":directory"],
     visibility = ["//:__subpackages__"],
+)
+
+# For ts_library backward compat which uses @npm//typescript:__files
+alias(
+  name = "${pkg._name}__files",
+  actual = "directory",
+)
+
+# For ts_library backward compat which uses @npm//typescript:__files
+alias(
+  name = "${pkg._name}__contents",
+  actual = "contents",
 )
 
 # For ts_library backward compat which uses @npm//typescript:typescript__typings
 alias(
     name = "${pkg._name}__typings",
-    actual = "${pkg._name}__contents",
+    actual = "contents",
 )
 `;
     let mainEntryPoint = resolvePkgMainFile(pkg);
@@ -639,7 +686,7 @@ alias(
 npm_umd_bundle(
     name = "${pkg._name}__umd",
     package_name = "${pkg._moduleName}",
-    entry_point = { "@${config.workspace}//:node_modules/${pkg._dir}": "${mainEntryPoint}" },
+    entry_point = { "@${config.workspace}//:${pkg._dir.replace("/", "_")}__source_directory": "${mainEntryPoint}" },
     package = ":${pkg._name}",
 )
 
@@ -710,7 +757,7 @@ filegroup(
 # The primary target for this package for use in rule deps
 js_library(
     name = "${pkg._name}",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
+    package_name = "${LEGACY_NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",
     # direct sources listed for strict deps support
     srcs = [":${pkg._name}__files"],
@@ -724,7 +771,7 @@ js_library(
 # Target is used as dep for main targets to prevent circular dependencies errors
 js_library(
     name = "${pkg._name}__contents",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
+    package_name = "${LEGACY_NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",
     srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
     visibility = ["//:__subpackages__"],
@@ -733,7 +780,7 @@ js_library(
 # Typings files that are part of the npm package not including nested node_modules
 js_library(
     name = "${pkg._name}__typings",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
+    package_name = "${LEGACY_NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",${dtsStarlark}
 )
 
@@ -803,7 +850,7 @@ function printPackageBin(pkg) {
         }
         for (const [name, path] of executables.entries()) {
             const entryPoint = config.exports_directories_only ?
-                `{ "@${config.workspace}//:node_modules/${pkg._dir}": "${path}" }` :
+                `{ "@${config.workspace}//${pkg._dir}:${pkg._name}__files": "${path}" }` :
                 `"@${config.workspace}//:node_modules/${pkg._dir}/${path}"`;
             result += `# Wire up the \`bin\` entry \`${name}\`
 nodejs_binary(
@@ -831,7 +878,7 @@ function printIndexBzl(pkg) {
         }
         for (const [name, path] of executables.entries()) {
             const entryPoint = config.exports_directories_only ?
-                `{ "@${config.workspace}//:node_modules/${pkg._dir}": "${path}" }` :
+                `{ "@${config.workspace}//${pkg._dir}:${pkg._name}__files": "${path}" }` :
                 `"@${config.workspace}//:node_modules/${pkg._dir}/${path}"`;
             result = `${result}
 
@@ -860,13 +907,7 @@ def ${name.replace(/-/g, '_')}_test(**kwargs):
     return result;
 }
 exports.printIndexBzl = printIndexBzl;
-function printScope(scope, pkgs) {
-    pkgs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
-    let deps = [];
-    pkgs.forEach(pkg => {
-        deps = deps.concat(pkg._dependencies.filter(dep => !dep._isNested && !pkgs.includes(pkg)));
-    });
-    deps = [...pkgs, ...new Set(deps)];
+function printScope(scope, deps) {
     let pkgFilesStarlark = '';
     if (deps.length) {
         const list = deps.map(dep => `"//${dep._dir}:${dep._name}__files",`).join('\n        ');
@@ -885,13 +926,33 @@ function printScope(scope, pkgs) {
         ${list}
     ],`;
     }
-    return `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+    return generateBuildFileHeader() + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 # Generated target for npm scope ${scope}
 js_library(
     name = "${scope}",
-    package_name = "${NODE_MODULES_PACKAGE_NAME}",
+    package_name = "${LEGACY_NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
+)
+
+`;
+}
+function printScopeExportsDirectories(scope, deps) {
+    let depsStarlark = '';
+    if (deps.length) {
+        const list = deps.map(dep => `"//${dep._dir}",`).join('\n        ');
+        depsStarlark = `
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${list}
+    ],`;
+    }
+    return generateBuildFileHeader() + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+
+# Generated target for npm scope ${scope}
+js_library(
+    name = "${scope}",
+    ${depsStarlark}
 )
 
 `;
