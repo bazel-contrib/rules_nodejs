@@ -1,94 +1,166 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-exports_files([
-    "node_modules/@angular/core",
-    "node_modules/@gregmagolan/test-a",
-    "node_modules/@gregmagolan/test-b",
-    "node_modules/ajv",
-    "node_modules/balanced-match",
-    "node_modules/brace-expansion",
-    "node_modules/co",
-    "node_modules/concat-map",
-    "node_modules/diff",
-    "node_modules/fast-deep-equal",
-    "node_modules/fast-json-stable-stringify",
-    "node_modules/fs.realpath",
-    "node_modules/glob",
-    "node_modules/inflight",
-    "node_modules/inherits",
-    "node_modules/jasmine",
-    "node_modules/jasmine-core",
-    "node_modules/json-schema-traverse",
-    "node_modules/minimatch",
-    "node_modules/once",
-    "node_modules/path-is-absolute",
-    "node_modules/rxjs",
-    "node_modules/tslib",
-    "node_modules/unidiff",
-    "node_modules/wrappy",
-    "node_modules/zone.js",
-])
+filegroup(
+      name = "@angular_core__source_directory",
+      srcs = ["node_modules/@angular/core"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "@gregmagolan_test-a__source_directory",
+      srcs = ["node_modules/@gregmagolan/test-a"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "@gregmagolan_test-b__source_directory",
+      srcs = ["node_modules/@gregmagolan/test-b"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "ajv__source_directory",
+      srcs = ["node_modules/ajv"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "balanced-match__source_directory",
+      srcs = ["node_modules/balanced-match"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "brace-expansion__source_directory",
+      srcs = ["node_modules/brace-expansion"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "co__source_directory",
+      srcs = ["node_modules/co"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "concat-map__source_directory",
+      srcs = ["node_modules/concat-map"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "diff__source_directory",
+      srcs = ["node_modules/diff"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "fast-deep-equal__source_directory",
+      srcs = ["node_modules/fast-deep-equal"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "fast-json-stable-stringify__source_directory",
+      srcs = ["node_modules/fast-json-stable-stringify"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "fs.realpath__source_directory",
+      srcs = ["node_modules/fs.realpath"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "glob__source_directory",
+      srcs = ["node_modules/glob"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "inflight__source_directory",
+      srcs = ["node_modules/inflight"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "inherits__source_directory",
+      srcs = ["node_modules/inherits"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "jasmine__source_directory",
+      srcs = ["node_modules/jasmine"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "jasmine-core__source_directory",
+      srcs = ["node_modules/jasmine-core"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "json-schema-traverse__source_directory",
+      srcs = ["node_modules/json-schema-traverse"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "minimatch__source_directory",
+      srcs = ["node_modules/minimatch"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "once__source_directory",
+      srcs = ["node_modules/once"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "path-is-absolute__source_directory",
+      srcs = ["node_modules/path-is-absolute"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "rxjs__source_directory",
+      srcs = ["node_modules/rxjs"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "tslib__source_directory",
+      srcs = ["node_modules/tslib"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "unidiff__source_directory",
+      srcs = ["node_modules/unidiff"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "wrappy__source_directory",
+      srcs = ["node_modules/wrappy"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
+filegroup(
+      name = "zone.js__source_directory",
+      srcs = ["node_modules/zone.js"],
+      visibility = ["@fine_grained_directory_artifacts_goldens//:__subpackages__"],
+)
 js_library(
-    name = "node_modules",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [
-        "//@angular/core:core__files",
-        "//@gregmagolan/test-a:test-a__files",
-        "//@gregmagolan/test-b:test-b__files",
-        "//ajv:ajv__files",
-        "//balanced-match:balanced-match__files",
-        "//brace-expansion:brace-expansion__files",
-        "//co:co__files",
-        "//concat-map:concat-map__files",
-        "//diff:diff__files",
-        "//fast-deep-equal:fast-deep-equal__files",
-        "//fast-json-stable-stringify:fast-json-stable-stringify__files",
-        "//fs.realpath:fs.realpath__files",
-        "//glob:glob__files",
-        "//inflight:inflight__files",
-        "//inherits:inherits__files",
-        "//jasmine:jasmine__files",
-        "//jasmine-core:jasmine-core__files",
-        "//json-schema-traverse:json-schema-traverse__files",
-        "//minimatch:minimatch__files",
-        "//once:once__files",
-        "//path-is-absolute:path-is-absolute__files",
-        "//rxjs:rxjs__files",
-        "//tslib:tslib__files",
-        "//unidiff:unidiff__files",
-        "//wrappy:wrappy__files",
-        "//zone.js:zone.js__files",
-    ],
-    deps = [
-        "//@angular/core:core__contents",
-        "//@gregmagolan/test-a:test-a__contents",
-        "//@gregmagolan/test-b:test-b__contents",
-        "//ajv:ajv__contents",
-        "//balanced-match:balanced-match__contents",
-        "//brace-expansion:brace-expansion__contents",
-        "//co:co__contents",
-        "//concat-map:concat-map__contents",
-        "//diff:diff__contents",
-        "//fast-deep-equal:fast-deep-equal__contents",
-        "//fast-json-stable-stringify:fast-json-stable-stringify__contents",
-        "//fs.realpath:fs.realpath__contents",
-        "//glob:glob__contents",
-        "//inflight:inflight__contents",
-        "//inherits:inherits__contents",
-        "//jasmine:jasmine__contents",
-        "//jasmine-core:jasmine-core__contents",
-        "//json-schema-traverse:json-schema-traverse__contents",
-        "//minimatch:minimatch__contents",
-        "//once:once__contents",
-        "//path-is-absolute:path-is-absolute__contents",
-        "//rxjs:rxjs__contents",
-        "//tslib:tslib__contents",
-        "//unidiff:unidiff__contents",
-        "//wrappy:wrappy__contents",
-        "//zone.js:zone.js__contents",
-    ],
+  name = "node_modules",
+  deps = [
+      "//@angular/core:core",
+        "//@gregmagolan/test-a:test-a",
+        "//@gregmagolan/test-b:test-b",
+        "//ajv:ajv",
+        "//balanced-match:balanced-match",
+        "//brace-expansion:brace-expansion",
+        "//co:co",
+        "//concat-map:concat-map",
+        "//diff:diff",
+        "//fast-deep-equal:fast-deep-equal",
+        "//fast-json-stable-stringify:fast-json-stable-stringify",
+        "//fs.realpath:fs.realpath",
+        "//glob:glob",
+        "//inflight:inflight",
+        "//inherits:inherits",
+        "//jasmine:jasmine",
+        "//jasmine-core:jasmine-core",
+        "//json-schema-traverse:json-schema-traverse",
+        "//minimatch:minimatch",
+        "//once:once",
+        "//path-is-absolute:path-is-absolute",
+        "//rxjs:rxjs",
+        "//tslib:tslib",
+        "//unidiff:unidiff",
+        "//wrappy:wrappy",
+        "//zone.js:zone.js",
+  ],
 )
 filegroup(
   name = "golden_files",

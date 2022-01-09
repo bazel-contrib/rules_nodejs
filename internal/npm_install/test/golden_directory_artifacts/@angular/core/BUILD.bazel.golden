@@ -1,15 +1,15 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "core__files",
-    srcs = ["//:node_modules/@angular/core"],
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+copy_file(
+  name = "directory",
+  src = "@fine_grained_directory_artifacts_goldens//:@angular_core__source_directory",
+  is_directory = True,
+  out = "tree",
 )
 js_library(
     name = "core",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [":core__files"],
     deps = [
         "//@angular/core:core__contents",
         "//tslib:tslib__contents",
@@ -18,20 +18,29 @@ js_library(
     ],
 )
 js_library(
-    name = "core__contents",
-    package_name = "$node_modules_dir$",
+    name = "contents",
+    package_name = "@angular/core",
     package_path = "",
-    srcs = [":core__files"],
+    strip_prefix = "tree",
+    srcs = [":directory"],
     visibility = ["//:__subpackages__"],
 )
 alias(
+  name = "core__files",
+  actual = "directory",
+)
+alias(
+  name = "core__contents",
+  actual = "contents",
+)
+alias(
     name = "core__typings",
-    actual = "core__contents",
+    actual = "contents",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(
     name = "core__umd",
     package_name = "@angular/core",
-    entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/@angular/core": "fesm5/core.js" },
+    entry_point = { "@fine_grained_directory_artifacts_goldens//:@angular_core__source_directory": "fesm5/core.js" },
     package = ":core",
 )

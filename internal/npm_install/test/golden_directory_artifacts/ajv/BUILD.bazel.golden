@@ -1,15 +1,15 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "ajv__files",
-    srcs = ["//:node_modules/ajv"],
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+copy_file(
+  name = "directory",
+  src = "@fine_grained_directory_artifacts_goldens//:ajv__source_directory",
+  is_directory = True,
+  out = "tree",
 )
 js_library(
     name = "ajv",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [":ajv__files"],
     deps = [
         "//ajv:ajv__contents",
         "//co:co__contents",
@@ -19,20 +19,29 @@ js_library(
     ],
 )
 js_library(
-    name = "ajv__contents",
-    package_name = "$node_modules_dir$",
+    name = "contents",
+    package_name = "ajv",
     package_path = "",
-    srcs = [":ajv__files"],
+    strip_prefix = "tree",
+    srcs = [":directory"],
     visibility = ["//:__subpackages__"],
 )
 alias(
+  name = "ajv__files",
+  actual = "directory",
+)
+alias(
+  name = "ajv__contents",
+  actual = "contents",
+)
+alias(
     name = "ajv__typings",
-    actual = "ajv__contents",
+    actual = "contents",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(
     name = "ajv__umd",
     package_name = "ajv",
-    entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/ajv": "lib/ajv.js" },
+    entry_point = { "@fine_grained_directory_artifacts_goldens//:ajv__source_directory": "lib/ajv.js" },
     package = ":ajv",
 )

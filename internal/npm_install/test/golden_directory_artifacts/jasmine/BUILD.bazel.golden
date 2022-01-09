@@ -1,15 +1,15 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "jasmine__files",
-    srcs = ["//:node_modules/jasmine"],
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+copy_file(
+  name = "directory",
+  src = "@fine_grained_directory_artifacts_goldens//:jasmine__source_directory",
+  is_directory = True,
+  out = "tree",
 )
 js_library(
     name = "jasmine",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [":jasmine__files"],
     deps = [
         "//jasmine:jasmine__contents",
         "//glob:glob__contents",
@@ -26,21 +26,30 @@ js_library(
     ],
 )
 js_library(
-    name = "jasmine__contents",
-    package_name = "$node_modules_dir$",
+    name = "contents",
+    package_name = "jasmine",
     package_path = "",
-    srcs = [":jasmine__files"],
+    strip_prefix = "tree",
+    srcs = [":directory"],
     visibility = ["//:__subpackages__"],
 )
 alias(
+  name = "jasmine__files",
+  actual = "directory",
+)
+alias(
+  name = "jasmine__contents",
+  actual = "contents",
+)
+alias(
     name = "jasmine__typings",
-    actual = "jasmine__contents",
+    actual = "contents",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(
     name = "jasmine__umd",
     package_name = "jasmine",
-    entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/jasmine": "lib/jasmine.js" },
+    entry_point = { "@fine_grained_directory_artifacts_goldens//:jasmine__source_directory": "lib/jasmine.js" },
     package = ":jasmine",
 )
 exports_files(["index.bzl"])

@@ -1,34 +1,43 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "test-b__files",
-    srcs = ["//:node_modules/@gregmagolan/test-b"],
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+copy_file(
+  name = "directory",
+  src = "@fine_grained_directory_artifacts_goldens//:@gregmagolan_test-b__source_directory",
+  is_directory = True,
+  out = "tree",
 )
 js_library(
     name = "test-b",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [":test-b__files"],
     deps = [
         "//@gregmagolan/test-b:test-b__contents",
     ],
 )
 js_library(
-    name = "test-b__contents",
-    package_name = "$node_modules_dir$",
+    name = "contents",
+    package_name = "@gregmagolan/test-b",
     package_path = "",
-    srcs = [":test-b__files"],
+    strip_prefix = "tree",
+    srcs = [":directory"],
     visibility = ["//:__subpackages__"],
 )
 alias(
+  name = "test-b__files",
+  actual = "directory",
+)
+alias(
+  name = "test-b__contents",
+  actual = "contents",
+)
+alias(
     name = "test-b__typings",
-    actual = "test-b__contents",
+    actual = "contents",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(
     name = "test-b__umd",
     package_name = "@gregmagolan/test-b",
-    entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/@gregmagolan/test-b": "main.js" },
+    entry_point = { "@fine_grained_directory_artifacts_goldens//:@gregmagolan_test-b__source_directory": "main.js" },
     package = ":test-b",
 )
