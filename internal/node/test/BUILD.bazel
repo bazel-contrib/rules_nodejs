@@ -2,8 +2,8 @@ load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_bin
 load("@npm//typescript:index.bzl", "tsc")
 load("//:index.bzl", "js_library")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
-load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
-load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
 
 # You can have a nodejs_binary with no node_modules attribute
 # and no fine grained deps

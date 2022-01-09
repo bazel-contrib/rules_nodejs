@@ -4,8 +4,8 @@ load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "declaration_info
 load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:lib/partial.bzl", "partial")
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/build_test.bzl", "build_test")
+load("@bazel_skylib//lib:partial.bzl", "partial")
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load(":ts_config.bzl", "TsConfigInfo", "write_tsconfig")
 

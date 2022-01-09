@@ -11,7 +11,7 @@ load(
 )
 load("@rules_codeowners//tools:codeowners.bzl", _codeowners = "codeowners")
 load("@rules_pkg//:pkg.bzl", _pkg_tar = "pkg_tar")
-load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
 nodejs_test = _nodejs_test
 pkg_tar = _pkg_tar

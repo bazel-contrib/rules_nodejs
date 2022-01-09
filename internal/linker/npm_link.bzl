@@ -32,7 +32,7 @@ load(
     "JSNamedModuleInfo",
 )
 load(
-    "//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_file_private.bzl",
+    "@bazel_skylib//rules/private:copy_file_private.bzl",
     "copy_bash",
     "copy_cmd",
 )

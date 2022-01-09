@@ -17,7 +17,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load("@build_bazel_rules_nodejs//packages/concatjs:index.bzl", "ts_library")
 load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
-load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
 package(default_visibility = ["//visibility:public"])
 

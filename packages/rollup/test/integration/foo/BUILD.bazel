@@ -1,6 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("//packages/typescript:index.bzl", "ts_project")
-load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
 package(default_visibility = ["//packages/rollup:__subpackages__"])
 

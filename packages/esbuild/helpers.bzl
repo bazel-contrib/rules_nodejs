@@ -2,7 +2,7 @@
 Utility helper functions for the esbuild rule
 """
 
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
+load("@bazel_skylib//lib:paths.bzl", "paths")
 
 TS_EXTENSIONS = ["ts", "tsx"]
 JS_EXTENSIONS = ["js", "jsx", "mjs"]

@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
 # Verify that we can do something with the devserver manifest
 copy_file(
