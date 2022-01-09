@@ -1,35 +1,44 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "rxjs__files",
-    srcs = ["//:node_modules/rxjs"],
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+copy_file(
+  name = "directory",
+  src = "@fine_grained_directory_artifacts_goldens//:rxjs__source_directory",
+  is_directory = True,
+  out = "tree",
 )
 js_library(
     name = "rxjs",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [":rxjs__files"],
     deps = [
         "//rxjs:rxjs__contents",
         "//tslib:tslib__contents",
     ],
 )
 js_library(
-    name = "rxjs__contents",
-    package_name = "$node_modules_dir$",
+    name = "contents",
+    package_name = "rxjs",
     package_path = "",
-    srcs = [":rxjs__files"],
+    strip_prefix = "tree",
+    srcs = [":directory"],
     visibility = ["//:__subpackages__"],
 )
 alias(
+  name = "rxjs__files",
+  actual = "directory",
+)
+alias(
+  name = "rxjs__contents",
+  actual = "contents",
+)
+alias(
     name = "rxjs__typings",
-    actual = "rxjs__contents",
+    actual = "contents",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(
     name = "rxjs__umd",
     package_name = "rxjs",
-    entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/rxjs": "_esm5/index.js" },
+    entry_point = { "@fine_grained_directory_artifacts_goldens//:rxjs__source_directory": "_esm5/index.js" },
     package = ":rxjs",
 )

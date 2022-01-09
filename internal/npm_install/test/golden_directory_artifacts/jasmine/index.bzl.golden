@@ -5,13 +5,13 @@ def jasmine(**kwargs):
         npm_package_bin(tool = "@fine_grained_directory_artifacts_goldens//jasmine/bin:jasmine", output_dir = output_dir, **kwargs)
     else:
         nodejs_binary(
-            entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/jasmine": "bin/jasmine.js" },
+            entry_point = { "@fine_grained_directory_artifacts_goldens//jasmine:jasmine__files": "bin/jasmine.js" },
             data = ["@fine_grained_directory_artifacts_goldens//jasmine:jasmine"] + kwargs.pop("data", []),
             **kwargs
         )
 def jasmine_test(**kwargs):
     nodejs_test(
-      entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/jasmine": "bin/jasmine.js" },
+      entry_point = { "@fine_grained_directory_artifacts_goldens//jasmine:jasmine__files": "bin/jasmine.js" },
       data = ["@fine_grained_directory_artifacts_goldens//jasmine:jasmine"] + kwargs.pop("data", []),
       **kwargs
     )

@@ -1,35 +1,44 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "unidiff__files",
-    srcs = ["//:node_modules/unidiff"],
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+copy_file(
+  name = "directory",
+  src = "@fine_grained_directory_artifacts_goldens//:unidiff__source_directory",
+  is_directory = True,
+  out = "tree",
 )
 js_library(
     name = "unidiff",
-    package_name = "$node_modules_dir$",
-    package_path = "",
-    srcs = [":unidiff__files"],
     deps = [
         "//unidiff:unidiff__contents",
         "//diff:diff__contents",
     ],
 )
 js_library(
-    name = "unidiff__contents",
-    package_name = "$node_modules_dir$",
+    name = "contents",
+    package_name = "unidiff",
     package_path = "",
-    srcs = [":unidiff__files"],
+    strip_prefix = "tree",
+    srcs = [":directory"],
     visibility = ["//:__subpackages__"],
 )
 alias(
+  name = "unidiff__files",
+  actual = "directory",
+)
+alias(
+  name = "unidiff__contents",
+  actual = "contents",
+)
+alias(
     name = "unidiff__typings",
-    actual = "unidiff__contents",
+    actual = "contents",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(
     name = "unidiff__umd",
     package_name = "unidiff",
-    entry_point = { "@fine_grained_directory_artifacts_goldens//:node_modules/unidiff": "unidiff.js" },
+    entry_point = { "@fine_grained_directory_artifacts_goldens//:unidiff__source_directory": "unidiff.js" },
     package = ":unidiff",
 )
