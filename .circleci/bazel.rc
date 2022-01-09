@@ -4,6 +4,10 @@
 # Don't be spammy in the logs
 build --noshow_progress
 
+# Keep going on failures so that we see all failures no CI and not just the first
+# and so that we see everything that passes as well
+build --keep_going
+
 # Print all the options that apply to the build.
 # This helps us diagnose which options override others
 # (e.g. /etc/bazel.bazelrc vs. tools/bazel.rc)
