@@ -17,7 +17,7 @@
 For use by yarn_install and npm_install. Not meant to be part of the public API.
 """
 
-load("@rules_nodejs//nodejs:providers.bzl", "DirectoryFilePathInfo")
+load("@rules_nodejs//nodejs:providers.bzl", "DirectoryFilePathInfo", "LinkablePackageInfo")
 load("//:providers.bzl", "ExternalNpmPackageInfo", "node_modules_aspect")
 load("//internal/common:maybe_directory_file_path.bzl", "maybe_directory_file_path")
 
@@ -44,23 +44,23 @@ def _impl(ctx):
     args.add(output.path)
     args.add_joined(ctx.attr.excluded, join_with = ",")
 
-    sources = ctx.attr.package[ExternalNpmPackageInfo].sources.to_list()
+    if ExternalNpmPackageInfo in ctx.attr.package:
+        sources = ctx.attr.package[ExternalNpmPackageInfo].sources.to_list()
+    else:
+        sources = ctx.attr.package[LinkablePackageInfo].files.to_list()
 
     for s in sources:
         if s.is_directory:
             fail("npm_umd_bundle does not work with directory artifacts")
 
-    if ctx.attr.package[ExternalNpmPackageInfo].has_directories:
-        # If sources contain directories then we cannot filter by extension
-        inputs = sources
-    else:
-        # Only pass .js and package.json files as inputs to browserify.
-        # The latter is required for module resolution in some cases.
-        inputs = [
-            f
-            for f in sources
-            if f.path.endswith(".js") or f.path.endswith(".json")
-        ]
+    # Only pass .js and package.json files as inputs to browserify.
+    # The latter is required for module resolution in some cases.
+    # We have to pass entire directories as well, since we don't know if they contain .js files
+    inputs = [
+        f
+        for f in sources
+        if f.path.endswith(".js") or f.path.endswith(".json") or f.is_directory
+    ]
 
     ctx.actions.run(
         progress_message = "Generated UMD bundle for %s npm package [browserify]" % ctx.attr.package_name,

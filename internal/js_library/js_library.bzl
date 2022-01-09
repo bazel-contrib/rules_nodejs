@@ -149,9 +149,13 @@ def _impl(ctx):
     typings = []
     js_files = []
     named_module_files = []
+    has_directories = False
 
     for idx, f in enumerate(input_files):
         file = f
+
+        if file.is_directory:
+            has_directories = True
 
         # copy files into bin if needed
         if file.is_source and not file.path.startswith("external/"):
@@ -263,7 +267,7 @@ def _impl(ctx):
         ),
     ]
 
-    if ctx.attr.package_name == "$node_modules$" or ctx.attr.package_name == "$node_modules_dir$":
+    if ctx.attr.package_name == "$node_modules$":
         # special case for external npm deps
         workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
         providers.append(ExternalNpmPackageInfo(
@@ -271,7 +275,6 @@ def _impl(ctx):
             sources = depset(transitive = npm_sources_depsets),
             workspace = workspace_name,
             path = ctx.attr.package_path,
-            has_directories = (ctx.attr.package_name == "$node_modules_dir$"),
         ))
     else:
         providers.append(LinkablePackageInfo(
@@ -290,7 +293,7 @@ def _impl(ctx):
             deps = ctx.attr.deps,
         ))
         providers.append(OutputGroupInfo(types = decls))
-    elif ctx.attr.package_name == "$node_modules_dir$":
+    elif has_directories:
         # If this is directory artifacts npm package then always provide declaration_info
         # since we can't scan through files
         decls = depset(transitive = files_depsets)
@@ -458,7 +461,7 @@ def js_library(
         # module_name for legacy ts_library module_mapping support
         # which is still being used in a couple of tests
         # TODO: remove once legacy module_mapping is removed
-        module_name = package_name if package_name != "$node_modules$" and package_name != "$node_modules_dir$" else None,
+        module_name = package_name if package_name != "$node_modules$" else None,
         is_windows = select({
             "@bazel_tools//src/conditions:host_windows": True,
             "//conditions:default": False,
