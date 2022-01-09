@@ -502,32 +502,6 @@ nodejs_test(
     entry_point = ":main.js",
 )
 
-# Test that we can run a nodejs_binary with --bazel_patch_module_resolver with exports_directories_only = True
-nodejs_binary(
-    name = "protractor_directory_artifacts_version",
-    data = ["@npm_directory_artifacts//protractor"],
-    entry_point = {"@npm_directory_artifacts//:node_modules/protractor": "bin/protractor"},
-    tags = ["requires-runfiles"],
-    templated_args = [
-        "--bazel_patch_module_resolver",
-        "--version",
-    ],
-)
-
-npm_package_bin(
-    name = "protractor_directory_artifacts_version_output",
-    stdout = "protractor_directory_artifacts_version.out",
-    tags = ["requires-runfiles"],
-    tool = ":protractor_directory_artifacts_version",
-)
-
-generated_file_test(
-    name = "protractor_directory_artifacts_version_test",
-    src = "protractor_directory_artifacts_version.golden",
-    generated = ":protractor_directory_artifacts_version.out",
-    tags = ["requires-runfiles"],
-)
-
 # Targets that can help with debugging and ensuring that node versions can be specified
 # for nodejs_binary and nodejs_test
 # Used in nodejs_bianry later to help see which version of node is run
