@@ -1,0 +1,8 @@
+load("//:index.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "tsc",
+    data = ["@npm_typescript-4.3.5"],
+    entry_point = "tsc.js",
+    visibility = ["//visibility:public"],
+)

@@ -82,6 +82,11 @@ load("@npm_node_patches_lock//:index.bzl", _npm_patches_repositories = "npm_repo
 # Declare an external repository for each npm package fetchable by the lock file
 _npm_patches_repositories()
 
+# Fetch another copy of typescript as a folder
+load("//ts:repositories.bzl", "ts_repositories")
+
+ts_repositories()
+
 load("//packages/concatjs:package.bzl", "rules_typescript_dev_dependencies")
 
 rules_typescript_dev_dependencies()

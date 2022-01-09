@@ -1,0 +1,13 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("//ts:ts_project.bzl", "ts_project")
+
+# This uses defaults for all attributes.
+# It will find `index.ts` and produce `index.js`
+ts_project()
+
+generated_file_test(
+    name = "test",
+    src = "index.golden.js",
+    # Refers to the output from ts_project above
+    generated = "index.js",
+)
