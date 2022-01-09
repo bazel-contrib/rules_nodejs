@@ -9,7 +9,6 @@ def _custom_external_npm_package_info_impl(ctx):
     return ExternalNpmPackageInfo(
         direct_sources = depset([], transitive = ctx.files.deps),
         sources = depset(ctx.files.srcs, transitive = ctx.files.deps),
-        has_directories = False,
         workspace = "npm",
         # `path` is intentionally **not** provided.
         # Historical note: `ExternalNpmPackageInfo` was publicly exported prior
