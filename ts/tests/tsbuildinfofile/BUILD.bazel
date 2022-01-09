@@ -1,0 +1,7 @@
+load("//ts:ts_project.bzl", "ts_project")
+
+ts_project(
+    name = "transpile",
+    composite = True,
+    ts_build_info_file = "my.tsbuildinfo",
+)

@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "lib": [
+            "ES2015",
+            "ES2016.Array.Include",
+            "DOM"
+        ],
+        "module": "commonjs",
+        "target": "ES2015",
+        "composite": true,
+        "rootDirs": [
+            ".",
+            "../../bazel-out/darwin-fastbuild/bin/ts/tests",
+            "../../bazel-out/darwin_arm64-fastbuild/bin/ts/tests",
+            "../../bazel-out/k8-fastbuild/bin/ts/tests",
+            "../../bazel-out/x64_windows-fastbuild/bin/ts/tests",
+            "../../bazel-out/darwin-dbg/bin/ts/tests",
+            "../../bazel-out/k8-dbg/bin/ts/tests",
+            "../../bazel-out/x64_windows-dbg/bin/ts/tests",
+        ],
+    }
+}

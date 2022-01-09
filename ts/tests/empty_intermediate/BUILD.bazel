@@ -1,0 +1,24 @@
+# Use the ts_project rule directly, not the wrapper macro. We don't want checking for empty outs.
+load("//ts/private:ts_project.bzl", "ts_project")
+
+ts_project(
+    name = "tsconfig-a",
+    srcs = ["a.d.ts"],
+    tsconfig = ":tsconfig-a.json",
+)
+
+# Just verify that the a.d.ts file is transitively propagated
+ts_project(
+    name = "tsconfig-b",
+    srcs = [],
+    tsconfig = ":tsconfig-b.json",
+    deps = ["tsconfig-a"],
+)
+
+ts_project(
+    name = "tsconfig-c",
+    srcs = ["c.ts"],
+    js_outs = ["c.js"],
+    tsconfig = ":tsconfig-c.json",
+    deps = ["tsconfig-b"],
+)

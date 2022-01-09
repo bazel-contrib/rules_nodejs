@@ -1,8 +1,36 @@
-load("//:index.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load(":checked_in_ts_project.bzl", "checked_in_ts_project")
+
+checked_in_ts_project(
+    name = "build_validator",
+    src = "ts_project_options_validator.ts",
+    checked_in_js = "validator.js",
+    deps = [
+        "@npm//@types/node",
+        "@npm//typescript",
+    ],
+)
+
+checked_in_ts_project(
+    name = "build_worker",
+    src = "worker_adapter.ts",
+    checked_in_js = "worker.js",
+    deps = [
+        "//packages/worker:library",
+        "@npm//@types/node",
+        "@npm//typescript",
+    ],
+)
 
 nodejs_binary(
-    name = "tsc",
-    data = ["@npm_typescript-4.3.5"],
-    entry_point = "tsc.js",
-    visibility = ["//visibility:public"],
+    name = "validator",
+    data = ["@npm//typescript"],
+    entry_point = ":validator.js",
+    visibility = ["//:__subpackages__"],
+)
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(["*"]),
+    visibility = ["//ts:__pkg__"],
 )

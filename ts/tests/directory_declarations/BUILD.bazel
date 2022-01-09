@@ -1,0 +1,30 @@
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+load("//:index.bzl", "js_library")
+load("//ts:ts_project.bzl", "ts_project")
+
+# Copy lib source directory to a TreeArtifact since bazel file.is_directory
+# function does detect source directories
+copy_file(
+    name = "lib_copy",
+    src = "lib",
+    # We must give this as the directory in order for it to appear on NODE_PATH
+    out = "lib_out",
+    # This attribute comes from rules_nodejs patch of
+    # https://github.com/bazelbuild/bazel-skylib/pull/323
+    is_directory = True,
+)
+
+js_library(
+    name = "lib_js_library",
+    package_name = "directory_declarations_lib",
+    srcs = [":lib_copy"],
+    package_path = package_name(),
+    strip_prefix = "lib_out",
+)
+
+ts_project(
+    name = "b",
+    srcs = ["b.ts"],
+    tsconfig = {},
+    deps = [":lib_js_library"],
+)

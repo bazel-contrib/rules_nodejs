@@ -1,0 +1,16 @@
+load("//:index.bzl", "js_library")
+load("//ts:ts_project.bzl", "ts_project")
+
+js_library(
+    name = "lib_a",
+    srcs = [
+        "a.d.ts",
+        "a.js",
+    ],
+)
+
+ts_project(
+    name = "transpile",
+    srcs = ["b.ts"],
+    deps = ["lib_a"],
+)

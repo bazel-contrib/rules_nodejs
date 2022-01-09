@@ -1,0 +1,22 @@
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
+load("//ts:ts_project.bzl", "ts_project")
+
+ts_project(
+    name = "data",
+    testonly = True,
+    srcs = ["data.spec.ts"],
+    composite = True,
+    # Should be readable at runtime under runfiles directory.
+    data = ["foo.txt"],
+    extends = "//ts/tests:tsconfig-base.json",
+    tsconfig = "tsconfig.json",
+    deps = [
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+    ],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = [":data"],
+)

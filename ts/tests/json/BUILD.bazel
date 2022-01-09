@@ -1,0 +1,115 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("//ts:ts_project.bzl", "ts_project")
+
+SRCS = [
+    "subdir/a.ts",
+    "subdir/foo.json",
+    "bar.json",
+    # Regression test for #2115 - should not expect baz.js output
+    "baz.svg",
+]
+
+# resolveJsonModule in checked-in tsconfig.json file
+ts_project(
+    name = "transpile",
+    srcs = SRCS,
+    out_dir = "foobar",
+    resolve_json_module = True,
+)
+
+# resolveJsonModule in generated tsconfig.json file
+ts_project(
+    name = "transpile-generated-tsconfig",
+    srcs = SRCS,
+    out_dir = "generated-tsconfig",
+    resolve_json_module = True,
+    tsconfig = {
+        "compilerOptions": {
+            "composite": True,
+            "declaration": True,
+            "resolveJsonModule": True,
+        },
+    },
+)
+
+# resolveJsonModule in checked-in tsconfig.json file - with no srcs provided
+ts_project(
+    name = "transpile-generated-tsconfig-implicit-srcs",
+    out_dir = "generated-tsconfig-implicit-srcs",
+    resolve_json_module = True,
+    tsconfig = {
+        "compilerOptions": {
+            "composite": True,
+            "declaration": True,
+            "resolveJsonModule": True,
+        },
+    },
+)
+
+# resolveJsonModule in attribute
+ts_project(
+    name = "transpile-generated-tsconfig-inline",
+    srcs = SRCS,
+    out_dir = "generated-tsconfig-inline",
+    resolve_json_module = True,
+    tsconfig = {
+        "compilerOptions": {
+            "composite": True,
+            "declaration": True,
+        },
+    },
+)
+
+# resolveJsonModule in attribute - with no srcs provided
+ts_project(
+    name = "transpile-generated-tsconfig-inline-implicit-srcs",
+    out_dir = "generated-tsconfig-inline-implicit-srcs",
+    resolve_json_module = True,
+    tsconfig = {
+        "compilerOptions": {
+            "composite": True,
+            "declaration": True,
+        },
+    },
+)
+
+ts_project(
+    name = "transpile-no-outdir",
+    srcs = SRCS,
+    resolve_json_module = True,
+)
+
+# Test that we don't try to declare .json outputs when tsc isn't producing any JS
+ts_project(
+    name = "transpile-decl-only",
+    srcs = SRCS,
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+            "emitDeclarationOnly": True,
+            "resolveJsonModule": True,
+        },
+    },
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        ":transpile",
+        ":transpile-decl-only",
+        ":transpile-generated-tsconfig",
+        ":transpile-generated-tsconfig-implicit-srcs",
+        ":transpile-generated-tsconfig-inline",
+        ":transpile-generated-tsconfig-inline-implicit-srcs",
+        ":transpile-no-outdir",
+    ],
+    entry_point = "verify.js",
+    templated_args = [
+        "$(locations :transpile)",
+        "$(locations :transpile-no-outdir)",
+        "$(locations :transpile-generated-tsconfig)",
+        "$(locations :transpile-generated-tsconfig-implicit-srcs)",
+        "$(locations :transpile-generated-tsconfig-inline)",
+        "$(locations :transpile-generated-tsconfig-inline-implicit-srcs)",
+    ],
+)

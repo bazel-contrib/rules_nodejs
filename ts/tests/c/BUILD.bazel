@@ -1,0 +1,10 @@
+load("//ts:ts_project.bzl", "ts_project")
+
+ts_project(
+    name = "compile",
+    srcs = [":c.ts"],
+    composite = True,
+    extends = "//ts/tests:tsconfig-base.json",
+    tsconfig = "tsconfig.json",
+    deps = ["//ts/tests/b"],
+)

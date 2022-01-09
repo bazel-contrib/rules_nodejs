@@ -1,0 +1,9 @@
+load("//ts:ts_project.bzl", "ts_project")
+
+ts_project(
+    composite = True,
+    declaration = True,
+    declaration_map = True,
+    incremental = True,
+    source_map = True,
+)

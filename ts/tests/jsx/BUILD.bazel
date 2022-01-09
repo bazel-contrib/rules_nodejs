@@ -1,0 +1,38 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("//ts:ts_project.bzl", "ts_project")
+
+# Ensure that jsx inputs result in jsx outputs with preserve_jsx = True
+SRCS = [
+    "a.tsx",
+    "b.jsx",
+]
+
+ts_project(
+    name = "transpile",
+    srcs = SRCS,
+    allow_js = True,
+    declaration = True,
+    declaration_map = True,
+    out_dir = "out",
+    preserve_jsx = True,
+    source_map = True,
+)
+
+filegroup(
+    name = "types",
+    srcs = [":transpile"],
+    output_group = "types",
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        ":transpile",
+        ":types",
+    ],
+    entry_point = "verify-preserve.js",
+    templated_args = [
+        "$(locations :types)",
+        "$(locations :transpile)",
+    ],
+)

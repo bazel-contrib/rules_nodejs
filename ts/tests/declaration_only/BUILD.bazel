@@ -1,0 +1,13 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("//ts:ts_project.bzl", "ts_project")
+
+ts_project(
+    declaration = True,
+    emit_declaration_only = True,
+)
+
+generated_file_test(
+    name = "test",
+    src = "a.d.ts_",
+    generated = ":tsconfig",
+)

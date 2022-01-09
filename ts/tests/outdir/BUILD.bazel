@@ -1,0 +1,36 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("//ts:ts_project.bzl", "ts_project")
+
+[
+    ts_project(
+        name = "compile_%s" % format,
+        srcs = ["a.ts"],
+        args = [
+            "--module",
+            format,
+            "--moduleResolution",
+            "node",
+        ],
+        # Write the output files to an extra nested directory
+        out_dir = format,
+        tsconfig = "tsconfig.json",
+    )
+    for format in [
+        "commonjs",
+        "esnext",
+    ]
+]
+
+generated_file_test(
+    name = "test_cjs",
+    src = "a.golden.cjs",
+    # Refers to the output from ts_project above
+    generated = "commonjs/a.js",
+)
+
+generated_file_test(
+    name = "test_esm",
+    src = "a.golden.js",
+    # Refers to the output from ts_project above
+    generated = "esnext/a.js",
+)

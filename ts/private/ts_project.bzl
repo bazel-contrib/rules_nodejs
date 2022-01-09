@@ -6,7 +6,7 @@ load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module
 load(":ts_config.bzl", "TsConfigInfo", _ts_config_lib = "lib")
 load(":ts_valid_tsconfig.bzl", "ValidOptionsInfo")
 
-_DEFAULT_TSC = "//ts/private:tsc"
+_DEFAULT_TSC = "@npm_typescript-4.3.5//:tsc"
 
 _ATTRS = {
     "args": attr.string_list(),

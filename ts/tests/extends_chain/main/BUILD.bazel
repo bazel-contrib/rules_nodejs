@@ -1,0 +1,8 @@
+load("//ts:ts_project.bzl", "ts_project")
+
+ts_project(
+    name = "main",
+    srcs = ["main.ts"],
+    extends = "//ts/tests/extends_chain:tsconfig_node",
+    tsconfig = ":tsconfig.json",
+)

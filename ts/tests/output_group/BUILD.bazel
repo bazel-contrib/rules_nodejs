@@ -1,0 +1,23 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("//ts:ts_project.bzl", "ts_project")
+
+# This uses defaults for all attributes.
+# It will find `index.ts` and produce `index.js` & `index.d.ts`
+ts_project(
+    name = "transpile",
+    srcs = ["index.ts"],
+    declaration = True,
+)
+
+filegroup(
+    name = "types",
+    srcs = [":transpile"],
+    output_group = "types",
+)
+
+generated_file_test(
+    name = "test",
+    src = "index.golden.d.ts",
+    # Refers to the output from filegroup above
+    generated = ":types",
+)

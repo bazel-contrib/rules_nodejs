@@ -27,6 +27,7 @@ def ts_project(
         ts_build_info_file = None,
         tsc = None,
         validate = True,
+        supports_workers = False,
         declaration_dir = None,
         out_dir = None,
         root_dir = None,
@@ -258,6 +259,17 @@ def ts_project(
             Set this to `False` to skip running our validator, in case you have a legitimate reason for these to differ,
             e.g. you have a setting enabled just for the editor but you want different behavior when Bazel runs `tsc`.
 
+        supports_workers: Experimental! Use only with caution.
+
+            Allows you to enable the Bazel Persistent Workers strategy for this project.
+            See https://docs.bazel.build/versions/main/persistent-workers.html
+
+            This requires that the tsc binary support a `--watch` option.
+
+            NOTE: this does not work on Windows yet.
+            We will silently fallback to non-worker mode on Windows regardless of the value of this attribute.
+            Follow https://github.com/bazelbuild/rules_nodejs/issues/2277 for progress on this feature.
+
         root_dir: a string specifying a subdirectory under the input package which should be consider the
             root directory of all the input files.
             Equivalent to the TypeScript --rootDir option.
@@ -376,6 +388,39 @@ def ts_project(
                 extends = extends,
             )
             tsc_deps = tsc_deps + ["_validate_%s_options" % name]
+
+    if supports_workers:
+        fail("not implemented")
+
+    #     tsc_worker = "%s_worker" % name
+    #     nodejs_binary(
+    #         name = tsc_worker,
+    #         data = [
+    #             # BEGIN-INTERNAL
+    #             # Users get this dependency transitively from @bazel/typescript
+    #             # but that's our own code, so we don't.
+    #             # TODO: remove protobuf dependency once rules_typescript also uses
+    #             # worker package
+    #             "@npm//protobufjs",
+    #             # END-INTERNAL
+    #             Label(typescript_package),
+    #             Label("//packages/typescript/internal/worker:filegroup"),
+    #             # BEGIN-INTERNAL
+    #             # this is not needed when package since @bazel/typescript lists
+    #             # @bazel/worker as its dependency hence has access to it.
+    #             # this only needed when ts_project is run from the source.
+    #             Label("//packages/worker:library"),
+    #             # END-INTERNAL
+    #             tsconfig,
+    #         ],
+    #         entry_point = Label("//ts/private:worker"),
+    #         templated_args = [
+    #             "--typescript_require_path",
+    #             typescript_require_path,
+    #         ],
+    #     )
+
+    #     tsc = ":" + tsc_worker
 
     typings_out_dir = declaration_dir if declaration_dir else out_dir
     tsbuildinfo_path = ts_build_info_file if ts_build_info_file else name + ".tsbuildinfo"

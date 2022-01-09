@@ -1,0 +1,48 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("//ts:ts_project.bzl", "ts_project")
+
+# Ensure that a.js produces outDir/a.js, outDir/a.d.ts, and outDir/a.d.ts.map
+SRCS = [
+    "a.js",
+    "b.jsx",
+]
+
+ts_project(
+    name = "transpile",
+    srcs = SRCS,
+    allow_js = True,
+    declaration = True,
+    declaration_map = True,
+    out_dir = "out",
+    source_map = True,
+)
+
+filegroup(
+    name = "types",
+    srcs = [":transpile"],
+    output_group = "types",
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        ":transpile",
+        ":types",
+    ],
+    entry_point = "verify.js",
+    templated_args = [
+        "$(locations :types)",
+        "$(locations :transpile)",
+    ],
+)
+
+# Test that we can write outputs to the same folder as the inputs
+# ts_project shouldn't try to declare a.js as an output in this case
+ts_project(
+    name = "transpile_to_same_dir",
+    srcs = SRCS,
+    allow_js = True,
+    declaration = True,
+    declaration_map = True,
+    source_map = True,
+)

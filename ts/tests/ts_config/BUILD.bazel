@@ -1,0 +1,22 @@
+"""
+Test a tree of tsconfig.json files
+"""
+
+load("//ts:ts_config.bzl", "ts_config")
+load("//ts:ts_project.bzl", "ts_project")
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    deps = [
+        "tsconfig-extended.json",
+        "//ts/tests:tsconfig",
+    ],
+)
+
+ts_project(
+    name = "compile_ts",
+    composite = True,
+    declaration = True,
+    tsconfig = ":tsconfig",
+)

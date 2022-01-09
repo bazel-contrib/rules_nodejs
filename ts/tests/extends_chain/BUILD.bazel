@@ -1,0 +1,8 @@
+load("//ts:ts_config.bzl", "ts_config")
+
+ts_config(
+    name = "tsconfig_node",
+    src = "tsconfig.node.json",
+    visibility = [":__subpackages__"],
+    deps = ["tsconfig.base.json"],
+)

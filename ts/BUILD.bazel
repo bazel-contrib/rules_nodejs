@@ -1,0 +1,7 @@
+filegroup(
+    name = "package_contents",
+    srcs = glob(["*"]) + [
+        "//ts/private:package_contents",
+    ],
+    visibility = ["//:__pkg__"],
+)

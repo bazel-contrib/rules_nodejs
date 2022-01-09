@@ -1,0 +1,34 @@
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
+load("//ts:ts_project.bzl", "ts_project")
+
+package(default_visibility = ["//ts/tests:__subpackages__"])
+
+ts_project(
+    name = "b",
+    srcs = [":b.ts"],
+    # just a test for the pass-through args attribute
+    args = ["--emitBOM"],
+    composite = True,
+    extends = "//ts/tests:tsconfig-base.json",
+    deps = ["//ts/tests/a"],
+)
+
+ts_project(
+    name = "transpile_test",
+    testonly = True,
+    srcs = [":b.spec.ts"],
+    composite = True,
+    extends = "//ts/tests:tsconfig-base.json",
+    tsconfig = "tsconfig-test.json",
+    deps = [
+        ":b",
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+    ],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["b.spec.js"],
+    data = [":b"],
+)

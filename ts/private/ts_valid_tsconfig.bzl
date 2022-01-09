@@ -54,6 +54,6 @@ validate_options = rule(
         "target": attr.string(),
         "ts_build_info_file": attr.string(),
         "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
-        "validator": attr.label(default = Label("//packages/typescript/bin:ts_project_options_validator"), executable = True, cfg = "host"),
+        "validator": attr.label(default = Label("//ts/private:validator"), executable = True, cfg = "host"),
     },
 )

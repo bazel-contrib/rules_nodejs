@@ -42,12 +42,12 @@ def node_repositories(**kwargs):
     )
 
     # buildifier: disable=print
-    print("""WARN: node_repositories is deprecated, please instead use:
-        load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
-        nodejs_register_toolchains(name = "nodejs")
+    # print("""WARN: node_repositories is deprecated, please instead use:
+    #     load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
+    #     nodejs_register_toolchains(name = "nodejs")
 
-        See https://github.com/bazelbuild/rules_nodejs/wiki/Migrating-to-5.0
-    """)
+    #     See https://github.com/bazelbuild/rules_nodejs/wiki/Migrating-to-5.0
+    # """)
 
     # This needs to be setup so toolchains can access nodejs for all different versions
     node_version = kwargs.get("node_version", DEFAULT_NODE_VERSION)

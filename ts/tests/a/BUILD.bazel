@@ -1,0 +1,27 @@
+load("//ts:ts_config.bzl", "ts_config")
+load("//ts:ts_project.bzl", "ts_project")
+
+ts_config(
+    name = "config",
+    src = "tsconfig.json",
+    deps = [
+        "tsconfig-extended.json",
+        "//ts/tests:tsconfig",
+    ],
+)
+
+ts_project(
+    name = "a",
+    composite = True,
+    tsconfig = "config",
+    # Intentionally not syncing this option from tsconfig, to test validator suppression
+    # source_map = True,
+    validate = False,
+    visibility = ["//ts/tests:__subpackages__"],
+    # Use @babel/parser since the package.json is required to resolve "typings" field
+    # Repro of #2044
+    deps = [
+        "@npm//@babel/parser",
+        "@npm//@babel/types",
+    ],
+)

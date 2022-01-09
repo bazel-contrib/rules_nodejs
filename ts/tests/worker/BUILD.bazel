@@ -1,0 +1,10 @@
+load("//ts:ts_project.bzl", "ts_project")
+
+ts_project(
+    supports_workers = True,
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+        },
+    },
+)

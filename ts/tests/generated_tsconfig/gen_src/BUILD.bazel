@@ -1,0 +1,24 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
+load("//ts:ts_project.bzl", "ts_project")
+
+write_file(
+    name = "gen_src",
+    out = "subdir/a.ts",
+    content = ["export const a: string = 'hello world';"],
+)
+
+ts_project(
+    srcs = ["subdir/a.ts"],
+    tsconfig = {
+        "compilerOptions": {
+            "rootDir": "subdir",
+        },
+    },
+)
+
+generated_file_test(
+    name = "test",
+    src = "expected.js_",
+    generated = ":a.js",
+)

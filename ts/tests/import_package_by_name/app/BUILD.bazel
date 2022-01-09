@@ -1,0 +1,10 @@
+load("//ts:ts_project.bzl", "ts_project")
+
+ts_project(
+    tsconfig = {
+        "compilerOptions": {
+            "moduleResolution": "Node",
+        },
+    },
+    deps = ["//ts/tests/import_package_by_name/lib"],
+)

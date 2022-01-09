@@ -1,0 +1,49 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("//ts:ts_config.bzl", "ts_config")
+load("//ts:ts_project.bzl", "ts_project")
+
+# Case one: extend from a single tsconfig
+ts_project(
+    name = "case_one",
+    extends = "//ts/tests:tsconfig-base.json",
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+            "outDir": "case_one",
+        },
+    },
+)
+
+ts_config(
+    name = "tsconfig_chain",
+    src = "tsconfig-extended.json",
+    deps = [
+        "//ts/tests:tsconfig",
+    ],
+)
+
+# Case two: extend from a chain of tsconfig
+ts_project(
+    name = "case_two",
+    extends = ":tsconfig_chain",
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+            "outDir": "case_two",
+        },
+    },
+)
+
+generated_file_test(
+    name = "test_one",
+    # test the default output of the ts_project
+    src = "expected.js_",
+    generated = "case_one/a.js",
+)
+
+generated_file_test(
+    name = "test_two",
+    # test the default output of the ts_project
+    src = "expected.js_",
+    generated = "case_two/a.js",
+)
