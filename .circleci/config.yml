@@ -45,8 +45,8 @@ var_4: &init_environment
       git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
       git config --global gc.auto 0 || true
 
-      # Setup /etc/bazel.bazelrc
-      sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
+      # Turn on .circleci/bazelrc via .bazelrc.user
+      cp -f .circleci/bazelrc .bazelrc.user
 
 var_5: &yarn_install
   run:

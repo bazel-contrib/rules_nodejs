@@ -54,3 +54,15 @@ build --incompatible_no_implicit_file_export
 # build --incompatible_struct_has_no_methods
 # TODO(alexeagle): turn on this flag when dependencies allow
 # build --incompatible_use_platforms_repo_for_constraints
+
+###############################
+# Load any settings specific to the current user.
+# .bazelrc.user should appear in .gitignore so that settings are not shared with team members
+# This needs to be last statement in this
+# config, as the user configuration should be able to overwrite flags from this file.
+# See https://docs.bazel.build/versions/master/best-practices.html#bazelrc
+# (Note that we use .bazelrc.user so the file appears next to .bazelrc in directory listing,
+# rather than user.bazelrc as suggested in the Bazel docs)
+try-import %workspace%/.bazelrc.user
+
+# DO NOT ADD HERE; settings should be above the `try-import %workspace%/.bazelrc.user` line

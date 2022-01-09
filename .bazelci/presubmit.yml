@@ -68,7 +68,7 @@ tasks:
     # - top-level bazel process should use as little memory as possible and only 1 core
     # - nested bazel process should use a limited number of cores
     shell_commands:
-    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' > .bazelrc.user
     build_flags:
     - "--build_tag_filters=e2e,-cypress"
     build_targets:
@@ -99,7 +99,7 @@ tasks:
     # - top-level bazel process should use as little memory as possible and only 1 core
     # - nested bazel process should use a limited number of cores
     shell_commands:
-    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' > .bazelrc.user
     build_flags:
     - "--build_tag_filters=examples,-cypress"
     build_targets:
@@ -159,7 +159,7 @@ tasks:
     # - top-level bazel process should use as little memory as possible and only 1 core
     # - nested bazel process should use a limited number of cores
     shell_commands:
-    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' > .bazelrc.user
     build_flags:
     - "--build_tag_filters=e2e"
     build_targets:
@@ -187,7 +187,7 @@ tasks:
     # - top-level bazel process should use as little memory as possible and only 1 core
     # - nested bazel process should use a limited number of cores
     shell_commands:
-    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' > .bazelrc.user
     build_flags:
     - "--build_tag_filters=examples"
     build_targets:
@@ -205,18 +205,6 @@ tasks:
     - "--test_arg=--test_tag_filters=-no-bazelci-mac,-browser:firefox-local"
     test_targets:
     - "//..."
-  # TODO(gregmagolan): fix platform configuraiton for this test job for Bazel 2.0
-  # macos_fake_rbe:
-  #   name: macos_fake_rbe
-  #   platform: macos
-  #   shell_commands:
-  #   # Reproduce https://github.com/bazelbuild/rules_nodejs/issues/1305
-  #   # TODO: switch to use real mac cross-platform RBE on CI when
-  #   #       https://github.com/bazelbuild/continuous-integration/pull/749
-  #   #       lands on bazelci master.
-  #   - echo 'build --platforms=@rbe_default//config:platform' >> .bazelrc
-  #   run_targets:
-  #   - "//internal/node/test:no_deps"
   windows:
     name: windows
     platform: windows
