@@ -271,6 +271,8 @@ def rules_nodejs_integration_test(name, **kwargs):
         # tests have been completed. Remote execution is disabled for such tests
         # because Bazel doesn't have control over what's running on a remote machine.
         "exclusive",
+        # These test should run outside of the sandbox as they fail on bazelci otherwise
+        "local",
     ]
 
     # convert the npm packages into the tar output
