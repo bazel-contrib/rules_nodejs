@@ -1,7 +1,4 @@
-workspace(
-    name = "from_source",
-    managed_directories = {"@npm": ["node_modules"]},
-)
+workspace(name = "from_source")
 
 # In your code, you'd fetch this repository with a `git_repository` call.
 # We do this local repository only because this example lives in the same
@@ -38,7 +35,6 @@ load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install
 
 node_repositories(
     node_version = "12.13.0",
-    package_json = ["//:package.json"],
     yarn_version = "1.19.1",
 )
 
@@ -47,5 +43,6 @@ yarn_install(
     exports_directories_only = True,
     package_json = "//:package.json",
     strict_visibility = True,
+    symlink_node_modules = False,
     yarn_lock = "//:yarn.lock",
 )
