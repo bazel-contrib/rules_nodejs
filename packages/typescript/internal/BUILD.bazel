@@ -59,9 +59,7 @@ genrule(
 
 filegroup(
     name = "package_contents",
-    srcs = [
-        "ts_config.bzl",
-        "ts_project.bzl",
+    srcs = glob(["*.bzl"]) + [
         "//packages/typescript/internal/worker:package_contents",
     ],
     visibility = ["//packages/typescript:__subpackages__"],

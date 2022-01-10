@@ -182,7 +182,7 @@ https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/
 """
 
 load("//packages/typescript/internal:ts_config.bzl", _ts_config = "ts_config")
-load("//packages/typescript/internal:ts_project.bzl", _ts_project = "ts_project_macro")
+load("//packages/typescript:index.bzl", _ts_project = "ts_project")
 
 ts_config = _ts_config
 ts_project = _ts_project
