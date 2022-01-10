@@ -6,13 +6,13 @@
         // Needed when running in a sandbox or remote.
         "rootDirs": [
             ".",
-            "../../../../../bazel-out/darwin-fastbuild/bin/ts/tests/js_library",
-            "../../../../../bazel-out/darwin_arm64-fastbuild/bin/ts/tests/js_library",
-            "../../../../../bazel-out/k8-fastbuild/bin/ts/tests/js_library",
-            "../../../../../bazel-out/x64_windows-fastbuild/bin/ts/tests/js_library",
-            "../../../../../bazel-out/darwin-dbg/bin/ts/tests/js_library",
-            "../../../../../bazel-out/k8-dbg/bin/ts/tests/js_library",
-            "../../../../../bazel-out/x64_windows-dbg/bin/ts/tests/js_library",
+            "../../../bazel-out/darwin-fastbuild/bin/ts/tests/js_library",
+            "../../../bazel-out/darwin_arm64-fastbuild/bin/ts/tests/js_library",
+            "../../../bazel-out/k8-fastbuild/bin/ts/tests/js_library",
+            "../../../bazel-out/x64_windows-fastbuild/bin/ts/tests/js_library",
+            "../../../bazel-out/darwin-dbg/bin/ts/tests/js_library",
+            "../../../bazel-out/k8-dbg/bin/ts/tests/js_library",
+            "../../../bazel-out/x64_windows-dbg/bin/ts/tests/js_library",
         ],
     }
 }

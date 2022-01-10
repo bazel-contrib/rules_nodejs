@@ -51,7 +51,7 @@ _READMES = {
     "Rollup": "//packages/rollup:README.md",
     "Terser": "//packages/terser:README.md",
     "Toolchains": "//toolchains:README.md",
-    "TypeScript": "//packages/typescript:README.md",
+    "TypeScript": "//ts:README.md",
     "esbuild": "//packages/esbuild:README.md",
 }
 

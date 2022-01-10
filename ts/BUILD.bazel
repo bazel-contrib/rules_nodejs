@@ -1,7 +1,30 @@
+load("//tools/stardoc:index.bzl", "stardoc")
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 filegroup(
     name = "package_contents",
     srcs = glob(["*"]) + [
         "//ts/private:package_contents",
     ],
     visibility = ["//:__pkg__"],
+)
+
+bzl_library(
+    name = "ts",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],
+    deps = ["//ts/private"],
+)
+
+stardoc(
+    name = "docs",
+    out = "README.md",
+    input = "index.for_docs.bzl",
+    tags = ["fix-windows"],
+    visibility = ["//docs:__pkg__"],
+    deps = [
+        ":ts",
+        # "@bazel_skylib//lib:types",
+        # "@rules_nodejs//nodejs:bzl",
+    ],
 )

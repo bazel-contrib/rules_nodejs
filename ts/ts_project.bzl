@@ -389,9 +389,7 @@ def ts_project(
             )
             tsc_deps = tsc_deps + ["_validate_%s_options" % name]
 
-    if supports_workers:
-        fail("not implemented")
-
+    # if supports_workers:
     #     tsc_worker = "%s_worker" % name
     #     nodejs_binary(
     #         name = tsc_worker,

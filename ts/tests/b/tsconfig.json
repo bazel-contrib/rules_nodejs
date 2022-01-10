@@ -5,7 +5,7 @@
     ],
     "compilerOptions": {
         // WORKAROUND - See comment in ../a/tsconfig.json
-        "outDir": "../../../../../bazel-out/x64_windows-fastbuild/bin/ts/tests/b"
+        "outDir": "../../../bazel-out/x64_windows-fastbuild/bin/ts/tests/b"
     },
     "exclude": ["*.spec.ts"]
 }

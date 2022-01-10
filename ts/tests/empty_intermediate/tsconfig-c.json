@@ -4,13 +4,13 @@
         // Help TypeScript locate the a.d.ts file from previous compilation. Needed when running in a sandbox or remote.
         "rootDirs": [
             ".",
-            "../../../../../bazel-out/darwin-fastbuild/bin/ts/tests/empty_intermediate",
-            "../../../../../bazel-out/darwin_arm64-fastbuild/bin/ts/tests/empty_intermediate",
-            "../../../../../bazel-out/k8-fastbuild/bin/ts/tests/empty_intermediate",
-            "../../../../../bazel-out/x64_windows-fastbuild/bin/ts/tests/empty_intermediate",
-            "../../../../../bazel-out/darwin-dbg/bin/ts/tests/empty_intermediate",
-            "../../../../../bazel-out/k8-dbg/bin/ts/tests/empty_intermediate",
-            "../../../../../bazel-out/x64_windows-dbg/bin/ts/tests/empty_intermediate",
+            "../../../bazel-out/darwin-fastbuild/bin/ts/tests/empty_intermediate",
+            "../../../bazel-out/darwin_arm64-fastbuild/bin/ts/tests/empty_intermediate",
+            "../../../bazel-out/k8-fastbuild/bin/ts/tests/empty_intermediate",
+            "../../../bazel-out/x64_windows-fastbuild/bin/ts/tests/empty_intermediate",
+            "../../../bazel-out/darwin-dbg/bin/ts/tests/empty_intermediate",
+            "../../../bazel-out/k8-dbg/bin/ts/tests/empty_intermediate",
+            "../../../bazel-out/x64_windows-dbg/bin/ts/tests/empty_intermediate",
         ],
     }
 }

@@ -7,10 +7,17 @@ ts_project(
     name = "b",
     srcs = [":b.ts"],
     # just a test for the pass-through args attribute
-    args = ["--emitBOM"],
+    args = [
+        "--emitBOM",
+        "--traceResolution",
+    ],
     composite = True,
     extends = "//ts/tests:tsconfig-base.json",
-    deps = ["//ts/tests/a"],
+    deps = [
+        "//ts/tests/a",
+        #"@npm//@babel/parser",
+        #"@npm//@babel/types",
+    ],
 )
 
 ts_project(

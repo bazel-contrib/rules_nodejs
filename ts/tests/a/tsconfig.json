@@ -15,6 +15,6 @@
         //    bazel-out/host/bin/external/npm/typescript/bin/tsc.bat -p ts/tests/b/tsconfig.json --outDir bazel-out/x64_windows-fastbuild/bin/ts/tests/b --declarationDir bazel-out/x64_windows-fastbuild/bin/ts/tests/b --bazel_node_modules_manifest=bazel-out/x64_windows-fastbuild/bin/ts/tests/b/_tsconfig.module_mappings.json
         //  Execution platform: @local_config_platform//:host
         //  ts/tests/b/b.ts(1,17): error TS6305: Output file 'C:/b/uuxnwop3/execroot/build_bazel_rules_nodejs/ts/tests/a/a.d.ts' has not been built from source file 'C:/b/uuxnwop3/execroot/build_bazel_rules_nodejs/ts/tests/a/a.ts'.
-        "outDir": "../../../../../bazel-out/x64_windows-fastbuild/bin/ts/tests/a",
+        "outDir": "../../../bazel-out/x64_windows-fastbuild/bin/ts/tests/a",
     }
 }
