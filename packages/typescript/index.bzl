@@ -22,8 +22,8 @@ load("//packages/typescript/internal:ts_config.bzl", "write_tsconfig", _ts_confi
 load("//packages/typescript/internal:ts_project.bzl", _lib = "lib", _ts_project = "ts_project")
 load("//packages/typescript/internal:validate_options.bzl", "validate_options")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:lib/partial.bzl", "partial")
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/build_test.bzl", "build_test")
+load("@bazel_skylib//lib:partial.bzl", "partial")
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
 
 # If adding rules here also add to index.docs.bzl
 
