@@ -3,7 +3,7 @@ import * as ts from 'typescript';
 import * as main from './main';
 
 describe('main', () => {
-  it('should compile and run with @bazel/typescript npm package', () => {
+  it('should compile and run', () => {
     expect(main.test()).toEqual('test hello 02/Tu/2014');
   });
 

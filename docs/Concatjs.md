@@ -368,7 +368,6 @@ nodejs_binary(
         "@npm//source-map-support",
         "@npm//tsutils",
         "@npm//typescript",
-        "@npm//@bazel/typescript",
     ],
 )
 ```

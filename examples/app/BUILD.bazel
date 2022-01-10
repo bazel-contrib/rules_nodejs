@@ -3,7 +3,7 @@ load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver", "ts_library")
 load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//@bazel/terser:index.bzl", "terser_minified")
-load("@npm//@bazel/typescript:index.bzl", "ts_project")
+load("@build_bazel_rules_nodejs//ts:ts_project.bzl", "ts_project")
 load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("@npm//http-server:index.bzl", "http_server")
 

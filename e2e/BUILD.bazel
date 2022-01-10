@@ -124,7 +124,6 @@ e2e_integration_test(
     npm_packages = {
         "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/protractor:npm_package": "@bazel/protractor",
-        "//packages/typescript:npm_package": "@bazel/typescript",
     },
 )
 

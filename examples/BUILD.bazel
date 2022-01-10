@@ -22,7 +22,6 @@ example_integration_test(
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
-        "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = [
         "@alan-agius4",
@@ -53,9 +52,6 @@ example_integration_test(
     name = "examples_react_webpack",
     # TODO: add some tests in the example
     bazel_commands = ["build ..."],
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
     # TODO(alexeagle): somehow this is broken by the new node-patches based node_patches script
     # ERROR: D:/temp/tmp-6900sejcsrcttpdb/BUILD.bazel:37:1: output 'app.bundle.js' was not created
     tags = ["no-bazelci-windows"],
@@ -68,7 +64,6 @@ example_integration_test(
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
-        "//packages/typescript:npm_package": "@bazel/typescript",
     },
 )
 
@@ -97,7 +92,6 @@ example_integration_test(
     bazel_commands = ["test //..."],
     npm_packages = {
         "//packages/cypress:npm_package": "@bazel/cypress",
-        "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = ["@mrmeku"],
     tags = [
@@ -107,9 +101,6 @@ example_integration_test(
 
 example_integration_test(
     name = "examples_jest",
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
     owners = ["@mrmeku"],
 )
 
@@ -141,7 +132,6 @@ example_integration_test(
     name = "examples_web_testing",
     npm_packages = {
         "//packages/concatjs:npm_package": "@bazel/concatjs",
-        "//packages/typescript:npm_package": "@bazel/typescript",
     },
 )
 
@@ -157,7 +147,6 @@ example_integration_test(
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
-        "//packages/typescript:npm_package": "@bazel/typescript",
     },
     tags = [
         # TODO(alexeagle): re-enable when it stops timing out on 4.x branch
@@ -174,7 +163,6 @@ example_integration_test(
     ],
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
-        "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = [
         "@zachgrayio",
@@ -197,7 +185,6 @@ example_integration_test(
     name = "examples_protobufjs",
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
-        "//packages/typescript:npm_package": "@bazel/typescript",
     },
     # Flakes on windows
     # TODO: understand flake fail mode and re-enable
@@ -262,7 +249,6 @@ example_integration_test(
     timeout = "long",
     npm_packages = {
         "//packages/esbuild:npm_package": "@bazel/esbuild",
-        "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = ["@mattem"],
 )

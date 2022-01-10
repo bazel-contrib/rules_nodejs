@@ -75,8 +75,8 @@ if (wkspContent.indexOf('yarn_install(') < 0) {
 exitCode = main(['--typescript', 'with_ts'], captureError);
 if (exitCode != 0) fail('should be success');
 let pkgContent = read('with_ts/package.json');
-if (pkgContent.indexOf('"@bazel/typescript": "latest"') < 0) {
-  fail('should install @bazel/typescript dependency', pkgContent);
+if (pkgContent.indexOf('"typescript": "latest"') < 0) {
+  fail('should install typescript dependency', pkgContent);
 }
 
 exitCode = main(['--help'], captureError);

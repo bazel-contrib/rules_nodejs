@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Replacements for @bazel/typescript package
+"""Replacements for @bazel/concatjs package
 """
 
 load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS")

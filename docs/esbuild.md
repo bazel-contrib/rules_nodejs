@@ -56,7 +56,7 @@ The `esbuild` rule can take a JS or TS dependency tree and bundle it to a single
 
 ```python
 load("@npm//@bazel/esbuild:index.bzl", "esbuild")
-load("@npm//@bazel/typescript:index.bzl", "ts_project")
+load("@build_bazel_rules_nodejs//ts:ts_project.bzl", "ts_project")
 
 ts_project(
     name = "lib",
@@ -76,7 +76,7 @@ To create a code split bundle, set `splitting = True` on the `esbuild` rule.
 
 ```python
 load("@npm//@bazel/esbuild:index.bzl", "esbuild")
-load("@npm//@bazel/typescript:index.bzl", "ts_project")
+load("@build_bazel_rules_nodejs//ts:ts_project.bzl", "ts_project")
 
 ts_project(
     name = "lib",

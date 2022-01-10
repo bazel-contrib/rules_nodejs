@@ -167,7 +167,6 @@ replaced in all integration tests. For example,
 check_npm_packages = [
     "@bazel/jasmine",
     "@bazel/protractor",
-    "@bazel/typescript",
 ],
 ```
 If an `npm_packages` replacement on any package listed is missed then the test will fail. Since listing all
@@ -184,7 +183,6 @@ For example,
 ```
 npm_packages = {
     "//packages/jasmine:npm_package": "@bazel/jasmine",
-    "//packages/typescript:npm_package": "@bazel/typescript",
 }
 ```""",
     ),

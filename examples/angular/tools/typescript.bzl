@@ -1,6 +1,6 @@
 """Helper macros for compiling typescript with consistent config"""
 
-load("@npm//@bazel/typescript:index.bzl", _ts_project = "ts_project")
+load("@build_bazel_rules_nodejs//ts:ts_project.bzl", _ts_project = "ts_project")
 
 def ts_project(name, tsconfig = "//src:tsconfig", **kwargs):
     _ts_project(

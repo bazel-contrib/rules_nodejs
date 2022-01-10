@@ -2,7 +2,6 @@
   "private": true,
   "devDependencies": {
     "@bazel/jasmine": "^4.4.0",
-    "@bazel/typescript": "^4.4.0",
     "@types/jasmine": "2.8.2",
     "@types/long": "^4.0.0",
     "@types/node": "11.11.1",

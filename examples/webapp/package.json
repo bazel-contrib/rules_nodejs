@@ -7,7 +7,6 @@
         "@bazel/protractor": "^4.4.0",
         "@bazel/rollup": "^4.4.0",
         "@bazel/terser": "^4.4.0",
-        "@bazel/typescript": "^4.4.0",
         "http-server": "^0.11.1",
         "mocha": "^6.2.1",
         "protractor": "^5.4.2",
