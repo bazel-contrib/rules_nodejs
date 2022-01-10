@@ -1,5 +1,5 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
-load("//packages/typescript:index.bzl", "ts_project")
+load("//ts:ts_project.bzl", "ts_project")
 
 # This uses defaults for all attributes.
 # It will find `index.ts` and produce `index.js`

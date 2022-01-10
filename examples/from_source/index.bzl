@@ -1,6 +1,6 @@
 """Example package for generating stardoc from rules_nodejs at source"""
 
-load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_project")
+load("@build_bazel_rules_nodejs//ts:ts_project.bzl", "ts_project")
 
 def custom_ts_project(name, deps = [], **kwargs):
     """

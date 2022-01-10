@@ -3,7 +3,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 # BEGIN-INTERNAL
 # avoid leaking a ts dependency
-load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
+load("//ts/private:checked_in_ts_project.bzl", "checked_in_ts_project")
 
 # Using checked in ts library like the linker
 # To update index.js run:

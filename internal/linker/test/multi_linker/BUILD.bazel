@@ -1,5 +1,5 @@
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
-load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
+load("//ts/private:checked_in_ts_project.bzl", "checked_in_ts_project")
 
 checked_in_ts_project(
     name = "checked_in_test",

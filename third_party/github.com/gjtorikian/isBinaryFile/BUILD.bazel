@@ -9,7 +9,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 # BEGIN-INTERNAL
 # buildifier: disable=load-on-top
-load("//packages/typescript:index.bzl", "ts_project")
+load("//ts:ts_project.bzl", "ts_project")
 
 ts_project(
     name = "tsconfig",

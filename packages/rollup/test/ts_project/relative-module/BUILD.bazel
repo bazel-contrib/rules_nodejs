@@ -1,4 +1,4 @@
-load("//packages/typescript:index.bzl", "ts_project")
+load("//ts:ts_project.bzl", "ts_project")
 
 package(default_visibility = ["//packages/rollup/test:__subpackages__"])
 

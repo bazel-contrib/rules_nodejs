@@ -32,13 +32,13 @@ write_file(
     out = "tsc.js",
     content = [
         "const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER'])",
-        "require(runfiles.resolve('npm_typescript-{0}') + '/package/bin/tsc')",
+        "require(runfiles.resolve('typescript') + '/package/bin/tsc')",
     ],
 )
 
 nodejs_binary(
     name = "tsc",
-    data = ["@npm_typescript-{0}"],
+    data = ["@typescript//:npm_typescript-{0}"],
     entry_point = "tsc.js",
     visibility = ["//visibility:public"],
 )

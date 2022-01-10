@@ -1,6 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
-load("//packages/typescript:index.bzl", "ts_project")
+load("//ts:ts_project.bzl", "ts_project")
 
 ts_project(
     name = "tsconfig",
