@@ -118,7 +118,7 @@ Otherwise, the outputs are assumed to be a single file.
     "rollup_bin": attr.label(
         doc = "Target that executes the rollup binary",
         executable = True,
-        cfg = "host",
+        cfg = "exec",
         default = (
             # BEGIN-INTERNAL
             "@npm" +
@@ -129,7 +129,7 @@ Otherwise, the outputs are assumed to be a single file.
     "rollup_worker_bin": attr.label(
         doc = "Internal use only",
         executable = True,
-        cfg = "host",
+        cfg = "exec",
         default = "//packages/rollup/bin:rollup-worker",
     ),
     "silent": attr.bool(

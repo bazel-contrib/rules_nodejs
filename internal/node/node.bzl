@@ -665,7 +665,7 @@ nodejs_test_kwargs = dict(
         "_lcov_merger": attr.label(
             executable = True,
             default = Label("@build_bazel_rules_nodejs//internal/coverage:lcov_merger_sh"),
-            cfg = "target",
+            cfg = "exec",
         ),
     }),
     doc = """

@@ -104,7 +104,7 @@ If you want to do this, you can pass a filegroup here.""",
         doc = "An executable target that runs Terser",
         default = Label("//packages/terser/bin:terser"),
         executable = True,
-        cfg = "host",
+        cfg = "exec",
     ),
 }
 
@@ -149,7 +149,7 @@ def _terser(ctx):
     if ctx.attr.sourcemap:
         # Source mapping options are comma-packed into one argv
         # see https://github.com/terser-js/terser#command-line-usage
-        source_map_opts = ["includeSources", "base=" + ctx.bin_dir.path]
+        source_map_opts = ["includeSources", "base='%s'" % ctx.bin_dir.path]
 
         if len(sourcemaps) == 0:
             source_map_opts.append("content=inline")

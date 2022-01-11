@@ -114,7 +114,7 @@ This target would be then be used instead of the generated `@npm//typeorm:typeor
     ),
     "_browserify_wrapped": attr.label(
         executable = True,
-        cfg = "host",
+        cfg = "exec",
         default = Label("@build_bazel_rules_nodejs//internal/npm_install:browserify-wrapped"),
     ),
 }

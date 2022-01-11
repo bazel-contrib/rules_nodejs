@@ -75,17 +75,17 @@ js_write_file = rule(
         "content": attr.string(),
         "_clone": attr.label(
             default = Label("//internal/providers/test:cloner_bin"),
-            cfg = "host",
+            cfg = "exec",
             executable = True,
         ),
         "_writer": attr.label(
             default = Label("//internal/providers/test:writer_bin"),
-            cfg = "host",
+            cfg = "exec",
             executable = True,
         ),
         "_writer2": attr.label(
             default = Label("//internal/providers/test:writer_bin2"),
-            cfg = "host",
+            cfg = "exec",
             executable = True,
         ),
     },

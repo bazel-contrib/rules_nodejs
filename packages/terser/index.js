@@ -26,6 +26,45 @@ function isDirectory(input) {
   return fs.lstatSync(path.join(process.cwd(), input)).isDirectory();
 }
 
+// Returns a single quotes version of str
+function singleQuotes(str) {
+  return `'${str.replace(/'/g, '').replace(/"/g, '')}'`;
+}
+
+// Ensures that args are well formed.
+// Work-around for an issue on Windows when exec bin path is not quoted.
+// In --source-map, base=bazel-out/x64_windows-opt-exec-2B5CBBC6/bin must
+// be quoted such as base='bazel-out/x64_windows-opt-exec-2B5CBBC6/bin' pr
+// terser fails with
+// ERROR: `includeSources,base=bazel-out/x64_windows-opt-exec-2B5CBBC6/bin,content=inline,url=bundle.min.js.map` is not a supported option
+function fixArgs(args) {
+  const sourceMapIndex = args.indexOf('--source-map');
+  if (sourceMapIndex === -1) {
+    return args;
+  }
+  let sourceMapOptions = args[sourceMapIndex + 1].split(',');
+  sourceMapOptions = sourceMapOptions.map(o => {
+    const s = o.split('=');
+    if (s.length == 1) {
+      return o;
+    }
+    switch (s[0]) {
+      case 'base':
+      case 'content':
+      case 'url':
+        return `${s[0]}=${singleQuotes(s[1])}`;
+      default:
+        return o;
+    }
+  });
+
+  return [
+    ...args.slice(0, sourceMapIndex + 1),
+    sourceMapOptions.join(','),
+    ...args.slice(sourceMapIndex + 2),
+  ];
+}
+
 /**
  * Replaces directory url with the outputFile name in the url option of source-map argument
  */
@@ -35,8 +74,10 @@ function directoryArgs(residualArgs, inputFile, outputFile) {
     return residualArgs;
   }
 
+  let sourceMapOptions = residualArgs[sourceMapIndex + 1].split(',');
+
   // set the correct sourcemap url for this output file
-  let sourceMapOptions = residualArgs[sourceMapIndex + 1].split(',').map(
+  sourceMapOptions = sourceMapOptions.map(
       o => o.startsWith('url=') ? `url='${path.basename(outputFile)}.map'` : o);
 
   // if an input .map file exists then set the correct sourcemap content option
@@ -143,6 +184,8 @@ function spawn(cmd, args) {
 }
 
 function main() {
+  process.argv = fixArgs(process.argv)
+
   // Peek at the arguments to find any directories declared as inputs
   let argv = process.argv.slice(2);
   // terser_minified.bzl always passes the inputs first,

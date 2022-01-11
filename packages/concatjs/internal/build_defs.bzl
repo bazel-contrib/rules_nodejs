@@ -407,7 +407,7 @@ then it needs to be a data dependency of `tsc_wrapped` so that it can be loaded 
             default = Label(_DEFAULT_COMPILER),
             allow_files = True,
             executable = True,
-            cfg = "host",
+            cfg = "exec",
         ),
         "deps": attr.label_list(
             aspects = DEPS_ASPECTS + [node_modules_aspect],

@@ -34,7 +34,7 @@ work = rule(
         "tool": attr.label(
             default = Label("//:tool"),
             executable = True,
-            cfg = "host",
+            cfg = "exec",
         ),
     },
 )

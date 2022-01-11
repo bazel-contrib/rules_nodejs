@@ -20,5 +20,5 @@ linked = rule(_linked, attrs = {
         aspects = [module_mappings_aspect],
     ),
     "out": attr.output(),
-    "program": attr.label(executable = True, cfg = "host", mandatory = True),
+    "program": attr.label(executable = True, cfg = "exec", mandatory = True),
 })

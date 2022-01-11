@@ -38,7 +38,7 @@ See the section on stamping in the README.""",
     "_assembler": attr.label(
         default = "@build_bazel_rules_nodejs//internal/pkg_web:assembler",
         executable = True,
-        cfg = "host",
+        cfg = "exec",
     ),
 }
 
