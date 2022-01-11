@@ -567,10 +567,11 @@ Defaults to `{}`
 
 (*Boolean*): Export only top-level package directory artifacts from node_modules.
 
-Turning this on will decrease the time it takes for Bazel to setup runfiles and sandboxing when
+Set to `False` to export all individual files from node_modules.
+
+When enabled, this decreases the time it takes for Bazel to setup runfiles and sandboxing when
 there are a large number of npm dependencies as inputs to an action.
 
-This breaks compatibility for labels that reference files within npm packages such as `@npm//:node_modules/prettier/bin-prettier.js`.
 To reference files within npm packages, you can use the `directory_file_path` rule and/or `DirectoryFilePathInfo` provider.
 Note, some rules still need upgrading to support consuming `DirectoryFilePathInfo` where needed.
 
@@ -584,44 +585,24 @@ NB: `protractor_web_test` and `protractor_web_test_suite` do not support directo
 
 For the `nodejs_binary` & `nodejs_test` `entry_point` attribute (which often needs to reference a file within
 an npm package) you can set the entry_point to a dict with a single entry, where the key corresponds to the directory
-label and the value corresponds to the path within that directory to the entry point.
-
-For example,
+label and the value corresponds to the path within that directory to the entry point, e.g.
 
 ```
 nodejs_binary(
     name = "prettier",
     data = ["@npm//prettier"],
-    entry_point = "@npm//:node_modules/prettier/bin-prettier.js",
-)
-```
-
-becomes,
-
-```
-nodejs_binary(
-    name = "prettier",
-    data = ["@npm//prettier"],
-    entry_point = { "@npm//:node_modules/prettier": "bin-prettier.js" },
+    entry_point = { "@npm//prettier:directory": "bin-prettier.js" },
 )
 ```
 
 For labels that are passed to `$(rootpath)`, `$(execpath)`, or `$(location)` you can simply break these apart into
-the directory label that gets passed to the expander & path part to follows it.
-
-For example,
+the directory label that gets passed to the expander & path part to follows it, e.g.
 
 ```
-$(rootpath @npm//:node_modules/prettier/bin-prettier.js")
+$(rootpath @npm///prettier:directory)/bin-prettier.js
 ```
 
-becomes,
-
-```
-$(rootpath @npm//:node_modules/prettier)/bin-prettier.js
-```
-
-Defaults to `False`
+Defaults to `True`
 
 <h4 id="npm_install-generate_local_modules_build_files">generate_local_modules_build_files</h4>
 
@@ -1256,10 +1237,11 @@ Defaults to `{}`
 
 (*Boolean*): Export only top-level package directory artifacts from node_modules.
 
-Turning this on will decrease the time it takes for Bazel to setup runfiles and sandboxing when
+Set to `False` to export all individual files from node_modules.
+
+When enabled, this decreases the time it takes for Bazel to setup runfiles and sandboxing when
 there are a large number of npm dependencies as inputs to an action.
 
-This breaks compatibility for labels that reference files within npm packages such as `@npm//:node_modules/prettier/bin-prettier.js`.
 To reference files within npm packages, you can use the `directory_file_path` rule and/or `DirectoryFilePathInfo` provider.
 Note, some rules still need upgrading to support consuming `DirectoryFilePathInfo` where needed.
 
@@ -1273,44 +1255,24 @@ NB: `protractor_web_test` and `protractor_web_test_suite` do not support directo
 
 For the `nodejs_binary` & `nodejs_test` `entry_point` attribute (which often needs to reference a file within
 an npm package) you can set the entry_point to a dict with a single entry, where the key corresponds to the directory
-label and the value corresponds to the path within that directory to the entry point.
-
-For example,
+label and the value corresponds to the path within that directory to the entry point, e.g.
 
 ```
 nodejs_binary(
     name = "prettier",
     data = ["@npm//prettier"],
-    entry_point = "@npm//:node_modules/prettier/bin-prettier.js",
-)
-```
-
-becomes,
-
-```
-nodejs_binary(
-    name = "prettier",
-    data = ["@npm//prettier"],
-    entry_point = { "@npm//:node_modules/prettier": "bin-prettier.js" },
+    entry_point = { "@npm//prettier:directory": "bin-prettier.js" },
 )
 ```
 
 For labels that are passed to `$(rootpath)`, `$(execpath)`, or `$(location)` you can simply break these apart into
-the directory label that gets passed to the expander & path part to follows it.
-
-For example,
+the directory label that gets passed to the expander & path part to follows it, e.g.
 
 ```
-$(rootpath @npm//:node_modules/prettier/bin-prettier.js")
+$(rootpath @npm///prettier:directory)/bin-prettier.js
 ```
 
-becomes,
-
-```
-$(rootpath @npm//:node_modules/prettier)/bin-prettier.js
-```
-
-Defaults to `False`
+Defaults to `True`
 
 <h4 id="yarn_install-frozen_lockfile">frozen_lockfile</h4>
 

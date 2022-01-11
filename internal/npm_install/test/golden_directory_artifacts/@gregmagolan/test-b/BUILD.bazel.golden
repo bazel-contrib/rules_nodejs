@@ -34,10 +34,3 @@ alias(
     name = "test-b__typings",
     actual = "contents",
 )
-load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
-npm_umd_bundle(
-    name = "test-b__umd",
-    package_name = "@gregmagolan/test-b",
-    entry_point = { "@fine_grained_directory_artifacts_goldens//:@gregmagolan_test-b__source_directory": "main.js" },
-    package = ":test-b",
-)

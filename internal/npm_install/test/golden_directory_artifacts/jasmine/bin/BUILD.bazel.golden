@@ -3,6 +3,6 @@ package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 nodejs_binary(
     name = "jasmine",
-    entry_point = { "@fine_grained_directory_artifacts_goldens//jasmine:jasmine__files": "bin/jasmine.js" },
+    entry_point = { "@fine_grained_directory_artifacts_goldens//jasmine:directory": "bin/jasmine.js" },
     data = ["//jasmine:jasmine"],
 )

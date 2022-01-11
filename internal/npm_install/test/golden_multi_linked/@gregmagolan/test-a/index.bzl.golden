@@ -5,13 +5,13 @@ def test(**kwargs):
         npm_package_bin(tool = "@fine_grained_goldens_multi_linked//@gregmagolan/test-a/bin:test", output_dir = output_dir, **kwargs)
     else:
         nodejs_binary(
-            entry_point = "@fine_grained_goldens_multi_linked//:node_modules/@gregmagolan/test-a/@bin/test.js",
+            entry_point = { "@fine_grained_goldens_multi_linked//@gregmagolan/test-a:directory": "@bin/test.js" },
             data = ["@fine_grained_goldens_multi_linked//@gregmagolan/test-a:test-a"] + kwargs.pop("data", []),
             **kwargs
         )
 def test_test(**kwargs):
     nodejs_test(
-      entry_point = "@fine_grained_goldens_multi_linked//:node_modules/@gregmagolan/test-a/@bin/test.js",
+      entry_point = { "@fine_grained_goldens_multi_linked//@gregmagolan/test-a:directory": "@bin/test.js" },
       data = ["@fine_grained_goldens_multi_linked//@gregmagolan/test-a:test-a"] + kwargs.pop("data", []),
       **kwargs
     )

@@ -57,6 +57,7 @@ yarn_install(
         "@vendored_node_10_12_0//:node-v10.12.0-linux-x64/bin/node",
         "@vendored_yarn_1_10_0//:yarn-v1.10.0/bin/yarn.js",
     ],
+    exports_directories_only = False,
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )

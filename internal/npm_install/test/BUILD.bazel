@@ -122,7 +122,8 @@ sh_test(
         "common.spec.js",
         "@fine_grained_deps_%s//:node_modules" % pkgmgr,
     ],
-    tags = tags + [
+    env = env,
+    tags = [
         "no-local-jasmine-deps",
         # On Windows this test must be exclusive as it runs outside of the sandbox
         # TODO: fix the yarn_install paths on these tests so they occupy different
@@ -138,22 +139,22 @@ sh_test(
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
     ],
-) for (pkgmgr, tags) in [
+) for (pkgmgr, env) in [
     [
         "yarn",
-        [],
+        {},
     ],
     [
         "npm",
-        [],
+        {},
     ],
     [
         "yarn_directory_artifacts",
-        [],
+        {"DIRECTORY_ARTIFACTS": "1"},
     ],
     [
         "npm_directory_artifacts",
-        [],
+        {"DIRECTORY_ARTIFACTS": "1"},
     ],
 ]]
 
@@ -166,7 +167,8 @@ sh_test(
         "common.spec.js",
         "fine.spec.js",
     ],
-    tags = tags + [
+    env = env,
+    tags = [
         "no-local-jasmine-deps",
         # On Windows this test must be exclusive as it runs outside of the sandbox
         # TODO: fix the yarn_install paths on these tests so they occupy different
@@ -182,29 +184,28 @@ sh_test(
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
         "@fine_grained_deps_%s//ajv" % pkgmgr,
-        "@fine_grained_deps_%s//local-module" % pkgmgr,
         "@fine_grained_deps_%s//typescript" % pkgmgr,
         "@fine_grained_deps_%s//rxjs" % pkgmgr,
         # Note, test-b depends on test-a@0.0.1 which should be
         # layed out at node_modules/test-b/node_modules/test-a
         "@fine_grained_deps_%s//@gregmagolan/test-b" % pkgmgr,
-    ],
-) for (pkgmgr, tags) in [
+    ] + (["@fine_grained_deps_%s//local-module" % pkgmgr] if not "DIRECTORY_ARTIFACTS" in env else []),
+) for (pkgmgr, env) in [
     [
         "yarn",
-        [],
+        {},
     ],
     [
         "npm",
-        [],
+        {},
     ],
     [
         "yarn_directory_artifacts",
-        [],
+        {"DIRECTORY_ARTIFACTS": "1"},
     ],
     [
         "npm_directory_artifacts",
-        [],
+        {"DIRECTORY_ARTIFACTS": "1"},
     ],
 ]]
 

@@ -50,6 +50,7 @@ tsc(
         "tsconfig-bazel.json",
         "@npm_node_patches//:node_modules",
     ],
+    tags = ["fix-windows"],
 )
 
 # Like the generated mocha_test but we don't want to run the patches before testing the patches
@@ -74,5 +75,6 @@ rollup_bundle(
     entry_point = "register.js",
     format = "cjs",
     sourcemap = "false",
+    tags = ["fix-windows"],
     deps = ["@npm//@rollup/plugin-commonjs"],
 )

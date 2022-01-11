@@ -78,6 +78,8 @@ js_library(
 """,
         # symlink_node_modules needed for running e2e & example integration tests on Windows CI
         symlink_node_modules = True,
+        # exports_directories_only needs to be disabled for @npm to support some legacy tests
+        exports_directories_only = False,
     )
 
     yarn_install(
@@ -119,7 +121,6 @@ js_library(
             "@test_multi_linker/lib-d": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
             "@test_multi_linker/lib-d2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
         },
-        exports_directories_only = True,
         package_json = "//:package.json",
         yarn_lock = "//:yarn.lock",
     )
@@ -263,6 +264,7 @@ js_library(
         ],
         package_json = "//:tools/fine_grained_deps_yarn/package.json",
         yarn_lock = "//:tools/fine_grained_deps_yarn/yarn.lock",
+        exports_directories_only = False,
     )
 
     npm_install(
@@ -287,37 +289,32 @@ js_library(
         npm_command = "install",
         package_json = "//:tools/fine_grained_deps_npm/package.json",
         package_lock_json = "//:tools/fine_grained_deps_npm/package-lock.json",
+        exports_directories_only = False,
     )
 
     yarn_install(
         name = "fine_grained_deps_yarn_directory_artifacts",
         data = [
-            "//:tools/npm_packages/local_module/yarn/index.js",
-            "//:tools/npm_packages/local_module/yarn/package.json",
             "//internal/npm_install/test:postinstall.js",
         ],
         environment = {
             "SOME_USER_ENV": "yarn is great!",
         },
-        exports_directories_only = True,
-        package_json = "//:tools/fine_grained_deps_yarn/package.json",
-        yarn_lock = "//:tools/fine_grained_deps_yarn/yarn.lock",
+        package_json = "//:tools/fine_grained_deps_yarn_directory_artifacts/package.json",
+        yarn_lock = "//:tools/fine_grained_deps_yarn_directory_artifacts/yarn.lock",
     )
 
     npm_install(
         name = "fine_grained_deps_npm_directory_artifacts",
         data = [
-            "//:tools/npm_packages/local_module/npm/index.js",
-            "//:tools/npm_packages/local_module/npm/package.json",
             "//internal/npm_install/test:postinstall.js",
         ],
         environment = {
             "SOME_USER_ENV": "npm is cool!",
         },
-        exports_directories_only = True,
         npm_command = "install",
-        package_json = "//:tools/fine_grained_deps_npm/package.json",
-        package_lock_json = "//:tools/fine_grained_deps_npm/package-lock.json",
+        package_json = "//:tools/fine_grained_deps_npm_directory_artifacts/package.json",
+        package_lock_json = "//:tools/fine_grained_deps_npm_directory_artifacts/package-lock.json",
     )
 
     yarn_install(
@@ -372,6 +369,7 @@ filegroup(
 )""",
         package_json = "//:tools/fine_grained_goldens/package.json",
         yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
+        exports_directories_only = False,
     )
 
     yarn_install(
@@ -408,7 +406,6 @@ filegroup(
     "//@some-scope/some-target-b2:BUILD.bazel",
   ],
 )""",
-        exports_directories_only = True,
         package_json = "//:tools/fine_grained_goldens/package.json",
         yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
     )
@@ -540,13 +537,18 @@ filegroup(
         name = "npm_node_patches",
         package_json = "//packages/node-patches:package.json",
         package_lock_json = "//packages/node-patches:package-lock.json",
+        # TODO: fix tests when this flag is flipped
+        exports_directories_only = False,
     )
 
     yarn_install(
         name = "cypress_deps",
         package_json = "//packages/cypress/test:package.json",
         yarn_lock = "//packages/cypress/test:yarn.lock",
+        # TODO: get cypress rule working with symlink_node_modules = False
         symlink_node_modules = True,
+        # TODO: get cypress rule working with exports_directories_only = True
+        exports_directories_only = False,
     )
 
     yarn_install(

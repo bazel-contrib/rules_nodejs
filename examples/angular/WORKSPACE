@@ -53,6 +53,8 @@ load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 # Setup the Node.js toolchain & install our npm dependencies into @npm
 yarn_install(
     name = "npm",
+    # ts_library & ng_module do not work with exports_directories_only
+    exports_directories_only = False,
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )

@@ -135,13 +135,11 @@ def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
                 env[var] = ctx.var[var]
             elif var in ctx.configuration.default_shell_env.keys():
                 env[var] = ctx.configuration.default_shell_env[var]
-    bazel_node_module_roots = ""
+
     node_modules_roots = _compute_node_modules_roots(ctx)
-    for path, root in node_modules_roots.items():
-        if bazel_node_module_roots:
-            bazel_node_module_roots = bazel_node_module_roots + ","
-        bazel_node_module_roots = bazel_node_module_roots + "%s:%s" % (path, root)
-    env["BAZEL_NODE_MODULES_ROOTS"] = bazel_node_module_roots
+
+    # BAZEL_NODE_MODULES_ROOTS is in the format "<path>,<path>,..."
+    env["BAZEL_NODE_MODULES_ROOTS"] = ",".join([root for root in node_modules_roots.keys() if root])
 
     stamp = ctx.attr.stamp[StampSettingInfo].value if hasattr(ctx.attr, "stamp") else False
     if stamp:

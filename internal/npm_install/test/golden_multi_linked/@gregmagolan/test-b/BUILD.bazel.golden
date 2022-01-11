@@ -1,54 +1,36 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-    name = "test-b__files",
-    srcs = [
-        "//:node_modules/@gregmagolan/test-b/main.js",
-        "//:node_modules/@gregmagolan/test-b/package.json",
-    ],
-)
-filegroup(
-    name = "test-b__nested_node_modules",
-    srcs = [
-        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/main.js",
-        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/package.json",
-    ],
-    visibility = ["//:__subpackages__"],
-)
-filegroup(
-    name = "test-b__not_files",
-    visibility = ["//visibility:private"],
-)
-filegroup(
-    name = "test-b__all_files",
-    srcs = [":test-b__files", ":test-b__not_files"],
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+copy_file(
+  name = "directory",
+  src = "@fine_grained_goldens_multi_linked//:@gregmagolan_test-b__source_directory",
+  is_directory = True,
+  out = "tree",
 )
 js_library(
     name = "test-b",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
-    srcs = [":test-b__files"],
     deps = [
         "//@gregmagolan/test-b:test-b__contents",
     ],
 )
 js_library(
-    name = "test-b__contents",
-    package_name = "$node_modules$",
+    name = "contents",
+    package_name = "@gregmagolan/test-b",
     package_path = "tools/fine_grained_goldens",
-    srcs = [":test-b__files", ":test-b__nested_node_modules"],
+    strip_prefix = "tree",
+    srcs = [":directory"],
     visibility = ["//:__subpackages__"],
 )
-js_library(
-    name = "test-b__typings",
-    package_name = "$node_modules$",
-    package_path = "tools/fine_grained_goldens",
+alias(
+  name = "test-b__files",
+  actual = "directory",
 )
-load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
-npm_umd_bundle(
-    name = "test-b__umd",
-    package_name = "@gregmagolan/test-b",
-    entry_point = "@fine_grained_goldens_multi_linked//:node_modules/@gregmagolan/test-b/main.js",
-    package = ":test-b",
+alias(
+  name = "test-b__contents",
+  actual = "contents",
+)
+alias(
+    name = "test-b__typings",
+    actual = "contents",
 )

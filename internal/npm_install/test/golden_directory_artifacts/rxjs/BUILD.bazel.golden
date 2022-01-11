@@ -35,10 +35,3 @@ alias(
     name = "rxjs__typings",
     actual = "contents",
 )
-load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
-npm_umd_bundle(
-    name = "rxjs__umd",
-    package_name = "rxjs",
-    entry_point = { "@fine_grained_directory_artifacts_goldens//:rxjs__source_directory": "_esm5/index.js" },
-    package = ":rxjs",
-)

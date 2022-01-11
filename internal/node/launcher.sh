@@ -284,9 +284,7 @@ if [[ "${RUNFILES}" ]] && [[ "${RUNFILES}" != "${RUNFILES_ROOT}" ]]; then
   export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES},${RUNFILES}/${BAZEL_WORKSPACE}/node_modules"
 fi
 if [[ -n "${BAZEL_NODE_MODULES_ROOTS:-}" ]]; then
-  # BAZEL_NODE_MODULES_ROOTS is in the format "<path>:<workspace>,<path>:<workspace>".
-  # For example,
-  #   "internal/linker/test:npm_internal_linker_test,:npm"
+  # BAZEL_NODE_MODULES_ROOTS is in the format "<path>,<path>,..."
   if [[ -n "${VERBOSE_LOGS:-}" ]]; then
     echo "BAZEL_NODE_MODULES_ROOTS=${BAZEL_NODE_MODULES_ROOTS}" >&2
   fi
@@ -294,30 +292,22 @@ if [[ -n "${BAZEL_NODE_MODULES_ROOTS:-}" ]]; then
   IFS=","
   roots=(${BAZEL_NODE_MODULES_ROOTS})
   IFS="${OLDIFS}"
-  for root in "${roots[@]}"; do
-    if [[ "${root}" ]]; then
-      OLDIFS="${IFS}"
-      IFS=":"
-      root_pair=(${root})
-      IFS="${OLDIFS}"
-      root_path="${root_pair[0]}"
-      root_workspace="${root_pair[1]:-}"
-      if [[ "${root_path}" ]]; then
-        # Guard non-root execroot & bazel-out node_modules as well.
+  for root_path in "${roots[@]}"; do
+    if [[ "${root_path}" ]]; then
+      # Guard non-root execroot & bazel-out node_modules as well.
+      # For example,
+      #   .../execroot/build_bazel_rules_nodejs/internal/linker/test/node_modules
+      #   .../execroot/build_bazel_rules_nodejs/bazel-out/*/bin/internal/linker/test/node_modules
+      export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/${root_path}/node_modules,${EXECROOT}/bazel-out/*/bin/${root_path}/node_modules"
+      if [[ "${RUNFILES_ROOT}" ]]; then
+        # If in runfiles guard the node_modules location in runfiles as well.
         # For example,
-        #   .../execroot/build_bazel_rules_nodejs/internal/linker/test/node_modules
-        #   .../execroot/build_bazel_rules_nodejs/bazel-out/*/bin/internal/linker/test/node_modules
-        export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/${root_path}/node_modules,${EXECROOT}/bazel-out/*/bin/${root_path}/node_modules"
-        if [[ "${RUNFILES_ROOT}" ]]; then
-          # If in runfiles guard the node_modules location in runfiles as well.
-          # For example,
-          #   .../execroot/build_bazel_rules_nodejs/bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/build_bazel_rules_nodejs/internal/linker/test/node_modules
-          export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${BAZEL_WORKSPACE}/${root_path}/node_modules"
-        fi
-        if [[ "${RUNFILES}" ]] && [[ "${RUNFILES}" != "${RUNFILES_ROOT}" ]]; then
-          # Same as above but for RUNFILES is not equal to RUNFILES_ROOT
-          export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES}/${BAZEL_WORKSPACE}/${root_path}/node_modules"
-        fi
+        #   .../execroot/build_bazel_rules_nodejs/bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/build_bazel_rules_nodejs/internal/linker/test/node_modules
+        export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${BAZEL_WORKSPACE}/${root_path}/node_modules"
+      fi
+      if [[ "${RUNFILES}" ]] && [[ "${RUNFILES}" != "${RUNFILES_ROOT}" ]]; then
+        # Same as above but for RUNFILES is not equal to RUNFILES_ROOT
+        export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES}/${BAZEL_WORKSPACE}/${root_path}/node_modules"
       fi
     fi
   done

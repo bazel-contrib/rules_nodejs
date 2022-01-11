@@ -213,13 +213,10 @@ def _nodejs_binary_impl(ctx, data = [], runfiles = [], expanded_args = []):
     # runfiles helpers to use.
     env_vars += "export BAZEL_WORKSPACE=%s\n" % ctx.workspace_name
 
-    bazel_node_module_roots = ""
-    for path, root in node_modules_roots.items():
-        if bazel_node_module_roots:
-            bazel_node_module_roots = bazel_node_module_roots + ","
-        bazel_node_module_roots = bazel_node_module_roots + "%s:%s" % (path, root)
+    # BAZEL_NODE_MODULES_ROOTS is in the format "<path>,<path>,..."
+    bazel_node_module_roots = ",".join([root for root in node_modules_roots.keys() if root])
 
-    # if BAZEL_NODE_MODULES_ROOTS has not already been set by
+    # If BAZEL_NODE_MODULES_ROOTS has not already been set by
     # run_node, then set it to the computed value
     env_vars += """if [[ -z "${BAZEL_NODE_MODULES_ROOTS:-}" ]]; then
   export BAZEL_NODE_MODULES_ROOTS=%s
