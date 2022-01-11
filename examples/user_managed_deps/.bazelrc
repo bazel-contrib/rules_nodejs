@@ -1,3 +1,0 @@
-# Note, this workspace doesn't need --experimental_allow_incremental_repository_updates
-# but it's simpler to get all the shared settings anyway.
-import %workspace%/../../common.bazelrc

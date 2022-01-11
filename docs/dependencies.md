@@ -228,50 +228,34 @@ nodejs_binary(
 )
 ```
 
-## Using self-managed dependencies
+## Using Bazel provisioned node, npm & yarn
 
-If you'd like to have Bazel use the `node_modules` directory you are managing,
-then next you will create a `BUILD.bazel` file in your project root containing:
+To run the version of node fetched by Bazel which defined in your WORKSPACE you
+can use:
 
-```python
-package(default_visibility = ["//visibility:public"])
-
-filegroup(
-    name = "node_modules",
-    srcs = glob(
-        include = ["node_modules/**/*"],
-        exclude = [
-          # Files under test & docs may contain file names that
-          # are not legal Bazel labels (e.g.,
-          # node_modules/ecstatic/test/public/中文/檔案.html)
-          "node_modules/test/**",
-          "node_modules/docs/**",
-          # Files with spaces are not allowed in Bazel runfiles
-          # See https://github.com/bazelbuild/bazel/issues/4327
-          "node_modules/**/* */**",
-          "node_modules/**/* *",
-        ],
-    ),
-)
+```sh
+$ bazel run @nodejs_host//:node -- <arguments passed to node>
 ```
 
-The example in `examples/user_managed_deps` uses self-managed dependencies.
+For example,
 
-To use the Yarn package manager, which we recommend for its built-in
-verification command, you can run:
+```
+$ bazel run @nodejs_host//:node -- --version
+v16.12.0
+```
+
+This will run node in the current working directory. 
+
+To run the Bazel fetched npm and/or yarn you can use:
 
 ```sh
 $ bazel run @nodejs_host//:yarn -- <arguments passed to yarn>
-```
-
-If you use npm instead, run:
-
-```sh
 $ bazel run @nodejs_host//:npm -- <arguments passed to npm>
 ```
 
-This will run yarn/npm in the current working directory. To add a package with the `yarn add` command,
-for example, you would use:
+This will run yarn/npm in the current working directory.
+
+For example, to add a package with the `yarn add` command you would run:
 
 ```sh
 $ bazel run @nodejs_host//:yarn -- add <package>

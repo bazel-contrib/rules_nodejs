@@ -1896,47 +1896,8 @@ Defaults to `[]`
 
 <h4 id="js_library-package_name">package_name</h4>
 
-The name it will be imported by. Should match the "name" field in the package.json file.
-
-If package_name == "$node_modules$" this indictates that this js_library target is one or more external npm
-packages in node_modules. This is a special case that used be covered by the internal only
-`external_npm_package` attribute. NB: '$' is an illegal character
-for npm packages names so this reserved name will not conflict with any valid package_name values
-
-This is used by the yarn_install & npm_install repository rules for npm dependencies installed by
-yarn & npm. When true, js_library will provide ExternalNpmPackageInfo.
-
-It can also be used for user-managed npm dependencies if node_modules is layed out outside of bazel.
-For example,
-
-```starlark
-js_library(
-    name = "node_modules",
-    srcs = glob(
-        include = [
-            "node_modules/**/*.js",
-            "node_modules/**/*.d.ts",
-            "node_modules/**/*.json",
-            "node_modules/.bin/*",
-        ],
-        exclude = [
-            # Files under test & docs may contain file names that
-            # are not legal Bazel labels (e.g.,
-            # node_modules/ecstatic/test/public/ä¸­æ/æªæ¡.html)
-            "node_modules/**/test/**",
-            "node_modules/**/docs/**",
-            # Files with spaces in the name are not legal Bazel labels
-            "node_modules/**/* */**",
-            "node_modules/**/* *",
-        ],
-    ),
-    # Special value to provide ExternalNpmPackageInfo which is used by downstream
-    # rules that use these npm dependencies
-    package_name = "$node_modules$",
-)
-```
-
-See `examples/user_managed_deps` for a working example of user-managed npm dependencies.
+The name it will be imported by.
+Should match the "name" field in the package.json file if one is included.
 
 Defaults to `None`
 
