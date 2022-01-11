@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(
-    name = "examples_nestjs",
-    managed_directories = {"@npm": ["node_modules"]},
-)
+workspace(name = "examples_nestjs")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 

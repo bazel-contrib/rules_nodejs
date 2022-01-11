@@ -167,9 +167,6 @@ def fetch_dependencies():
 workspace(
     # How this workspace would be referenced with absolute labels from another workspace
     name = "${wkspName}",
-    # Map the @npm bazel workspace to the node_modules directory.
-    # This lets Bazel use the same node_modules as other local tooling.
-    managed_directories = {"@npm": ["node_modules"]},
 )
 
 load("//tools:bazel_deps.bzl", "fetch_dependencies")

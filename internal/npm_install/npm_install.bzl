@@ -335,6 +335,14 @@ to the source `package.json`.""",
     "symlink_node_modules": attr.bool(
         doc = """Turn symlinking of node_modules on
 
+When False, the package manager will run in the external repository
+created by this rule.
+This requires that any files required for it to run should be listed in the
+`data` attribute. These files would include things like patch files that are
+read by a postinstall lifecycle hook such as the `patch-package` package uses.
+`package.json` and the lock file are already specified in dedicated attributes
+of this rule and do not need to be included in the `data`.
+
 When True, we run the package manager (npm or yarn) with the working directory
 set in your source tree, in the folder containing the package.json file.
 The resulting `node_modules` folder in the source tree will be symlinked to the
@@ -365,16 +373,8 @@ Using managed_directories will mean that
    in the external repository folder, and
 2. if the `node_modules` folder is deleted from the source tree, Bazel will re-run the
    repository rule that creates it again on the next run.
-
-When False, the package manager will run in the external repository
-created by this rule.
-This requires that any files required for it to run should be listed in the
-`data` attribute. These files would include things like patch files that are
-read by a postinstall lifecycle hook such as the `patch-package` package uses.
-`package.json` and the lock file are already specified in dedicated attributes
-of this rule and do not need to be included in the `data`.
 """,
-        default = True,
+        default = False,
     ),
     "timeout": attr.int(
         default = 3600,

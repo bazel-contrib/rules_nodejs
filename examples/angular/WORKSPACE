@@ -5,10 +5,7 @@
 # ESModule imports (and TypeScript imports) can be absolute starting with the workspace name.
 # The name of the workspace should match the npm package where we publish, so that these
 # imports also make sense when referencing the published package.
-workspace(
-    name = "examples_angular",
-    managed_directories = {"@npm": ["node_modules"]},
-)
+workspace(name = "examples_angular")
 
 # These rules are built-into Bazel but we need to load them first to download more rules
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")

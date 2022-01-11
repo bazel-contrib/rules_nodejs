@@ -29,9 +29,6 @@ This approach also allows you to use the generated fine-grained npm package depe
 which can significantly reduce the number of inputs to actions, making Bazel sand-boxing and
 remote-execution faster if there are a large number of files under `node_modules`.
 
-> Note that as of Bazel 0.26, and with the recommended `managed_directories` attribute on the `workspace` rule in `/WORKSPACE`,
-> the Bazel-managed `node_modules` directory is placed in your workspace root in the standard location used by npm or yarn.
-
 ## Using Bazel-managed dependencies
 
 To have Bazel manage its own copy of `node_modules`, which is useful to avoid
@@ -65,8 +62,28 @@ npm_install(
 > If you don't need to pass any arguments to `node_repositories`,
   you can skip calling that function. `yarn_install` and `npm_install` will do it by default.
 
-You should now add the `@npm` workspace to the `managed_directories` option in the `workspace` rule at the top of the file. This tells Bazel that the `node_modules` directory is special and is managed by the package manager.
-Add the `workspace` rule if it isn't already in your `/WORKSPACE` file.
+### symlink_node_modules and managed_directories
+
+Set `symlink_node_modules` to `True` to configure `npm_install` and/or
+`yarn_install` to install `node_modules` inside the user workspace and have
+Bazel use the `node_modules` folder in the user workspace for the build via a
+symlink to the user's `node_modules` in the external repository it creates.
+
+```python
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
+
+npm_install(
+    name = "npm",
+    package_json = "//:package.json",
+    package_lock_json = "//:package-lock.json",
+    symlink_node_modules = True,
+)
+```
+
+You should now add the `@npm` workspace to the `managed_directories` option in
+the `workspace` rule at the top of the file. This tells Bazel that the
+`node_modules` directory is special and is managed by the package manager. Add
+the `workspace` rule if it isn't already in your `/WORKSPACE` file.
 
 ```python
 workspace(
@@ -75,7 +92,19 @@ workspace(
 )
 ```
 
-As of Bazel 0.26 this feature is still experimental, so also add this line to the `.bazelrc` to opt-in:
+As of rules_nodejs 5.0, `symlink_node_modules` defaults to `False` and using
+`managed_directories` is not recommended. We've found that the benefits of using
+`symlink_node_modules`, which allows Bazel to use a `node_modules` directory
+that is in the user workspace, do not outweigh the downsides of the repository
+rule not defining all of their inputs and of having to re-run the repository rule
+if the user's `node_modules` folder is deleted. On persistent CI machines, that
+will delete the `node_modules` folder when cleaning the clone between jobs, the
+repository rule will run for every job when `symlink_node_modules` is enabled.
+With `symlink_node_modules` disabled, the repository rule will only re-run if
+its inputs change between jobs.
+
+NB: On older versions of Bazel you may have to add the following flag to your
+`.bazelrc` to enable managed directories.
 
 ```
 common --experimental_allow_incremental_repository_updates
@@ -131,13 +160,7 @@ and npm deps, `yarn_install` (or `npm_install`) can be called separately for
 each.
 
 ```python
-workspace(
-    name = "my_wksp",
-    managed_directories = {
-        "@app1_npm": ["app1/node_modules"],
-        "@app2_npm": ["app2/node_modules"],
-    },
-)
+workspace(name = "my_wksp")
 
 yarn_install(
     name = "app1_npm",

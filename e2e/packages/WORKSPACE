@@ -25,7 +25,6 @@ npm_install(
     data = ["//:postinstall.js"],
     package_json = "//:npm1/package.json",
     package_lock_json = "//:npm1/package-lock.json",
-    symlink_node_modules = False,
 )
 
 npm_install(
@@ -34,7 +33,6 @@ npm_install(
     data = ["//:postinstall.js"],
     package_json = "//:npm2/package.json",
     package_lock_json = "//:npm2/package-lock.json",
-    symlink_node_modules = False,
 )
 
 yarn_install(
@@ -42,7 +40,6 @@ yarn_install(
     args = ["--prod"],
     data = ["//:postinstall.js"],
     package_json = "//:yarn1/package.json",
-    symlink_node_modules = False,
     yarn_lock = "//:yarn1/yarn.lock",
 )
 
@@ -51,6 +48,5 @@ yarn_install(
     args = ["--prod"],
     data = ["//:postinstall.js"],
     package_json = "//:yarn2/package.json",
-    symlink_node_modules = False,
     yarn_lock = "//:yarn2/yarn.lock",
 )
