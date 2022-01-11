@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Helper functions to get node and npm labels in @nodejs repository.
+"""Helper functions to get node and npm labels in @nodejs_host and @nodejs_<platform> repositories.
 
 Labels are different on windows and linux/OSX.
 """
@@ -28,9 +28,6 @@ def get_node_label(rctx):
 
 def get_npm_label(rctx):
     return _get_label(rctx, "bin/npm")
-
-def get_npm_node_repositories_label(rctx):
-    return _get_label(rctx, "bin/npm_node_repositories")
 
 def get_yarn_label(rctx):
     return _get_label(rctx, "bin/yarn")

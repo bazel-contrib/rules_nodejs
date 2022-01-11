@@ -1,4 +1,4 @@
-"Provide convenience repository for the host platform like @nodejs"
+"Provide convenience repository for the host platform"
 
 load("//nodejs/private:os_name.bzl", "os_name")
 
@@ -18,8 +18,6 @@ alias(name = "yarn_bin",                actual = "@{node_repository}_{os_name}//
 alias(name = "node",                    actual = "@{node_repository}_{os_name}//:node")
 alias(name = "npm",                     actual = "@{node_repository}_{os_name}//:npm")
 alias(name = "yarn",                    actual = "@{node_repository}_{os_name}//:yarn")
-alias(name = "npm_node_repositories",   actual = "@{node_repository}_{os_name}//:npm_node_repositories")
-alias(name = "yarn_node_repositories",  actual = "@{node_repository}_{os_name}//:yarn_node_repositories")
 alias(name = "node_files",              actual = "@{node_repository}_{os_name}//:node_files")
 alias(name = "yarn_files",              actual = "@{node_repository}_{os_name}//:yarn_files")
 alias(name = "npm_files",               actual = "@{node_repository}_{os_name}//:npm_files")

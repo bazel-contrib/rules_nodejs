@@ -1,5 +1,5 @@
 workspace(
-    name = "nodejs_repository",
+    name = "e2e_nodejs_host",
     managed_directories = {"@npm": ["node_modules"]},
 )
 

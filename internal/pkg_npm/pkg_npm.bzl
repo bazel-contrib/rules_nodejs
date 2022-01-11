@@ -63,7 +63,7 @@ Actually publish the package with `npm publish` (also builds first):
 
 ```sh
 # Check login credentials
-$ bazel run @nodejs//:npm_node_repositories who
+$ bazel run @nodejs_host//:npm who
 # Publishes the package
 $ bazel run :my_package.publish
 ```
