@@ -23,6 +23,7 @@ npm_install(
     name = "e2e_packages_npm_install",
     args = ["--production"],
     data = ["//:postinstall.js"],
+    exports_directories_only = False,
     package_json = "//:npm1/package.json",
     package_lock_json = "//:npm1/package-lock.json",
 )
@@ -31,6 +32,7 @@ npm_install(
     name = "e2e_packages_npm_install_duplicate_for_determinism_testing",
     args = ["--production"],
     data = ["//:postinstall.js"],
+    exports_directories_only = False,
     package_json = "//:npm2/package.json",
     package_lock_json = "//:npm2/package-lock.json",
 )
@@ -39,6 +41,7 @@ yarn_install(
     name = "e2e_packages_yarn_install",
     args = ["--prod"],
     data = ["//:postinstall.js"],
+    exports_directories_only = False,
     package_json = "//:yarn1/package.json",
     yarn_lock = "//:yarn1/yarn.lock",
 )
@@ -47,6 +50,7 @@ yarn_install(
     name = "e2e_packages_yarn_install_duplicate_for_determinism_testing",
     args = ["--prod"],
     data = ["//:postinstall.js"],
+    exports_directories_only = False,
     package_json = "//:yarn2/package.json",
     yarn_lock = "//:yarn2/yarn.lock",
 )

@@ -37,10 +37,3 @@ alias(
     name = "core__typings",
     actual = "contents",
 )
-load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
-npm_umd_bundle(
-    name = "core__umd",
-    package_name = "@angular/core",
-    entry_point = { "@fine_grained_directory_artifacts_goldens//:@angular_core__source_directory": "fesm5/core.js" },
-    package = ":core",
-)

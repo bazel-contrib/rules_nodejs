@@ -44,6 +44,7 @@ npm_install(
     data = [
         "@vendored_node_15_0_1//:node-v15.0.1-linux-x64/bin/node",
     ],
+    exports_directories_only = False,
     package_json = "//:package.json",
     package_lock_json = "//:package-lock.json",
 )

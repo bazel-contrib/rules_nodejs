@@ -17,9 +17,12 @@ describe('dependencies', () => {
     require('ajv/lib/$data');
   });
 
-  it(`should resolve local-module`, () => {
-    require('local-module');
-  });
+  if (!process.env['DIRECTORY_ARTIFACTS']) {
+    // Check for local-module in the non-directory-artifacts test case
+    it(`should resolve local-module`, () => {
+      require('local-module');
+    });
+  }
 
   it(`should resolve rxjs/src/tsconfig.json`, () => {
     // the BUILD.bazel file in rxjs/src should have been

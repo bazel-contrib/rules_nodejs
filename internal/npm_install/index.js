@@ -628,7 +628,7 @@ function findFile(pkg, m) {
 function printPackageExportsDirectories(pkg) {
     const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
     const depsStarlark = deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
-    let result = `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+    return `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 # Generated targets for npm package "${pkg._dir}"
@@ -678,21 +678,6 @@ alias(
     actual = "contents",
 )
 `;
-    let mainEntryPoint = resolvePkgMainFile(pkg);
-    if (mainEntryPoint && !findFile(pkg, `${pkg._name}.umd.js`)) {
-        result +=
-            `load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
-
-npm_umd_bundle(
-    name = "${pkg._name}__umd",
-    package_name = "${pkg._moduleName}",
-    entry_point = { "@${config.workspace}//:${pkg._dir.replace("/", "_")}__source_directory": "${mainEntryPoint}" },
-    package = ":${pkg._name}",
-)
-
-`;
-    }
-    return result;
 }
 function printPackage(pkg) {
     function starlarkFiles(attr, files, comment = '') {
@@ -850,7 +835,7 @@ function printPackageBin(pkg) {
         }
         for (const [name, path] of executables.entries()) {
             const entryPoint = config.exports_directories_only ?
-                `{ "@${config.workspace}//${pkg._dir}:${pkg._name}__files": "${path}" }` :
+                `{ "@${config.workspace}//${pkg._dir}:directory": "${path}" }` :
                 `"@${config.workspace}//:node_modules/${pkg._dir}/${path}"`;
             result += `# Wire up the \`bin\` entry \`${name}\`
 nodejs_binary(
@@ -878,7 +863,7 @@ function printIndexBzl(pkg) {
         }
         for (const [name, path] of executables.entries()) {
             const entryPoint = config.exports_directories_only ?
-                `{ "@${config.workspace}//${pkg._dir}:${pkg._name}__files": "${path}" }` :
+                `{ "@${config.workspace}//${pkg._dir}:directory": "${path}" }` :
                 `"@${config.workspace}//:node_modules/${pkg._dir}/${path}"`;
             result = `${result}
 

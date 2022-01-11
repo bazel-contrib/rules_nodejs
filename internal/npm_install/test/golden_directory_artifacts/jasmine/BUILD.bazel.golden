@@ -45,11 +45,4 @@ alias(
     name = "jasmine__typings",
     actual = "contents",
 )
-load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
-npm_umd_bundle(
-    name = "jasmine__umd",
-    package_name = "jasmine",
-    entry_point = { "@fine_grained_directory_artifacts_goldens//:jasmine__source_directory": "lib/jasmine.js" },
-    package = ":jasmine",
-)
 exports_files(["index.bzl"])
