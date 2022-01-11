@@ -367,8 +367,6 @@ def ts_project(
     tsc_deps = deps
 
     if tsc == None:
-        print(native.repository_name())
-
         # Detect how we are being called.
         # If we are in our starlark module, then we load typescript from the ts_repositories fetch.
         # Otherwise, we are being called with in the @npm external repo

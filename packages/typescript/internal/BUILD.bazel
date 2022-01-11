@@ -17,7 +17,7 @@ load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 # gazelle:exclude worker_protocol.proto
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["validator.js"])
+exports_files(["ts_project_options_validator.js"])
 
 # BEGIN-INTERNAL
 # buildifier: disable=load-on-top
@@ -26,7 +26,6 @@ load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
 checked_in_ts_project(
     name = "compile",
     src = "//packages/typescript/internal:ts_project_options_validator.ts",
-    checked_in_js = "validator.js",
     visibility = ["//visibility:public"],
     deps = [
         "@npm//@types/node",
@@ -53,7 +52,7 @@ filegroup(
     name = "package_contents",
     srcs = glob(["*.bzl"]) + [
         "BUILD.bazel",
-        "validator.js",
+        "ts_project_options_validator.js",
         "//packages/typescript/internal/worker:package_contents",
     ],
     visibility = ["//packages/typescript:__subpackages__"],
