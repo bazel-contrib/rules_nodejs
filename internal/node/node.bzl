@@ -630,7 +630,7 @@ _NODEJS_EXECUTABLE_OUTPUTS = {
 nodejs_binary_kwargs = {
     "attrs": _NODEJS_EXECUTABLE_ATTRS,
     "doc": """Runs some JavaScript code in NodeJS. You can also change the default args that are sent to nodejs. This can be done through a flag. The default is --preserve-symlinks while anything
-can be passed. The flag is --@build_bazel_rules_nodejs//nodejs:default_args="" ex: bazel build --@build_bazel_rules_nodejs//nodejs:default_args="--preserve-symlinks --no-warnings" main
+can be passed. The flag is --@rules_nodejs//nodejs:default_args="" ex: bazel build --@rules_nodejs//nodejs:default_args="--preserve-symlinks --no-warnings" //:target.
 This will pass --preserve-symlinks and --no-warnings flags to nodejs. Available node flags can be found here: https://nodejs.org/api/cli.html.""",
     "executable": True,
     "implementation": _nodejs_binary_impl,
@@ -696,7 +696,7 @@ The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
 
 You can also change the default args that are sent to nodejs. This can be done through a flag. The default is --preserve-symlinks while anything
-can be passed. The flag is --@build_bazel_rules_nodejs//nodejs:default_args="" ex: bazel test --@build_bazel_rules_nodejs//nodejs:default_args="--preserve-symlinks --no-warnings" main
+can be passed. The flag is --@rules_nodejs//nodejs:default_args="" ex: bazel test --@rules_nodejs//nodejs:default_args="--preserve-symlinks --no-warnings" //:target.
 This will pass --preserve-symlinks and --no-warnings flags to nodejs. Available node flags can be found here: https://nodejs.org/api/cli.html.
 """,
     test = True,

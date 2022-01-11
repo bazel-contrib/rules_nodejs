@@ -39,12 +39,9 @@ toolchain_type(
     for key, values in PLATFORMS.items()
 ]
 
-# User set flags that are passed to the build
-# you need to make sure that you pass the correct repo name infront for this flag to work
-# if you are using rules from build_bazel_rules_nodejs that should be the @ in the flag
-# ex: bazel build --@build_bazel_rules_nodejs//nodejs:default_args="test" main
-# use rules_nodejs when you use things from that repo
-# bazel test --//nodejs:default_args="" //...
+# Default arguments/flags that are passed to nodejs in all nodejs_binary and
+# nodejs_test targets. Can be overwritten by settings
+# --@rules_nodejs//nodejs:default_args="--flag1 --flag2"
 user_args(
     name = "default_args",
     build_setting_default = "--preserve-symlinks",

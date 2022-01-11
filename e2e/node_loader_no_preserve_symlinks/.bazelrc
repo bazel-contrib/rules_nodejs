@@ -1,1 +1,3 @@
 import %workspace%/../../common.bazelrc
+
+build --@rules_nodejs//nodejs:default_args=""
