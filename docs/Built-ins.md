@@ -1226,6 +1226,9 @@ See yarn CLI docs for complete list of supported arguments.
 Yarn 1: https://yarnpkg.com/en/docs/cli/install
 Yarn 2+ (Berry): https://yarnpkg.com/cli/install
 
+Note that Yarn Berry PnP is *not* supported, follow
+https://github.com/bazelbuild/rules_nodejs/issues/1599
+
 Defaults to `[]`
 
 <h4 id="yarn_install-data">data</h4>

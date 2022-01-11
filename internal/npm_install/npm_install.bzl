@@ -809,6 +809,15 @@ check if yarn is being run by the `npm_install` repository rule.""",
     implementation = _npm_install_impl,
 )
 
+def _detect_yarn_version(rctx, yarn):
+    result = rctx.execute([rctx.path(yarn), "--version"])
+    if result.return_code:
+        fail("yarn --version failed: %s (%s)" % (result.stdout, result.stderr))
+    if result.stdout.startswith("1."):
+        return "classic"
+
+    return "berry"
+
 def _yarn_install_impl(repository_ctx):
     """Core implementation of yarn_install."""
     _check_min_bazel_version("yarn_install", repository_ctx)
@@ -816,43 +825,38 @@ def _yarn_install_impl(repository_ctx):
     is_windows_host = is_windows_os(repository_ctx)
     node = repository_ctx.path(get_node_label(repository_ctx))
     yarn = get_yarn_label(repository_ctx)
-    result = repository_ctx.execute(
-        [repository_ctx.path(yarn), "--version"],
-        timeout = repository_ctx.attr.timeout,
-        quiet = repository_ctx.attr.quiet,
-    )
-    if result.return_code:
-        fail("yarn --version failed: %s (%s)" % (result.stdout, result.stderr))
-    if result.stdout.startswith("1."):
-        yarn_version = "classic"
-    else:
-        yarn_version = "berry"
-
+    yarn_version = _detect_yarn_version(repository_ctx, yarn)
     yarn_args = []
 
-    # Set frozen lockfile as default install to install the exact version from the yarn.lock
-    # file. To perform an yarn install use the vendord yarn binary with:
-    # `bazel run @nodejs_host//:yarn install` or `bazel run @nodejs_host//:yarn install -- -D <dep-name>`
-    if repository_ctx.attr.frozen_lockfile:
-        if yarn_version == "classic":
-            yarn_args.append("--frozen-lockfile")
-        else:
+    # CLI arguments changed in yarn 2+
+    if yarn_version == "berry":
+        # According to maintainers, the yarn cache is now atomic in berry, so this flag is only needed in classic.
+        # See https://github.com/bazelbuild/rules_nodejs/pull/3195#discussion_r780719932
+        if not repository_ctx.attr.use_global_yarn_cache:
+            fail("""Disabling global_yarn_cache has no effect while using Yarn Berry.
+                Please configure it through a .yarnrc file through 'data' attribute.""")
+        if repository_ctx.attr.frozen_lockfile:
             fail("--frozen-lockfile should not be used with yarn 2+. Just pass arguments like --immutable.")
-
-    if not repository_ctx.attr.use_global_yarn_cache:
-        yarn_args.extend(["--cache-folder", str(repository_ctx.path("_yarn_cache"))])
     elif yarn_version == "classic":
-        # Multiple yarn rules cannot run simultaneously using a shared cache.
-        # See https://github.com/yarnpkg/yarn/issues/683
-        # The --mutex option ensures only one yarn runs at a time, see
-        # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
-        # The shared cache is not necessarily hermetic, but we need to cache downloaded
-        # artifacts somewhere, so we rely on yarn to be correct.
-        yarn_args.extend(["--mutex", "network"])
+        # Set frozen lockfile as default install to install the exact version from the yarn.lock
+        # file. To perform an yarn install use the vendord yarn binary with:
+        # `bazel run @nodejs_host//:yarn install` or `bazel run @nodejs_host//:yarn install -- -D <dep-name>`
+        if repository_ctx.attr.frozen_lockfile:
+            yarn_args.append("--frozen-lockfile")
+
+        if repository_ctx.attr.use_global_yarn_cache:
+            # Multiple yarn rules cannot run simultaneously using a shared cache.
+            # See https://github.com/yarnpkg/yarn/issues/683
+            # The --mutex option ensures only one yarn runs at a time, see
+            # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
+            # The shared cache is not necessarily hermetic, but we need to cache downloaded
+            # artifacts somewhere, so we rely on yarn to be correct.
+            yarn_args.extend(["--mutex", "network"])
+        else:
+            yarn_args.extend(["--cache-folder", str(repository_ctx.path("_yarn_cache"))])
     else:
-        # Can't tell from documentation if Yarn Berry has any replacement for the --mutex
-        # flag. We'll have to assume it's safe to run concurrently.
-        pass
+        fail("yarn_version has unknown value " + yarn_version)
+
     yarn_args.extend(repository_ctx.attr.args)
 
     # Run the package manager in the package.json folder
@@ -960,6 +964,9 @@ yarn_install = repository_rule(
 See yarn CLI docs for complete list of supported arguments.
 Yarn 1: https://yarnpkg.com/en/docs/cli/install
 Yarn 2+ (Berry): https://yarnpkg.com/cli/install
+
+Note that Yarn Berry PnP is *not* supported, follow
+https://github.com/bazelbuild/rules_nodejs/issues/1599
 """,
             default = [],
         ),
