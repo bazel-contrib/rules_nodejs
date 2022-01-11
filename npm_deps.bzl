@@ -76,6 +76,8 @@ js_library(
     visibility = ["//very_testy:__pkg__"],
 )
 """,
+        # symlink_node_modules needed for running e2e & example integration tests on Windows CI
+        symlink_node_modules = True,
     )
 
     yarn_install(
@@ -117,7 +119,6 @@ js_library(
             "@test_multi_linker/lib-d": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
             "@test_multi_linker/lib-d2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
         },
-        symlink_node_modules = False,
         exports_directories_only = True,
         package_json = "//:package.json",
         yarn_lock = "//:yarn.lock",
@@ -137,7 +138,6 @@ js_library(
         },
         package_json = "//internal/linker/test/multi_linker:package.json",
         package_path = "internal/linker/test/multi_linker",
-        symlink_node_modules = False,
         yarn_lock = "//internal/linker/test/multi_linker:yarn.lock",
     )
 
@@ -155,7 +155,6 @@ js_library(
         },
         package_json = "//internal/linker/test/multi_linker/test_a:package.json",
         package_path = "internal/linker/test/multi_linker/test_a",
-        symlink_node_modules = False,
         yarn_lock = "//internal/linker/test/multi_linker/test_a:yarn.lock",
     )
 
@@ -163,7 +162,6 @@ js_library(
         name = "internal_test_multi_linker_test_b_deps",
         package_json = "//internal/linker/test/multi_linker/test_b:package.json",
         package_path = "internal/linker/test/multi_linker/test_b",
-        symlink_node_modules = False,
         yarn_lock = "//internal/linker/test/multi_linker/test_b:yarn.lock",
     )
 
@@ -171,7 +169,6 @@ js_library(
         name = "internal_test_multi_linker_test_c_deps",
         package_json = "//internal/linker/test/multi_linker/test_c:package.json",
         package_path = "internal/linker/test/multi_linker/test_c",
-        symlink_node_modules = False,
         yarn_lock = "//internal/linker/test/multi_linker/test_c:yarn.lock",
     )
 
@@ -179,7 +176,6 @@ js_library(
         name = "internal_test_multi_linker_test_d_deps",
         package_json = "//internal/linker/test/multi_linker/test_d:package.json",
         package_path = "internal/linker/test/multi_linker/test_d",
-        symlink_node_modules = False,
         yarn_lock = "//internal/linker/test/multi_linker/test_d:yarn.lock",
     )
 
@@ -189,7 +185,6 @@ js_library(
         args = ["--production"],
         package_json = "//internal/linker/test/multi_linker/lib_b:package.json",
         package_path = "internal/linker/test/multi_linker/lib_b",
-        symlink_node_modules = False,
         yarn_lock = "//internal/linker/test/multi_linker/lib_b:yarn.lock",
     )
 
@@ -199,7 +194,6 @@ js_library(
         args = ["--production"],
         package_json = "//internal/linker/test/multi_linker/lib_c:lib/package.json",
         package_path = "internal/linker/test/multi_linker/lib_c/lib",
-        symlink_node_modules = False,
         yarn_lock = "//internal/linker/test/multi_linker/lib_c:lib/yarn.lock",
     )
 
@@ -217,7 +211,6 @@ js_library(
         },
         package_json = "//internal/linker/test/multi_linker/sub:package.json",
         package_path = "internal/linker/test/multi_linker/sub/dev",
-        symlink_node_modules = False,
         yarn_lock = "//internal/linker/test/multi_linker/sub:yarn.lock",
     )
 
@@ -246,7 +239,6 @@ js_library(
         args = ["--production"],
         package_json = "//internal/linker/test/multi_linker/onep_a:package.json",
         package_path = "internal/linker/test/multi_linker/onep_a",
-        symlink_node_modules = False,
         yarn_lock = "//internal/linker/test/multi_linker/onep_a:yarn.lock",
     )
 
@@ -270,7 +262,6 @@ js_library(
             ".proto",
         ],
         package_json = "//:tools/fine_grained_deps_yarn/package.json",
-        symlink_node_modules = False,
         yarn_lock = "//:tools/fine_grained_deps_yarn/yarn.lock",
     )
 
@@ -296,7 +287,6 @@ js_library(
         npm_command = "install",
         package_json = "//:tools/fine_grained_deps_npm/package.json",
         package_lock_json = "//:tools/fine_grained_deps_npm/package-lock.json",
-        symlink_node_modules = False,
     )
 
     yarn_install(
@@ -311,7 +301,6 @@ js_library(
         },
         exports_directories_only = True,
         package_json = "//:tools/fine_grained_deps_yarn/package.json",
-        symlink_node_modules = False,
         yarn_lock = "//:tools/fine_grained_deps_yarn/yarn.lock",
     )
 
@@ -329,13 +318,11 @@ js_library(
         npm_command = "install",
         package_json = "//:tools/fine_grained_deps_npm/package.json",
         package_lock_json = "//:tools/fine_grained_deps_npm/package-lock.json",
-        symlink_node_modules = False,
     )
 
     yarn_install(
         name = "fine_grained_no_bin",
         package_json = "//:tools/fine_grained_no_bin/package.json",
-        symlink_node_modules = False,
         yarn_lock = "//:tools/fine_grained_no_bin/yarn.lock",
     )
 
@@ -384,7 +371,6 @@ filegroup(
   ],
 )""",
         package_json = "//:tools/fine_grained_goldens/package.json",
-        symlink_node_modules = False,
         yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
     )
 
@@ -424,7 +410,6 @@ filegroup(
 )""",
         exports_directories_only = True,
         package_json = "//:tools/fine_grained_goldens/package.json",
-        symlink_node_modules = False,
         yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
     )
 
@@ -448,7 +433,6 @@ filegroup(
             # add scripts.new
             "scripts.new": "added",
         },
-        symlink_node_modules = False,
         yarn_lock = "//internal/npm_install/test/patches_yarn:yarn.lock",
         quiet = False,
         manual_build_file_contents = """exports_files(["_/internal/npm_install/test/patches_yarn/package.json"])""",
@@ -475,7 +459,6 @@ filegroup(
             # add scripts.new
             "scripts.new": "added",
         },
-        symlink_node_modules = False,
         quiet = False,
         manual_build_file_contents = """exports_files(["_/internal/npm_install/test/patches_npm/package.json"])""",
     )
@@ -550,7 +533,6 @@ filegroup(
 )""",
         package_json = "//:tools/fine_grained_goldens/package.json",
         package_path = "tools/fine_grained_goldens",
-        symlink_node_modules = False,
         yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
     )
 
@@ -564,12 +546,12 @@ filegroup(
         name = "cypress_deps",
         package_json = "//packages/cypress/test:package.json",
         yarn_lock = "//packages/cypress/test:yarn.lock",
+        symlink_node_modules = True,
     )
 
     yarn_install(
         name = "rollup_test_multi_linker_deps",
         package_json = "//packages/rollup/test/multi_linker:package.json",
         package_path = "packages/rollup/test/multi_linker",
-        symlink_node_modules = False,
         yarn_lock = "//packages/rollup/test/multi_linker:yarn.lock",
     )

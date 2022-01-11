@@ -1,7 +1,4 @@
-workspace(
-    name = "create_react_app",
-    managed_directories = {"@npm": ["node_modules"]},
-)
+workspace(name = "create_react_app")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -20,6 +17,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 yarn_install(
     # Name this npm so that Bazel Label references look like @npm//package
     name = "npm",
+    data = ["//:patches/jest-haste-map+26.6.2.patch"],
     exports_directories_only = True,
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",

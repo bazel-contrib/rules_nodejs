@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(
-    name = "e2e_bazel_managed_deps",
-    managed_directories = {"@npm": ["node_modules"]},
-)
+workspace(name = "e2e_bazel_managed_deps")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 

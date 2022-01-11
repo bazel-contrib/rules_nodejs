@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(
-    name = "examples_webapp",
-    managed_directories = {"@npm_deps": ["node_modules"]},
-)
+workspace(name = "examples_webapp")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 

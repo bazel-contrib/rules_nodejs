@@ -1,7 +1,4 @@
-workspace(
-    name = "vue_example",
-    managed_directories = {"@npm": ["node_modules"]},
-)
+workspace(name = "vue_example")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 

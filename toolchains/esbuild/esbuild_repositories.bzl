@@ -77,6 +77,5 @@ def esbuild_repositories(name = "", npm_repository = "npm", npm_args = []):
             # Disable scripts as we don't need the javascript shim replaced wit the binary.
             "--ignore-scripts",
         ] + npm_args,
-        symlink_node_modules = False,
         package_path = package_path,
     )

@@ -33,7 +33,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 yarn_install(
     name = "yarn",
-    # TODO(dan?): figure out why this fails:
+    # TODO(danmuller): figure out why this fails:
     # ERROR: /private/tmp/tmp-96111FZPjEFtem0Q1/BUILD.bazel:38:17:
     # no such target '@yarn//:node_modules/cypress/bin/cypress':
     # target 'node_modules/cypress/bin/cypress' not declared in package '';
@@ -42,6 +42,30 @@ yarn_install(
     # defined by /private/var/tmp/_bazel_buildkite/123/external/yarn/BUILD.bazel and referenced by '//:test'
     exports_directories_only = False,
     package_json = "//:package.json",
+    # TODO(danmuller): figure out why this failes when symlink_node_modules = False
+    #  Error: Cannot find module 'express'
+    # Require stack:
+    # - /home/circleci/.cache/bazel/_bazel_circleci/8c1060db33a2856d02a15a3b1eefa1bb/execroot/examples_cypress/bazel-out/k8-fastbuild/bin/plugin.js
+    # - /home/circleci/.cache/bazel/_bazel_circleci/8c1060db33a2856d02a15a3b1eefa1bb/execroot/examples_cypress/bazel-out/k8-fastbuild/bin/test_cypress_plugin_wrapper.js
+    # - /home/circleci/.cache/bazel/_bazel_circleci/8c1060db33a2856d02a15a3b1eefa1bb/external/cypress_linux/Cypress/resources/app/packages/server/lib/plugins/child/run_plugins.js
+    # - /home/circleci/.cache/bazel/_bazel_circleci/8c1060db33a2856d02a15a3b1eefa1bb/external/cypress_linux/Cypress/resources/app/packages/server/lib/plugins/child/index.js
+    #     at Function.Module._resolveFilename (internal/modules/cjs/loader.js:887:15)
+    #     at Module._load (internal/modules/cjs/loader.js:732:27)
+    #     at Function.f._load (electron/js2c/asar_bundle.js:5:12789)
+    #     at Module.require (internal/modules/cjs/loader.js:959:19)
+    #     at require (internal/modules/cjs/helpers.js:88:18)
+    #     at Object.<anonymous> (/home/circleci/.cache/bazel/_bazel_circleci/8c1060db33a2856d02a15a3b1eefa1bb/execroot/examples_cypress/bazel-out/k8-fastbuild/bin/plugin.js:3:15)
+    #     at Module._compile (internal/modules/cjs/loader.js:1078:30)
+    #     at Object.Module._extensions..js (internal/modules/cjs/loader.js:1108:10)
+    #     at Module.load (internal/modules/cjs/loader.js:935:32)
+    #     at Module._load (internal/modules/cjs/loader.js:776:14)
+    #     at Function.f._load (electron/js2c/asar_bundle.js:5:12789)
+    #     at Module.require (internal/modules/cjs/loader.js:959:19)
+    #     at require (internal/modules/cjs/helpers.js:88:18)
+    #     at Object.<anonymous> (/home/circleci/.cache/bazel/_bazel_circleci/8c1060db33a2856d02a15a3b1eefa1bb/execroot/examples_cypress/bazel-out/k8-fastbuild/bin/test_cypress_plugin_wrapper.js:10:20)
+    #     at Module._compile (internal/modules/cjs/loader.js:1078:30)
+    #     at Object.Module._extensions..js (internal/modules/cjs/loader.js:1108:10)
+    symlink_node_modules = True,
     yarn_lock = "//:yarn.lock",
 )
 
