@@ -1010,7 +1010,7 @@ Actually publish the package with `npm publish` (also builds first):
 
 ```sh
 # Check login credentials
-$ bazel run @nodejs//:npm_node_repositories who
+$ bazel run @nodejs_host//:npm who
 # Publishes the package
 $ bazel run :my_package.publish
 ```
@@ -1321,8 +1321,8 @@ This flag enables an exact install of the version that is specified in the `yarn
 file. This helps to have reproducible builds across builds.
 
 To update a dependency or install a new one run the `yarn install` command with the
-vendored yarn binary. `bazel run @nodejs//:yarn install`. You can pass the options like
-`bazel run @nodejs//:yarn install -- -D <dep-name>`.
+vendored yarn binary. `bazel run @nodejs_host//:yarn install`. You can pass the options like
+`bazel run @nodejs_host//:yarn install -- -D <dep-name>`.
 
 Defaults to `True`
 

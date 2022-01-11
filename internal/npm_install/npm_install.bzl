@@ -832,7 +832,7 @@ def _yarn_install_impl(repository_ctx):
 
     # Set frozen lockfile as default install to install the exact version from the yarn.lock
     # file. To perform an yarn install use the vendord yarn binary with:
-    # `bazel run @nodejs//:yarn install` or `bazel run @nodejs//:yarn install -- -D <dep-name>`
+    # `bazel run @nodejs_host//:yarn install` or `bazel run @nodejs_host//:yarn install -- -D <dep-name>`
     if repository_ctx.attr.frozen_lockfile:
         if yarn_version == "classic":
             yarn_args.append("--frozen-lockfile")
@@ -975,8 +975,8 @@ This flag enables an exact install of the version that is specified in the `yarn
 file. This helps to have reproducible builds across builds.
 
 To update a dependency or install a new one run the `yarn install` command with the
-vendored yarn binary. `bazel run @nodejs//:yarn install`. You can pass the options like
-`bazel run @nodejs//:yarn install -- -D <dep-name>`.
+vendored yarn binary. `bazel run @nodejs_host//:yarn install`. You can pass the options like
+`bazel run @nodejs_host//:yarn install -- -D <dep-name>`.
 """,
         ),
         "use_global_yarn_cache": attr.bool(

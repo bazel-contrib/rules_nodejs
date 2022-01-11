@@ -240,7 +240,7 @@ fi
         expected_exit_code = ctx.attr.expected_exit_code
 
     # Add both the node executable for the user's local machine which is in ctx.files._node and comes
-    # from @nodejs//:node_bin and the node executable from the selected node --platform which comes from
+    # from @nodejs_host//:node_bin and the node executable from the selected node --platform which comes from
     # ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo.
     # In most cases these are the same files but for RBE and when explitely setting --platform for cross-compilation
     # any given nodejs_binary should be able to run on both the user's local machine and on the RBE or selected

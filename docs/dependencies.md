@@ -238,38 +238,20 @@ To use the Yarn package manager, which we recommend for its built-in
 verification command, you can run:
 
 ```sh
-$ bazel run @nodejs//:yarn_node_repositories
+$ bazel run @nodejs_host//:yarn -- <arguments passed to yarn>
 ```
 
 If you use npm instead, run:
 
 ```sh
-$ bazel run @nodejs//:npm_node_repositories install
-```
-
-The `@nodejs//:yarn_node_repositories` and `@nodejs//:npm_node_repositories` targets will run yarn/npm on all of the
-package.json contexts listed `package_json` attribute of the `node_repositories`
-repository rule in your WORKSPACE file (`node_repositories(package_json = [...])`).
-
-If there are multiple package.json contexts in this rule but you would like to
-run the bazel managed yarn or npm on a single context this can be done
-using the following targets:
-
-```sh
-$ bazel run @nodejs//:yarn -- <arguments passed to yarn>
-```
-
-If you use npm instead, run:
-
-```sh
-$ bazel run @nodejs//:npm -- <arguments passed to npm>
+$ bazel run @nodejs_host//:npm -- <arguments passed to npm>
 ```
 
 This will run yarn/npm in the current working directory. To add a package with the `yarn add` command,
 for example, you would use:
 
 ```sh
-$ bazel run @nodejs//:yarn -- add <package>
+$ bazel run @nodejs_host//:yarn -- add <package>
 ```
 
 Note: the arguments passed to `bazel run` after `--` are forwarded to the executable being run.

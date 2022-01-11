@@ -4,7 +4,7 @@
     "lodash": "4.17.20"
   },
   "scripts": {
-    "pretest": "bazel run @nodejs//:yarn_node_repositories",
+    "pretest": "bazel run @nodejs_host//:yarn -- install",
     "test": "bazel test ..."
   }
 }

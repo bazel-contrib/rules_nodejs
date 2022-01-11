@@ -4,7 +4,7 @@ rules_nodejs produces several repositories for you to reference.
 Bazel represents your workspace as one repository, and code fetched or installed from outside your workspace lives in other repositories.
 These are referenced with the `@repo//` syntax in your BUILD files.
 
-## @nodejs
+## @nodejs_host
 
 This repository is created by calling the `node_repositories` function in your `WORKSPACE` file.
 It contains the node, npm, and yarn programs.
@@ -12,22 +12,18 @@ It contains the node, npm, and yarn programs.
 As always, `bazel query` is useful for learning about what targets are available.
 
 ```sh
-$ bazel query @nodejs//...
-@nodejs//:node
+$ bazel query @nodejs_host//...
+@nodejs_host//:node
 ...
 ```
 
-You don't typically need to reference the `@nodejs` repository from your BUILD files because it's used behind the scenes
-to run node and fetch dependencies.
+You don't typically need to reference the `@nodejs_host` repository from your BUILD files because it's used behind the scenes to run node and fetch dependencies.
 
 Some ways you can use this:
 
-- Run the Bazel-managed version of node: `bazel run @nodejs//:node path/to/program.js`
-- Run the Bazel-managed version of npm: `bazel run @nodejs//:npm`
-- Run the Bazel-managed version of yarn: `bazel run @nodejs//:yarn`
-- Install dependencies from nested package.json file(s) which were passed to `node_repositories#package.json`
-  - using npm: `bazel run @nodejs//:npm_node_repositories install`
-  - using yarn: `bazel run @nodejs//:yarn_node_repositories`
+- Run the Bazel-managed version of node: `bazel run @nodejs_host//:node path/to/program.js`
+- Run the Bazel-managed version of npm: `bazel run @nodejs_host//:npm`
+- Run the Bazel-managed version of yarn: `bazel run @nodejs_host//:yarn`
 
 ## @npm
 

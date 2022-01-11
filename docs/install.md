@@ -58,7 +58,7 @@ Add this to your `WORKSPACE` file. It only tells Bazel how to find your
 # NOTE: this rule installs nodejs, npm, and yarn, but does NOT install
 # your npm dependencies into your node_modules folder.
 # You must still run the package manager to do this.
-node_repositories(package_json = ["//:package.json"])
+node_repositories()
 ```
 ## Installation with a specific supported version of Node.js and Yarn
 
@@ -77,7 +77,6 @@ Add to `WORKSPACE`:
 # your npm dependencies into your node_modules folder.
 # You must still run the package manager to do this.
 node_repositories(
-    package_json = ["//:package.json"],
     node_version = "8.11.1",
     yarn_version = "1.5.1",
 )
@@ -106,7 +105,6 @@ node_repositories(
   },
   node_urls = ["https://nodejs.org/dist/v{version}/{filename}"],
   yarn_urls = ["https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"],
-  package_json = ["//:package.json"])
 ```
 
 Specifying `node_urls` and `yarn_urls` is optional. If omitted, the default values will be used. You may also use a custom NodeJS version and the default Yarn version or vice-versa.
@@ -127,7 +125,6 @@ load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 node_repositories(
   vendored_node = "@wksp//:third_party/node-v10.12.0-linux-x64",
   vendored_yarn = "@wksp//:third_party/yarn-v1.10.0",
-  package_json = ["//:package.json"])
 ```
 
 In this case, the locally installed Node.js and Yarn are located in the `wksp` workspace in

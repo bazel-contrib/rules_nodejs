@@ -28,19 +28,12 @@ load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
 # - NodeJS:
-#   @nodejs//:node
+#   @nodejs_host//:node
 # - NPM:
-#   @nodejs//:npm_node_repositories
+#   @nodejs_host//:npm
 # - The yarn package manager:
-#   @nodejs//:yarn_node_repositories
-#
-# To install the node_modules of all the listed package_json files run:
-#   bazel run @nodejs//:yarn_node_repositories
-# or
-#   bazel run @nodejs//:npm_node_repositories
-node_repositories(
-    package_json = ["//:package.json"],
-)
+#   @nodejs_host//:yarn
+node_repositories()
 
 # We have a source dependency on rules_typescript
 # so we must repeat its transitive toolchain deps
