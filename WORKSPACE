@@ -50,6 +50,9 @@ build_bazel_rules_nodejs_dev_dependencies()
 #
 
 load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
+load("@rules_nodejs//nodejs:ts_repositories.bzl", "ts_repositories")
+
+ts_repositories(ts_version = "4.5.4")
 
 # The order matters because Bazel will provide the first registered toolchain when a rule asks Bazel to select it
 # This applies to the resolved_toolchain

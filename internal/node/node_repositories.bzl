@@ -26,7 +26,7 @@ def node_repositories(**kwargs):
     """
     Wrapper macro around node_repositories_rule to call it for each platform.
 
-    Also register bazel toolchains, and make other convenience repositories.
+    Also register bazel toolchains, and make other convenience repositories such as yarn and typescript.
 
     Args:
       **kwargs: the documentation is generated from the node_repositories_rule, not this macro.

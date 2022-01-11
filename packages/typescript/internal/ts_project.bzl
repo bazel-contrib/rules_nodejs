@@ -6,13 +6,6 @@ load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module
 load(":ts_config.bzl", "TsConfigInfo")
 load(":validate_options.bzl", "ValidOptionsInfo", _validate_lib = "lib")
 
-_DEFAULT_TSC = (
-    # BEGIN-INTERNAL
-    "@npm" +
-    # END-INTERNAL
-    "//typescript/bin:tsc"
-)
-
 _ATTRS = {
     "args": attr.string_list(),
     "data": attr.label_list(default = [], allow_files = True),

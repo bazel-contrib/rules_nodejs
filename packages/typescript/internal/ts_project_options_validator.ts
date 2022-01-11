@@ -31,7 +31,7 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
   const failures: string[] = [];
   const buildozerCmds: string[] = [];
 
-  function getTsOption(option) {
+  function getTsOption(option: string) {
     if (typeof (options[option]) === 'string') {
       // Currently the only string-typed options are filepaths.
       // TypeScript will resolve these to a project path

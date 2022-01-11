@@ -62,21 +62,26 @@ copy_file(
     out = ":npm_version_check.js",
 )
 
+filegroup(
+    name = "package_contents",
+    srcs = [
+        "BUILD.bazel",
+        "index.bzl",
+        "package.json",
+        "//packages/typescript/bin:package_contents",
+        "//packages/typescript/internal:package_contents",
+    ],
+)
+
 pkg_npm(
     name = "npm_package",
     package_name = "@bazel/typescript",
-    srcs = [
-        "index.bzl",
-        "package.json",
-        "//packages/typescript/internal:package_contents",
-    ],
+    srcs = [":package_contents"],
     build_file_content = "",
     substitutions = TYPESCRIPT_REPLACEMENTS,
     deps = [
         ":README.md",
         ":npm_version_check",
-        "//packages/typescript/internal:BUILD",
-        "//packages/typescript/internal:ts_project_options_validator.js",
         "//packages/typescript/internal/worker:filegroup",
     ],
 )

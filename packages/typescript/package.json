@@ -16,7 +16,7 @@
         "bazel"
     ],
     "bin": {
-        "ts_project_options_validator": "./internal/ts_project_options_validator.js"
+        "ts_project_options_validator": "./internal/validator.js"
     },
     "//": "NOTE: Typescript does not follow SemVer. Usually the minor digit signifies a major version.",
     "peerDependencies": {

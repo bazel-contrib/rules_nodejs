@@ -96,6 +96,8 @@ pkg_npm(
         "//internal/pkg_web:package_contents",
         "//internal/providers:package_contents",
         "//internal/runfiles:package_contents",
+        # TODO(alexeagle): relocate these source files out of /packages as that's meant for npm
+        "//packages/typescript:package_contents",
         "//third_party/github.com/bazelbuild/bazel:package_contents",
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles:package_contents",

@@ -12,6 +12,7 @@ checked_in_ts_project(
     deps = [
         "//packages/worker:library",
         "@npm//@types/node",
+        "@npm//typescript",
     ],
 )
 
