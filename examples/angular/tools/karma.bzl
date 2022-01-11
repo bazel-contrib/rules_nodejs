@@ -70,7 +70,7 @@ _generate_karma_config = rule(
         # https://github.com/bazelbuild/rules_nodejs/blob/3.3.0/packages/concatjs/web_test/karma_web_test.bzl#L88-L91
         "_conf_tmpl": attr.label(
             doc = """the karma config template""",
-            cfg = "host",
+            cfg = "exec",
             allow_single_file = True,
             default = Label("//tools:karma.conf.js"),
         ),

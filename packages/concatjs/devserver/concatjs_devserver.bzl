@@ -152,14 +152,14 @@ concatjs_devserver = rule(
             Defaults to precompiled go binary setup by @bazel/typescript npm package""",
             default = Label("//packages/concatjs/devserver"),
             executable = True,
-            cfg = "host",
+            cfg = "exec",
         ),
         "devserver_host": attr.label(
             doc = """Go based devserver executable for the host platform.
             Defaults to precompiled go binary setup by @bazel/typescript npm package""",
             default = Label("//packages/concatjs/devserver"),
             executable = True,
-            cfg = "host",
+            cfg = "exec",
         ),
         "entry_module": attr.string(
             doc = """The `entry_module` should be the AMD module name of the entry module such as `"__main__/src/index".`

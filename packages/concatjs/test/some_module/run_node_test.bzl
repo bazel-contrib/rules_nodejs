@@ -23,7 +23,7 @@ ts_write_file = rule(
         "content": attr.string(),
         "_writer": attr.label(
             default = Label("//packages/concatjs/test/some_module:writer_bin"),
-            cfg = "host",
+            cfg = "exec",
             executable = True,
         ),
     },

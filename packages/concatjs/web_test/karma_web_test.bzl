@@ -65,7 +65,7 @@ KARMA_WEB_TEST_ATTRS = {
         # NB: replaced during pkg_npm with "@npm//karma/bin:karma"
         default = "//packages/concatjs/web_test:karma_bin",
         executable = True,
-        cfg = "target",
+        cfg = "exec",
         allow_files = True,
     ),
     "runtime_deps": attr.label_list(

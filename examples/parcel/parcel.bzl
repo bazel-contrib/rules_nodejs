@@ -57,7 +57,7 @@ parcel = rule(
             # This default assumes that users name their install "npm"
             default = Label("@npm//parcel-bundler/bin:parcel"),
             executable = True,
-            cfg = "host",
+            cfg = "exec",
         ),
         "srcs": attr.label_list(allow_files = True),
     },

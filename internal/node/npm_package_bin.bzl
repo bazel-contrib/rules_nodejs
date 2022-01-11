@@ -21,7 +21,7 @@ _ATTRS = {
     "stdout": attr.output(),
     "tool": attr.label(
         executable = True,
-        cfg = "host",
+        cfg = "exec",
         mandatory = True,
     ),
     "stamp": STAMP_ATTR,

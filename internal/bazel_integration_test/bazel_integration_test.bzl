@@ -244,7 +244,7 @@ is published on GitHub.
     ),
     "_test_runner": attr.label(
         executable = True,
-        cfg = "host",
+        cfg = "exec",
         default = Label("@build_bazel_rules_nodejs//internal/bazel_integration_test:test_runner"),
     ),
 }

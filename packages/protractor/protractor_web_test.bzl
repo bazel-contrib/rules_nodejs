@@ -213,13 +213,13 @@ _protractor_web_test = rule(
         "protractor": attr.label(
             doc = "Protractor executable target",
             executable = True,
-            cfg = "target",
+            cfg = "exec",
             allow_files = True,
         ),
         "server": attr.label(
             doc = "Optional server executable target",
             executable = True,
-            cfg = "target",
+            cfg = "exec",
             allow_files = True,
         ),
         "srcs": attr.label_list(

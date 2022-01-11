@@ -11,7 +11,7 @@ _ATTRS = {
     ),
     "terser": attr.label(
         executable = True,
-        cfg = "host",
+        cfg = "exec",
         default = Label("@npm//terser/bin:terser"),
     ),
 }
