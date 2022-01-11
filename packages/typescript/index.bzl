@@ -17,6 +17,7 @@
 Users should not load files under "/internal"
 """
 
+load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 load("//packages/typescript/internal:ts_config.bzl", "write_tsconfig", _ts_config = "ts_config")
 load("//packages/typescript/internal:ts_project.bzl", _lib = "lib", _ts_project = "ts_project")
 load("//packages/typescript/internal:validate_options.bzl", "validate_options")
@@ -370,9 +371,7 @@ def ts_project(
         # Detect how we are being called.
         # If we are in our starlark module, then we load typescript from the ts_repositories fetch.
         # Otherwise, we are being called with in the @npm external repo
-        if native.repository_name() == "build_bazel_rules_nodejs" or native.repository_name() == "@":
-            tsc = "@bbrnj_typescript//:tsc"
-        else:
+        if native.repository_name() != "build_bazel_rules_nodejs" and native.repository_name() != "@":
             tsc = Label("//typescript/bin:tsc")
 
     if type(extends) == type([]):
@@ -437,36 +436,36 @@ def ts_project(
             tsc_deps = tsc_deps + ["_validate_%s_options" % name]
 
     if supports_workers:
-        pass
-        # tsc_worker = "%s_worker" % name
-        # nodejs_binary(
-        #     name = tsc_worker,
-        #     data = [
-        #         # BEGIN-INTERNAL
-        #         # Users get this dependency transitively from @bazel/typescript
-        #         # but that's our own code, so we don't.
-        #         # TODO: remove protobuf dependency once rules_typescript also uses
-        #         # worker package
-        #         "@npm//protobufjs",
-        #         # END-INTERNAL
-        #         Label(typescript_package),
-        #         Label("//packages/typescript/internal/worker:filegroup"),
-        #         # BEGIN-INTERNAL
-        #         # this is not needed when package since @bazel/typescript lists
-        #         # @bazel/worker as its dependency hence has access to it.
-        #         # this only needed when ts_project is run from the source.
-        #         Label("//packages/worker:library"),
-        #         # END-INTERNAL
-        #         tsconfig,
-        #     ],
-        #     entry_point = Label("//packages/typescript/internal/worker:worker_adapter"),
-        #     templated_args = [
-        #         "--typescript_require_path",
-        #         typescript_require_path,
-        #     ],
-        # )
+        # FIXME: will fail when used via starlark module since it relies on npm resolutions
+        tsc_worker = "%s_worker" % name
+        nodejs_binary(
+            name = tsc_worker,
+            data = [
+                # BEGIN-INTERNAL
+                # Users get this dependency transitively from @bazel/typescript
+                # but that's our own code, so we don't.
+                # TODO: remove protobuf dependency once rules_typescript also uses
+                # worker package
+                "@npm//protobufjs",
+                # END-INTERNAL
+                Label(typescript_package),
+                Label("//packages/typescript/internal/worker:filegroup"),
+                # BEGIN-INTERNAL
+                # this is not needed when package since @bazel/typescript lists
+                # @bazel/worker as its dependency hence has access to it.
+                # this only needed when ts_project is run from the source.
+                Label("//packages/worker:library"),
+                # END-INTERNAL
+                tsconfig,
+            ],
+            entry_point = Label("//packages/typescript/internal/worker:worker_adapter"),
+            templated_args = [
+                "--typescript_require_path",
+                typescript_require_path,
+            ],
+        )
 
-        # tsc = ":" + tsc_worker
+        tsc = ":" + tsc_worker
     typings_out_dir = declaration_dir if declaration_dir else out_dir
     tsbuildinfo_path = ts_build_info_file if ts_build_info_file else name + ".tsbuildinfo"
     js_outs = []

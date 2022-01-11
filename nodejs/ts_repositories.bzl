@@ -6,12 +6,15 @@ This method fetches typescript directly, rather than via the npm install of a @b
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # TODO(alexeagle): we could setup a GH Actions automation to continuously mirror this from upstream
-#
 _TS_CHECKSUMS = {
+    "3.5.3": "7e066461729870f9bff8edffab8afb1a511854e040200451bbdf8aec65802b77",
+    "3.6.3": "ef803d564f80a7c1aa731896556f0d05af6b7b371abcd687ffd493e7bd718457",
     "4.3.5": "c7be550da858be7abfc73dd0b9060ab23ce835ae3b05931f4500a25c09766d45",
     "4.4.4": "7524841bbf63777fef1fe6e1a826026b1dd4849f54f5affa481502faab2cdb16",
     "4.5.4": "5b2b014c4d6f9ad4615d7ced8cc32f882a4a96df8213722577b42277afb03cba",
 }
+
+DEFAULT_VERSION = _TS_CHECKSUMS.keys()[-1]
 
 # Namespace this so it's unlikely to conflict with other repositories
 _default_name = "bbrnj_typescript"

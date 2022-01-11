@@ -29,7 +29,7 @@ build_bazel_rules_nodejs_dependencies()
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 
 node_repositories(
-    ts_version = "4.5.4",
+    ts_version = "3.6.3",
 )
 
 yarn_install(
