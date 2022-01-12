@@ -48,6 +48,7 @@ _ATTRS = dict(_VALIDATED_ATTRS, **{
     "link_workspace_root": attr.bool(),
     "out_dir": attr.string(),
     "root_dir": attr.string(),
+    "absolute_root_dir": attr.bool(),
     # NB: no restriction on extensions here, because tsc sometimes adds type-check support
     # for more file kinds (like require('some.json')) and also
     # if you swap out the `compiler` attribute (like with ngtsc)
@@ -112,6 +113,13 @@ def _calculate_root_dir(ctx):
              "since this would prevent giving a single rootDir to the TypeScript compiler\n" +
              "    found generated file %s and source file %s" %
              (some_generated_path, some_source_path))
+
+    if ctx.attr.absolute_root_dir:
+        return _join(
+            root_path,
+            ctx.label.workspace_root,
+            ctx.attr.root_dir,
+        )
 
     return _join(
         root_path,
