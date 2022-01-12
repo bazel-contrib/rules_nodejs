@@ -549,11 +549,19 @@ def ts_project(
         )
 
     if not len(tsc_js_outs) and not len(typings_outs):
-        fail("""ts_project target "//{}:{}" is configured to produce no outputs.
+        label = "//{}:{}".format(native.package_name(), name)
+        if transpiler:
+            no_outs_msg = "ts_project target %s with custom transpiler needs `declaration = True`." % label
+        else:
+            no_outs_msg = """ts_project target %s is configured to produce no outputs.
 
-Note that ts_project must know the srcs in advance in order to predeclare the outputs.
-Check the srcs attribute to see that some .ts files are present (or .js files with allow_js=True).
-""".format(native.package_name(), name))
+This might be because 
+- you configured it with `noEmit`
+- the `srcs` are empty
+""" % label
+        fail(no_outs_msg + """
+This is an error because Bazel does not run actions unless their outputs are needed for the requested targets to build.
+""")
 
     _ts_project(
         name = tsc_target_name,
