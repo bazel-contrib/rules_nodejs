@@ -1,0 +1,18 @@
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
+load("//packages/typescript:index.bzl", "ts_project")
+
+# Ensure that //packages/typescript/test/ts_project/rootdir:subdir/a.ts produces outDir/a.js
+# when setting the root_dir to //packages/typescript/test/ts_project/rootdir/subdir
+ts_project(
+    srcs = [
+        "//packages/typescript/test/ts_project/rootdir:subdir/a.ts",
+        "//packages/typescript/test/ts_project/rootdir:subdir/a.css",
+    ],
+    root_dir = "//packages/typescript/test/ts_project/rootdir/subdir",
+    tsconfig = "//packages/typescript/test/ts_project/rootdir:tsconfig.json",
+)
+
+filegroup(
+    name = "assertion",
+    srcs = ["a.js"],
+)

@@ -5,6 +5,12 @@ write_file(
     name = "gen_css",
     out = "subdir/a.css",
     content = ["body { color: green }"],
+    visibility = ["//packages/typescript/test:__subpackages__"],
+)
+
+exports_files(
+    ["subdir/a.ts"],
+    visibility = ["//packages/typescript/test:__subpackages__"],
 )
 
 # Ensure that subdir/a.ts produces outDir/subdir/a.js
@@ -19,4 +25,9 @@ ts_project(
 filegroup(
     name = "assertion",
     srcs = ["subdir/a.js"],
+)
+
+exports_files(
+    ["tsconfig.json"],
+    visibility = [":__subpackages__"],
 )

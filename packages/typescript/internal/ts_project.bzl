@@ -119,6 +119,13 @@ def _calculate_root_dir(ctx):
              "    found generated file %s and source file %s" %
              (some_generated_path, some_source_path))
 
+    if ctx.attr.root_dir and ctx.attr.root_dir.startswith("//"):
+        return _join(
+            root_path,
+            ctx.label.workspace_root,
+            ctx.attr.root_dir[2:],
+        )
+
     return _join(
         root_path,
         ctx.label.workspace_root,
@@ -387,12 +394,25 @@ def _replace_ext(f, ext_map):
         return new_ext
     return None
 
+def _out_subpath(path, root_dir, ext_map):
+    if path.startswith("//"):
+        path = path[2:]
+    path_no_ext = path[:path.rindex(".")].replace(":", "/")
+
+    ext = _replace_ext(path, ext_map)
+
+    if root_dir:
+        return path_no_ext.replace(root_dir + "/", "") + ext
+    return path_no_ext + ext
+
 def _out_paths(srcs, out_dir, root_dir, allow_js, ext_map):
-    rootdir_replace_pattern = root_dir + "/" if root_dir else ""
+    if root_dir and root_dir.startswith("//"):
+            root_dir = root_dir[2:]
+
     outs = []
     for f in srcs:
         if _is_ts_src(f, allow_js):
-            out = _join(out_dir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + _replace_ext(f, ext_map))
+            out = _join(out_dir, _out_subpath(f, root_dir, ext_map))
 
             # Don't declare outputs that collide with inputs
             # for example, a.js -> a.js
@@ -712,6 +732,8 @@ def ts_project_macro(
             root directory of all the input files.
             Equivalent to the TypeScript --rootDir option.
             By default it is '.', meaning the source directory where the BUILD file lives.
+            NOTE: The root_dir is relative to the package where the ts_project rule is defined. A root_dir prefixed with
+            a `//` character will be interpretted as relative to the workspace root.
 
         out_dir: a string specifying a subdirectory under the bazel-out folder where outputs are written.
             Equivalent to the TypeScript --outDir option.
@@ -754,6 +776,9 @@ def ts_project_macro(
 
         **kwargs: passed through to underlying rule, allows eg. visibility, tags
     """
+    if root_dir and root_dir.startswith("/") and not root_dir.startswith("//"):
+        # Treat a single leading `/` character as the bazel workspace root `//`
+        root_dir = "/" + root_dir
 
     if srcs == None:
         include = ["**/*.ts", "**/*.tsx"]
