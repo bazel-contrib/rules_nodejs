@@ -14,12 +14,9 @@ alias(name = "run_npm.bat.template",    actual = "@{node_repository}_{os_name}//
 alias(name = "node_bin",                actual = "@{node_repository}_{os_name}//:node_bin")
 alias(name = "npm_bin",                 actual = "@{node_repository}_{os_name}//:npm_bin")
 alias(name = "npx_bin",                 actual = "@{node_repository}_{os_name}//:npx_bin")
-alias(name = "yarn_bin",                actual = "@{node_repository}_{os_name}//:yarn_bin")
 alias(name = "node",                    actual = "@{node_repository}_{os_name}//:node")
 alias(name = "npm",                     actual = "@{node_repository}_{os_name}//:npm")
-alias(name = "yarn",                    actual = "@{node_repository}_{os_name}//:yarn")
 alias(name = "node_files",              actual = "@{node_repository}_{os_name}//:node_files")
-alias(name = "yarn_files",              actual = "@{node_repository}_{os_name}//:yarn_files")
 alias(name = "npm_files",               actual = "@{node_repository}_{os_name}//:npm_files")
 exports_files(["index.bzl"])
 """.format(

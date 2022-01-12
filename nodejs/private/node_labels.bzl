@@ -17,7 +17,7 @@
 Labels are different on windows and linux/OSX.
 """
 
-load("@rules_nodejs//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
+load(":os_name.bzl", "is_windows_os", "os_name")
 
 def _get_label(rctx, tool):
     ext = ".cmd" if is_windows_os(rctx) else ""
@@ -28,6 +28,3 @@ def get_node_label(rctx):
 
 def get_npm_label(rctx):
     return _get_label(rctx, "bin/npm")
-
-def get_yarn_label(rctx):
-    return _get_label(rctx, "bin/yarn")
