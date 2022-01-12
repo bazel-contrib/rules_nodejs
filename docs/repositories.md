@@ -7,7 +7,7 @@ These are referenced with the `@repo//` syntax in your BUILD files.
 ## @nodejs_host
 
 This repository is created by calling the `node_repositories` function in your `WORKSPACE` file.
-It contains the node, npm, and yarn programs.
+It contains the node, npm, and npx programs.
 
 As always, `bazel query` is useful for learning about what targets are available.
 
@@ -23,7 +23,12 @@ Some ways you can use this:
 
 - Run the Bazel-managed version of node: `bazel run @nodejs_host//:node path/to/program.js`
 - Run the Bazel-managed version of npm: `bazel run @nodejs_host//:npm`
-- Run the Bazel-managed version of yarn: `bazel run @nodejs_host//:yarn`
+
+## @yarn
+
+This repository is created by calling the `yarn_repositories` function in your `WORKSPACE` file.
+
+- Run the Bazel-managed version of yarn: `bazel run @yarn//:yarn`
 
 ## @npm
 

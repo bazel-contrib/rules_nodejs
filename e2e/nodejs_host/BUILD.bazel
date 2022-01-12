@@ -14,9 +14,9 @@ nodejs_test(
         "@nodejs_host//:npm_bin",
         "@nodejs_host//:npm_files",
         "@nodejs_host//:npx_bin",
-        "@nodejs_host//:yarn",
-        "@nodejs_host//:yarn_bin",
-        "@nodejs_host//:yarn_files",
+        "@yarn",
+        "@yarn//:yarn_bin",
+        "@yarn//:yarn_files",
     ],
     entry_point = ":index.spec.js",
 )

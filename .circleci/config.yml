@@ -101,7 +101,7 @@ jobs:
       - *init_bazel
 
       # Run yarn
-      - run: bazel run @node16_linux_amd64//:yarn
+      - run: bazel run @yarn//:yarn
 
       # Save all node_modules to the cache
       - save_cache:

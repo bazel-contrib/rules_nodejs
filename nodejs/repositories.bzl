@@ -4,7 +4,6 @@ load("//nodejs/private:os_name.bzl", "assert_node_exists_for_host", "node_exists
 load("//nodejs/private:node_versions.bzl", "NODE_VERSIONS")
 load("//nodejs/private:nodejs_repo_host_os_alias.bzl", "nodejs_repo_host_os_alias")
 load("//nodejs/private:toolchains_repo.bzl", "PLATFORMS", "toolchains_repo")
-load("//nodejs/private:yarn_versions.bzl", "YARN_VERSIONS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
@@ -15,23 +14,23 @@ BUILT_IN_NODE_PLATFORMS = PLATFORMS.keys()
 
 _DOC = """To be run in user's WORKSPACE to install rules_nodejs dependencies.
 
-This rule sets up node, npm, and yarn. The versions of these tools can be specified in one of three ways
+This rule sets up node, npm, and npx. The versions of these tools can be specified in one of three ways
 
 ### Simplest Usage
 
-Specify no explicit versions. This will download and use the latest NodeJS & Yarn that were available when the
+Specify no explicit versions. This will download and use the latest NodeJS that was available when the
 version of rules_nodejs you're using was released.
 Note that you can skip calling `node_repositories` in your WORKSPACE file - if you later try to `yarn_install` or `npm_install`,
 we'll automatically select this simple usage for you.
 
 ### Forced version(s)
 
-You can select the version of NodeJS and/or Yarn to download & use by specifying it when you call node_repositories,
+You can select the version of NodeJS to download & use by specifying it when you call node_repositories,
 using a value that matches a known version (see the default values)
 
 ### Using a custom version
 
-You can pass in a custom list of NodeJS and/or Yarn repositories and URLs for node_resositories to use.
+You can pass in a custom list of NodeJS repositories and URLs for node_repositories to use.
 
 #### Custom NodeJS versions
 
@@ -60,40 +59,10 @@ node_repositories(
 A Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
 and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e`
 
-#### Custom Yarn versions
-
-To specify custom Yarn versions, use the `yarn_repositories` attribute
-
-```python
-node_repositories(
-    yarn_repositories = {
-        "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"),
-    },
-)
-```
-
-Like `node_urls`, the `yarn_urls` attribute can be used to provide a list of custom URLs to use to download yarn
-
-```python
-node_repositories(
-    yarn_repositories = {
-        "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"),
-    },
-    yarn_version = "1.12.1",
-    yarn_urls = [
-        "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}",
-    ],
-)
-```
-
-Will download yarn from https://github.com/yarnpkg/yarn/releases/download/v1.2.1/yarn-v1.12.1.tar.gz
-and expect the file to have sha256sum `09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d`.
-
-If you don't use Yarn at all, you can skip downloading it by setting `yarn_urls = []`.
 
 ### Using a local version
 
-To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set vendored_node and or vendored_yarn
+To avoid downloads, you can check in vendored copies of NodeJS and set vendored_node
 to point to those before calling node_repositories. You can also point to a location where node is installed on your computer,
 but we don't recommend this because it leads to version skew between you, your coworkers, and your Continuous Integration environment.
 It also ties your build to a single platform, preventing you from cross-compiling into a Linux docker image on Mac for example.
@@ -150,43 +119,9 @@ If set then also set node_version to the version found in the .nvmrc file.""",
 
 If set then also set node_version to the version that of node that is vendored.""",
     ),
-    "vendored_yarn": attr.label(
-        allow_single_file = True,
-        doc = "the local path to a pre-installed yarn tool",
-    ),
-    "yarn_download_auth": attr.string_dict(
-        default = {},
-        doc = """auth to use for all url requests
-Example: {\"type\": \"basic\", \"login\": \"<UserName>\", \"password\": \"<Password>\" }
-""",
-    ),
-    "yarn_repositories": attr.string_list_dict(
-        doc = """Custom list of yarn repositories to use.
-
-Dictionary mapping Yarn versions to their corresponding (filename, strip_prefix, sha256) tuples.
-
-By default, if this attribute has no items, we'll use a list of all public NodeJS releases.
-""",
-    ),
-    "yarn_urls": attr.string_list(
-        default = [
-            "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}",
-        ],
-        doc = """custom list of URLs to use to download Yarn
-
-Each entry is a template, similar to the `node_urls` attribute, using `yarn_version` and `yarn_repositories` in the substitutions.
-
-If this list is empty, we won't download yarn at all.
-""",
-    ),
-    "yarn_version": attr.string(
-        doc = "the specific version of Yarn to install",
-        default = "1.22.11",
-    ),
 }
 
 NODE_EXTRACT_DIR = "bin/nodejs"
-YARN_EXTRACT_DIR = "bin/yarnpkg"
 
 GET_SCRIPT_DIR = """
 # From stackoverflow.com
@@ -264,62 +199,6 @@ def _download_node(repository_ctx):
         sha256 = sha256,
     ))
 
-def _download_yarn(repository_ctx):
-    """Used to download a yarn tool package.
-
-    Args:
-      repository_ctx: The repository rule context
-    """
-    yarn_urls = repository_ctx.attr.yarn_urls
-
-    # If there are no URLs to download yarn, skip the download
-    if not len(yarn_urls):
-        repository_ctx.file("yarn_info", content = "# no yarn urls")
-        return
-
-    # If yarn is vendored locally, we still need the info file but can skip downloading
-    if repository_ctx.attr.vendored_yarn:
-        repository_ctx.file("yarn_info", content = "# vendored_yarn: {vendored_yarn}".format(
-            vendored_yarn = repository_ctx.attr.vendored_yarn,
-        ))
-        return
-
-    yarn_version = repository_ctx.attr.yarn_version
-    yarn_repositories = repository_ctx.attr.yarn_repositories
-
-    # We insert our default value here, not on the attribute's default, so it isn't documented.
-    # The size of YARN_VERSIONS constant is huge and not useful to document.
-    if not yarn_repositories.items():
-        yarn_repositories = YARN_VERSIONS
-
-    if yarn_version in yarn_repositories:
-        filename, strip_prefix, sha256 = yarn_repositories[yarn_version]
-    else:
-        fail("Unknown Yarn version %s" % yarn_version)
-
-    urls = [url.format(version = yarn_version, filename = filename) for url in yarn_urls]
-
-    auth = {}
-    for url in urls:
-        auth[url] = repository_ctx.attr.yarn_download_auth
-
-    repository_ctx.download_and_extract(
-        auth = auth,
-        url = urls,
-        output = YARN_EXTRACT_DIR,
-        stripPrefix = strip_prefix,
-        sha256 = sha256,
-    )
-
-    repository_ctx.file("yarn_info", content = """# filename: {filename}
-# strip_prefix: {strip_prefix}
-# sha256: {sha256}
-""".format(
-        filename = filename,
-        strip_prefix = strip_prefix,
-        sha256 = sha256,
-    ))
-
 def _prepare_node(repository_ctx):
     """Sets up BUILD files and shell wrappers for the versions of NodeJS, npm & yarn just set up.
 
@@ -353,22 +232,6 @@ def _prepare_node(repository_ctx):
         node_path = NODE_EXTRACT_DIR
         node_package = NODE_EXTRACT_DIR
 
-    if repository_ctx.attr.vendored_yarn:
-        yarn_path = "/".join([f for f in [
-            "../../..",
-            repository_ctx.attr.vendored_yarn.workspace_root,
-            repository_ctx.attr.vendored_yarn.package,
-            repository_ctx.attr.vendored_yarn.name,
-        ] if f])
-        yarn_package = "@%s//%s:%s" % (
-            repository_ctx.attr.vendored_yarn.workspace_name,
-            repository_ctx.attr.vendored_yarn.package,
-            repository_ctx.attr.vendored_yarn.name,
-        )
-    else:
-        yarn_path = YARN_EXTRACT_DIR
-        yarn_package = YARN_EXTRACT_DIR
-
     node_bin = ("%s/bin/node" % node_path) if not is_windows else ("%s/node.exe" % node_path)
     node_bin_label = ("%s/bin/node" % node_package) if not is_windows else ("%s/node.exe" % node_package)
 
@@ -381,26 +244,17 @@ def _prepare_node(repository_ctx):
     npx_bin = ("%s/lib/node_modules/npm/bin/npx-cli.js" % node_path) if not is_windows else ("%s/npx.cmd" % node_path)
     npx_bin_label = ("%s/lib/node_modules/npm/bin/npx-cli.js" % node_package) if not is_windows else ("%s/npx.cmd" % node_package)
 
-    # Use the yarn.js script as the bin for osx & linux so there are no symlink issues with `%s/bin/npm`
-    yarn_bin = ("%s/bin/yarn.js" % yarn_path) if not is_windows else ("%s/bin/yarn.cmd" % yarn_path)
-    yarn_bin_label = ("%s/bin/yarn.js" % yarn_package) if not is_windows else ("%s/bin/yarn.cmd" % yarn_package)
-    yarn_script = "%s/bin/yarn.js" % yarn_path
-
     # Ensure that the "vendored" binaries are resolved
     # Just requesting their path from the repository context is enough to eager-load them
     if repository_ctx.attr.vendored_node:
         repository_ctx.path(Label(node_bin_label))
-    if repository_ctx.attr.vendored_yarn:
-        repository_ctx.path(Label(yarn_bin_label))
 
     entry_ext = ".cmd" if is_windows else ""
     node_entry = "bin/node%s" % entry_ext
     npm_entry = "bin/npm%s" % entry_ext
-    yarn_entry = "bin/yarn%s" % entry_ext
 
     node_bin_relative = node_bin if repository_ctx.attr.vendored_node else paths.relativize(node_bin, "bin")
     npm_script_relative = npm_script if repository_ctx.attr.vendored_node else paths.relativize(npm_script, "bin")
-    yarn_script_relative = yarn_script if repository_ctx.attr.vendored_yarn else paths.relativize(yarn_script, "bin")
 
     # The entry points for node for osx/linux and windows
     if not is_windows:
@@ -477,46 +331,6 @@ SET SCRIPT_DIR=%~dp0
         script = repository_ctx.path(npm_script),
     ))
 
-    # The entry points for yarn for osx/linux and windows.
-    # Runs yarn using appropriate node entry point.
-    # Unset YARN_IGNORE_PATH before calling yarn incase it is set so that
-    # .yarnrc yarn-path is followed if set. This is for the case when calling
-    # bazel from yarn with `yarn bazel ...` and yarn follows yarn-path in
-    # .yarnrc it will set YARN_IGNORE_PATH=1 which will prevent the bazel
-    # call into yarn from also following the yarn-path as desired.
-    if not is_windows:
-        # Yarn entry point
-        repository_ctx.file(
-            "bin/yarn",
-            content = """#!/usr/bin/env bash
-# Generated by node_repositories.bzl
-# Immediately exit if any command fails.
-set -e
-unset YARN_IGNORE_PATH
-{get_script_dir}
-"$SCRIPT_DIR/{node}" "$SCRIPT_DIR/{script}" "$@"
-""".format(
-                get_script_dir = GET_SCRIPT_DIR,
-                node = paths.relativize(node_entry, "bin"),
-                script = yarn_script_relative,
-            ),
-            executable = True,
-        )
-    else:
-        # Yarn entry point
-        repository_ctx.file(
-            "bin/yarn.cmd",
-            content = """@echo off
-SET SCRIPT_DIR=%~dp0
-SET "YARN_IGNORE_PATH="
-"%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" %*
-""".format(
-                node = paths.relativize(node_entry, "bin"),
-                script = yarn_script_relative,
-            ),
-            executable = True,
-        )
-
     # Base BUILD file for this repository
     build_content = """# Generated by node_repositories.bzl
 package(default_visibility = ["//visibility:public"])
@@ -524,22 +338,15 @@ exports_files([
   "run_npm.template",
   "{node_entry}",
   "{npm_entry}",
-  "{yarn_entry}",
   ])
 alias(name = "node_bin", actual = "{node_bin_label}")
 alias(name = "npm_bin", actual = "{npm_bin_label}")
 alias(name = "npx_bin", actual = "{npx_bin_label}")
-alias(name = "yarn_bin", actual = "{yarn_bin_label}")
 alias(name = "node", actual = "{node_entry}")
 alias(name = "npm", actual = "{npm_entry}")
-alias(name = "yarn", actual = "{yarn_entry}")
 filegroup(
   name = "node_files",
   srcs = [":node", ":node_bin"],
-)
-filegroup(
-  name = "yarn_files",
-  srcs = {yarn_files_glob}[":node_files"],
 )
 filegroup(
   name = "npm_files",
@@ -550,15 +357,11 @@ filegroup(
         npm_bin_export = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % npm_bin),
         npx_bin_export = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % npx_bin),
         npm_files_glob = "" if repository_ctx.attr.vendored_node else "glob([\"bin/nodejs/**\"]) + ",
-        yarn_bin_export = "" if repository_ctx.attr.vendored_yarn else ("\n  \"%s\"," % yarn_bin),
-        yarn_files_glob = "" if repository_ctx.attr.vendored_yarn else "glob([\"bin/yarnpkg/**\"]) + ",
         node_bin_label = node_bin_label,
         npm_bin_label = npm_bin_label,
         npx_bin_label = npx_bin_label,
-        yarn_bin_label = yarn_bin_label,
         node_entry = node_entry,
         npm_entry = npm_entry,
-        yarn_entry = yarn_entry,
     )
 
     # the platform attribute is only set when used from this file, not from build_bazel_rules_nodejs
@@ -581,7 +384,6 @@ def _verify_version_is_valid(version):
 def _nodejs_repo_impl(repository_ctx):
     assert_node_exists_for_host(repository_ctx)
     _download_node(repository_ctx)
-    _download_yarn(repository_ctx)
     _prepare_node(repository_ctx)
 
 node_repositories = repository_rule(

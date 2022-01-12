@@ -48,7 +48,6 @@ load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install
 node_repositories(
     node_version = "10.12.0",
     vendored_node = "@vendored_node_10_12_0//:node-v10.12.0-linux-x64",
-    vendored_yarn = "@vendored_yarn_1_10_0//:yarn-v1.10.0",
 )
 
 yarn_install(
@@ -59,5 +58,6 @@ yarn_install(
     ],
     exports_directories_only = False,
     package_json = "//:package.json",
+    yarn = "@vendored_yarn_1_10_0//:yarn-v1.10.0/bin/yarn.js",
     yarn_lock = "//:yarn.lock",
 )

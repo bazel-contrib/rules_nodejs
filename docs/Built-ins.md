@@ -728,7 +728,7 @@ Defaults to `""`
 
 <h4 id="npm_install-node_repository">node_repository</h4>
 
-(*String*): The basename for nodejs toolchains.
+(*String*): The basename for a nodejs toolchain to use for running npm.
         Usually this is the value of the `name` attribute given to a nodejs_register_toolchains call in WORKSPACE
 
 Defaults to `"nodejs"`
@@ -1182,7 +1182,7 @@ yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args"
              <a href="#yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-links">links</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>,
              <a href="#yarn_install-node_repository">node_repository</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_json_remove">package_json_remove</a>, <a href="#yarn_install-package_json_replace">package_json_replace</a>, <a href="#yarn_install-package_path">package_path</a>,
              <a href="#yarn_install-patch_args">patch_args</a>, <a href="#yarn_install-patch_tool">patch_tool</a>, <a href="#yarn_install-post_install_patches">post_install_patches</a>, <a href="#yarn_install-pre_install_patches">pre_install_patches</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>,
-             <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
+             <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn">yarn</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
 </pre>
 
 Runs yarn install during workspace setup.
@@ -1415,7 +1415,7 @@ Defaults to `""`
 
 <h4 id="yarn_install-node_repository">node_repository</h4>
 
-(*String*): The basename for nodejs toolchains.
+(*String*): The basename for a nodejs toolchain to use for running npm.
         Usually this is the value of the `name` attribute given to a nodejs_register_toolchains call in WORKSPACE
 
 Defaults to `"nodejs"`
@@ -1618,6 +1618,12 @@ If False, this rule will pass `--cache-folder /path/to/external/repository/__yar
 to yarn so that the local cache is contained within the external repository.
 
 Defaults to `True`
+
+<h4 id="yarn_install-yarn">yarn</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): The yarn.js entry point to execute
+
+Defaults to `@yarn//:bin/yarn`
 
 <h4 id="yarn_install-yarn_lock">yarn_lock</h4>
 

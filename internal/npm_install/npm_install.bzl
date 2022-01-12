@@ -22,9 +22,9 @@ See discussion in the README.
 """
 
 load("@rules_nodejs//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
+load("@rules_nodejs//nodejs/private:node_labels.bzl", "get_node_label", "get_npm_label")
 load("//:version.bzl", "VERSION")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
-load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
     "data": attr.label_list(
@@ -202,7 +202,7 @@ fine grained npm dependencies.
     ),
     "node_repository": attr.string(
         default = "nodejs",
-        doc = """The basename for nodejs toolchains.
+        doc = """The basename for a nodejs toolchain to use for running npm.
         Usually this is the value of the `name` attribute given to a nodejs_register_toolchains call in WORKSPACE""",
     ),
     "package_json": attr.label(
@@ -609,17 +609,20 @@ def _copy_data_dependencies(repository_ctx):
         # files as npm file:// packages
         _copy_file(repository_ctx, f)
 
-def _add_node_repositories_info_deps(repository_ctx):
+def _add_node_repositories_info_deps(repository_ctx, yarn = None):
     # Add a dep to the node_info & yarn_info files from node_repositories
     # so that if the node or yarn versions change we re-run the repository rule
     repository_ctx.symlink(
         Label("@{}_{}//:node_info".format(repository_ctx.attr.node_repository, os_name(repository_ctx))),
         repository_ctx.path("_node_info"),
     )
-    repository_ctx.symlink(
-        Label("@{}_{}//:yarn_info".format(repository_ctx.attr.node_repository, os_name(repository_ctx))),
-        repository_ctx.path("_yarn_info"),
-    )
+
+    # A custom yarn might be vendored, and not have a yarn_info file in the repo.
+    if str(yarn) == _DEFAULT_YARN:
+        repository_ctx.symlink(
+            Label("@{}//:yarn_info".format(yarn.workspace_name)),
+            repository_ctx.path("_yarn_info"),
+        )
 
 def _symlink_node_modules(repository_ctx):
     package_json_dir = repository_ctx.path(repository_ctx.attr.package_json).dirname
@@ -791,7 +794,7 @@ check if yarn is being run by the `npm_install` repository rule.""",
 )
 
 def _detect_yarn_version(rctx, yarn):
-    result = rctx.execute([rctx.path(yarn), "--version"])
+    result = rctx.execute([yarn, "--version"])
     if result.return_code:
         fail("yarn --version failed: %s (%s)" % (result.stdout, result.stderr))
     if result.stdout.startswith("1."):
@@ -805,7 +808,10 @@ def _yarn_install_impl(repository_ctx):
 
     is_windows_host = is_windows_os(repository_ctx)
     node = repository_ctx.path(get_node_label(repository_ctx))
-    yarn = get_yarn_label(repository_ctx)
+    yarn_label = repository_ctx.attr.yarn
+    if is_windows_host:
+        yarn_label = yarn_label.relative(":bin/yarn.cmd")
+    yarn = repository_ctx.path(yarn_label)
     yarn_version = _detect_yarn_version(repository_ctx, yarn)
     yarn_args = []
 
@@ -878,7 +884,7 @@ unset npm_config_registry
 (cd "{root}"; "{yarn}" {yarn_args})
 """.format(
                 root = root,
-                yarn = repository_ctx.path(yarn),
+                yarn = yarn,
                 yarn_args = " ".join(yarn_args),
             ),
             executable = True,
@@ -893,7 +899,7 @@ set “npm_config_registry=”
 cd /D "{root}" && "{yarn}" {yarn_args}
 """.format(
                 root = root,
-                yarn = repository_ctx.path(yarn),
+                yarn = yarn,
                 yarn_args = " ".join(yarn_args),
             ),
             executable = True,
@@ -903,7 +909,7 @@ cd /D "{root}" && "{yarn}" {yarn_args}
     _copy_file(repository_ctx, repository_ctx.attr.package_json)
     _copy_data_dependencies(repository_ctx)
     _add_scripts(repository_ctx)
-    _add_node_repositories_info_deps(repository_ctx)
+    _add_node_repositories_info_deps(repository_ctx, yarn = repository_ctx.attr.yarn)
     _apply_pre_install_patches(repository_ctx)
 
     # _package_json_changes should be called _after_ _apply_pre_install_patches (as per docstring)
@@ -936,6 +942,8 @@ cd /D "{root}" && "{yarn}" {yarn_args}
     _apply_post_install_patches(repository_ctx)
 
     _create_build_files(repository_ctx, "yarn_install", node, repository_ctx.attr.yarn_lock, repository_ctx.attr.generate_local_modules_build_files)
+
+_DEFAULT_YARN = "@yarn//:bin/yarn"
 
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
@@ -986,6 +994,10 @@ The True value has no effect on Yarn 2+ (Berry).
 If False, this rule will pass `--cache-folder /path/to/external/repository/__yarn_cache`
 to yarn so that the local cache is contained within the external repository.
 """,
+        ),
+        "yarn": attr.label(
+            default = _DEFAULT_YARN,
+            doc = "The yarn.js entry point to execute",
         ),
         "yarn_lock": attr.label(
             mandatory = True,

@@ -29,7 +29,12 @@ load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_d
 
 build_bazel_rules_nodejs_dependencies()
 
-load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
+
+node_repositories(
+    # Demonstrate that we can avoid using the "yarn" name if it's already in use
+    yarn_repository_name = "yarnpkg",
+)
 
 yarn_install(
     name = "yarn",
@@ -66,6 +71,7 @@ yarn_install(
     #     at Module._compile (internal/modules/cjs/loader.js:1078:30)
     #     at Object.Module._extensions..js (internal/modules/cjs/loader.js:1108:10)
     symlink_node_modules = True,
+    yarn = "@yarnpkg//:bin/yarn",
     yarn_lock = "//:yarn.lock",
 )
 
