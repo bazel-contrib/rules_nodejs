@@ -20,7 +20,7 @@
 load("@bazel_gazelle//:deps.bzl", "go_repository")
 
 # END-DEV-ONLY
-load("@build_bazel_rules_nodejs//:index.bzl", "check_bazel_version", "check_rules_nodejs_version")
+load("@bazel_skylib//lib:versions.bzl", "versions")
 
 def ts_setup_workspace():
     """This repository rule should be called from your WORKSPACE file.
@@ -30,10 +30,7 @@ def ts_setup_workspace():
     """
 
     # 0.18.0: support for .bazelignore
-    check_bazel_version("0.18.0")
-
-    # 0.16.8: ng_package fix for packaging binary files
-    check_rules_nodejs_version("0.16.8")
+    versions.check("0.18.0")
 
 # BEGIN-DEV-ONLY
 def ts_setup_dev_workspace():
