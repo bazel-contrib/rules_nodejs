@@ -86,11 +86,11 @@ def copy_bash(ctx, src, dst):
     if dst.is_directory:
         cmd_tmpl = "rm -rf \"$2\" && cp -rf \"$1/\" \"$2\""
         mnemonic = "CopyDirectory"
-        progress_message = "Copying directory"
+        progress_message = "Copying directory %s" % src.path
     else:
         cmd_tmpl = "cp -f \"$1\" \"$2\""
         mnemonic = "CopyFile"
-        progress_message = "Copying file"
+        progress_message = "Copying file %s" % src.path
 
     ctx.actions.run_shell(
         tools = [src],
