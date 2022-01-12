@@ -18,7 +18,6 @@ Users should not load files under "/internal"
 """
 
 load("//:version.bzl", "VERSION")
-load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
 load("//internal/common:params_file.bzl", _params_file = "params_file")
@@ -35,7 +34,6 @@ load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _ya
 load("//internal/pkg_npm:pkg_npm.bzl", _pkg_npm = "pkg_npm_macro")
 load("//internal/pkg_web:pkg_web.bzl", _pkg_web = "pkg_web")
 
-check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary
 nodejs_test = _nodejs_test
 node_repositories = _node_repositories
@@ -102,7 +100,6 @@ def check_build_bazel_rules_nodejs_version(minimum_version_string):
             minimum_version_string,
         ))
 
-# Export check_rules_nodejs_version symbol for pre-5.0 backward compat. This
-# will eventually get removed as we move to the core @rules_nodejs package in
-# future release.
-check_rules_nodejs_version = check_build_bazel_rules_nodejs_version
+def check_rules_nodejs_version(*_):
+    # buildifier: disable=print
+    print("WARNING: check_rules_nodejs_version has been removed. This is a no-op, please remove the call.")
