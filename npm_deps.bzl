@@ -138,7 +138,6 @@ js_library(
             "@test_multi_linker/lib-d2": "@//internal/linker/test/multi_linker/lib_d",
         },
         package_json = "//internal/linker/test/multi_linker:package.json",
-        package_path = "internal/linker/test/multi_linker",
         yarn_lock = "//internal/linker/test/multi_linker:yarn.lock",
     )
 
@@ -155,28 +154,24 @@ js_library(
             "@test_multi_linker/lib-d2": "@//internal/linker/test/multi_linker/lib_d",
         },
         package_json = "//internal/linker/test/multi_linker/test_a:package.json",
-        package_path = "internal/linker/test/multi_linker/test_a",
         yarn_lock = "//internal/linker/test/multi_linker/test_a:yarn.lock",
     )
 
     yarn_install(
         name = "internal_test_multi_linker_test_b_deps",
         package_json = "//internal/linker/test/multi_linker/test_b:package.json",
-        package_path = "internal/linker/test/multi_linker/test_b",
         yarn_lock = "//internal/linker/test/multi_linker/test_b:yarn.lock",
     )
 
     yarn_install(
         name = "internal_test_multi_linker_test_c_deps",
         package_json = "//internal/linker/test/multi_linker/test_c:package.json",
-        package_path = "internal/linker/test/multi_linker/test_c",
         yarn_lock = "//internal/linker/test/multi_linker/test_c:yarn.lock",
     )
 
     yarn_install(
         name = "internal_test_multi_linker_test_d_deps",
         package_json = "//internal/linker/test/multi_linker/test_d:package.json",
-        package_path = "internal/linker/test/multi_linker/test_d",
         yarn_lock = "//internal/linker/test/multi_linker/test_d:yarn.lock",
     )
 
@@ -185,7 +180,6 @@ js_library(
         # transitive deps for this first party lib should not include dev dependencies
         args = ["--production"],
         package_json = "//internal/linker/test/multi_linker/lib_b:package.json",
-        package_path = "internal/linker/test/multi_linker/lib_b",
         yarn_lock = "//internal/linker/test/multi_linker/lib_b:yarn.lock",
     )
 
@@ -194,7 +188,6 @@ js_library(
         # transitive deps for this first party lib should not include dev dependencies
         args = ["--production"],
         package_json = "//internal/linker/test/multi_linker/lib_c:lib/package.json",
-        package_path = "internal/linker/test/multi_linker/lib_c/lib",
         yarn_lock = "//internal/linker/test/multi_linker/lib_c:lib/yarn.lock",
     )
 
@@ -230,7 +223,6 @@ js_library(
             "@test_multi_linker/lib-d2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
         },
         package_json = "//internal/linker/test/multi_linker/sub:package.json",
-        package_path = "internal/linker/test/multi_linker/sub",
         yarn_lock = "//internal/linker/test/multi_linker/sub:yarn.lock",
     )
 
@@ -239,7 +231,6 @@ js_library(
         # transitive deps for this first party lib should not include dev dependencies
         args = ["--production"],
         package_json = "//internal/linker/test/multi_linker/onep_a:package.json",
-        package_path = "internal/linker/test/multi_linker/onep_a",
         yarn_lock = "//internal/linker/test/multi_linker/onep_a:yarn.lock",
     )
 
@@ -264,6 +255,7 @@ js_library(
         ],
         package_json = "//:tools/fine_grained_deps_yarn/package.json",
         yarn_lock = "//:tools/fine_grained_deps_yarn/yarn.lock",
+        package_path = "/",
         exports_directories_only = False,
     )
 
@@ -289,6 +281,7 @@ js_library(
         npm_command = "install",
         package_json = "//:tools/fine_grained_deps_npm/package.json",
         package_lock_json = "//:tools/fine_grained_deps_npm/package-lock.json",
+        package_path = "/",
         exports_directories_only = False,
     )
 
@@ -301,6 +294,7 @@ js_library(
             "SOME_USER_ENV": "yarn is great!",
         },
         package_json = "//:tools/fine_grained_deps_yarn_directory_artifacts/package.json",
+        package_path = "/",
         yarn_lock = "//:tools/fine_grained_deps_yarn_directory_artifacts/yarn.lock",
     )
 
@@ -314,12 +308,14 @@ js_library(
         },
         npm_command = "install",
         package_json = "//:tools/fine_grained_deps_npm_directory_artifacts/package.json",
+        package_path = "/",
         package_lock_json = "//:tools/fine_grained_deps_npm_directory_artifacts/package-lock.json",
     )
 
     yarn_install(
         name = "fine_grained_no_bin",
         package_json = "//:tools/fine_grained_no_bin/package.json",
+        package_path = "/",
         yarn_lock = "//:tools/fine_grained_no_bin/yarn.lock",
     )
 
@@ -368,6 +364,7 @@ filegroup(
   ],
 )""",
         package_json = "//:tools/fine_grained_goldens/package.json",
+        package_path = "/",
         yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
         exports_directories_only = False,
     )
@@ -407,13 +404,13 @@ filegroup(
   ],
 )""",
         package_json = "//:tools/fine_grained_goldens/package.json",
+        package_path = "/",
         yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
     )
 
     yarn_install(
         name = "internal_npm_install_test_patches_yarn",
         package_json = "//internal/npm_install/test/patches_yarn:package.json",
-        package_path = "internal/npm_install/test/patches_yarn",
         patch_args = ["-p0"],
         patch_tool = "patch",
         post_install_patches = ["//internal/npm_install/test/patches_yarn:semver+1.0.0.patch"],
@@ -439,7 +436,6 @@ filegroup(
         name = "internal_npm_install_test_patches_npm",
         package_json = "//internal/npm_install/test/patches_npm:package.json",
         package_lock_json = "//internal/npm_install/test/patches_npm:package-lock.json",
-        package_path = "internal/npm_install/test/patches_npm",
         patch_args = ["-p0"],
         patch_tool = "patch",
         post_install_patches = ["//internal/npm_install/test/patches_npm:semver+1.0.0.patch"],
@@ -463,7 +459,6 @@ filegroup(
     yarn_install(
         name = "internal_npm_install_test_patches_yarn_symlinked",
         package_json = "//internal/npm_install/test/patches_yarn_symlinked:package.json",
-        package_path = "internal/npm_install/test/patches_yarn_symlinked",
         patch_args = ["-p0"],
         patch_tool = "patch",
         post_install_patches = ["//internal/npm_install/test/patches_yarn_symlinked:semver+1.0.0.patch"],
@@ -476,7 +471,6 @@ filegroup(
         name = "internal_npm_install_test_patches_npm_symlinked",
         package_json = "//internal/npm_install/test/patches_npm_symlinked:package.json",
         package_lock_json = "//internal/npm_install/test/patches_npm_symlinked:package-lock.json",
-        package_path = "internal/npm_install/test/patches_npm_symlinked",
         patch_args = ["-p0"],
         patch_tool = "patch",
         post_install_patches = ["//internal/npm_install/test/patches_npm_symlinked:semver+1.0.0.patch"],
@@ -529,7 +523,6 @@ filegroup(
   ],
 )""",
         package_json = "//:tools/fine_grained_goldens/package.json",
-        package_path = "tools/fine_grained_goldens",
         yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
     )
 
@@ -554,6 +547,5 @@ filegroup(
     yarn_install(
         name = "rollup_test_multi_linker_deps",
         package_json = "//packages/rollup/test/multi_linker:package.json",
-        package_path = "packages/rollup/test/multi_linker",
         yarn_lock = "//packages/rollup/test/multi_linker:yarn.lock",
     )

@@ -24,6 +24,7 @@ See discussion in the README.
 load("@rules_nodejs//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
 load("@rules_nodejs//nodejs/private:node_labels.bzl", "get_node_label", "get_npm_label")
 load("//:version.bzl", "VERSION")
+load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
     "data": attr.label_list(
@@ -134,9 +135,6 @@ as well as the fine grained targets such as `@wksp//foo`.
 
 A mapping of npm package names to bazel targets to linked into node_modules.
 
-If `package_path` is also set, the bazel target will be linked to the node_modules at `package_path`
-along with other 3rd party npm packages from this rule.
-
 For example,
 
 ```
@@ -144,7 +142,6 @@ yarn_install(
     name = "npm",
     package_json = "//web:package.json",
     yarn_lock = "//web:yarn.lock",
-    package_path = "web",
     links = {
         "@scope/target": "//some/scoped/target",
         "target": "//some/target",
@@ -210,11 +207,10 @@ fine grained npm dependencies.
     ),
     "package_path": attr.string(
         default = "",
-        doc = """If set, link the 3rd party node_modules dependencies under the package path specified.
+        doc = """The directory to link `node_modules` to in the execroot and in runfiles.
 
-In most cases, this should be the directory of the package.json file so that the linker links the node_modules
-in the same location they are found in the source tree. In a future release, this will default to the package.json
-directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/issues/2451""",
+If unset, link `node_modules` to the directory of the `package.json` file specified in the
+`package_json` attribute. Set to "/" to link to the root directory.""",
     ),
     "patch_args": attr.string_list(
         default = ["-p0"],
@@ -451,6 +447,15 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
         if not v.startswith("@"):
             fail("link target must be label of form '@wksp//path/to:target', '@//path/to:target' or '//path/to:target'")
         validated_links[k] = v
+
+    package_path = repository_ctx.attr.package_path
+    if not package_path:
+        # By default the package_path is the directory of the package.json file
+        package_path = paths.dirname(paths.join(repository_ctx.attr.package_json.package, repository_ctx.attr.package_json.name))
+    elif package_path == "/":
+        # User specified root path
+        package_path = ""
+
     generate_config_json = json.encode(
         struct(
             exports_directories_only = repository_ctx.attr.exports_directories_only,
@@ -459,7 +464,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
             links = validated_links,
             package_json = str(repository_ctx.path(repository_ctx.attr.package_json)),
             package_lock = str(repository_ctx.path(lock_file)),
-            package_path = repository_ctx.attr.package_path,
+            package_path = package_path,
             rule_type = rule_type,
             strict_visibility = repository_ctx.attr.strict_visibility,
             workspace = repository_ctx.attr.name,
