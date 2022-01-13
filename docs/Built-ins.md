@@ -1621,40 +1621,6 @@ Defaults to `@yarn//:bin/yarn`
 
 
 
-## check_bazel_version
-
-**USAGE**
-
-<pre>
-check_bazel_version(<a href="#check_bazel_version-minimum_bazel_version">minimum_bazel_version</a>, <a href="#check_bazel_version-message">message</a>)
-</pre>
-
-    Verify the users Bazel version is at least the given one.
-
-This can be used in rule implementations that depend on changes in Bazel,
-to warn users about a mismatch between the rule and their installed Bazel
-version.
-
-This should *not* be used in users WORKSPACE files. To locally pin your
-Bazel version, just create the .bazelversion file in your workspace.
-
-
-**PARAMETERS**
-
-
-<h4 id="check_bazel_version-minimum_bazel_version">minimum_bazel_version</h4>
-
-a string indicating the minimum version
-
-
-
-<h4 id="check_bazel_version-message">message</h4>
-
-optional string to print to your users, could be used to help them update
-
-Defaults to `""`
-
-
 ## copy_to_bin
 
 **USAGE**

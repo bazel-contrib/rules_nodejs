@@ -18,11 +18,11 @@ This is a set of repository rules for setting up hermetic copies of NodeJS and Y
 See https://docs.bazel.build/versions/main/skylark/repository_rules.html
 """
 
+load("@bazel_skylib//lib:versions.bzl", "versions")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 load("@rules_nodejs//nodejs/private:os_name.bzl", "OS_ARCH_NAMES", "node_exists_for_os", "os_name")
 load("@rules_nodejs//nodejs:repositories.bzl", "DEFAULT_NODE_VERSION", "nodejs_register_toolchains", node_repositories_rule = "node_repositories")
 load("@rules_nodejs//nodejs:yarn_repositories.bzl", "yarn_repositories")
-load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 
 def node_repositories(**kwargs):
     """
@@ -35,12 +35,7 @@ def node_repositories(**kwargs):
     """
 
     # Require that users update Bazel, so that we don't need to support older ones.
-    check_bazel_version(
-        message = """
-    Bazel current LTS version (4.0.0) is the minimum required to use rules_nodejs.
-    """,
-        minimum_bazel_version = "4.0.0",
-    )
+    versions.check("4.0.0")
 
     # Back-compat: allow yarn_repositories args to be provided to node_repositories
     yarn_args = {}

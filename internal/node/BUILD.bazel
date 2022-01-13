@@ -31,6 +31,7 @@ bzl_library(
         "//internal/npm_install:bzl",
         "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
         "@bazel_skylib//lib:types",
+        "@bazel_skylib//lib:versions",
         "@rules_nodejs//nodejs:bzl",
     ],
 )

@@ -23,7 +23,6 @@ via the `WORKSPACE` install of the `build_bazel_rules_nodejs` workspace.
 This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.
 """
 
-load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
 load("//internal/common:params_file.bzl", _params_file = "params_file")
 load("//internal/generated_file_test:generated_file_test.bzl", _generated_file_test = "generated_file_test")
@@ -34,7 +33,6 @@ load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _ya
 load("//internal/pkg_npm:pkg_npm.bzl", _pkg_npm = "pkg_npm")
 load("//internal/pkg_web:pkg_web.bzl", _pkg_web = "pkg_web")
 
-check_bazel_version = _check_bazel_version
 copy_to_bin = _copy_to_bin
 params_file = _params_file
 nodejs_binary = _nodejs_binary
