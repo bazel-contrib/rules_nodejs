@@ -1,6 +1,6 @@
 {
     "private": true,
     "devDependencies": {
-        "@bazel/worker": "^4.6.0"
+        "@bazel/worker": "^4.6.1"
     }
 }
