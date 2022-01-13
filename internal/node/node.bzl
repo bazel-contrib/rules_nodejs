@@ -157,7 +157,7 @@ def _join(*elements):
 def _nodejs_binary_impl(ctx, data = [], runfiles = [], expanded_args = []):
     node_modules_manifest = write_node_modules_manifest(ctx, link_workspace_root = ctx.attr.link_workspace_root)
     node_modules_depsets = []
-    data = ctx.attr.data + data
+    data = depset(ctx.attr.data + data).to_list()
 
     # Also include files from npm fine grained deps as inputs.
     # These deps are identified by the ExternalNpmPackageInfo provider.

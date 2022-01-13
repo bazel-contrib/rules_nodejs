@@ -94,26 +94,25 @@ def _cypress_web_test_impl(ctx):
         cypressinfo.cypress_bin_path,
     ]
 
-    runfiles = (
+    runfiles = depset(
         [plugin_wrapper] +
         ctx.files.config_file +
         ctx.files.cypress_npm_package +
         ctx.files.plugin_file +
         ctx.files.srcs +
-        cypressinfo.cypress_files
+        cypressinfo.cypress_files,
     )
 
-    data = [
+    data = depset([
         ctx.attr.config_file,
         ctx.attr.cypress_npm_package,
         ctx.attr.plugin_file,
-        ctx.attr.srcs,
-    ]
+    ] + ctx.attr.srcs)
 
     return nodejs_test_kwargs["implementation"](
         ctx,
-        data = data,
-        runfiles = runfiles,
+        data = data.to_list(),
+        runfiles = runfiles.to_list(),
         expanded_args = expanded_args,
     )
 
