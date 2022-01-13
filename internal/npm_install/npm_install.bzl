@@ -622,7 +622,7 @@ def _add_node_repositories_info_deps(repository_ctx, yarn = None):
     )
 
     # A custom yarn might be vendored, and not have a yarn_info file in the repo.
-    if str(yarn) == _DEFAULT_YARN:
+    if _yarn_from_yarn_repositories(yarn):
         repository_ctx.symlink(
             Label("@{}//:yarn_info".format(yarn.workspace_name)),
             repository_ctx.path("_yarn_info"),
@@ -792,7 +792,9 @@ def _yarn_install_impl(repository_ctx):
     is_windows_host = is_windows_os(repository_ctx)
     node = repository_ctx.path(get_node_label(repository_ctx))
     yarn_label = repository_ctx.attr.yarn
-    if is_windows_host:
+
+    # A custom yarn won't have our special wrapper batch script
+    if _yarn_from_yarn_repositories(yarn_label) and is_windows_host:
         yarn_label = yarn_label.relative(":bin/yarn.cmd")
     yarn = repository_ctx.path(yarn_label)
     yarn_version = _detect_yarn_version(repository_ctx, yarn)
@@ -926,7 +928,16 @@ cd /D "{root}" && "{yarn}" {yarn_args}
 
     _create_build_files(repository_ctx, "yarn_install", node, repository_ctx.attr.yarn_lock, repository_ctx.attr.generate_local_modules_build_files)
 
-_DEFAULT_YARN = "@yarn//:bin/yarn"
+_DEFAULT_YARN = Label("@yarn//:bin/yarn")
+
+def _yarn_from_yarn_repositories(yarn_label):
+    """Detect if yarn appears to come from an install we performed in yarn_repositories.bzl
+
+    If it does, then it has our wrapper scripts and the info file.
+    If the user vendors their own yarn.js, this won't exist."""
+    if not yarn_label:
+        return False
+    return yarn_label.package == _DEFAULT_YARN.package and yarn_label.name == _DEFAULT_YARN.name
 
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{

@@ -59,15 +59,13 @@ node_repositories(
 A Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
 and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e`
 
-
-### Using a local version
-
-To avoid downloads, you can check in vendored copies of NodeJS and set vendored_node
-to point to those before calling node_repositories. You can also point to a location where node is installed on your computer,
-but we don't recommend this because it leads to version skew between you, your coworkers, and your Continuous Integration environment.
-It also ties your build to a single platform, preventing you from cross-compiling into a Linux docker image on Mac for example.
-
 See the [the repositories documentation](repositories.html) for how to use the resulting repositories.
+
+### Using a custom node.js.
+
+To avoid downloads, you can check in a vendored node.js binary or can build one from source.
+See [toolchains](./toolchains.md) and `examples/vendored_node_and_yarn`.
+
 """
 
 _ATTRS = {
@@ -100,7 +98,7 @@ and `{filename}` with the matching entry from the `node_repositories` attribute.
     ),
     "node_version": attr.string(
         default = DEFAULT_NODE_VERSION,
-        doc = "the specific version of NodeJS to install or, if vendored_node is specified, the vendored version of node",
+        doc = "the specific version of NodeJS to install",
     ),
     "use_nvmrc": attr.label(
         allow_single_file = True,
@@ -112,12 +110,6 @@ If set then also set node_version to the version found in the .nvmrc file.""",
     "platform": attr.string(
         doc = "Internal use only. Which platform to install as a toolchain. If unset, we assume the repository is named nodejs_[platform]",
         values = BUILT_IN_NODE_PLATFORMS,
-    ),
-    "vendored_node": attr.label(
-        allow_single_file = True,
-        doc = """the local path to a pre-installed NodeJS runtime.
-
-If set then also set node_version to the version that of node that is vendored.""",
     ),
 }
 
@@ -143,11 +135,6 @@ def _download_node(repository_ctx):
     Args:
       repository_ctx: The repository rule context
     """
-    if repository_ctx.attr.vendored_node:
-        repository_ctx.file("node_info", content = "# vendored_node: {vendored_node}".format(
-            vendored_node = repository_ctx.attr.vendored_node,
-        ))
-        return
 
     # If platform is unset, we assume the repository follows the naming convention
     # @nodejs_PLATFORM where PLATFORM is one of BUILT_IN_NODE_PLATFORMS
@@ -216,22 +203,8 @@ def _prepare_node(repository_ctx):
     # TODO: Maybe we want to encode the OS as a specific attribute rather than do it based on naming?
     is_windows = "_windows_" in repository_ctx.attr.name
 
-    if repository_ctx.attr.vendored_node:
-        node_path = "/".join([f for f in [
-            "../../..",
-            repository_ctx.attr.vendored_node.workspace_root,
-            repository_ctx.attr.vendored_node.package,
-            repository_ctx.attr.vendored_node.name,
-        ] if f])
-        node_package = "@%s//%s:%s" % (
-            repository_ctx.attr.vendored_node.workspace_name,
-            repository_ctx.attr.vendored_node.package,
-            repository_ctx.attr.vendored_node.name,
-        )
-    else:
-        node_path = NODE_EXTRACT_DIR
-        node_package = NODE_EXTRACT_DIR
-
+    node_path = NODE_EXTRACT_DIR
+    node_package = NODE_EXTRACT_DIR
     node_bin = ("%s/bin/node" % node_path) if not is_windows else ("%s/node.exe" % node_path)
     node_bin_label = ("%s/bin/node" % node_package) if not is_windows else ("%s/node.exe" % node_package)
 
@@ -244,17 +217,12 @@ def _prepare_node(repository_ctx):
     npx_bin = ("%s/lib/node_modules/npm/bin/npx-cli.js" % node_path) if not is_windows else ("%s/npx.cmd" % node_path)
     npx_bin_label = ("%s/lib/node_modules/npm/bin/npx-cli.js" % node_package) if not is_windows else ("%s/npx.cmd" % node_package)
 
-    # Ensure that the "vendored" binaries are resolved
-    # Just requesting their path from the repository context is enough to eager-load them
-    if repository_ctx.attr.vendored_node:
-        repository_ctx.path(Label(node_bin_label))
-
     entry_ext = ".cmd" if is_windows else ""
     node_entry = "bin/node%s" % entry_ext
     npm_entry = "bin/npm%s" % entry_ext
 
-    node_bin_relative = node_bin if repository_ctx.attr.vendored_node else paths.relativize(node_bin, "bin")
-    npm_script_relative = npm_script if repository_ctx.attr.vendored_node else paths.relativize(npm_script, "bin")
+    node_bin_relative = paths.relativize(node_bin, "bin")
+    npm_script_relative = paths.relativize(npm_script, "bin")
 
     # The entry points for node for osx/linux and windows
     if not is_windows:
@@ -353,10 +321,10 @@ filegroup(
   srcs = {npm_files_glob}[":node_files"],
 )
 """.format(
-        node_bin_export = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % node_bin),
-        npm_bin_export = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % npm_bin),
-        npx_bin_export = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % npx_bin),
-        npm_files_glob = "" if repository_ctx.attr.vendored_node else "glob([\"bin/nodejs/**\"]) + ",
+        node_bin_export = "\n  \"%s\"," % node_bin,
+        npm_bin_export = "\n  \"%s\"," % npm_bin,
+        npx_bin_export = "\n  \"%s\"," % npx_bin,
+        npm_files_glob = "glob([\"bin/nodejs/**\"]) + ",
         node_bin_label = node_bin_label,
         npm_bin_label = npm_bin_label,
         npx_bin_label = npx_bin_label,

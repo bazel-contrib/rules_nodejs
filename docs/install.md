@@ -107,4 +107,4 @@ To use See [`node_toolchain`](./Core.md#node_toolchain) for docs.
 
 To use a locally vendored Yarn, use the `vendored_yarn` attribute of [`node_repositories`](./Core.md#node_repositories)
 
-See `/examples/vendored_node` and `/examples/vendored_node_and_yarn` in this repository for an example of this in use.
+See `/examples/vendored_node_and_yarn` in this repository for an example of this in use.
