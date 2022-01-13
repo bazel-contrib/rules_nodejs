@@ -211,23 +211,15 @@ example_integration_test(
 )
 
 example_integration_test(
-    name = "examples_vendored_node",
-    npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
-    },
-    # This example only works on linux as it downloads the linux node distribution
-    # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
-    tags = ["manual"],
-)
-
-example_integration_test(
     name = "examples_vendored_node_and_yarn",
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
     },
-    # This example only works on linux as it downloads the linux node distribution
-    # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
-    tags = ["manual"],
+    # Needs some thought about how to invoke "node.exe path/to/yarn.js on windows to avoid
+    # Error in fail: yarn --version failed:  (java.io.IOException: ERROR: src/main/native/windows/process.cc(202):
+    # CreateProcessW("C:\users\b\_bazel_b\ag3rxjdr\external\vendored_yarn_1_10_0\yarn-v1.10.0\bin\yarn.js" --version):
+    # %1 is not a valid Win32 application.
+    tags = ["no-bazelci-windows"],
 )
 
 example_integration_test(

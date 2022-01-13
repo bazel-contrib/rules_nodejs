@@ -27,7 +27,7 @@ We plan to clean these up and port into `rules_nodejs` in a future major release
 
 <pre>
 node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>, <a href="#node_repositories-platform">platform</a>,
-                  <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-use_nvmrc">use_nvmrc</a>, <a href="#node_repositories-vendored_node">vendored_node</a>)
+                  <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-use_nvmrc">use_nvmrc</a>)
 </pre>
 
 To be run in user's WORKSPACE to install rules_nodejs dependencies.
@@ -77,15 +77,13 @@ node_repositories(
 A Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
 and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e`
 
-
-### Using a local version
-
-To avoid downloads, you can check in vendored copies of NodeJS and set vendored_node
-to point to those before calling node_repositories. You can also point to a location where node is installed on your computer,
-but we don't recommend this because it leads to version skew between you, your coworkers, and your Continuous Integration environment.
-It also ties your build to a single platform, preventing you from cross-compiling into a Linux docker image on Mac for example.
-
 See the [the repositories documentation](repositories.html) for how to use the resulting repositories.
+
+### Using a custom node.js.
+
+To avoid downloads, you can check in a vendored node.js binary or can build one from source.
+See [toolchains](./toolchains.md) and `examples/vendored_node_and_yarn`.
+
 
 
 **ATTRIBUTES**
@@ -127,7 +125,7 @@ Defaults to `["https://nodejs.org/dist/v{version}/{filename}"]`
 
 <h4 id="node_repositories-node_version">node_version</h4>
 
-(*String*): the specific version of NodeJS to install or, if vendored_node is specified, the vendored version of node
+(*String*): the specific version of NodeJS to install
 
 Defaults to `"16.12.0"`
 
@@ -147,14 +145,6 @@ Defaults to `""`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): the local path of the .nvmrc file containing the version of node
 
 If set then also set node_version to the version found in the .nvmrc file.
-
-Defaults to `None`
-
-<h4 id="node_repositories-vendored_node">vendored_node</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): the local path to a pre-installed NodeJS runtime.
-
-If set then also set node_version to the version that of node that is vendored.
 
 Defaults to `None`
 

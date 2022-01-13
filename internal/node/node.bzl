@@ -315,7 +315,7 @@ fi
         "TEMPLATED_node_patches_script": _to_manifest_path(ctx, ctx.file._node_patches_script),
         "TEMPLATED_require_patch_script": _to_manifest_path(ctx, ctx.outputs.require_patch_script),
         "TEMPLATED_runfiles_helper_script": _to_manifest_path(ctx, ctx.file._runfile_helpers_main),
-        "TEMPLATED_vendored_node": strip_external(node_toolchain.nodeinfo.target_tool_path),
+        "TEMPLATED_node_tool_path": strip_external(node_toolchain.nodeinfo.target_tool_path),
         "TEMPLATED_node_args": ctx.attr._node_args[UserBuildSettingInfo].value,
     }
 

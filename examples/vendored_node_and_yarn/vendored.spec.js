@@ -1,5 +1,5 @@
-describe('vendored node', () => {
-  it('version should be 10.12.0', () => {
-    expect(process.version).toBe('v10.12.0');
+describe('node version', () => {
+  it('should be the one we vendored', () => {
+    expect(process.version).toBe('v15.0.1');
   });
 });

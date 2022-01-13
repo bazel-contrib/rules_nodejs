@@ -120,11 +120,6 @@ tasks:
     - "--test_output=streamed"
     test_targets:
     - "//..."
-    # The following examples only works on linux as it downloads the linux node distribution
-    # It is tagged "manual" so we run it explicitly here
-    # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
-    - "//examples:examples_vendored_node"
-    - "//examples:examples_vendored_node_and_yarn"
   macos:
     name: macos
     platform: macos
