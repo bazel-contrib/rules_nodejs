@@ -826,15 +826,23 @@ def ts_project_macro(
         typecheck_target_name = "%s_typecheck" % name
         test_target_name = "%s_typecheck_test" % name
 
+        transpile_srcs = [s for s in srcs if _is_ts_src(s, allow_js)]
+        if (len(transpile_srcs) != len(js_outs)):
+            fail("ERROR: illegal state: transpile_srcs has length {} but js_outs has length {}".format(
+                len(transpile_srcs),
+                len(js_outs),
+            ))
+
         common_kwargs = {
             "tags": kwargs.get("tags", []),
             "visibility": kwargs.get("visibility", None),
             "testonly": kwargs.get("testonly", None),
         }
+
         if type(transpiler) == "function" or type(transpiler) == "rule":
             transpiler(
                 name = transpile_target_name,
-                srcs = srcs,
+                srcs = transpile_srcs,
                 js_outs = js_outs,
                 map_outs = map_outs,
                 **common_kwargs
@@ -843,7 +851,7 @@ def ts_project_macro(
             partial.call(
                 transpiler,
                 name = transpile_target_name,
-                srcs = srcs,
+                srcs = transpile_srcs,
                 js_outs = js_outs,
                 map_outs = map_outs,
                 **common_kwargs
