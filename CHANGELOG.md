@@ -1,3 +1,14 @@
+## [4.6.1](https://github.com/bazelbuild/rules_nodejs/compare/4.6.0...4.6.1) (2022-01-13)
+
+
+### Bug Fixes
+
+* filter out .d.ts before passing srcs to transpiler ([#3238](https://github.com/bazelbuild/rules_nodejs/issues/3238)) ([4cc74a1](https://github.com/bazelbuild/rules_nodejs/commit/4cc74a1))
+* **builtin:** detect yarn 2+ berry and adjust CLI args ([#3195](https://github.com/bazelbuild/rules_nodejs/issues/3195)) ([4c1401e](https://github.com/bazelbuild/rules_nodejs/commit/4c1401e)), closes [#3071](https://github.com/bazelbuild/rules_nodejs/issues/3071) [#1599](https://github.com/bazelbuild/rules_nodejs/issues/1599)
+* **typescript:** add build_test to ensure typecheck is run under --build_tests_only ([#3196](https://github.com/bazelbuild/rules_nodejs/issues/3196)) ([2a966ad](https://github.com/bazelbuild/rules_nodejs/commit/2a966ad))
+
+
+
 # [4.6.0](https://github.com/bazelbuild/rules_nodejs/compare/4.5.1...4.6.0) (2022-01-06)
 
 

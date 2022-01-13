@@ -4,8 +4,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "rules_nodejs",
-    sha256 = "005c59bf299d15d1d9551f12f880b1a8967fa883654c897907a667cdbb77c7a6",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.6.0/rules_nodejs-core-4.6.0.tar.gz"],
+    sha256 = "1962378ca94c37cc18521c86e2fa79b3715b6bb75ac0ec43c321f92274a56e16",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.6.1/rules_nodejs-core-4.6.1.tar.gz"],
 )
 
 load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "rules_nodejs_dependencies")
