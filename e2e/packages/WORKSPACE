@@ -26,6 +26,7 @@ npm_install(
     exports_directories_only = False,
     package_json = "//:npm1/package.json",
     package_lock_json = "//:npm1/package-lock.json",
+    package_path = "/",
 )
 
 npm_install(
@@ -35,6 +36,7 @@ npm_install(
     exports_directories_only = False,
     package_json = "//:npm2/package.json",
     package_lock_json = "//:npm2/package-lock.json",
+    package_path = "/",
 )
 
 yarn_install(
@@ -43,6 +45,7 @@ yarn_install(
     data = ["//:postinstall.js"],
     exports_directories_only = False,
     package_json = "//:yarn1/package.json",
+    package_path = "/",
     yarn_lock = "//:yarn1/yarn.lock",
 )
 
@@ -52,5 +55,6 @@ yarn_install(
     data = ["//:postinstall.js"],
     exports_directories_only = False,
     package_json = "//:yarn2/package.json",
+    package_path = "/",
     yarn_lock = "//:yarn2/yarn.lock",
 )

@@ -658,9 +658,6 @@ Defaults to `[]`
 
 A mapping of npm package names to bazel targets to linked into node_modules.
 
-If `package_path` is also set, the bazel target will be linked to the node_modules at `package_path`
-along with other 3rd party npm packages from this rule.
-
 For example,
 
 ```
@@ -668,7 +665,6 @@ yarn_install(
     name = "npm",
     package_json = "//web:package.json",
     yarn_lock = "//web:yarn.lock",
-    package_path = "web",
     links = {
         "@scope/target": "//some/scoped/target",
         "target": "//some/target",
@@ -802,11 +798,10 @@ Defaults to `{}`
 
 <h4 id="npm_install-package_path">package_path</h4>
 
-(*String*): If set, link the 3rd party node_modules dependencies under the package path specified.
+(*String*): The directory to link `node_modules` to in the execroot and in runfiles.
 
-In most cases, this should be the directory of the package.json file so that the linker links the node_modules
-in the same location they are found in the source tree. In a future release, this will default to the package.json
-directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/issues/2451
+If unset, link `node_modules` to the directory of the `package.json` file specified in the
+`package_json` attribute. Set to "/" to link to the root directory.
 
 Defaults to `""`
 
@@ -1345,9 +1340,6 @@ Defaults to `[]`
 
 A mapping of npm package names to bazel targets to linked into node_modules.
 
-If `package_path` is also set, the bazel target will be linked to the node_modules at `package_path`
-along with other 3rd party npm packages from this rule.
-
 For example,
 
 ```
@@ -1355,7 +1347,6 @@ yarn_install(
     name = "npm",
     package_json = "//web:package.json",
     yarn_lock = "//web:yarn.lock",
-    package_path = "web",
     links = {
         "@scope/target": "//some/scoped/target",
         "target": "//some/target",
@@ -1473,11 +1464,10 @@ Defaults to `{}`
 
 <h4 id="yarn_install-package_path">package_path</h4>
 
-(*String*): If set, link the 3rd party node_modules dependencies under the package path specified.
+(*String*): The directory to link `node_modules` to in the execroot and in runfiles.
 
-In most cases, this should be the directory of the package.json file so that the linker links the node_modules
-in the same location they are found in the source tree. In a future release, this will default to the package.json
-directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/issues/2451
+If unset, link `node_modules` to the directory of the `package.json` file specified in the
+`package_json` attribute. Set to "/" to link to the root directory.
 
 Defaults to `""`
 
