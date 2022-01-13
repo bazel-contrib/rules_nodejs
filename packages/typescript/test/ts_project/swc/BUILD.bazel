@@ -25,6 +25,18 @@ write_file(
     content = ["export const a: string = 1"],
 )
 
+write_file(
+    name = "gen_lib_dts",
+    out = "lib.d.ts",
+    content = ["export const a: string;"],
+)
+
+write_file(
+    name = "gen_index_ts",
+    out = "index.ts",
+    content = ["export const a: string = \"1\";"],
+)
+
 ts_project(
     name = "transpile_with_swc",
     srcs = ["big.ts"],
@@ -48,6 +60,17 @@ ts_project(
     srcs = ["typeerror.ts"],
     # The transpile_with_typeerror.check target will have a build failure
     # But the default transpile_with_typeerror target should still produce JS outs
+    tags = ["manual"],
+    transpiler = swc_macro,
+    tsconfig = _TSCONFIG,
+)
+
+ts_project(
+    name = "transpile_with_dts",
+    srcs = [
+        "index.ts",
+        "lib.d.ts",
+    ],
     tags = ["manual"],
     transpiler = swc_macro,
     tsconfig = _TSCONFIG,

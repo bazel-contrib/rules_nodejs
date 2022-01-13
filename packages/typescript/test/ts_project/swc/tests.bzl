@@ -33,6 +33,22 @@ transpile_with_failing_typecheck_test = unittest.make(_impl1, attrs = {
     "expected_js": attr.string_list(default = ["typeerror.js", "typeerror.js.map"]),
 })
 
+def _impl2(ctx):
+    env = unittest.begin(ctx)
+
+    js_files = []
+    for js in ctx.attr.lib[JSModuleInfo].sources.to_list():
+        js_files.append(js.basename)
+    asserts.equals(env, ctx.attr.expected_js, sorted(js_files))
+
+    return unittest.end(env)
+
+transpile_with_dts_test = unittest.make(_impl2, attrs = {
+    "lib": attr.label(default = "transpile_with_dts"),
+    "expected_js": attr.string_list(default = ["index.js", "index.js.map"]),
+})
+
 def test_suite():
     unittest.suite("t0", transitive_declarations_test)
     unittest.suite("t1", transpile_with_failing_typecheck_test)
+    unittest.suite("t2", transpile_with_dts_test)
