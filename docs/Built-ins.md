@@ -591,7 +591,7 @@ label and the value corresponds to the path within that directory to the entry p
 nodejs_binary(
     name = "prettier",
     data = ["@npm//prettier"],
-    entry_point = { "@npm//prettier:directory": "bin-prettier.js" },
+    entry_point = { "@npm//:node_modules/prettier": "bin-prettier.js" },
 )
 ```
 
@@ -599,7 +599,7 @@ For labels that are passed to `$(rootpath)`, `$(execpath)`, or `$(location)` you
 the directory label that gets passed to the expander & path part to follows it, e.g.
 
 ```
-$(rootpath @npm///prettier:directory)/bin-prettier.js
+$(rootpath @npm///:node_modules/prettier)/bin-prettier.js
 ```
 
 Defaults to `True`
@@ -1256,7 +1256,7 @@ label and the value corresponds to the path within that directory to the entry p
 nodejs_binary(
     name = "prettier",
     data = ["@npm//prettier"],
-    entry_point = { "@npm//prettier:directory": "bin-prettier.js" },
+    entry_point = { "@npm//:node_modules/prettier": "bin-prettier.js" },
 )
 ```
 
@@ -1264,7 +1264,7 @@ For labels that are passed to `$(rootpath)`, `$(execpath)`, or `$(location)` you
 the directory label that gets passed to the expander & path part to follows it, e.g.
 
 ```
-$(rootpath @npm///prettier:directory)/bin-prettier.js
+$(rootpath @npm///:node_modules/prettier)/bin-prettier.js
 ```
 
 Defaults to `True`

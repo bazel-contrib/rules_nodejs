@@ -1,37 +1,10 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
-copy_file(
-  name = "directory",
-  src = "@fine_grained_goldens_multi_linked//:@gregmagolan_test-a__source_directory",
-  is_directory = True,
-  out = "tree",
-)
 js_library(
     name = "test-a",
     deps = [
-        "//@gregmagolan/test-a:test-a__contents",
+        "//:@gregmagolan_test-a__contents",
     ],
-)
-js_library(
-    name = "contents",
-    package_name = "@gregmagolan/test-a",
-    package_path = "tools/fine_grained_goldens",
-    strip_prefix = "tree",
-    srcs = [":directory"],
-    visibility = ["//:__subpackages__"],
-)
-alias(
-  name = "test-a__files",
-  actual = "directory",
-)
-alias(
-  name = "test-a__contents",
-  actual = "contents",
-)
-alias(
-    name = "test-a__typings",
-    actual = "contents",
 )
 exports_files(["index.bzl"])

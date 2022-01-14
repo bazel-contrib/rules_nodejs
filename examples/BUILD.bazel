@@ -117,6 +117,11 @@ example_integration_test(
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = ["@mrmeku"],
+    tags = [
+        # ERROR: C:/users/b/_bazel_b/sbb5tpjc/external/npm/BUILD.bazel:5053:10: Copying directory external/npm/_/node_modules/jest-snapshot failed: (Exit 4): cmd.exe failed: error executing command cmd.exe /C bazel-out\x64_windows-fastbuild\bin\external\npm\node_modules\jest-snapshot--603629912-cmd.bat
+        # Insufficient memory
+        "no-bazelci-windows",
+    ],
 )
 
 example_integration_test(

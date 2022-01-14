@@ -1,37 +1,10 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
-copy_file(
-  name = "directory",
-  src = "@fine_grained_directory_artifacts_goldens//:rxjs__source_directory",
-  is_directory = True,
-  out = "tree",
-)
 js_library(
     name = "rxjs",
     deps = [
-        "//rxjs:rxjs__contents",
-        "//tslib:tslib__contents",
+        "//:rxjs__contents",
+        "//:tslib__contents",
     ],
-)
-js_library(
-    name = "contents",
-    package_name = "rxjs",
-    package_path = "",
-    strip_prefix = "tree",
-    srcs = [":directory"],
-    visibility = ["//:__subpackages__"],
-)
-alias(
-  name = "rxjs__files",
-  actual = "directory",
-)
-alias(
-  name = "rxjs__contents",
-  actual = "contents",
-)
-alias(
-    name = "rxjs__typings",
-    actual = "contents",
 )
