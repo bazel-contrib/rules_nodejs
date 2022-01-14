@@ -24,7 +24,7 @@ load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
 nodejs_register_toolchains(
     name = "nodejs",
-    node_version = "12.14.1",
+    node_version = "16.13.2",
 )
 
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")

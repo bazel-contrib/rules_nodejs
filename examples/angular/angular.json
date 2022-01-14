@@ -15,14 +15,14 @@
       },
       "architect": {
         "build": {
-          "builder": "@bazel/angular:build",
+          "builder": "@angular-builders/bazel:build",
           "options": {
             "targetLabel": "//src:prodapp",
             "bazelCommand": "build"
           }
         },
         "serve": {
-          "builder": "@bazel/angular:build",
+          "builder": "@angular-builders/bazel:build",
           "options": {
             "targetLabel": "//src:devserver",
             "bazelCommand": "run",
@@ -41,7 +41,7 @@
           }
         },
         "test": {
-          "builder": "@bazel/angular:build",
+          "builder": "@angular-builders/bazel:build",
           "options": {
             "bazelCommand": "test",
             "targetLabel": "//src/app/..."
@@ -67,7 +67,7 @@
       "prefix": "",
       "architect": {
         "e2e": {
-          "builder": "@bazel/angular:build",
+          "builder": "@angular-builders/bazel:build",
           "options": {
             "bazelCommand": "test",
             "targetLabel": "//e2e:devserver_test"
