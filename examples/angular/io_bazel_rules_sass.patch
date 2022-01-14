@@ -5,7 +5,7 @@ index 314d400b..bbdfbf87 100755
  {
    "devDependencies": {
 -    "@bazel/worker": "3.0.0",
-+    "@bazel/worker": "4.0.0-beta.0",
++    "@bazel/worker": "5.0.0-rc.0",
      "sass": "1.34.0"
    }
  }

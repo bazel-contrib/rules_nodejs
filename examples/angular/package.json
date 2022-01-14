@@ -4,7 +4,7 @@
     "description": "Demo of building Angular apps with Bazel",
     "license": "Apache-2.0",
     "engines": {
-        "node": ">=12.14.1 <=14.16.1",
+        "node": "^12.20.0 || ^14.15.0 || >=16.10.0",
         "yarn": ">=1.9.2 <2.0.0"
     },
     "dependencies": {
@@ -32,10 +32,10 @@
         "@angular/cli": "12.2.7",
         "@angular/compiler": "12.2.7",
         "@angular/compiler-cli": "12.2.7",
+        "@angular-builders/bazel": "^13.1.0",
         "@babel/cli": "^7.6.0",
         "@babel/core": "^7.6.0",
         "@babel/preset-env": "^7.6.0",
-        "@bazel/angular": "^4.4.0",
         "@bazel/benchmark-runner": "^0.1.0",
         "@bazel/buildifier": "^4.2.5",
         "@bazel/esbuild": "5.0.0-rc.0",
