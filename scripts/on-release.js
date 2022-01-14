@@ -6,8 +6,13 @@ const fs = require('fs');
 const path = require('path');
 const shell = require('shelljs');
 const version = require('../package.json').version;
-const artifact = 'dist/bin/release.tar.gz';
-const coreArtifact = 'dist/bin/release-core.tar.gz';
+
+const starlarkModule = process.argv[2];
+if (starlarkModule !== 'build_bazel_rules_nodejs' && starlarkModule != 'rules_nodejs') {
+  throw new Error("first argument must be module to release (build_bazel_rules_nodejs or rules_nodejs)")
+}
+const artifactSuffix = starlarkModule == 'rules_nodejs' ? '-core' : ''
+const artifact = `dist/bin/release${artifactSuffix}.tar.gz`;
 
 function computeSha256(path) {
   const hash = crypto.createHash('sha256');
@@ -16,20 +21,23 @@ function computeSha256(path) {
   return hash.update(fs.readFileSync(path)).digest('hex');
 }
 const sha256 = computeSha256(artifact);
-const coreSha256 = computeSha256(coreArtifact);
 
-for (const f of ['docs/install.md', 'packages/create/index.js']) {
+if (starlarkModule == 'build_bazel_rules_nodejs') {
+  for (const f of ['docs/install.md', 'packages/create/index.js']) {
+    shell.sed(
+        '-i', 'download/[0-9\.]*(-(beta|rc).[0-9]+)?/rules_nodejs-[0-9\.]*(-(beta|rc).[0-9]+)?.tar.gz',
+        `download/${version}/rules_nodejs-${version}.tar.gz`, f);
+    shell.sed('-i', 'sha256 = \"[0-9a-f]+\"', `sha256 = "${sha256}"`, f);
+  }
+} else {
   shell.sed(
-      '-i', 'download/[0-9\.]*(-(beta|rc).[0-9]+)?/rules_nodejs-[0-9\.]*(-(beta|rc).[0-9]+)?.tar.gz',
-      `download/${version}/rules_nodejs-${version}.tar.gz`, f);
-  shell.sed('-i', 'sha256 = \"[0-9a-f]+\"', `sha256 = "${sha256}"`, f);
+    '-i', 'download/[0-9\.]*(-(beta|rc).[0-9]+)?/rules_nodejs-core-[0-9\.]*(-(beta|rc).[0-9]+)?.tar.gz',
+    `download/${version}/rules_nodejs-core-${version}.tar.gz`, 'repositories.bzl')
+  
+  shell.sed('-i', 'core_sha = \"[0-9a-f]+\"', `core_sha = "${sha256}"`, 'repositories.bzl');
 }
-shell.sed(
-  '-i', 'download/[0-9\.]*(-(beta|rc).[0-9]+)?/rules_nodejs-core-[0-9\.]*(-(beta|rc).[0-9]+)?.tar.gz',
-  `download/${version}/rules_nodejs-core-${version}.tar.gz`, 'repositories.bzl')
-shell.sed('-i', 'core_sha = \"[0-9a-f]+\"', `core_sha = "${coreSha256}"`, 'repositories.bzl');
-shell.cp('-f', artifact, `rules_nodejs-${version}.tar.gz`);
-shell.cp('-f', coreArtifact, `rules_nodejs-core-${version}.tar.gz`);
+
+shell.cp('-f', artifact, `rules_nodejs${artifactSuffix}-${version}.tar.gz`);
 
 /**
  * Returns an array of all WORKSPACE the files under a directory.
@@ -55,21 +63,14 @@ const workspaceFiles = [
 
 for (const f of workspaceFiles) {
   let workspaceContents = fs.readFileSync(f, {encoding: 'utf-8'});
-  const regex = new RegExp(`http_archive\\(\\s*name\\s*\\=\\s*"build_bazel_rules_nodejs"[^)]+`);
+  
+  const regex = new RegExp(`http_archive\\(\\s*name\\s*\\=\\s*"${starlarkModule}"[^)]+`);
   const replacement = `http_archive(
-    name = "build_bazel_rules_nodejs",
+    name = "${starlarkModule}",
     sha256 = "${sha256}",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/${version}/rules_nodejs-${
-      version}.tar.gz"],
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/${version}/rules_nodejs${artifactSuffix}-${
+        version}.tar.gz"],
 `;
   workspaceContents = workspaceContents.replace(regex, replacement);
-  const coreRegex = new RegExp(`http_archive\\(\\s*name\\s*\\=\\s*"rules_nodejs"[^)]+`);
-  const coreReplacement = `http_archive(
-    name = "rules_nodejs",
-    sha256 = "${coreSha256}",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/${version}/rules_nodejs-core-${
-      version}.tar.gz"],
-`;
-  workspaceContents = workspaceContents.replace(coreRegex, coreReplacement);
   fs.writeFileSync(f, workspaceContents);
 }
