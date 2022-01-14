@@ -43,9 +43,12 @@ def cypress_repositories(
         windows_urls: (Optional) URLs at which the cypress binary for windows distros of linux can be downloaded. If omitted, https://cdn.cypress.io/desktop will be used.
         windows_sha256: (Optional) SHA-256 of the windows cypress binary
     """
+    patches = ["//toolchains/cypress:cypress.patch"]
+
     http_archive(
-        name = "cypress_windows".format(name),
+        name = "cypress_windows",
         sha256 = windows_sha256,
+        patches = patches,
         urls = windows_urls + [
             "https://cdn.cypress.io/desktop/{}/win32-x64/cypress.zip".format(version),
         ],
@@ -65,8 +68,9 @@ filegroup(
     )
 
     http_archive(
-        name = "cypress_darwin".format(name),
+        name = "cypress_darwin",
         sha256 = darwin_sha256,
+        patches = patches,
         # Cypress checks that the binary path matches **/Contents/MacOS/Cypress so we do not strip that particular prefix.
         urls = darwin_urls + [
             "https://cdn.cypress.io/desktop/{}/darwin-x64/cypress.zip".format(version),
@@ -74,7 +78,7 @@ filegroup(
         build_file_content = """
 filegroup(
     name = "files",
-    srcs = ["Cypress.app"],
+    srcs = ["Cypress.app", "binary_state.json"],
     visibility = ["//visibility:public"],
 )
 
@@ -88,8 +92,9 @@ filegroup(
     )
 
     http_archive(
-        name = "cypress_darwin_arm64".format(name),
+        name = "cypress_darwin_arm64",
         sha256 = darwin_arm64_sha256,
+        patches = patches,
         # Cypress checks that the binary path matches **/Contents/MacOS/Cypress so we do not strip that particular prefix.
         urls = darwin_arm64_urls + [
             # Note: there is currently no arm64 builds of cypress, so here we'll default to
@@ -100,7 +105,7 @@ filegroup(
         build_file_content = """
 filegroup(
     name = "files",
-    srcs = ["Cypress.app"],
+    srcs = ["Cypress.app", "binary_state.json"],
     visibility = ["//visibility:public"],
 )
 
@@ -114,8 +119,9 @@ filegroup(
     )
 
     http_archive(
-        name = "cypress_linux".format(name),
+        name = "cypress_linux",
         sha256 = linux_sha256,
+        patches = patches,
         urls = linux_urls + [
             "https://cdn.cypress.io/desktop/{}/linux-x64/cypress.zip".format(version),
         ],

@@ -1,0 +1,9 @@
+diff --git binary_state.json binary_state.json
+new file mode 100644
+index 00000000..517b710c
+--- /dev/null
++++ binary_state.json
+@@ -0,0 +1,3 @@
++{
++    "verified": true
++}
