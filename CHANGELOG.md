@@ -1,3 +1,100 @@
+# [5.0.0-rc.0](https://github.com/bazelbuild/rules_nodejs/compare/4.4.0...5.0.0-rc.0) (2022-01-14)
+
+
+### Bug Fixes
+
+* allow cypress to run on m1 macs ([#3088](https://github.com/bazelbuild/rules_nodejs/issues/3088)) ([ac96783](https://github.com/bazelbuild/rules_nodejs/commit/ac96783))
+* create a bazel-out node_modules tree using copy_file in the external repo when exports_directories_only is True ([#3241](https://github.com/bazelbuild/rules_nodejs/issues/3241)) ([f5eed08](https://github.com/bazelbuild/rules_nodejs/commit/f5eed08))
+* filter out .d.ts before passing srcs to transpiler ([#3238](https://github.com/bazelbuild/rules_nodejs/issues/3238)) ([11460e8](https://github.com/bazelbuild/rules_nodejs/commit/11460e8))
+* **typescript:** better error when transpiler is used and no declarations are emitted ([72c3662](https://github.com/bazelbuild/rules_nodejs/commit/72c3662)), closes [#3209](https://github.com/bazelbuild/rules_nodejs/issues/3209)
+* add arm64 as a platform to //packages/concatjs:docs_scrub_platform ([#3089](https://github.com/bazelbuild/rules_nodejs/issues/3089)) ([8161dcc](https://github.com/bazelbuild/rules_nodejs/commit/8161dcc))
+* bump jasmine-reporters to 2.5.0 ([#3180](https://github.com/bazelbuild/rules_nodejs/issues/3180)) ([efbc33b](https://github.com/bazelbuild/rules_nodejs/commit/efbc33b))
+* change all cfg=host and cfg=target executable attributes to cfg=exec ([9fd3fb9](https://github.com/bazelbuild/rules_nodejs/commit/9fd3fb9))
+* don't symlink execroot node_modules when under bazel run ([d19e20b](https://github.com/bazelbuild/rules_nodejs/commit/d19e20b))
+* merge conflict on 5.x branch ([c91f5b6](https://github.com/bazelbuild/rules_nodejs/commit/c91f5b6))
+* normalize module path passed to runfiles helper for robustness ([#3094](https://github.com/bazelbuild/rules_nodejs/issues/3094)) ([20e121b](https://github.com/bazelbuild/rules_nodejs/commit/20e121b))
+* remove _repository_args from nodejs_binary ([90c7fe0](https://github.com/bazelbuild/rules_nodejs/commit/90c7fe0))
+* remove node and use toolchain ([#3144](https://github.com/bazelbuild/rules_nodejs/issues/3144)) ([cb83746](https://github.com/bazelbuild/rules_nodejs/commit/cb83746))
+* remove trailing forward slash when resolving workspace root link in runfiles MANIFEST ([#3093](https://github.com/bazelbuild/rules_nodejs/issues/3093)) ([bcff217](https://github.com/bazelbuild/rules_nodejs/commit/bcff217))
+* turn off preserve_symlinks in e2e/node_loader_no_preserve_symlinks test ([5410ab2](https://github.com/bazelbuild/rules_nodejs/commit/5410ab2))
+* update linker to be tolerant to linking to different output trees ([0d93719](https://github.com/bazelbuild/rules_nodejs/commit/0d93719))
+* **builtin:** detect yarn 2+ berry and adjust CLI args ([#3195](https://github.com/bazelbuild/rules_nodejs/issues/3195)) ([9b2c08b](https://github.com/bazelbuild/rules_nodejs/commit/9b2c08b)), closes [#3071](https://github.com/bazelbuild/rules_nodejs/issues/3071) [#1599](https://github.com/bazelbuild/rules_nodejs/issues/1599)
+* **builtin:** don't use local:1 spawn ([#3084](https://github.com/bazelbuild/rules_nodejs/issues/3084)) ([f77e9fd](https://github.com/bazelbuild/rules_nodejs/commit/f77e9fd))
+* **builtin:** fixed missing dist targets ([#3068](https://github.com/bazelbuild/rules_nodejs/issues/3068)) ([6c13dac](https://github.com/bazelbuild/rules_nodejs/commit/6c13dac))
+* **builtin:** handle external repository file paths in js_library strip_prefix check ([08c75a2](https://github.com/bazelbuild/rules_nodejs/commit/08c75a2))
+* **builtin:** js_library: propagate all default_runfiles ([#3183](https://github.com/bazelbuild/rules_nodejs/issues/3183)) ([d07b104](https://github.com/bazelbuild/rules_nodejs/commit/d07b104)), closes [#3182](https://github.com/bazelbuild/rules_nodejs/issues/3182)
+* **builtin:** pkg_npm shouldn't assume the name of the nodejs toolchain ([#3129](https://github.com/bazelbuild/rules_nodejs/issues/3129)) ([552178e](https://github.com/bazelbuild/rules_nodejs/commit/552178e))
+* **builtin:** provide a DeclarationInfo from js_library is any input files are directories (TreeArtifacts) ([a1d49ae](https://github.com/bazelbuild/rules_nodejs/commit/a1d49ae))
+* **builtin:** retrieve yarn shasums from Github releases, rather than npm registry ([88ce34d](https://github.com/bazelbuild/rules_nodejs/commit/88ce34d))
+* **builtin:** support mjs/cjs files as javascript files in `js_library` ([9e9bf01](https://github.com/bazelbuild/rules_nodejs/commit/9e9bf01))
+* **create:** relocate help argument evaluation ([441e3b8](https://github.com/bazelbuild/rules_nodejs/commit/441e3b8))
+* **esbuild:** allow passing additional args to the npm install for esbuild ([#3063](https://github.com/bazelbuild/rules_nodejs/issues/3063)) ([fb2165c](https://github.com/bazelbuild/rules_nodejs/commit/fb2165c))
+* **esbuild:** allow whitespace within args ([#2998](https://github.com/bazelbuild/rules_nodejs/issues/2998)) ([181b55d](https://github.com/bazelbuild/rules_nodejs/commit/181b55d)), closes [#2997](https://github.com/bazelbuild/rules_nodejs/issues/2997)
+* **esbuild:** do not ignore annotations when the `minify` shorthand attribute is disabled ([#3106](https://github.com/bazelbuild/rules_nodejs/issues/3106)) ([b1275c5](https://github.com/bazelbuild/rules_nodejs/commit/b1275c5))
+* **esbuild:** format attribute not working with multiple entry points ([#3103](https://github.com/bazelbuild/rules_nodejs/issues/3103)) ([1000e2b](https://github.com/bazelbuild/rules_nodejs/commit/1000e2b))
+* **examples:** run jest updateSnapshot in the workspace ([#3041](https://github.com/bazelbuild/rules_nodejs/issues/3041)) ([e005d82](https://github.com/bazelbuild/rules_nodejs/commit/e005d82))
+* **typescript:** add build_test to ensure typecheck is run under --build_tests_only ([#3196](https://github.com/bazelbuild/rules_nodejs/issues/3196)) ([9622443](https://github.com/bazelbuild/rules_nodejs/commit/9622443))
+* **typescript:** don't set resolveJsonModule in generated tsconfig if tsconfig is dict and resolve_json_module is unset ([19cd74e](https://github.com/bazelbuild/rules_nodejs/commit/19cd74e))
+* **typescript:** ts_project transpiler produces js_library ([#3187](https://github.com/bazelbuild/rules_nodejs/issues/3187)) ([c9a66e0](https://github.com/bazelbuild/rules_nodejs/commit/c9a66e0))
+* [#3054](https://github.com/bazelbuild/rules_nodejs/issues/3054) regression in linker behavior in 4.4.2 ([#3059](https://github.com/bazelbuild/rules_nodejs/issues/3059)) ([92965b2](https://github.com/bazelbuild/rules_nodejs/commit/92965b2))
+* correct bzl_library target graph ([#3049](https://github.com/bazelbuild/rules_nodejs/issues/3049)) ([07df333](https://github.com/bazelbuild/rules_nodejs/commit/07df333))
+* don't link runfiles node_modules to execroot node_modules if there is an external workspace node_modules ([#3060](https://github.com/bazelbuild/rules_nodejs/issues/3060)) ([1d5defa](https://github.com/bazelbuild/rules_nodejs/commit/1d5defa))
+* terser semver compatibility range ([da7399e](https://github.com/bazelbuild/rules_nodejs/commit/da7399e))
+* unset INIT_CWD and npm_config_registry before calling yarn in yarn_install ([b62e1e8](https://github.com/bazelbuild/rules_nodejs/commit/b62e1e8))
+* update tsconfigs to include darwin_arm64-fastbuild in rootDirs ([#3087](https://github.com/bazelbuild/rules_nodejs/issues/3087)) ([1f75f40](https://github.com/bazelbuild/rules_nodejs/commit/1f75f40))
+* **typescript:** don't declare outputs that collide with inputs ([#3046](https://github.com/bazelbuild/rules_nodejs/issues/3046)) ([9b47df1](https://github.com/bazelbuild/rules_nodejs/commit/9b47df1))
+* **typescript:** give better error when noEmit is set ([#3047](https://github.com/bazelbuild/rules_nodejs/issues/3047)) ([74dd86e](https://github.com/bazelbuild/rules_nodejs/commit/74dd86e))
+* simplify portion of linker and fix case where runfiles node_modules symlinks are missing under bazel run ([8c1f26c](https://github.com/bazelbuild/rules_nodejs/commit/8c1f26c))
+
+
+### chore
+
+* update default nodejs version to 16 ([#3107](https://github.com/bazelbuild/rules_nodejs/issues/3107)) ([b0930fb](https://github.com/bazelbuild/rules_nodejs/commit/b0930fb)), closes [#3101](https://github.com/bazelbuild/rules_nodejs/issues/3101)
+
+
+### Code Refactoring
+
+* depend on bazel-skylib at runtime ([#3056](https://github.com/bazelbuild/rules_nodejs/issues/3056)) ([e5d4803](https://github.com/bazelbuild/rules_nodejs/commit/e5d4803))
+* move yarn fetch to a separate external repo ([975ae9b](https://github.com/bazelbuild/rules_nodejs/commit/975ae9b))
+* **builtin:** npm_umd_bundle no longer allows directory sources ([c87ec6b](https://github.com/bazelbuild/rules_nodejs/commit/c87ec6b))
+
+
+### Features
+
+* add bzlmod extension ([#3146](https://github.com/bazelbuild/rules_nodejs/issues/3146)) ([878ece2](https://github.com/bazelbuild/rules_nodejs/commit/878ece2))
+* add src patch being copied to progress message of vendored copy_file ([7aafe15](https://github.com/bazelbuild/rules_nodejs/commit/7aafe15))
+* add src patch being copied to progress message of vendored copy_file ([#3206](https://github.com/bazelbuild/rules_nodejs/issues/3206)) ([ddc985c](https://github.com/bazelbuild/rules_nodejs/commit/ddc985c))
+* default package_path to the directory of the package.json file in yarn_install and npm_install ([#3233](https://github.com/bazelbuild/rules_nodejs/issues/3233)) ([dcbad88](https://github.com/bazelbuild/rules_nodejs/commit/dcbad88))
+* macros nodejs_binary_toolchains nodejs_test_toolchains input multiple toolchains nodejs_binary or nodejs_test ([#3132](https://github.com/bazelbuild/rules_nodejs/issues/3132)) ([55a7521](https://github.com/bazelbuild/rules_nodejs/commit/55a7521))
+* set exports_directories_only default to True in yarn_install & npm_install repository rules ([ee0e507](https://github.com/bazelbuild/rules_nodejs/commit/ee0e507))
+* use tree artifacts via copy_directory with exports_directories_only ([91fa0ae](https://github.com/bazelbuild/rules_nodejs/commit/91fa0ae))
+* **builtin:** npm_install/yarn_install node repo ([#3164](https://github.com/bazelbuild/rules_nodejs/issues/3164)) ([8e277e4](https://github.com/bazelbuild/rules_nodejs/commit/8e277e4))
+* **esbuild:** add option to disable metafile generation ([#3066](https://github.com/bazelbuild/rules_nodejs/issues/3066)) ([837cb23](https://github.com/bazelbuild/rules_nodejs/commit/837cb23))
+* **esbuild:** make Starlark build settings usable as defines ([#3122](https://github.com/bazelbuild/rules_nodejs/issues/3122)) ([f22502d](https://github.com/bazelbuild/rules_nodejs/commit/f22502d))
+* **typescript:** allow alternative transpilers ([#3134](https://github.com/bazelbuild/rules_nodejs/issues/3134)) ([507ec3d](https://github.com/bazelbuild/rules_nodejs/commit/507ec3d)), closes [#3133](https://github.com/bazelbuild/rules_nodejs/issues/3133)
+* support --stamp env vars in npm_package_bin ([#3162](https://github.com/bazelbuild/rules_nodejs/issues/3162)) ([38fee32](https://github.com/bazelbuild/rules_nodejs/commit/38fee32))
+* **node:** use multiple versions of node, can run old and new toolchains and default behaviour is not broken ([#3125](https://github.com/bazelbuild/rules_nodejs/issues/3125)) ([12a521d](https://github.com/bazelbuild/rules_nodejs/commit/12a521d))
+
+
+### BREAKING CHANGES
+
+* vendored_yarn attribute is removed
+* The default nodejs version is now 16.12.0.
+To go back to the previous default, put this in your WORKSPACE:
+
+```starlark
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
+
+node_repositories(
+    node_version = "14.17.5",
+)
+```
+* build_bazel_rules_nodejs now depends on bazel_skylib.
+You can install it in your WORKSPACE directly, or use our helper macro like so:
+* **builtin:** npm_umd_bundle users cannot use exports_directories_only
+
+
+
 # [4.4.0](https://github.com/bazelbuild/rules_nodejs/compare/4.3.0...4.4.0) (2021-10-11)
 
 
