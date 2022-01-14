@@ -1,37 +1,10 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
-copy_file(
-  name = "directory",
-  src = "@fine_grained_directory_artifacts_goldens//:unidiff__source_directory",
-  is_directory = True,
-  out = "tree",
-)
 js_library(
     name = "unidiff",
     deps = [
-        "//unidiff:unidiff__contents",
-        "//diff:diff__contents",
+        "//:unidiff__contents",
+        "//:diff__contents",
     ],
-)
-js_library(
-    name = "contents",
-    package_name = "unidiff",
-    package_path = "",
-    strip_prefix = "tree",
-    srcs = [":directory"],
-    visibility = ["//:__subpackages__"],
-)
-alias(
-  name = "unidiff__files",
-  actual = "directory",
-)
-alias(
-  name = "unidiff__contents",
-  actual = "contents",
-)
-alias(
-    name = "unidiff__typings",
-    actual = "contents",
 )

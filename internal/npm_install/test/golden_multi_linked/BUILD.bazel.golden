@@ -1,135 +1,396 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-filegroup(
-      name = "@angular_core__source_directory",
-      srcs = ["node_modules/@angular/core"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+copy_file(
+  name = "node_modules/@angular/core",
+  src = "_/tools/fine_grained_goldens/node_modules/@angular/core",
+  is_directory = True,
+  out = "node_modules/@angular/core",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "@gregmagolan_test-a__source_directory",
-      srcs = ["node_modules/@gregmagolan/test-a"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "@angular_core__contents",
+    package_name = "@angular/core",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/@angular/core",
+    srcs = [":node_modules/@angular/core"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "@gregmagolan_test-b__source_directory",
-      srcs = ["node_modules/@gregmagolan/test-b"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/@gregmagolan/test-a",
+  src = "_/tools/fine_grained_goldens/node_modules/@gregmagolan/test-a",
+  is_directory = True,
+  out = "node_modules/@gregmagolan/test-a",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "ajv__source_directory",
-      srcs = ["node_modules/ajv"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "@gregmagolan_test-a__contents",
+    package_name = "@gregmagolan/test-a",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/@gregmagolan/test-a",
+    srcs = [":node_modules/@gregmagolan/test-a"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "balanced-match__source_directory",
-      srcs = ["node_modules/balanced-match"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/@gregmagolan/test-b",
+  src = "_/tools/fine_grained_goldens/node_modules/@gregmagolan/test-b",
+  is_directory = True,
+  out = "node_modules/@gregmagolan/test-b",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "brace-expansion__source_directory",
-      srcs = ["node_modules/brace-expansion"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "@gregmagolan_test-b__contents",
+    package_name = "@gregmagolan/test-b",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/@gregmagolan/test-b",
+    srcs = [":node_modules/@gregmagolan/test-b"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "co__source_directory",
-      srcs = ["node_modules/co"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/ajv",
+  src = "_/tools/fine_grained_goldens/node_modules/ajv",
+  is_directory = True,
+  out = "node_modules/ajv",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "concat-map__source_directory",
-      srcs = ["node_modules/concat-map"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "ajv__contents",
+    package_name = "ajv",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/ajv",
+    srcs = [":node_modules/ajv"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "diff__source_directory",
-      srcs = ["node_modules/diff"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/balanced-match",
+  src = "_/tools/fine_grained_goldens/node_modules/balanced-match",
+  is_directory = True,
+  out = "node_modules/balanced-match",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "fast-deep-equal__source_directory",
-      srcs = ["node_modules/fast-deep-equal"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "balanced-match__contents",
+    package_name = "balanced-match",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/balanced-match",
+    srcs = [":node_modules/balanced-match"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "fast-json-stable-stringify__source_directory",
-      srcs = ["node_modules/fast-json-stable-stringify"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/brace-expansion",
+  src = "_/tools/fine_grained_goldens/node_modules/brace-expansion",
+  is_directory = True,
+  out = "node_modules/brace-expansion",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "fs.realpath__source_directory",
-      srcs = ["node_modules/fs.realpath"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "brace-expansion__contents",
+    package_name = "brace-expansion",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/brace-expansion",
+    srcs = [":node_modules/brace-expansion"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "glob__source_directory",
-      srcs = ["node_modules/glob"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/co",
+  src = "_/tools/fine_grained_goldens/node_modules/co",
+  is_directory = True,
+  out = "node_modules/co",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "inflight__source_directory",
-      srcs = ["node_modules/inflight"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "co__contents",
+    package_name = "co",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/co",
+    srcs = [":node_modules/co"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "inherits__source_directory",
-      srcs = ["node_modules/inherits"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/concat-map",
+  src = "_/tools/fine_grained_goldens/node_modules/concat-map",
+  is_directory = True,
+  out = "node_modules/concat-map",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "jasmine__source_directory",
-      srcs = ["node_modules/jasmine"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "concat-map__contents",
+    package_name = "concat-map",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/concat-map",
+    srcs = [":node_modules/concat-map"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "jasmine-core__source_directory",
-      srcs = ["node_modules/jasmine-core"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/diff",
+  src = "_/tools/fine_grained_goldens/node_modules/diff",
+  is_directory = True,
+  out = "node_modules/diff",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "json-schema-traverse__source_directory",
-      srcs = ["node_modules/json-schema-traverse"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "diff__contents",
+    package_name = "diff",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/diff",
+    srcs = [":node_modules/diff"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "minimatch__source_directory",
-      srcs = ["node_modules/minimatch"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/fast-deep-equal",
+  src = "_/tools/fine_grained_goldens/node_modules/fast-deep-equal",
+  is_directory = True,
+  out = "node_modules/fast-deep-equal",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "once__source_directory",
-      srcs = ["node_modules/once"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "fast-deep-equal__contents",
+    package_name = "fast-deep-equal",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/fast-deep-equal",
+    srcs = [":node_modules/fast-deep-equal"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "path-is-absolute__source_directory",
-      srcs = ["node_modules/path-is-absolute"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/fast-json-stable-stringify",
+  src = "_/tools/fine_grained_goldens/node_modules/fast-json-stable-stringify",
+  is_directory = True,
+  out = "node_modules/fast-json-stable-stringify",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "rxjs__source_directory",
-      srcs = ["node_modules/rxjs"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "fast-json-stable-stringify__contents",
+    package_name = "fast-json-stable-stringify",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/fast-json-stable-stringify",
+    srcs = [":node_modules/fast-json-stable-stringify"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "tslib__source_directory",
-      srcs = ["node_modules/tslib"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/fs.realpath",
+  src = "_/tools/fine_grained_goldens/node_modules/fs.realpath",
+  is_directory = True,
+  out = "node_modules/fs.realpath",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "unidiff__source_directory",
-      srcs = ["node_modules/unidiff"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "fs.realpath__contents",
+    package_name = "fs.realpath",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/fs.realpath",
+    srcs = [":node_modules/fs.realpath"],
+    visibility = ["//:__subpackages__"],
 )
-filegroup(
-      name = "wrappy__source_directory",
-      srcs = ["node_modules/wrappy"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+copy_file(
+  name = "node_modules/glob",
+  src = "_/tools/fine_grained_goldens/node_modules/glob",
+  is_directory = True,
+  out = "node_modules/glob",
+  visibility = ["//visibility:public"],
 )
-filegroup(
-      name = "zone.js__source_directory",
-      srcs = ["node_modules/zone.js"],
-      visibility = ["@fine_grained_goldens_multi_linked//:__subpackages__"],
+js_library(
+    name = "glob__contents",
+    package_name = "glob",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/glob",
+    srcs = [":node_modules/glob"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/inflight",
+  src = "_/tools/fine_grained_goldens/node_modules/inflight",
+  is_directory = True,
+  out = "node_modules/inflight",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "inflight__contents",
+    package_name = "inflight",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/inflight",
+    srcs = [":node_modules/inflight"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/inherits",
+  src = "_/tools/fine_grained_goldens/node_modules/inherits",
+  is_directory = True,
+  out = "node_modules/inherits",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "inherits__contents",
+    package_name = "inherits",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/inherits",
+    srcs = [":node_modules/inherits"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/jasmine",
+  src = "_/tools/fine_grained_goldens/node_modules/jasmine",
+  is_directory = True,
+  out = "node_modules/jasmine",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "jasmine__contents",
+    package_name = "jasmine",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/jasmine",
+    srcs = [":node_modules/jasmine"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/jasmine-core",
+  src = "_/tools/fine_grained_goldens/node_modules/jasmine-core",
+  is_directory = True,
+  out = "node_modules/jasmine-core",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "jasmine-core__contents",
+    package_name = "jasmine-core",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/jasmine-core",
+    srcs = [":node_modules/jasmine-core"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/json-schema-traverse",
+  src = "_/tools/fine_grained_goldens/node_modules/json-schema-traverse",
+  is_directory = True,
+  out = "node_modules/json-schema-traverse",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "json-schema-traverse__contents",
+    package_name = "json-schema-traverse",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/json-schema-traverse",
+    srcs = [":node_modules/json-schema-traverse"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/minimatch",
+  src = "_/tools/fine_grained_goldens/node_modules/minimatch",
+  is_directory = True,
+  out = "node_modules/minimatch",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "minimatch__contents",
+    package_name = "minimatch",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/minimatch",
+    srcs = [":node_modules/minimatch"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/once",
+  src = "_/tools/fine_grained_goldens/node_modules/once",
+  is_directory = True,
+  out = "node_modules/once",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "once__contents",
+    package_name = "once",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/once",
+    srcs = [":node_modules/once"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/path-is-absolute",
+  src = "_/tools/fine_grained_goldens/node_modules/path-is-absolute",
+  is_directory = True,
+  out = "node_modules/path-is-absolute",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "path-is-absolute__contents",
+    package_name = "path-is-absolute",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/path-is-absolute",
+    srcs = [":node_modules/path-is-absolute"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/rxjs",
+  src = "_/tools/fine_grained_goldens/node_modules/rxjs",
+  is_directory = True,
+  out = "node_modules/rxjs",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "rxjs__contents",
+    package_name = "rxjs",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/rxjs",
+    srcs = [":node_modules/rxjs"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/tslib",
+  src = "_/tools/fine_grained_goldens/node_modules/tslib",
+  is_directory = True,
+  out = "node_modules/tslib",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "tslib__contents",
+    package_name = "tslib",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/tslib",
+    srcs = [":node_modules/tslib"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/unidiff",
+  src = "_/tools/fine_grained_goldens/node_modules/unidiff",
+  is_directory = True,
+  out = "node_modules/unidiff",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "unidiff__contents",
+    package_name = "unidiff",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/unidiff",
+    srcs = [":node_modules/unidiff"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/wrappy",
+  src = "_/tools/fine_grained_goldens/node_modules/wrappy",
+  is_directory = True,
+  out = "node_modules/wrappy",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "wrappy__contents",
+    package_name = "wrappy",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/wrappy",
+    srcs = [":node_modules/wrappy"],
+    visibility = ["//:__subpackages__"],
+)
+copy_file(
+  name = "node_modules/zone.js",
+  src = "_/tools/fine_grained_goldens/node_modules/zone.js",
+  is_directory = True,
+  out = "node_modules/zone.js",
+  visibility = ["//visibility:public"],
+)
+js_library(
+    name = "zone.js__contents",
+    package_name = "zone.js",
+    package_path = "tools/fine_grained_goldens",
+    strip_prefix = "node_modules/zone.js",
+    srcs = [":node_modules/zone.js"],
+    visibility = ["//:__subpackages__"],
 )
 js_library(
   name = "node_modules",

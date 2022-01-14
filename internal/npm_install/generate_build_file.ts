@@ -144,7 +144,7 @@ export async function main() {
   // find all packages (including packages in nested node_modules)
   const pkgs: Dep[] = [];
 
-  await findPackagesAndPush(pkgs, 'node_modules', deps);
+  await findPackagesAndPush(pkgs, nodeModulesFolder(), deps);
 
   // Sort the files to ensure the order
   pkgs.sort(compareDep);
@@ -160,6 +160,12 @@ export async function main() {
 
   // write a .bazelignore file
   await writeFile('.bazelignore', `node_modules\n${config.workspace_rerooted_path}`);
+}
+
+function nodeModulesFolder(): string {
+  return config.exports_directories_only ?
+    `${config.workspace_rerooted_package_json_dir}/node_modules` :
+    'node_modules';
 }
 
 /**
@@ -206,7 +212,7 @@ function flattenDependencies(pkgs: Dep[]) {
 async function generateRootBuildFile(pkgs: Dep[]) {
   let buildFile = config.exports_directories_only ?
       printRootExportsDirectories(pkgs) :
-      printRoot(pkgs);
+      printRootExportsAllFiles(pkgs);
 
   // Add the manual build file contents if they exists
   try {
@@ -219,15 +225,27 @@ async function generateRootBuildFile(pkgs: Dep[]) {
   await writeFile('BUILD.bazel', buildFile);
 }
 
+
 function printRootExportsDirectories(pkgs: Dep[]) {
   let filegroupsStarlark = '';
-    pkgs.forEach(pkg => filegroupsStarlark += `filegroup(
-      name = "${pkg._dir.replace("/", "_")}__source_directory",
-      srcs = ["node_modules/${pkg._dir}"],
-      visibility = ["@${config.workspace}//:__subpackages__"],
+  pkgs.forEach(pkg => {
+    filegroupsStarlark += `
+copy_file(
+  name = "node_modules/${pkg._dir}",
+  src = "${config.workspace_rerooted_package_json_dir}/node_modules/${pkg._dir}",
+  is_directory = True,
+  out = "node_modules/${pkg._dir}",
+  visibility = ["//visibility:public"],
 )
-
-`);
+js_library(
+    name = "${pkg._dir.replace("/", "_")}__contents",
+    package_name = "${pkg._dir}",
+    package_path = "${config.package_path}",
+    strip_prefix = "node_modules/${pkg._dir}",
+    srcs = [":node_modules/${pkg._dir}"],
+    visibility = ["//:__subpackages__"],
+)
+`});
 
 let depsStarlark = '';
 if (pkgs.length) {
@@ -240,7 +258,11 @@ if (pkgs.length) {
 
   const result =
     generateBuildFileHeader() + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
+# To support remote-execution, we must create a tree artifacts from the source directories.
+# We make the output node_modules/pkg_dir so that we get a free node_modules
+# tree in bazel-out and runfiles for this external repository.
 ${filegroupsStarlark}
 
 # The node_modules directory in one catch-all js_library
@@ -251,7 +273,7 @@ js_library(
   return result
 }
 
-function printRoot(pkgs: Dep[]) {
+function printRootExportsAllFiles(pkgs: Dep[]) {
   let pkgFilesStarlark = '';
   if (pkgs.length) {
     let list = '';
@@ -312,8 +334,10 @@ async function generatePackageBuildFiles(pkg: Dep) {
   if (pkg._files.includes('BUILD')) buildFilePath = 'BUILD';
   if (pkg._files.includes('BUILD.bazel')) buildFilePath = 'BUILD.bazel';
 
+  const nodeModules = nodeModulesFolder();
+
   // Recreate the pkg dir inside the node_modules folder
-  const nodeModulesPkgDir = `node_modules/${pkg._dir}`;
+  const nodeModulesPkgDir = `${nodeModules}/${pkg._dir}`;
   // Check if the current package dep dir is a symlink (which happens when we
   // install a node_module with link:)
   const isPkgDirASymlink = await fs.lstat(nodeModulesPkgDir)
@@ -334,10 +358,10 @@ async function generatePackageBuildFiles(pkg: Dep) {
   // The following won't be used in a symlink build file case
   let buildFile = config.exports_directories_only ?
       printPackageExportsDirectories(pkg) :
-      printPackage(pkg);
+      printPackageLegacy(pkg);
   if (buildFilePath) {
     buildFile = buildFile + '\n' +
-    await fs.readFile(path.join('node_modules', pkg._dir, buildFilePath), 'utf-8');
+    await fs.readFile(path.join(nodeModules, pkg._dir, buildFilePath), 'utf-8');
   } else {
     buildFilePath = 'BUILD.bazel';
   }
@@ -377,7 +401,7 @@ async function generatePackageBuildFiles(pkg: Dep) {
       if (basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL') {
         destFile = path.posix.join(path.dirname(destFile), basename.substr(1));
       }
-      const src = path.posix.join('node_modules', pkg._dir, file);
+      const src = path.posix.join(nodeModules, pkg._dir, file);
       await prev;
       await mkdirp(path.dirname(destFile));
       await fs.copyFile(src, destFile);
@@ -452,6 +476,7 @@ load("@build_bazel_rules_nodejs//internal/copy_repository:copy_repository.bzl", 
   // Copy all files for this workspace to a folder under _workspaces
   // to restore the Bazel files which have be renamed from the npm package
   const workspaceSourcePath = path.posix.join('_workspaces', workspace);
+  const nodeModules = nodeModulesFolder();
   await mkdirp(workspaceSourcePath);
   await Promise.all(pkg._files.map(async (file) => {
     if (/^node_modules[/\\]/.test(file)) {
@@ -471,7 +496,7 @@ load("@build_bazel_rules_nodejs//internal/copy_repository:copy_repository.bzl", 
     if (basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL') {
       destFile = path.posix.join(path.dirname(destFile), basename.substr(1));
     }
-    const src = path.posix.join('node_modules', pkg._dir, file);
+    const src = path.posix.join(nodeModules, pkg._dir, file);
     const dest = path.posix.join(workspaceSourcePath, destFile);
     await mkdirp(path.dirname(dest));
     await fs.copyFile(src, dest);
@@ -517,7 +542,7 @@ async function generateScopeBuildFiles(scope: string, pkgs: Dep[]) {
 
   let buildFile = config.exports_directories_only ?
       printScopeExportsDirectories(scope, deps) :
-      printScope(scope, deps);
+      printScopeLegacy(scope, deps);
   await writeFile(path.posix.join(scope, 'BUILD.bazel'), buildFile);
 }
 
@@ -676,7 +701,7 @@ async function findPackagesAndPush(pkgs: Dep[], p: string, dependencies: Set<str
  * Finds and returns an array of all package scopes in node_modules.
  */
 async function findScopes() {
-  const p = 'node_modules';
+  const p = nodeModulesFolder();
   if (!await isDirectory(p)) {
     return [];
   }
@@ -688,8 +713,8 @@ async function findScopes() {
       if (!f.startsWith('@')) return;
       f = path.posix.join(p, f);
       if (await isDirectory(f)) {
-        // strip 'node_modules/' from filename
-        return f.substring('node_modules/'.length);
+        // strip leading 'node_modules' from filename
+        return f.substring(p.length + 1);
       }
     })
   ))
@@ -709,10 +734,10 @@ export async function parsePackage(p: string, dependencies: Set<string> = new Se
   const pkg = (await isFile(packageJson)) ?
       JSON.parse(stripBom(await fs.readFile(packageJson, {encoding: 'utf8'}))) :
       {version: '0.0.0'};
-
+  
   // Trim the leading node_modules from the path and
   // assign to _dir for future use
-  pkg._dir = p.substring('node_modules/'.length);
+  pkg._dir = p.substring(nodeModulesFolder().length + 1);
 
   // Stash the package directory name for future use
   pkg._name = pkg._dir.split('/').pop();
@@ -1049,21 +1074,12 @@ function printPackageExportsDirectories(pkg: Dep) {
   // Flattened list of direct and transitive dependencies hoisted to root by the package manager
   const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
   const depsStarlark =
-      deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
+      deps.map(dep => `"//:${dep._dir.replace("/", "_")}__contents",`).join('\n        ');
 
   return `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
-
-# To support remote-execution, we must create a tree artifact from the source directory
-copy_file(
-  name = "directory",
-  src = "@${config.workspace}//:${pkg._dir.replace("/", "_")}__source_directory",
-  is_directory = True,
-  out = "tree",
-)
 
 # The primary target for this package for use in rule deps
 js_library(
@@ -1072,41 +1088,13 @@ js_library(
         ${depsStarlark}
     ],
 )
-
-# Target is used as dep for main targets to prevent circular dependencies errors
-js_library(
-    name = "contents",
-    package_name = "${pkg._dir}",
-    package_path = "${config.package_path}",
-    strip_prefix = "tree",
-    srcs = [":directory"],
-    visibility = ["//:__subpackages__"],
-)
-
-# For ts_library backward compat which uses @npm//typescript:__files
-alias(
-  name = "${pkg._name}__files",
-  actual = "directory",
-)
-
-# For ts_library backward compat which uses @npm//typescript:__files
-alias(
-  name = "${pkg._name}__contents",
-  actual = "contents",
-)
-
-# For ts_library backward compat which uses @npm//typescript:typescript__typings
-alias(
-    name = "${pkg._name}__typings",
-    actual = "contents",
-)
 `;
 }
 
 /**
  * Given a pkg, return the skylark `js_library` targets for the package.
  */
-function printPackage(pkg: Dep) {
+function printPackageLegacy(pkg: Dep) {
   function starlarkFiles(attr: string, files: string[], comment: string = '') {
     return `
     ${comment ? comment + '\n    ' : ''}${attr} = [
@@ -1316,7 +1304,7 @@ export function printPackageBin(pkg: Dep) {
 
     for (const [name, path] of executables.entries()) {
       const entryPoint = config.exports_directories_only ? 
-        `{ "@${config.workspace}//${pkg._dir}:directory": "${path}" }` :
+        `{ "@${config.workspace}//:node_modules/${pkg._dir}": "${path}" }` :
         `"@${config.workspace}//:node_modules/${pkg._dir}/${path}"`;
       result += `# Wire up the \`bin\` entry \`${name}\`
 nodejs_binary(
@@ -1346,7 +1334,7 @@ export function printIndexBzl(pkg: Dep) {
 
     for (const [name, path] of executables.entries()) {
       const entryPoint = config.exports_directories_only ? 
-        `{ "@${config.workspace}//${pkg._dir}:directory": "${path}" }` :
+        `{ "@${config.workspace}//:node_modules/${pkg._dir}": "${path}" }` :
         `"@${config.workspace}//:node_modules/${pkg._dir}/${path}"`;
       result = `${result}
 
@@ -1391,7 +1379,7 @@ type Dep = {
 /**
  * Given a scope, return the skylark `js_library` target for the scope.
  */
-function printScope(scope: string, deps: Dep[]) {
+function printScopeLegacy(scope: string, deps: Dep[]) {
   let pkgFilesStarlark = '';
   if (deps.length) {
     const list = deps.map(dep => `"//${dep._dir}:${dep._name}__files",`).join('\n        ');

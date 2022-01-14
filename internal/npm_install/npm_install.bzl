@@ -72,7 +72,7 @@ label and the value corresponds to the path within that directory to the entry p
 nodejs_binary(
     name = "prettier",
     data = ["@npm//prettier"],
-    entry_point = { "@npm//prettier:directory": "bin-prettier.js" },
+    entry_point = { "@npm//:node_modules/prettier": "bin-prettier.js" },
 )
 ```
 
@@ -80,7 +80,7 @@ For labels that are passed to `$(rootpath)`, `$(execpath)`, or `$(location)` you
 the directory label that gets passed to the expander & path part to follows it, e.g.
 
 ```
-$(rootpath @npm///prettier:directory)/bin-prettier.js
+$(rootpath @npm///:node_modules/prettier)/bin-prettier.js
 ```
 """,
     ),
@@ -448,10 +448,11 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
             fail("link target must be label of form '@wksp//path/to:target', '@//path/to:target' or '//path/to:target'")
         validated_links[k] = v
 
+    package_json_dir = paths.dirname(paths.normalize(paths.join(repository_ctx.attr.package_json.package, repository_ctx.attr.package_json.name)))
     package_path = repository_ctx.attr.package_path
     if not package_path:
         # By default the package_path is the directory of the package.json file
-        package_path = paths.dirname(paths.join(repository_ctx.attr.package_json.package, repository_ctx.attr.package_json.name))
+        package_path = package_json_dir
     elif package_path == "/":
         # User specified root path
         package_path = ""
@@ -469,6 +470,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
             strict_visibility = repository_ctx.attr.strict_visibility,
             workspace = repository_ctx.attr.name,
             workspace_rerooted_path = _WORKSPACE_REROOTED_PATH,
+            workspace_rerooted_package_json_dir = paths.normalize(paths.join(_WORKSPACE_REROOTED_PATH, package_json_dir)),
         ),
     )
     repository_ctx.file("generate_config.json", generate_config_json)
@@ -517,11 +519,7 @@ def _user_workspace_root(repository_ctx):
 # Returns the path to a file within the re-rooted user workspace
 # under _WORKSPACE_REROOTED_PATH in this repo rule's external workspace
 def _rerooted_workspace_path(repository_ctx, f):
-    segments = [_WORKSPACE_REROOTED_PATH]
-    if f.package:
-        segments.append(f.package)
-    segments.append(f.name)
-    return "/".join(segments)
+    return paths.normalize(paths.join(_WORKSPACE_REROOTED_PATH, f.package, f.name))
 
 # Returns the path to the package.json directory within the re-rooted user workspace
 # under _WORKSPACE_REROOTED_PATH in this repo rule's external workspace
@@ -630,12 +628,28 @@ def _add_node_repositories_info_deps(repository_ctx, yarn = None):
 
 def _symlink_node_modules(repository_ctx):
     package_json_dir = repository_ctx.path(repository_ctx.attr.package_json).dirname
-    if repository_ctx.attr.symlink_node_modules:
+    if repository_ctx.attr.exports_directories_only:
+        if repository_ctx.attr.symlink_node_modules:
+            # Create a directory symlink in the rerooted workspace path within the external
+            # repository, _WORKSPACE_REROOTED_PATH/package/json/dir/node_modules that points to the
+            # the newly created node_modules folder in the user's workspace (which is in the same
+            # directory as the package.json file there)
+            repository_ctx.symlink(
+                repository_ctx.path(str(package_json_dir) + "/node_modules"),
+                repository_ctx.path(_rerooted_workspace_package_json_dir(repository_ctx) + "/node_modules"),
+            )
+    elif repository_ctx.attr.symlink_node_modules:
+        # Create a directory symlink at the root external repository that points to the the
+        # newly created node_modules folder in the user's workspace (which is in the same
+        # directory as the package.json file there)
         repository_ctx.symlink(
             repository_ctx.path(str(package_json_dir) + "/node_modules"),
             repository_ctx.path("node_modules"),
         )
     else:
+        # Create a directory symlink at the root external repository that points to the the
+        # newly created node_modules folder in the rerooted workspace path within the external
+        # repository, _WORKSPACE_REROOTED_PATH/package/json/dir/node_modules.
         repository_ctx.symlink(
             repository_ctx.path(_rerooted_workspace_package_json_dir(repository_ctx) + "/node_modules"),
             repository_ctx.path("node_modules"),

@@ -1,39 +1,12 @@
 
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
-copy_file(
-  name = "directory",
-  src = "@fine_grained_directory_artifacts_goldens//:@angular_core__source_directory",
-  is_directory = True,
-  out = "tree",
-)
 js_library(
     name = "core",
     deps = [
-        "//@angular/core:core__contents",
-        "//tslib:tslib__contents",
-        "//rxjs:rxjs__contents",
-        "//zone.js:zone.js__contents",
+        "//:@angular_core__contents",
+        "//:tslib__contents",
+        "//:rxjs__contents",
+        "//:zone.js__contents",
     ],
-)
-js_library(
-    name = "contents",
-    package_name = "@angular/core",
-    package_path = "",
-    strip_prefix = "tree",
-    srcs = [":directory"],
-    visibility = ["//:__subpackages__"],
-)
-alias(
-  name = "core__files",
-  actual = "directory",
-)
-alias(
-  name = "core__contents",
-  actual = "contents",
-)
-alias(
-    name = "core__typings",
-    actual = "contents",
 )
