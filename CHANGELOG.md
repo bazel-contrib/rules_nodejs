@@ -1,3 +1,7 @@
+# [5.0.0-rc.1](https://github.com/bazelbuild/rules_nodejs/compare/5.0.0-rc.0...5.0.0-rc.1) (2022-01-14)
+
+
+
 # [5.0.0-rc.0](https://github.com/bazelbuild/rules_nodejs/compare/4.4.0...5.0.0-rc.0) (2022-01-14)
 
 
