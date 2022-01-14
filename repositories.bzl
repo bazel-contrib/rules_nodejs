@@ -30,12 +30,12 @@ def build_bazel_rules_nodejs_dependencies():
             "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
         ],
     )
-    core_sha = "8f4a19de1eb16b57ac03a8e9b78344b44473e0e06b0510cec14a81f6adfdfc25"
+    core_sha = "a878be52ba9c5f5bf26d821e1529221cdd1c1a39906e88c6367a3368cdaa66ef"
     maybe(
         http_archive,
         name = "rules_nodejs",
         sha256 = core_sha,
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.4.6/rules_nodejs-core-4.4.6.tar.gz"],
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.0.0-rc.0/rules_nodejs-core-5.0.0-rc.0.tar.gz"],
     )
 
 def build_bazel_rules_nodejs_dev_dependencies():

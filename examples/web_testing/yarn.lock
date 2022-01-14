@@ -2,30 +2,30 @@
 # yarn lockfile v1
 
 
-"@bazel/concatjs@^4.4.0":
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-4.4.0.tgz#4a69345bf27391e6da58e5df58b27a81eaecf55c"
-  integrity sha512-lxA/yHKFN9q7L6lvA6GgZwceU7SjSNrGxh/AV7db+klzHfV9jHpvE/yo2yCmUi/nrOq8TC7SUJnLWqFx1rl24g==
+"@bazel/concatjs@5.0.0-rc.0":
+  version "5.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-5.0.0-rc.0.tgz#fb00c3c7c3841ac166020405fc4d102664c3a666"
+  integrity sha512-rtPlTYtb2ptyawzdu8qisB200jYHp0Q2YSJKVRc3Snu+9c57ZwUzisj5VuYKtZ2EhEZ3LmjO4HRm8WbPMS9yFg==
   dependencies:
     protobufjs "6.8.8"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/typescript@^4.4.0":
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-4.4.0.tgz#c421a0d54e3385b5218ca277c3fa8d60659b6f89"
-  integrity sha512-2qmcQ95yCWHZzbCgjJ4SnqgWfkv3dhnNfZudjro/k11txPJfKbWgUK/PCzcqOTiwR9vkzV3QJTGV9jdNbkT3bw==
+"@bazel/typescript@5.0.0-rc.0":
+  version "5.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.0.0-rc.0.tgz#e71ad0e0537135d0c3a70c6a4a097d63b68974ff"
+  integrity sha512-iKOnFMXIbc0XRTMgDUC3pF3rFOuQLAIdywTCqPKVMhJRUSXdezd3rikLiomtIeN28YL8oVuwYD2bHfx1hSbYKQ==
   dependencies:
-    "@bazel/worker" "4.4.0"
+    "@bazel/worker" "5.0.0-rc.0"
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@4.4.0":
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-4.4.0.tgz#d4f469ece137727244fc7798f6455efe0d653903"
-  integrity sha512-ASehVjUWF13wAFPhycT8/s1VIBg/jsG1D+EjdA8oNpuNacsDSmbJJu5a00dSqjp2GM0jTR3Vmj/SRKgYrvYSuA==
+"@bazel/worker@5.0.0-rc.0":
+  version "5.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.0.0-rc.0.tgz#293c449ae4f723c71dd488e60ad9671a570d12a6"
+  integrity sha512-QZJchyIb/GR74/Es42mWYuyMS4LUeA/tFRo9AWYDbPd6YfB+h2Yn3ZQ7GFUlYl2B4hiS59eCDQQ+0zDN3oKXiw==
   dependencies:
     google-protobuf "^3.6.1"
 

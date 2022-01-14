@@ -2,13 +2,13 @@
 # yarn lockfile v1
 
 
-"@bazel/jasmine@^4.4.0":
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-4.4.0.tgz#4f3ec3e1cc62824c9ed222e937c6ad368be22b28"
-  integrity sha512-GkpRvD6Z880g6AsLzoc/UPTPdaXsGzAUGWGefGHqWsO+tBCWmi2V8WL0yc0N6edu6QLi4EI0fxN9obH1FsU0MQ==
+"@bazel/jasmine@5.0.0-rc.0":
+  version "5.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-5.0.0-rc.0.tgz#307095fd543821df3b05bf687ec6a0be76f372fa"
+  integrity sha512-PBQVOVxKSJbE5X2CemOxIjkesPNczKrngG/67ba9acM4/qo4M/H0+u++t0MnXKxnDT4b6d9zK73et3sPnpnjVg==
   dependencies:
     c8 "~7.5.0"
-    jasmine-reporters "~2.4.0"
+    jasmine-reporters "~2.5.0"
 
 "@bcoe/v8-coverage@^0.2.3":
   version "0.2.3"
@@ -34,6 +34,11 @@
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.3.tgz#4ba8ddb720221f432e443bd5f9117fd22cfd4762"
   integrity sha512-sz7iLqvVUg1gIedBOvlkxPlc8/uVzyS5OwGz1cKjXzkl3FpL3al0crU8YGU1WoHkxn0Wxbw5tyi6hvzJKNzFsw==
+
+"@xmldom/xmldom@^0.7.3":
+  version "0.7.5"
+  resolved "https://registry.yarnpkg.com/@xmldom/xmldom/-/xmldom-0.7.5.tgz#09fa51e356d07d0be200642b0e4f91d8e6dd408d"
+  integrity sha512-V3BIhmY36fXZ1OtVcI9W+FxQqxVLsPKcNjWigIaa81dLC9IolJl5Mt4Cvhmr0flUnjSpTdrbMTSbXqYqV5dT6A==
 
 ansi-regex@^5.0.0:
   version "5.0.0"
@@ -265,13 +270,13 @@ jasmine-core@~2.99.0:
   resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-2.99.1.tgz#e6400df1e6b56e130b61c4bcd093daa7f6e8ca15"
   integrity sha1-5kAN8ea1bhMLYcS80JPap/boyhU=
 
-jasmine-reporters@~2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/jasmine-reporters/-/jasmine-reporters-2.4.0.tgz#708c17ae70ba6671e3a930bb1b202aab80a31409"
-  integrity sha512-jxONSrBLN1vz/8zCx5YNWQSS8iyDAlXQ5yk1LuqITe4C6iXCDx5u6Q0jfNtkKhL4qLZPe69fL+AWvXFt9/x38w==
+jasmine-reporters@~2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/jasmine-reporters/-/jasmine-reporters-2.5.0.tgz#f9e2e0f82aaa2e07e8d553be56457efe0fd8b39e"
+  integrity sha512-J69peyTR8j6SzvIPP6aO1Y00wwCqXuIvhwTYvE/di14roCf6X3wDZ4/cKGZ2fGgufjhP2FKjpgrUIKjwau4e/Q==
   dependencies:
-    mkdirp "^0.5.1"
-    xmldom "^0.5.0"
+    "@xmldom/xmldom" "^0.7.3"
+    mkdirp "^1.0.4"
 
 jasmine@2.99.0:
   version "2.99.0"
@@ -303,17 +308,10 @@ minimatch@^3.0.4:
   dependencies:
     brace-expansion "^1.1.7"
 
-minimist@0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.8.tgz#857fcabfc3397d2625b8228262e86aa7a011b05d"
-  integrity sha1-hX/Kv8M5fSYluCKCYuhqp6ARsF0=
-
-mkdirp@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
-  integrity sha1-MAV0OOrGz3+MR2fzhkjWaX11yQM=
-  dependencies:
-    minimist "0.0.8"
+mkdirp@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
+  integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
 once@^1.3.0:
   version "1.4.0"
@@ -456,11 +454,6 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
-
-xmldom@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.5.0.tgz#193cb96b84aa3486127ea6272c4596354cb4962e"
-  integrity sha512-Foaj5FXVzgn7xFzsKeNIde9g6aFBxTPi37iwsno8QvApmtg7KYrr+OPyRHcJF7dud2a5nGRBXK3n0dL62Gf7PA==
 
 y18n@^5.0.5:
   version "5.0.5"
