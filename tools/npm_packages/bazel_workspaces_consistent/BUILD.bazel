@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load(":index.bzl", "some_rule")
 
 # Just a dumb target to make sure we can use it from code that installs this npm package
