@@ -4,7 +4,7 @@ load("//nodejs/private:os_name.bzl", "assert_node_exists_for_host", "node_exists
 load("//nodejs/private:node_versions.bzl", "NODE_VERSIONS")
 load("//nodejs/private:nodejs_repo_host_os_alias.bzl", "nodejs_repo_host_os_alias")
 load("//nodejs/private:toolchains_repo.bzl", "PLATFORMS", "toolchains_repo")
-load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
+load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 

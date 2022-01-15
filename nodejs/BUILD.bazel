@@ -23,7 +23,7 @@ bzl_library(
     deps = [
         "//nodejs/private:bzl",
         "//nodejs/private/providers:bzl",
-        "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
+        "@bazel_skylib//lib:paths",
     ],
 )
 

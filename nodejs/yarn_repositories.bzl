@@ -4,7 +4,7 @@ load("//nodejs/private:os_name.bzl", "is_windows_os")
 load("//nodejs/private:node_labels.bzl", "get_node_label")
 load("//nodejs/private:yarn_versions.bzl", "YARN_VERSIONS")
 load("//nodejs:repositories.bzl", "GET_SCRIPT_DIR")
-load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
+load("@bazel_skylib//lib:paths.bzl", "paths")
 
 _DOC = """Repository rule to fetch the yarnpkg.com package manager.
 
