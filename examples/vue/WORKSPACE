@@ -14,8 +14,10 @@ build_bazel_rules_nodejs_dependencies()
 
 load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
+_NODE_REPO = "node16"
+
 nodejs_register_toolchains(
-    name = "node16",
+    name = _NODE_REPO,
     node_version = "16.0.0",
 )
 
@@ -23,6 +25,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
 
 npm_install(
     name = "npm",
+    node_repository = _NODE_REPO,
     package_json = "//:package.json",
     package_lock_json = "//:package-lock.json",
 )
