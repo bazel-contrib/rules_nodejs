@@ -216,10 +216,7 @@ example_integration_test(
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
     },
-    # Needs some thought about how to invoke "node.exe path/to/yarn.js on windows to avoid
-    # Error in fail: yarn --version failed:  (java.io.IOException: ERROR: src/main/native/windows/process.cc(202):
-    # CreateProcessW("C:\users\b\_bazel_b\ag3rxjdr\external\vendored_yarn_1_10_0\yarn-v1.10.0\bin\yarn.js" --version):
-    # %1 is not a valid Win32 application.
+    # TODO: make it find node.exe rather than rely on us writing a .cmd wrapper
     tags = ["no-bazelci-windows"],
 )
 

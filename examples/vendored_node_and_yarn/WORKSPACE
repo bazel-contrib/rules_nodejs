@@ -53,8 +53,9 @@ http_archive(
 
 http_archive(
     name = "vendored_yarn_1_10_0",
-    build_file_content = """exports_files(["vendored_yarn_1_10_0/yarn-v1.10.0/bin/yarn.js"])""",
+    build_file_content = """exports_files(["bin/yarn.js"])""",
     sha256 = "83277bd505c7f4009c13077266020c97298727de7edf67af5ca66eccae9d4632",
+    strip_prefix = "yarn-v1.10.0",
     urls = ["https://github.com/yarnpkg/yarn/releases/download/v1.10.0/yarn-v1.10.0.tar.gz"],
 )
 
@@ -67,6 +68,6 @@ yarn_install(
     exports_directories_only = False,
     node_repository = "vendored_node",
     package_json = "//:package.json",
-    yarn = "@vendored_yarn_1_10_0//:yarn-v1.10.0/bin/yarn.js",
+    yarn = "@vendored_yarn_1_10_0//:bin/yarn.js",
     yarn_lock = "//:yarn.lock",
 )
