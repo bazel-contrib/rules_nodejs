@@ -24,7 +24,7 @@ See discussion in the README.
 load("@rules_nodejs//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
 load("@rules_nodejs//nodejs/private:node_labels.bzl", "get_node_label", "get_npm_label")
 load("//:version.bzl", "VERSION")
-load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
+load("@bazel_skylib//lib:paths.bzl", "paths")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
     "data": attr.label_list(
