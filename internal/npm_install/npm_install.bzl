@@ -821,8 +821,8 @@ def _yarn_install_impl(repository_ctx):
         if not repository_ctx.attr.use_global_yarn_cache:
             fail("""Disabling global_yarn_cache has no effect while using Yarn Berry.
                 Please configure it through a .yarnrc file through 'data' attribute.""")
-        if repository_ctx.attr.frozen_lockfile:
-            fail("--frozen-lockfile should not be used with yarn 2+. Just pass arguments like --immutable.")
+        if not repository_ctx.attr.frozen_lockfile:
+            fail("Disabling frozen_lockfile has no effect while using Yarn Berry. Just pass arguments like --immutable.")
     elif yarn_version == "classic":
         # Set frozen lockfile as default install to install the exact version from the yarn.lock
         # file. To perform an yarn install use the vendord yarn binary with:
