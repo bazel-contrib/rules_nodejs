@@ -130,7 +130,6 @@ pkg_tar(
     srcs = [
         "LICENSE",
         "README.md",
-        "providers.bzl",
         "version.bzl",
         "//nodejs:package_contents",
         # TODO(5.0) remove this and depend on real skylib
