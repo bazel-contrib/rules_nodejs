@@ -45,7 +45,7 @@ def _compute_node_modules_roots(ctx, data):
     """Computes the node_modules root (if any) from data attribute."""
     node_modules_roots = {}
 
-    # Add in roots from third-party deps
+    # Add in roots from non-exports_diretories_only npm deps
     for d in data:
         if ExternalNpmPackageInfo in d:
             path = getattr(d[ExternalNpmPackageInfo], "path", "")
@@ -56,17 +56,16 @@ def _compute_node_modules_roots(ctx, data):
                     fail("All npm dependencies at the path '%s' must come from a single workspace. Found '%s' and '%s'." % (path, other_workspace, workspace))
             node_modules_roots[path] = workspace
 
-    # Add in roots for multi-linked first party deps
+    # Add in roots for multi-linked npm deps
     for dep in data:
-        if not LinkerPackageMappingInfo in dep:
-            continue
+        if LinkerPackageMappingInfo in dep:
+            for k, v in dep[LinkerPackageMappingInfo].mappings.items():
+                map_key_split = k.split(":")
+                package_name = map_key_split[0]
+                package_path = map_key_split[1] if len(map_key_split) > 1 else ""
+                if package_path not in node_modules_roots:
+                    node_modules_roots[package_path] = ""
 
-        for k, v in dep[LinkerPackageMappingInfo].mappings.items():
-            map_key_split = k.split(":")
-            package_name = map_key_split[0]
-            package_path = map_key_split[1] if len(map_key_split) > 1 else ""
-            if package_path not in node_modules_roots:
-                node_modules_roots[package_path] = ""
     return node_modules_roots
 
 def _write_require_patch_script(ctx, data, node_modules_root):

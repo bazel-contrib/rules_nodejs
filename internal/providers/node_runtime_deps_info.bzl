@@ -17,7 +17,7 @@
 load("@bazel_skylib//lib:types.bzl", "types")
 load("@rules_nodejs//nodejs:providers.bzl", "StampSettingInfo")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
-load("//internal/linker:link_node_modules.bzl", "add_arg", "write_node_modules_manifest")
+load("//internal/linker:link_node_modules.bzl", "LinkerPackageMappingInfo", "add_arg", "write_node_modules_manifest")
 load("//internal/providers:external_npm_package_info.bzl", "ExternalNpmPackageInfo")
 
 NodeRuntimeDepsInfo = provider(
@@ -45,11 +45,14 @@ do the same.
 def _compute_node_modules_roots(ctx):
     """Computes the node_modules root (if any) from data & deps targets."""
     node_modules_roots = {}
+
     deps = []
     if hasattr(ctx.attr, "data"):
         deps += ctx.attr.data
     if hasattr(ctx.attr, "deps"):
         deps += ctx.attr.deps
+
+    # Add in roots from non-exports_diretories_only npm deps
     for d in deps:
         if ExternalNpmPackageInfo in d:
             path = getattr(d[ExternalNpmPackageInfo], "path", "")
@@ -59,6 +62,17 @@ def _compute_node_modules_roots(ctx):
                 if other_workspace != workspace:
                     fail("All npm dependencies at the path '%s' must come from a single workspace. Found '%s' and '%s'." % (path, other_workspace, workspace))
             node_modules_roots[path] = workspace
+
+    # Add in roots for multi-linked npm deps
+    for dep in deps:
+        if LinkerPackageMappingInfo in dep:
+            for k, v in dep[LinkerPackageMappingInfo].mappings.items():
+                map_key_split = k.split(":")
+                package_name = map_key_split[0]
+                package_path = map_key_split[1] if len(map_key_split) > 1 else ""
+                if package_path not in node_modules_roots:
+                    node_modules_roots[package_path] = ""
+
     return node_modules_roots
 
 def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
