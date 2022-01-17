@@ -754,6 +754,7 @@ def ts_project_macro(
                 allow_js = allow_js,
                 tsconfig = tsconfig,
                 extends = extends,
+                tags = kwargs.get("tags", []),
             )
             tsc_deps = tsc_deps + ["_validate_%s_options" % name]
 
