@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@bazel/concatjs": "5.0.0-rc.0",
-    "@bazel/jasmine": "5.0.0-rc.0",
+    "@bazel/concatjs": "^4.6.1",
+    "@bazel/jasmine": "^4.6.1",
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
     "date-fns": "^1.30.1",
