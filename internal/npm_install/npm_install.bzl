@@ -811,7 +811,7 @@ check if yarn is being run by the `npm_install` repository rule.""",
 )
 
 def _detect_yarn_version(rctx, yarn):
-    result = rctx.execute([yarn, "--version"])
+    result = rctx.execute(yarn + ["--version"])
     if result.return_code:
         fail("yarn --version failed: %s (%s)" % (result.stdout, result.stderr))
     if result.stdout.startswith("1."):
@@ -828,8 +828,17 @@ def _yarn_install_impl(repository_ctx):
     # A custom yarn won't have our special wrapper batch script
     if is_windows_host and _repository_contains_file(repository_ctx, yarn_label.workspace_name, "bin/yarn.cmd"):
         yarn_label = yarn_label.relative(":bin/yarn.cmd")
-    yarn = repository_ctx.path(yarn_label)
-    yarn_version = _detect_yarn_version(repository_ctx, yarn)
+
+    if yarn_label.name.endswith(".js"):
+        yarn_cmd = [node, yarn_label]
+    else:
+        # Our wrapper scripts include the "node" executable
+        yarn_cmd = [yarn_label]
+
+    yarn_version = _detect_yarn_version(repository_ctx, yarn_cmd)
+
+    # Quoted command line for use in scripts
+    yarn = " ".join(["\"%s\"" % repository_ctx.path(s) for s in yarn_cmd])
     yarn_args = []
 
     # CLI arguments changed in yarn 2+
@@ -898,7 +907,7 @@ set -e
 unset YARN_IGNORE_PATH
 unset INIT_CWD
 unset npm_config_registry
-(cd "{root}"; "{yarn}" {yarn_args})
+(cd "{root}"; {yarn} {yarn_args})
 """.format(
                 root = root,
                 yarn = yarn,
@@ -913,7 +922,7 @@ unset npm_config_registry
 set "YARN_IGNORE_PATH="
 set “INIT_CWD=”
 set “npm_config_registry=”
-cd /D "{root}" && "{yarn}" {yarn_args}
+cd /D "{root}" && {yarn} {yarn_args}
 """.format(
                 root = root,
                 yarn = yarn,
