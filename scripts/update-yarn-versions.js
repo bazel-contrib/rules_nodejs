@@ -8,8 +8,6 @@ const { mkdirSync, createWriteStream } = require('fs');
 const { join } = require('path');
 const { tmpdir } = require('os');
 
-const MAX_VERSION = [1, 99, 99];
-
 async function getJson(url) {
     return new Promise((resolve, reject) => {
         https.get(url, (res) => {
@@ -66,8 +64,6 @@ async function getYarnVersions() {
   const versions = Object.values(json.versions);
 
   const validVersions = (versions.map(({ version }) => version.split('.').map(Number))
-              .filter(
-                  (version) => versionCompare(version, MAX_VERSION) <= 0)
               .sort(versionCompare)
               .map(version => version.join('.')));
 

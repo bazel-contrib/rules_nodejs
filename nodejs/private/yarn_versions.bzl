@@ -1,9 +1,6 @@
 """
 Generated code; do not edit
 Update by running yarn update-yarn-versions
-
-Note that we don't support Yarn 2 yet, see
-https://github.com/bazelbuild/rules_nodejs/issues/1599
 """
 
 # @unsorted-dict-items
