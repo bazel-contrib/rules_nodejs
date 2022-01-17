@@ -63,6 +63,13 @@ nodejs_register_toolchains(
     node_version = "15.14.0",
 )
 
+load("@rules_nodejs//nodejs:yarn_repositories.bzl", "yarn_repositories")
+
+yarn_repositories(
+    name = "yarn",
+    node_repository = "node16",
+)
+
 load("@build_bazel_rules_nodejs//:npm_deps.bzl", "npm_deps")
 
 npm_deps()
@@ -131,7 +138,9 @@ browser_repositories(
 # Setup esbuild dependencies
 load("//toolchains/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
-esbuild_repositories()
+esbuild_repositories(
+    node_repository = "node16",
+)
 
 #
 # Dependencies to run stardoc & generating documentation

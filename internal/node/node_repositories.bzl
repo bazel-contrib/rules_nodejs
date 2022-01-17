@@ -19,9 +19,7 @@ See https://docs.bazel.build/versions/main/skylark/repository_rules.html
 """
 
 load("@bazel_skylib//lib:versions.bzl", "versions")
-load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-load("@rules_nodejs//nodejs/private:os_name.bzl", "OS_ARCH_NAMES", "node_exists_for_os", "os_name")
-load("@rules_nodejs//nodejs:repositories.bzl", "DEFAULT_NODE_VERSION", "nodejs_register_toolchains", node_repositories_rule = "node_repositories")
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 load("@rules_nodejs//nodejs:yarn_repositories.bzl", "yarn_repositories")
 
 def node_repositories(**kwargs):
@@ -41,27 +39,12 @@ def node_repositories(**kwargs):
     yarn_args = {}
     yarn_name = kwargs.pop("yarn_repository_name", "yarn")
     for k, v in kwargs.items():
-        if k.startswith("yarn_"):
+        if k.startswith("yarn"):
             yarn_args[k] = kwargs.pop(k)
     yarn_repositories(
         name = yarn_name,
         **yarn_args
     )
-
-    # This needs to be setup so toolchains can access nodejs for all different versions
-    node_version = kwargs.get("node_version", DEFAULT_NODE_VERSION)
-    for os_arch_name in OS_ARCH_NAMES:
-        os_name = "_".join(os_arch_name)
-
-        # If we couldn't download node, don't make an external repo for it either
-        if not node_exists_for_os(node_version, os_name):
-            continue
-        node_repository_name = "nodejs_%s" % os_name
-        maybe(
-            node_repositories_rule,
-            name = node_repository_name,
-            **kwargs
-        )
 
     # Install new toolchain under "nodejs" repository name prefix
     nodejs_register_toolchains(name = "nodejs")

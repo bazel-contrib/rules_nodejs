@@ -611,16 +611,34 @@ def _copy_data_dependencies(repository_ctx):
         # files as npm file:// packages
         _copy_file(repository_ctx, f)
 
+def _repository_contains_file(rctx, repo, file):
+    """Detect whether the file exists relative to the repo.
+
+    Surprisingly rctx.path() throws when the argument doesn't exist,
+    so you can't get a path object directly to check exists on.
+    As a workaround, make a path object from the WORKSPACE file first
+    and then go relative to it.
+    """
+    wksp = Label("@%s//:WORKSPACE" % repo)
+    child = rctx.path(wksp).dirname
+    for sub in file.split("/"):
+        child = child.get_child(sub)
+    return child.exists
+
 def _add_node_repositories_info_deps(repository_ctx, yarn = None):
     # Add a dep to the node_info & yarn_info files from node_repositories
     # so that if the node or yarn versions change we re-run the repository rule
-    repository_ctx.symlink(
-        Label("@{}_{}//:node_info".format(repository_ctx.attr.node_repository, os_name(repository_ctx))),
-        repository_ctx.path("_node_info"),
-    )
+    # But in case they are vendored, our info file may not be present, so check first.
+    # A vendored node may have no info file in the repo.
+    node_repo = "_".join([repository_ctx.attr.node_repository, os_name(repository_ctx)])
+    if _repository_contains_file(repository_ctx, node_repo, "node_info"):
+        repository_ctx.symlink(
+            Label("@{}//:node_info".format(node_repo)),
+            repository_ctx.path("_node_info"),
+        )
 
     # A custom yarn might be vendored, and not have a yarn_info file in the repo.
-    if _yarn_from_yarn_repositories(yarn):
+    if yarn and _repository_contains_file(repository_ctx, yarn.workspace_name, "yarn_info"):
         repository_ctx.symlink(
             Label("@{}//:yarn_info".format(yarn.workspace_name)),
             repository_ctx.path("_yarn_info"),
@@ -808,7 +826,7 @@ def _yarn_install_impl(repository_ctx):
     yarn_label = repository_ctx.attr.yarn
 
     # A custom yarn won't have our special wrapper batch script
-    if _yarn_from_yarn_repositories(yarn_label) and is_windows_host:
+    if is_windows_host and _repository_contains_file(repository_ctx, yarn_label.workspace_name, "bin/yarn.cmd"):
         yarn_label = yarn_label.relative(":bin/yarn.cmd")
     yarn = repository_ctx.path(yarn_label)
     yarn_version = _detect_yarn_version(repository_ctx, yarn)
@@ -943,15 +961,6 @@ cd /D "{root}" && "{yarn}" {yarn_args}
     _create_build_files(repository_ctx, "yarn_install", node, repository_ctx.attr.yarn_lock, repository_ctx.attr.generate_local_modules_build_files)
 
 _DEFAULT_YARN = Label("@yarn//:bin/yarn")
-
-def _yarn_from_yarn_repositories(yarn_label):
-    """Detect if yarn appears to come from an install we performed in yarn_repositories.bzl
-
-    If it does, then it has our wrapper scripts and the info file.
-    If the user vendors their own yarn.js, this won't exist."""
-    if not yarn_label:
-        return False
-    return yarn_label.package == _DEFAULT_YARN.package and yarn_label.name == _DEFAULT_YARN.name
 
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{

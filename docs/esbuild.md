@@ -434,7 +434,7 @@ Any other common attributes
 **USAGE**
 
 <pre>
-esbuild_repositories(<a href="#esbuild_repositories-name">name</a>, <a href="#esbuild_repositories-npm_repository">npm_repository</a>, <a href="#esbuild_repositories-npm_args">npm_args</a>)
+esbuild_repositories(<a href="#esbuild_repositories-name">name</a>, <a href="#esbuild_repositories-npm_repository">npm_repository</a>, <a href="#esbuild_repositories-npm_args">npm_args</a>, <a href="#esbuild_repositories-kwargs">kwargs</a>)
 </pre>
 
 Helper for fetching and setting up the esbuild versions and toolchains
@@ -475,5 +475,11 @@ Defaults to `"npm"`
 additional args to pass to the npm install rule
 
 Defaults to `[]`
+
+<h4 id="esbuild_repositories-kwargs">kwargs</h4>
+
+additional named parameters to the npm_install rule
+
+
 
 

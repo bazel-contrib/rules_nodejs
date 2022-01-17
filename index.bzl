@@ -17,6 +17,8 @@
 Users should not load files under "/internal"
 """
 
+load("@rules_nodejs//nodejs:repositories.bzl", _nodejs_register_toolchains = "nodejs_register_toolchains")
+load("@rules_nodejs//nodejs:yarn_repositories.bzl", _yarn_repositories = "yarn_repositories")
 load("//:version.bzl", "VERSION")
 load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
@@ -55,14 +57,29 @@ COMMON_REPLACEMENTS = {
     "\"@bazel/([a-zA-Z_-]+)\":\\s+\"(file|bazel)[^\"]+\"": "\"@bazel/$1\": \"0.0.0-PLACEHOLDER\"",
 }
 
+def _maybe_install_node(**kwargs):
+    # Just in case the user didn't install node, and if they didn't supply the name of the node repo,
+    # then install a default one "@nodejs" for them here.
+    if "node_repository" not in kwargs.keys() and "nodejs_toolchains" not in native.existing_rules():
+        # buildifier: disable=print
+        print("node_repository attribute not set and no repository named 'nodejs_toolchains' exists; installing default node")
+        _nodejs_register_toolchains(name = "nodejs")
+
+def _maybe_install_yarn(**kwargs):
+    # Just in case the user didn't install yarn, and if they aren't using a custom yarn binary,
+    # install the default "@yarn" one for them here.
+    if "yarn" not in kwargs.keys() and "yarn" not in native.existing_rules():
+        # buildifier: disable=print
+        print("yarn_install#yarn attribute not set and no repository named 'yarn' exists; installing default yarn")
+        _yarn_repositories(name = "yarn", node_repository = kwargs.get("node_repository"))
+
 def npm_install(**kwargs):
-    # Just in case the user didn't install nodejs, do it now
-    _node_repositories()
+    _maybe_install_node(**kwargs)
     _npm_install(**kwargs)
 
 def yarn_install(**kwargs):
-    # Just in case the user didn't install nodejs, do it now
-    _node_repositories()
+    _maybe_install_node(**kwargs)
+    _maybe_install_yarn(**kwargs)
     _yarn_install(**kwargs)
 
 # Currently used Bazel version. This version is what the rules here are tested

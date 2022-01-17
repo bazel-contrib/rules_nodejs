@@ -7,7 +7,7 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
 load(":esbuild_packages.bzl", "ESBUILD_PACKAGES")
 
-def esbuild_repositories(name = "", npm_repository = "npm", npm_args = []):
+def esbuild_repositories(name = "", npm_repository = "npm", npm_args = [], **kwargs):
     """Helper for fetching and setting up the esbuild versions and toolchains
 
     This uses Bazel's downloader (via `http_archive`) to fetch the esbuild package
@@ -29,6 +29,7 @@ def esbuild_repositories(name = "", npm_repository = "npm", npm_args = []):
         npm_repository:  the name of the repository where the @bazel/esbuild package is installed
             by npm_install or yarn_install.
         npm_args: additional args to pass to the npm install rule
+        **kwargs: additional named parameters to the npm_install rule
     """
 
     maybe(
@@ -78,4 +79,5 @@ def esbuild_repositories(name = "", npm_repository = "npm", npm_args = []):
             "--ignore-scripts",
         ] + npm_args,
         package_path = package_path,
+        **kwargs
     )

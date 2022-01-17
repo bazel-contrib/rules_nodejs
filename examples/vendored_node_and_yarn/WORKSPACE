@@ -28,23 +28,26 @@ build_bazel_rules_nodejs_dependencies()
 
 # See comment in README about these fetches
 http_archive(
-    name = "vendored_node_linux",
-    build_file_content = """exports_files(["node-v15.0.1-linux-x64/bin/node"])""",
+    name = "vendored_node_linux_amd64",
+    build_file_content = """exports_files(["bin/node"])""",
     sha256 = "cc9c3eed21755b490e5333ccab208ce15b539c35f64a764eeeae77c58746a7ff",
+    strip_prefix = "node-v15.0.1-linux-x64",
     urls = ["https://nodejs.org/dist/v15.0.1/node-v15.0.1-linux-x64.tar.xz"],
 )
 
 http_archive(
-    name = "vendored_node_mac",
-    build_file_content = """exports_files(["node-v15.0.1-darwin-x64/bin/node"])""",
+    name = "vendored_node_darwin_amd64",
+    build_file_content = """exports_files(["bin/node"])""",
     sha256 = "78571df5b35d3ec73d7543332776bcb8cab3bc0e3abd12b1440fbcd01c74c055",
+    strip_prefix = "node-v15.0.1-darwin-x64",
     urls = ["https://nodejs.org/dist/v15.0.1/node-v15.0.1-darwin-x64.tar.xz"],
 )
 
 http_archive(
-    name = "vendored_node_windows",
-    build_file_content = """exports_files(["node-v15.0.1-win-x64/node.exe"])""",
+    name = "vendored_node_windows_amd64",
+    build_file_content = """exports_files(["node.exe"])""",
     sha256 = "efa7a74d91789a6e9f068f375e49f108ff87578fd88ff4b4e7fefd930c04db6c",
+    strip_prefix = "node-v15.0.1-win-x64",
     urls = ["https://nodejs.org/dist/v15.0.1/node-v15.0.1-win-x64.zip"],
 )
 
@@ -62,6 +65,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 yarn_install(
     name = "npm",
     exports_directories_only = False,
+    node_repository = "vendored_node",
     package_json = "//:package.json",
     yarn = "@vendored_yarn_1_10_0//:yarn-v1.10.0/bin/yarn.js",
     yarn_lock = "//:yarn.lock",
