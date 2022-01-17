@@ -1,3 +1,15 @@
+# [5.0.0-rc.2](https://github.com/bazelbuild/rules_nodejs/compare/5.0.0-rc.1...5.0.0-rc.2) (2022-01-17)
+
+
+### Bug Fixes
+
+* **builtin:** when running vendored yarn, prefix command with path to node ([#3255](https://github.com/bazelbuild/rules_nodejs/issues/3255)) ([ccbf739](https://github.com/bazelbuild/rules_nodejs/commit/ccbf739))
+* angular example needs bump for 5.0 ([#3245](https://github.com/bazelbuild/rules_nodejs/issues/3245)) ([4fd864c](https://github.com/bazelbuild/rules_nodejs/commit/4fd864c))
+* guard node_modules roots for dynamic multi-linked npm deps ([#3248](https://github.com/bazelbuild/rules_nodejs/issues/3248)) ([5ad9753](https://github.com/bazelbuild/rules_nodejs/commit/5ad9753))
+* warning logic for yarn berry attrs ([eaf70f2](https://github.com/bazelbuild/rules_nodejs/commit/eaf70f2))
+
+
+
 # [5.0.0-rc.1](https://github.com/bazelbuild/rules_nodejs/compare/5.0.0-rc.0...5.0.0-rc.1) (2022-01-14)
 
 
