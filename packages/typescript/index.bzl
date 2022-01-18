@@ -371,6 +371,12 @@ def ts_project(
         fail("As of rules_nodejs 3.0, extends should have a single value, not a list.\n" +
              "Use a ts_config rule to group together a chain of extended tsconfigs.")
 
+    common_kwargs = {
+        "tags": kwargs.get("tags", []),
+        "visibility": kwargs.get("visibility", None),
+        "testonly": kwargs.get("testonly", None),
+    }
+
     if type(tsconfig) == type(dict()):
         # Copy attributes <-> tsconfig properties
         # TODO: fail if compilerOptions includes a conflict with an attribute?
@@ -425,6 +431,7 @@ def ts_project(
                 allow_js = allow_js,
                 tsconfig = tsconfig,
                 extends = extends,
+                **common_kwargs
             )
             tsc_deps = tsc_deps + ["_validate_%s_options" % name]
 
@@ -504,11 +511,6 @@ def ts_project(
                 len(js_outs),
             ))
 
-        common_kwargs = {
-            "tags": kwargs.get("tags", []),
-            "visibility": kwargs.get("visibility", None),
-            "testonly": kwargs.get("testonly", None),
-        }
         if type(transpiler) == "function" or type(transpiler) == "rule":
             transpiler(
                 name = transpile_target_name,
