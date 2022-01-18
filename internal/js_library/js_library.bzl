@@ -200,16 +200,15 @@ def _impl(ctx):
 
     files_depset = depset(all_files)
     js_files_depset = depset(js_files)
-    named_module_files_depset = depset(named_module_files)
     typings_depset = depset(typings)
 
     files_depsets = [files_depset]
     npm_sources_depsets = [files_depset]
-    direct_ecma_script_module_depsets = [js_files_depset]
+    direct_ecma_script_module_depsets = [js_files_depset] if len(js_files)else []
     direct_sources_depsets = [files_depset]
-    direct_named_module_sources_depsets = [named_module_files_depset]
+    direct_named_module_sources_depsets = [depset(named_module_files)] if len(named_module_files) else []
     typings_depsets = [typings_depset]
-    js_files_depsets = [js_files_depset]
+    js_files_depsets = [js_files_depset] if len(js_files) > 0 else []
 
     for dep in ctx.attr.deps:
         if ExternalNpmPackageInfo in dep:
@@ -253,19 +252,31 @@ def _impl(ctx):
             runfiles = runfiles,
         ),
         AmdNamesInfo(names = ctx.attr.amd_names),
-        js_ecma_script_module_info(
-            sources = depset(transitive = direct_ecma_script_module_depsets),
-            deps = ctx.attr.deps,
-        ),
-        js_module_info(
-            sources = depset(transitive = js_files_depsets),
-            deps = ctx.attr.deps,
-        ),
-        js_named_module_info(
-            sources = depset(transitive = direct_named_module_sources_depsets),
-            deps = ctx.attr.deps,
-        ),
     ]
+
+    if len(direct_ecma_script_module_depsets):
+        providers.append(
+            js_ecma_script_module_info(
+                sources = depset(transitive = direct_ecma_script_module_depsets),
+                deps = ctx.attr.deps,
+            ),
+        )
+
+    if len(js_files_depsets):
+        providers.append(
+            js_module_info(
+                sources = depset(transitive = js_files_depsets),
+                deps = ctx.attr.deps,
+            ),
+        )
+
+    if len(direct_named_module_sources_depsets):
+        providers.append(
+            js_named_module_info(
+                sources = depset(transitive = direct_named_module_sources_depsets),
+                deps = ctx.attr.deps,
+            ),
+        )
 
     if ctx.attr.package_name == "$node_modules$":
         # special case for external npm deps
