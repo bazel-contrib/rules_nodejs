@@ -205,7 +205,7 @@ def _impl(ctx):
 
     files_depsets = [files_depset]
     npm_sources_depsets = [files_depset]
-    direct_ecma_script_module_depsets = [files_depset]
+    direct_ecma_script_module_depsets = [js_files_depset]
     direct_sources_depsets = [files_depset]
     direct_named_module_sources_depsets = [named_module_files_depset]
     typings_depsets = [typings_depset]
