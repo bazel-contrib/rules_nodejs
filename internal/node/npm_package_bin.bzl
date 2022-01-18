@@ -89,8 +89,11 @@ def _impl(ctx):
         exit_code_out = ctx.outputs.exit_code_out,
         link_workspace_root = ctx.attr.link_workspace_root,
     )
-
-    return [DefaultInfo(files = depset(outputs + tool_outputs))]
+    files = outputs + tool_outputs
+    return [DefaultInfo(
+        files = depset(files),
+        runfiles = ctx.runfiles(files = files),
+    )]
 
 _npm_package_bin = rule(
     _impl,

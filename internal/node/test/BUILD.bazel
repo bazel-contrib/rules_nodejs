@@ -4,6 +4,7 @@ load("//:index.bzl", "js_library")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load(":npm_package_bin_test.bzl", "npm_package_bin_test_suite")
 
 # You can have a nodejs_binary with no node_modules attribute
 # and no fine grained deps
@@ -257,6 +258,8 @@ npm_package_bin(
     package = "terser",
     stdout = "minified.stdout.js",
 )
+
+npm_package_bin_test_suite()
 
 generated_file_test(
     name = "stdout_output_test",
