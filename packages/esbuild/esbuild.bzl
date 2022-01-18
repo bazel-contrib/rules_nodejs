@@ -6,10 +6,10 @@ load("@rules_nodejs//nodejs:providers.bzl", "JSModuleInfo", "STAMP_ATTR")
 load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSEcmaScriptModuleInfo", "node_modules_aspect", "run_node")
-load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "LinkerPackageMappingInfo", "module_mappings_aspect")
+load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 load("@build_bazel_rules_nodejs//internal/common:expand_variables.bzl", "expand_variables")
 load("@build_bazel_rules_nodejs//toolchains/esbuild:toolchain.bzl", "TOOLCHAIN")
-load(":helpers.bzl", "desugar_entry_point_names", "filter_files", "generate_path_mapping", "resolve_entry_point", "write_args_file", "write_jsconfig_file")
+load(":helpers.bzl", "desugar_entry_point_names", "filter_files", "resolve_entry_point", "write_args_file", "write_jsconfig_file")
 
 def _esbuild_impl(ctx):
     # For each dep, JSEcmaScriptModuleInfo is used if found, then JSModuleInfo and finally
@@ -34,13 +34,6 @@ def _esbuild_impl(ctx):
 
         if ExternalNpmPackageInfo in dep:
             deps_depsets.append(dep[ExternalNpmPackageInfo].sources)
-
-        # Collect the path alias mapping to resolve packages correctly
-        if LinkerPackageMappingInfo in dep:
-            for key, value in dep[LinkerPackageMappingInfo].mappings.items():
-                # key is of format "package_name:package_path"
-                package_name = key.split(":")[0]
-                path_alias_mappings.update(generate_path_mapping(package_name, value.replace(ctx.bin_dir.path + "/", "")))
 
     entry_points = desugar_entry_point_names(ctx.file.entry_point, ctx.files.entry_points)
 

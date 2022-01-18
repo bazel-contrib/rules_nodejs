@@ -83,30 +83,6 @@ def filter_files(input, endings = ALLOWED_EXTENSIONS):
 
     return filtered
 
-def generate_path_mapping(package_name, path):
-    """Generate a path alias mapping for a jsconfig.json
-
-    For example: {"@my-alias/*": [ "path/to/my-alias/*" ]},
-
-    Args:
-        package_name: The module name
-        path: The base path of the package
-    """
-
-    pkg = {}
-
-    # entry for the barrel files favor mjs over normal as it results
-    # in smaller bundles
-    pkg[package_name] = [
-        path + "/index.mjs",
-        path,
-    ]
-
-    # A glob import for deep package imports
-    pkg[package_name + "/*"] = [path + "/*"]
-
-    return pkg
-
 def write_jsconfig_file(ctx, path_alias_mappings):
     """Writes the js config file for the path alias mappings.
 
