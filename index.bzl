@@ -17,10 +17,10 @@
 Users should not load files under "/internal"
 """
 
+load("@bazel_skylib//lib:versions.bzl", "versions")
 load("@rules_nodejs//nodejs:repositories.bzl", _nodejs_register_toolchains = "nodejs_register_toolchains")
 load("@rules_nodejs//nodejs:yarn_repositories.bzl", _yarn_repositories = "yarn_repositories")
 load("//:version.bzl", "VERSION")
-load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
 load("//internal/common:params_file.bzl", _params_file = "params_file")
 load("//internal/generated_file_test:generated_file_test.bzl", _generated_file_test = "generated_file_test")
@@ -111,7 +111,7 @@ def check_build_bazel_rules_nodejs_version(minimum_version_string):
     Args:
       minimum_version_string: a string indicating the minimum version
     """
-    if not check_version(VERSION, minimum_version_string):
+    if versions.check_version(VERSION, minimum_version_string):
         fail("\nCurrent build_bazel_rules_nodejs version is {}, expected at least {}\n".format(
             VERSION,
             minimum_version_string,
