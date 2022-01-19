@@ -371,7 +371,9 @@ def ts_project(
         # Detect how we are being called.
         # If we are in our starlark module, then we load typescript from the ts_repositories fetch.
         # Otherwise, we are being called with in the @npm external repo
-        if native.repository_name() != "build_bazel_rules_nodejs" and native.repository_name() != "@":
+        if native.repository_name() == "build_bazel_rules_nodejs" or native.repository_name() == "@":
+            tsc = Label("@npm//typescript/bin:tsc")
+        else:
             tsc = Label("//typescript/bin:tsc")
 
     if type(extends) == type([]):
