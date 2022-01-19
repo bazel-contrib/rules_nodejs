@@ -28,7 +28,7 @@ _ATTRS = {
     # that compiler might allow more sources than tsc does.
     "srcs": attr.label_list(allow_files = True, mandatory = True),
     "supports_workers": attr.bool(default = False),
-    "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "exec"),
+    "tsc": attr.label(default = Label("@npm//typescript/bin:tsc"), executable = True, cfg = "exec"),
     "transpile": attr.bool(doc = "whether tsc should be used to produce .js outputs"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
 }
