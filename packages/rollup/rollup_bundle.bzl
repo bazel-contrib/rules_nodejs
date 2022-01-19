@@ -262,6 +262,9 @@ def _rollup_bundle(ctx):
         elif hasattr(dep, "files"):
             deps_depsets.append(dep.files)
 
+        if DefaultInfo in dep:
+            deps_depsets.append(dep[DefaultInfo].data_runfiles.files)
+
         # Also include files from npm deps as inputs.
         # These deps are identified by the ExternalNpmPackageInfo provider.
         if ExternalNpmPackageInfo in dep:
