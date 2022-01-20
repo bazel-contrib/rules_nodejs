@@ -32,7 +32,7 @@ npm_install(
 
 load("@build_bazel_rules_nodejs//toolchains/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
-esbuild_repositories(npm_repository = "npm")  # Note, npm is the default value for npm_repository
+esbuild_repositories(npm_repository = "npm")
 ```
 
 > To avoid eagerly fetching all the npm dependencies, this load statement comes from the "Built-in"
