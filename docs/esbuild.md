@@ -38,7 +38,7 @@ npm_install(
 
 load("@build_bazel_rules_nodejs//toolchains/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
-esbuild_repositories(npm_repository = "npm")  # Note, npm is the default value for npm_repository
+esbuild_repositories(npm_repository = "npm")
 ```
 
 > To avoid eagerly fetching all the npm dependencies, this load statement comes from the "Built-in"
@@ -434,7 +434,7 @@ Any other common attributes
 **USAGE**
 
 <pre>
-esbuild_repositories(<a href="#esbuild_repositories-name">name</a>, <a href="#esbuild_repositories-npm_repository">npm_repository</a>, <a href="#esbuild_repositories-npm_args">npm_args</a>, <a href="#esbuild_repositories-kwargs">kwargs</a>)
+esbuild_repositories(<a href="#esbuild_repositories-npm_repository">npm_repository</a>, <a href="#esbuild_repositories-name">name</a>, <a href="#esbuild_repositories-npm_args">npm_args</a>, <a href="#esbuild_repositories-kwargs">kwargs</a>)
 </pre>
 
 Helper for fetching and setting up the esbuild versions and toolchains
@@ -457,18 +457,18 @@ For example if you created `.bazel_downloader_config` you might add to your `.ba
 **PARAMETERS**
 
 
-<h4 id="esbuild_repositories-name">name</h4>
-
-currently unused
-
-Defaults to `""`
-
 <h4 id="esbuild_repositories-npm_repository">npm_repository</h4>
 
 the name of the repository where the @bazel/esbuild package is installed
 by npm_install or yarn_install.
 
-Defaults to `"npm"`
+
+
+<h4 id="esbuild_repositories-name">name</h4>
+
+currently unused
+
+Defaults to `""`
 
 <h4 id="esbuild_repositories-npm_args">npm_args</h4>
 

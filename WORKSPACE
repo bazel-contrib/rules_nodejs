@@ -140,6 +140,7 @@ load("//toolchains/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
 esbuild_repositories(
     node_repository = "node16",
+    npm_repository = "npm",
 )
 
 #
