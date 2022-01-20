@@ -5,7 +5,7 @@
         "@babel/cli": "^7.6.0",
         "@babel/core": "^7.6.0",
         "@babel/preset-env": "^7.6.0",
-        "@bazel/typescript": "^4.6.1",
+        "@bazel/typescript": "^5.0.0",
         "@jest/core": "27.0.4",
         "@jest/transform": "27.0.2",
         "@types/jest": "^26.0.23",
