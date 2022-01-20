@@ -1,3 +1,14 @@
+# [5.0.0](https://github.com/bazelbuild/rules_nodejs/compare/5.0.0-rc.2...5.0.0) (2022-01-20)
+
+
+### Bug Fixes
+
+* **builtin:** npm_package_bin include runfiles in DefaultInfo ([#3261](https://github.com/bazelbuild/rules_nodejs/issues/3261)) ([e915877](https://github.com/bazelbuild/rules_nodejs/commit/e915877))
+* **cypress:** use depsets for runfiles and data ([#3240](https://github.com/bazelbuild/rules_nodejs/issues/3240)) ([4889a1a](https://github.com/bazelbuild/rules_nodejs/commit/4889a1a))
+* **typescript:** propagate tags to validate_options ([#3260](https://github.com/bazelbuild/rules_nodejs/issues/3260)) ([4615198](https://github.com/bazelbuild/rules_nodejs/commit/4615198))
+
+
+
 # [5.0.0-rc.2](https://github.com/bazelbuild/rules_nodejs/compare/5.0.0-rc.1...5.0.0-rc.2) (2022-01-17)
 
 
