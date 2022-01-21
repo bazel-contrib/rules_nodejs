@@ -173,6 +173,10 @@ load("//tools:bazel_deps.bzl", "fetch_dependencies")
 
 fetch_dependencies()
 
+load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_dependencies")
+
+build_bazel_rules_nodejs_dependencies()
+
 ${pkgMgr === 'yarn' ? yarnInstallCmd : npmInstallCmd}`;
 
   write('tools/BUILD.bazel', '# Currently there are no targets in this Bazel package')
