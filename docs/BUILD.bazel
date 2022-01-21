@@ -40,6 +40,17 @@ stardoc(
     name = "providers",
     out = "providers.md_",
     input = "//:providers.bzl",
+    symbol_names = [
+        "ExternalNpmPackageInfo",
+        "js_ecma_script_module_info",
+        "js_named_module_info",
+        "JSEcmaScriptModuleInfo",
+        "JSNamedModuleInfo",
+        "node_modules_aspect",
+        "NodeRuntimeDepsInfo",
+        "run_node",
+        "NpmPackageInfo",
+    ],
     tags = ["fix-windows"],
     deps = [
         "//:bzl",
