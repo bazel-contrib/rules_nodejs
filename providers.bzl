@@ -38,6 +38,25 @@ load(
     _run_node = "run_node",
 )
 
+# TODO(6.0): remove these re-exports, they are just for easier migration to 5.0.0
+# This includes everything from
+# https://github.com/bazelbuild/rules_nodejs/blob/4.x/providers.bzl
+# which wasn't removed in 5.0 (NodeContextInfo, NODE_CONTEXT_ATTRS)
+load(
+    "@rules_nodejs//nodejs:providers.bzl",
+    _DeclarationInfo = "DeclarationInfo",
+    _DirectoryFilePathInfo = "DirectoryFilePathInfo",
+    _JSModuleInfo = "JSModuleInfo",
+    _LinkablePackageInfo = "LinkablePackageInfo",
+    _declaration_info = "declaration_info",
+)
+
+DeclarationInfo = _DeclarationInfo
+declaration_info = _declaration_info
+JSModuleInfo = _JSModuleInfo
+LinkablePackageInfo = _LinkablePackageInfo
+DirectoryFilePathInfo = _DirectoryFilePathInfo
+
 ExternalNpmPackageInfo = _ExternalNpmPackageInfo
 js_ecma_script_module_info = _js_ecma_script_module_info
 js_named_module_info = _js_named_module_info
