@@ -116,13 +116,6 @@ async function main(args) {
   // so we need to add it back
   jrunner.configureDefaultReporter({});
 
-  jrunner.onComplete((passed) => {
-    let exitCode = passed ? 0 : BAZEL_EXIT_TESTS_FAILED;
-    if (noSpecsFound) exitCode = BAZEL_EXIT_NO_TESTS_FOUND;
-
-    process.exit(exitCode);
-  });
-
   if (TOTAL_SHARDS) {
     // Since we want to collect all the loaded specs, we have to do this after
     // loadSpecs() in jasmine/lib/jasmine.js
@@ -144,7 +137,8 @@ async function main(args) {
       const end = allSpecs.length * (SHARD_INDEX + 1) / TOTAL_SHARDS;
       const enabledSpecs = allSpecs.slice(start, end);
       env.configure({specFilter: (s) => enabledSpecs.includes(s.id)});
-      await originalExecute();
+
+      return await originalExecute();
     };
     // Special case!
     // To allow us to test sharding, always run the specs in the order they are declared
@@ -154,9 +148,25 @@ async function main(args) {
     }
   }
 
-  await jrunner.execute();
+  // If Jasmine 3 use onComplete as before
+  // If Jasmine 4, instead use the results from execute to determine exit code
+  // onComplete method removed in Jasmine 4+
+  if (typeof jrunner.onComplete === 'function') {
+    jrunner.onComplete((passed) => {
+      let exitCode = passed ? 0 : BAZEL_EXIT_TESTS_FAILED;
+      if (noSpecsFound) exitCode = BAZEL_EXIT_NO_TESTS_FOUND;
 
-  return 0;
+      process.exit(exitCode);
+    });
+  }
+
+  jrunner.exitOnCompletion = false;
+  const jResults = await jrunner.execute();
+
+  let exitCode = jResults && jResults.overallStatus === 'passed' ? 0 : BAZEL_EXIT_TESTS_FAILED;
+  if (noSpecsFound) exitCode = BAZEL_EXIT_NO_TESTS_FOUND;
+
+  return exitCode;
 }
 
 function getAllSpecs(jasmineEnv) {
@@ -166,10 +176,11 @@ function getAllSpecs(jasmineEnv) {
   var stack = [jasmineEnv.topSuite()];
   var currentNode;
   while (currentNode = stack.pop()) {
-    if (currentNode instanceof jasmine.Spec) {
-      specs.unshift(currentNode);
-    } else if (currentNode instanceof jasmine.Suite) {
+    // If node has children it is a Suite, otherwise it is a Spec
+    if (currentNode && Array.isArray(currentNode.children)) {
       stack = stack.concat(currentNode.children);
+    } else if (currentNode && currentNode.id) {
+      specs.unshift(currentNode);
     }
   }
 
