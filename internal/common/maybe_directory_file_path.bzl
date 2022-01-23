@@ -15,7 +15,7 @@
 """Helper function to accept either a label or a directory_file_path as dict
 """
 
-load("@rules_nodejs//nodejs/private:directory_file_path.bzl", "directory_file_path")
+load("@rules_nodejs//nodejs:directory_file_path.bzl", "directory_file_path")
 
 def maybe_directory_file_path(name, value):
     """Pass-through a value or convert a dict with a single key/value pair to a directory_file_path and return its label

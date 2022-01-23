@@ -21,6 +21,37 @@ Most features, such as `npm_install` and `nodejs_binary` are still in the `build
 We plan to clean these up and port into `rules_nodejs` in a future major release.
 
 
+## directory_file_path
+
+**USAGE**
+
+<pre>
+directory_file_path(<a href="#directory_file_path-name">name</a>, <a href="#directory_file_path-directory">directory</a>, <a href="#directory_file_path-path">path</a>)
+</pre>
+
+Provide DirectoryFilePathInfo to reference some file within a directory.
+
+        Otherwise there is no way to give a Bazel label for it.
+
+**ATTRIBUTES**
+
+
+<h4 id="directory_file_path-name">name</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
+
+
+<h4 id="directory_file_path-directory">directory</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*): a directory
+
+
+<h4 id="directory_file_path-path">path</h4>
+
+(*String, mandatory*): a path within that directory
+
+
+
 ## node_repositories
 
 **USAGE**
