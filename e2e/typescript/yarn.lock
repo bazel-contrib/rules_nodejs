@@ -2,19 +2,19 @@
 # yarn lockfile v1
 
 
-"@bazel/concatjs@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-5.0.0.tgz#f651e925d16b2fa39be59364b682d1685a26bbd2"
-  integrity sha512-Q7N2bzYwWSROd+qAOPXHdRF8i+CabODhwFqkqQ5MvsNYxc+rqsD7pzShweZ9NZjif4omjhzSOFnX6nHbR4S/lg==
+"@bazel/concatjs@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-5.0.1.tgz#c421cde3689aed9fc05e7e1f19b6a64474bc5d3f"
+  integrity sha512-ZdS3+6jAEVeLGeyLIwXagTsLvWUOWI6Zdd0R+Zjw81SevGjP5odj/aF/X0Cs5MfNQBr1JITMqrgROgud25SUsg==
   dependencies:
     protobufjs "6.8.8"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/jasmine@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-5.0.0.tgz#c51f9bc8ca5b83a363c45db4856ceacc48ac345f"
-  integrity sha512-Lb6Vq+S+fFhXG3YPIP+VJcMvBiCExjZy6p6JlaMD0MAxiskQtB2NH3pD8RR52pPM/dR91xluZz7Le+vbPQWV6g==
+"@bazel/jasmine@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-5.0.1.tgz#6245539eb6ce5a78220ad1e22f0eed4e7053b267"
+  integrity sha512-E2MepUTInX404sxdku3bR5lWjIpOU5bxhxgBzON9zRA3klBxRS87Wj3iKHhcTf9G3wpwF2PxS6k4fdGf1XhtlQ==
   dependencies:
     c8 "~7.5.0"
     jasmine-reporters "~2.5.0"
