@@ -31,6 +31,10 @@ _execution_requirements = {
     # https://github.com/bazelbuild/bazel/commit/c64421bc35214f0414e4f4226cc953e8c55fa0d2
     # So we must not attempt to execute remotely in that case.
     "no-remote-exec": "1",
+    # Also don't cache the artifact remotely since pushing and pulling from a remote
+    # cache adds unnecessary and undesirable network overhead for an action
+    # that is just copying files around on disk.
+    "no-remote-cache": "1",
 }
 
 def _hash_file(file):
