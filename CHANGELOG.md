@@ -1,3 +1,13 @@
+## [5.0.1](https://github.com/bazelbuild/rules_nodejs/compare/5.0.0...5.0.1) (2022-01-24)
+
+
+### Bug Fixes
+
+* **builtin:** prevent usage with InputArtifact directories ([553ef27](https://github.com/bazelbuild/rules_nodejs/commit/553ef27))
+* **create:** add missing workspace dependency call ([d15c3dd](https://github.com/bazelbuild/rules_nodejs/commit/d15c3dd))
+
+
+
 # [5.0.0](https://github.com/bazelbuild/rules_nodejs/compare/5.0.0-rc.2...5.0.0) (2022-01-20)
 
 
