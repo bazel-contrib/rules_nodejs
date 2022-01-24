@@ -9,8 +9,8 @@ These are also called output directories, created by `ctx.actions.declare_direct
 load("//nodejs/private/providers:directory_file_path_info.bzl", "DirectoryFilePathInfo")
 
 def _directory_file_path(ctx):
-    if not ctx.file.directory.is_source and not ctx.file.directory.is_directory:
-        fail("directory attribute must be a source directory or created with Bazel declare_directory (TreeArtifact)")
+    if not ctx.file.directory.is_directory:
+        fail("directory attribute must be created with ctx.declare_directory (TreeArtifact)")
     return [DirectoryFilePathInfo(path = ctx.attr.path, directory = ctx.file.directory)]
 
 directory_file_path = rule(
