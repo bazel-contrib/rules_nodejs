@@ -7,6 +7,15 @@
         "rootDirs": [
             ".",
             "../../bazel-out/darwin-fastbuild/bin/packages/concatjs",
+            "../../bazel-out/linux-fastbuild/bin/packages/concatjs",
+            "../../bazel-out/windows-fastbuild/bin/packages/concatjs",
+            "../../bazel-out/k8-fastbuild/bin/packages/concatjs",
+            "../../bazel-out/host/bin/packages/concatjs",
+            "../../bazel-out/darwin_arm64-fastbuild/bin/packages/concatjs",
+            "../../bazel-out/x64_windows-fastbuild/bin/packages/concatjs",
+            "../../bazel-out/darwin-dbg/bin/packages/concatjs",
+            "../../bazel-out/k8-dbg/bin/packages/concatjs",
+            "../../bazel-out/x64_windows-dbg/bin/packages/concatjs",
         ]
     }
 }
