@@ -23,17 +23,13 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 ts_project(
     name = "bazel_concatjs_lib",
     srcs = glob(["*.ts"]),
-    tsconfig = {
-        "compilerOptions": {
-            "declaration": True,
-            "module": "umd",
-            "moduleResolution": "node",
-            "types": ["node"],
-        },
-    },
+    declaration = True,
+    tsconfig = ":tsconfig.json",
     deps = [
+        "//packages/concatjs/internal:tsc_wrapped_lib",
         "@npm//@types/node",
         "@npm//karma",
+        "@npm//tsickle",
     ],
 )
 

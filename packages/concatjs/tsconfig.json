@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "module": "umd",
+        "moduleResolution": "node",
+        "types": ["node"],
+        "rootDirs": [
+            ".",
+            "../../bazel-out/darwin-fastbuild/bin/packages/concatjs",
+        ]
+    }
+}
