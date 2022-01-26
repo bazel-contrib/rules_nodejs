@@ -14,6 +14,7 @@ nodejs_test(
         "@nodejs_host//:npm_bin",
         "@nodejs_host//:npm_files",
         "@nodejs_host//:npx_bin",
+        "@npm//:node_modules",
         "@yarn",
         "@yarn//:yarn_bin",
         "@yarn//:yarn_files",

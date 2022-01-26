@@ -47,4 +47,4 @@ def node_repositories(**kwargs):
     )
 
     # Install new toolchain under "nodejs" repository name prefix
-    nodejs_register_toolchains(name = "nodejs")
+    nodejs_register_toolchains(name = "nodejs", **kwargs)
