@@ -27,8 +27,10 @@ const UTF8 = {
 
 // These exit codes are handled specially by Bazel:
 // https://github.com/bazelbuild/bazel/blob/486206012a664ecb20bdb196a681efc9a9825049/src/main/java/com/google/devtools/build/lib/util/ExitCode.java#L44
+const BAZEL_EXIT_SUCCESS = 0;
 const BAZEL_EXIT_TESTS_FAILED = 3;
 const BAZEL_EXIT_NO_TESTS_FOUND = 4;
+const BAZEL_EXIT_INTERRUPTED = 8;
 
 // Test sharding support
 // See https://docs.bazel.build/versions/main/test-encyclopedia.html#role-of-the-test-runner
@@ -91,13 +93,6 @@ async function main(args) {
       .filter(f => IS_TEST_FILE.test(f))
       .forEach(f => jrunner.addSpecFile(f));
 
-  var noSpecsFound = true;
-  jrunner.addReporter({
-    specDone: () => {
-      noSpecsFound = false
-    },
-  });
-
   if (JUnitXmlReporter) {
     const testOutputFile = process.env.XML_OUTPUT_FILE;
     if (testOutputFile) {
@@ -107,21 +102,14 @@ async function main(args) {
         consolidate: true,
         consolidateAll: true
       }));
+
+      // addReporter throws away the default console reporter
+      // so we need to add it back
+      jrunner.configureDefaultReporter({});
     } else {
       console.warn('Skipping XML Test Result: $XML_OUTPUT_FILE not found.')
     }
   }
-
-  // addReporter throws away the default console reporter
-  // so we need to add it back
-  jrunner.configureDefaultReporter({});
-
-  jrunner.onComplete((passed) => {
-    let exitCode = passed ? 0 : BAZEL_EXIT_TESTS_FAILED;
-    if (noSpecsFound) exitCode = BAZEL_EXIT_NO_TESTS_FOUND;
-
-    process.exit(exitCode);
-  });
 
   if (TOTAL_SHARDS) {
     // Since we want to collect all the loaded specs, we have to do this after
@@ -133,7 +121,7 @@ async function main(args) {
     // Patch the inner execute function to do our filtering first.
     const env = jasmine.getEnv();
     const originalExecute = env.execute.bind(env);
-    env.execute = async () => {
+    env.execute = () => {
       const allSpecs = getAllSpecs(env);
       // Partition the specs among the shards.
       // This ensures that the specs are evenly divided over the shards.
@@ -144,8 +132,10 @@ async function main(args) {
       const end = allSpecs.length * (SHARD_INDEX + 1) / TOTAL_SHARDS;
       const enabledSpecs = allSpecs.slice(start, end);
       env.configure({specFilter: (s) => enabledSpecs.includes(s.id)});
-      await originalExecute();
+
+      return originalExecute();
     };
+
     // Special case!
     // To allow us to test sharding, always run the specs in the order they are declared
     if (process.env['TEST_WORKSPACE'] === 'build_bazel_rules_nodejs' &&
@@ -154,22 +144,68 @@ async function main(args) {
     }
   }
 
-  await jrunner.execute();
+  // TODO(6.0): remove support for deprecated versions of Jasmine that use the old API &
+  // remember to update the `peerDependencies` as well.
+  // Jasmine versions prior to 3.10.0 should use the old API.
+  if (/^3\.[1-9]\.|^2\./.test(jrunner.coreVersion())) {
+    console.warn(`DEPRECATED: Support for Jasmine versions prior to '3.10.x' is deprecated in '@bazel/jasmine'.`);
 
-  return 0;
+    // Old Jasmine API.
+    let noSpecsFound = true;
+    jrunner.addReporter({
+      specDone: () => {
+        noSpecsFound = false
+      },
+    });
+
+    jrunner.onComplete((passed) => {
+      let exitCode = passed ? BAZEL_EXIT_SUCCESS : BAZEL_EXIT_TESTS_FAILED;
+      if (noSpecsFound) exitCode = BAZEL_EXIT_NO_TESTS_FOUND;
+
+      process.exit(exitCode);
+    });
+
+    // addReporter throws away the default console reporter
+    // so we need to add it back
+    jrunner.configureDefaultReporter({});
+    await jrunner.execute();
+
+    return BAZEL_EXIT_SUCCESS;
+  }
+
+  // New Jasmine API.
+  jrunner.exitOnCompletion = false;
+  const { overallStatus, incompleteReason } = await jrunner.execute();
+
+  switch (overallStatus) {
+    case 'passed':
+      return BAZEL_EXIT_SUCCESS;
+    case 'incomplete':
+      return incompleteReason === 'No specs found' ? BAZEL_EXIT_NO_TESTS_FOUND : BAZEL_EXIT_INTERRUPTED;
+    case 'failed':
+    default:
+      return BAZEL_EXIT_TESTS_FAILED;
+  }
 }
 
 function getAllSpecs(jasmineEnv) {
-  var specs = [];
+  const specs = [];
 
   // Walk the test suite tree depth first and collect all test specs
-  var stack = [jasmineEnv.topSuite()];
-  var currentNode;
+  const stack = [jasmineEnv.topSuite()];
+  let currentNode;
   while (currentNode = stack.pop()) {
-    if (currentNode instanceof jasmine.Spec) {
+    if (!currentNode) {
+      continue;
+    }
+
+    const { children, id } = currentNode;
+    if (Array.isArray(children)) {
+      // This is a suite.
+      stack.push(...children);
+    } else if (id) {
+      // This is a spec.
       specs.unshift(currentNode);
-    } else if (currentNode instanceof jasmine.Suite) {
-      stack = stack.concat(currentNode.children);
     }
   }
 
