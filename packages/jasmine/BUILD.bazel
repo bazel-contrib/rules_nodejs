@@ -39,7 +39,10 @@ stardoc(
     out = "README.md",
     input = "index.bzl",
     tags = ["fix-windows"],
-    deps = [":bzl"],
+    deps = [
+        ":bzl",
+        "//packages/jasmine/private:bzl",
+    ],
 )
 
 nodejs_test(
@@ -81,7 +84,7 @@ pkg_npm(
     ],
     build_file_content = "",
     substitutions = {
-        "//packages/jasmine:jasmine_runner.js": "//:node_modules/@bazel/jasmine/jasmine_runner.js",
+        "//packages/jasmine/private:jasmine_runner_test.bzl": "//@bazel/jasmine:private.bzl",
     },
     deps = [
         ":README.md",

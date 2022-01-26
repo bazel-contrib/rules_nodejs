@@ -249,7 +249,8 @@ async function generatePackageBuildFiles(pkg) {
             await writeFile(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), generateBuildFileHeader(visibility) + binBuildFile);
         }
     }
-    if (pkg._files.includes('index.bzl')) {
+    const hasIndexBzl = pkg._files.includes('index.bzl');
+    if (hasIndexBzl) {
         await pkg._files.filter(f => f !== 'BUILD' && f !== 'BUILD.bazel').reduce(async (prev, file) => {
             if (/^node_modules[/\\]/.test(file)) {
                 return;
@@ -266,15 +267,14 @@ async function generatePackageBuildFiles(pkg) {
             await fs_1.promises.copyFile(src, destFile);
         }, Promise.resolve());
     }
-    else {
-        const indexFile = printIndexBzl(pkg);
-        if (indexFile.length) {
-            await writeFile(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
-            buildFile += `
+    const indexFile = printIndexBzl(pkg);
+    const indexFileName = hasIndexBzl ? 'private.bzl' : 'index.bzl';
+    if (indexFile.length) {
+        await writeFile(path.posix.join(pkg._dir, indexFileName), indexFile);
+        buildFile += `
 # For integration testing
-exports_files(["index.bzl"])
+exports_files(["${indexFileName}"])
 `;
-        }
     }
     if (!symlinkBuildFile) {
         await writeFile(path.posix.join(pkg._dir, buildFilePath), generateBuildFileHeader(visibility) + buildFile);

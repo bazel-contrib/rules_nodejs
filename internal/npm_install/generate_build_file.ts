@@ -386,7 +386,8 @@ async function generatePackageBuildFiles(pkg: Dep) {
   // If there's an index.bzl in the package then copy all the package's files
   // other than the BUILD file which we'll write below.
   // (maybe we shouldn't copy .js though, since it belongs under node_modules?)
-  if (pkg._files.includes('index.bzl')) {
+  const hasIndexBzl = pkg._files.includes('index.bzl')
+  if (hasIndexBzl) {
     await pkg._files.filter(f => f !== 'BUILD' && f !== 'BUILD.bazel').reduce(async (prev, file) => {
       if (/^node_modules[/\\]/.test(file)) {
         // don't copy over nested node_modules
@@ -406,16 +407,19 @@ async function generatePackageBuildFiles(pkg: Dep) {
       await mkdirp(path.dirname(destFile));
       await fs.copyFile(src, destFile);
     }, Promise.resolve());
-  } else {
+  } 
+
+
     const indexFile = printIndexBzl(pkg);
+    const indexFileName = hasIndexBzl ? 'private.bzl' : 'index.bzl'
     if (indexFile.length) {
-      await writeFile(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
+      await writeFile(path.posix.join(pkg._dir, indexFileName), indexFile);
       buildFile += `
 # For integration testing
-exports_files(["index.bzl"])
+exports_files(["${indexFileName}"])
 `;
     }
-  }
+  
 
   if (!symlinkBuildFile) {
     await writeFile(

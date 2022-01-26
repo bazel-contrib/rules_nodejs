@@ -19,6 +19,7 @@ than launching a test in Karma, for example.
 """
 
 load("@rules_nodejs//nodejs:providers.bzl", "JSModuleInfo")
+load("//packages/jasmine/private:jasmine_runner_test.bzl", "jasmine_runner_test")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", nodejs_test = "nodejs_test_macro")
 
 def _js_sources_impl(ctx):
@@ -66,10 +67,9 @@ def jasmine_node_test(
         tags = [],
         config_file = None,
         use_direct_specs = None,
-        # Replaced by pkg_npm with jasmine = "//@bazel/jasmine",
-        jasmine = "//packages/jasmine",
-        # Replaced by pkg_npm with jasmine_entry_point = "//:node_modules/@bazel/jasmine/jasmine_runner.js",
-        jasmine_entry_point = Label("//packages/jasmine:jasmine_runner.js"),
+        # Kept for backward compatibility
+        jasmine = None,
+        jasmine_entry_point = None,
         **kwargs):
     """Runs tests in NodeJS using the Jasmine test runner.
 
@@ -117,7 +117,10 @@ def jasmine_node_test(
         use_direct_specs = use_direct_specs,
     )
 
-    all_data = data + srcs + deps + [Label(jasmine)]
+    all_data = data + srcs + deps
+
+    if jasmine != None:
+        all_data.append(jasmine)
 
     # BEGIN-INTERNAL
     # Only used when running tests in the rules_nodejs repo.
@@ -142,13 +145,20 @@ def jasmine_node_test(
         pkg = Label("%s//%s:__pkg__" % (native.repository_name(), native.package_name()))
         all_data.append(pkg.relative(config_file))
 
-    nodejs_test(
+    kwargs = dict(
         name = name,
         data = all_data,
-        entry_point = jasmine_entry_point,
         templated_args = templated_args,
         testonly = 1,
         expected_exit_code = expected_exit_code,
         tags = tags,
         **kwargs
     )
+
+    if jasmine_entry_point:
+        nodejs_test(
+            entry_point = jasmine_entry_point,
+            **kwargs
+        )
+    else:
+        jasmine_runner_test(**kwargs)
