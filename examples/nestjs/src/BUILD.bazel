@@ -68,6 +68,10 @@ nodejs_binary(
 
 jasmine_node_test(
     name = "test",
+    # Workaround for https://github.com/bazelbuild/rules_nodejs/issues/3280
+    # The @bazel/jasmine package is installed as a directory, so we need to use a dictionary
+    # to give a nested path to the entry point in that directory.
+    jasmine_entry_point = {"@npm//:node_modules/@bazel/jasmine": "jasmine_runner.js"},
     deps = [
         ":test_lib",
     ],
