@@ -51,15 +51,29 @@ e2e_integration_test(
     tags = ["no-bazelci-windows"],
 )
 
-e2e_integration_test(
-    name = "e2e_jasmine",
+[e2e_integration_test(
+    name = "e2e_jasmine_%s" % jasmine_version.replace(".", "_"),
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
+    },
+    # use these package.json packages instead
+    package_json_substitutions = {
+        "jasmine": jasmine_version,
+        "jasmine-core": jasmine_version,
     },
     # TODO: figure out why this fails on Windows since setting
     # symlink_node_modules to False in the test WORKSPACE
     tags = ["no-bazelci-windows"],
-)
+    workspace_root = "jasmine",
+) for jasmine_version in [
+    # TODO(6.0): remove old API tests
+    # Old API
+    "2.99.x",
+    "3.9.x",
+    # New API
+    "4.0.x",
+    "3.10.x",
+]]
 
 e2e_integration_test(
     name = "e2e_node_loader_no_preserve_symlinks",
