@@ -128,6 +128,8 @@ function watcher(fileList: {refresh: () => void}) {
 
 (watcher as any).$inject = ['fileList'];
 
+export * from "./internal/tsc_wrapped";
+
 module.exports = {
   'framework:concat_js': ['factory', initConcatJs],
   'watcher': ['value', watcher],

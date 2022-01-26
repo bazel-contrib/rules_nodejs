@@ -23,17 +23,14 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 ts_project(
     name = "bazel_concatjs_lib",
     srcs = glob(["*.ts"]),
-    tsconfig = {
-        "compilerOptions": {
-            "declaration": True,
-            "module": "umd",
-            "moduleResolution": "node",
-            "types": ["node"],
-        },
-    },
+    allow_js = True,
+    declaration = True,
+    tsconfig = ":tsconfig.json",
     deps = [
+        "//packages/concatjs/internal:tsc_wrapped_lib",
         "@npm//@types/node",
         "@npm//karma",
+        "@npm//tsickle",
     ],
 )
 
@@ -42,6 +39,12 @@ js_library(
     package_name = "@bazel/concatjs",
     srcs = ["bazel_concatjs_lib"],
     visibility = ["//packages/concatjs:__subpackages__"],
+    deps = [
+        "//packages/concatjs/internal:tsc_wrapped_lib",
+        "//packages/concatjs/third_party/github.com/bazelbuild/bazel/src/main/protobuf:npm_package_assets",
+        "@npm//protobufjs",
+        "@npm//typescript",
+    ],
 )
 
 bzl_library(

@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "module": "umd",
+        "allowJs": true,
+        "moduleResolution": "node",
+        "types": ["node"],
+        "rootDirs": [
+            ".",
+            "../../bazel-out/darwin-fastbuild/bin/packages/concatjs",
+            "../../bazel-out/k8-fastbuild/bin/packages/concatjs",
+            "../../bazel-out/host/bin/packages/concatjs",
+            "../../bazel-out/darwin_arm64-fastbuild/bin/packages/concatjs",
+            "../../bazel-out/darwin_amd64-fastbuild/bin/packages/concatjs",
+            "../../bazel-out/x64_windows-fastbuild/bin/packages/concatjs",
+            "../../bazel-out/darwin-dbg/bin/packages/concatjs",
+            "../../bazel-out/k8-dbg/bin/packages/concatjs",
+            "../../bazel-out/x64_windows-dbg/bin/packages/concatjs",
+            "../../bazel-out/k8-opt-exec-2B5CBBC6/bin/packages/concatjs",
+            "../../bazel-out/darwin-opt-exec-2B5CBBC6/bin/packages/concatjs",
+            "../../bazel-out/windows-opt-exec-2B5CBBC6/bin/packages/concatjs",
+            "../../bazel-out/x64_windows-opt-exec-2B5CBBC6/bin/packages/concatjs",
+            "../../bazel-out/k8-opt-exec-60723E07/bin/packages/concatjs",
+        ]
+    }
+}
