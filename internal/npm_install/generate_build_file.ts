@@ -411,13 +411,17 @@ async function generatePackageBuildFiles(pkg: Dep) {
 
 
     const indexFile = printIndexBzl(pkg);
-    const indexFileName = hasIndexBzl ? 'private.bzl' : 'index.bzl'
     if (indexFile.length) {
-      await writeFile(path.posix.join(pkg._dir, indexFileName), indexFile);
-      buildFile += `
+      await writeFile(path.posix.join(pkg._dir, hasIndexBzl ? 'private' : '', 'index.bzl'), indexFile);
+      const buildContent = `
 # For integration testing
-exports_files(["${indexFileName}"])
+exports_files(["index.bzl"])
 `;
+      if (hasIndexBzl) {
+        await writeFile(path.posix.join(pkg._dir, 'private', 'BUILD.bazel'), buildContent);
+      } else {
+        buildFile += buildContent;
+      }
     }
   
 

@@ -16,7 +16,7 @@
         "bazel"
     ],
     "bin": {
-        "jasmine_runner": "jasmine_runner.js"
+        "bazel-jasmine-runner": "jasmine_runner.js"
     },
     "main": "index.js",
     "dependencies": {

@@ -83,9 +83,6 @@ pkg_npm(
         "package.json",
     ],
     build_file_content = "",
-    substitutions = {
-        "//packages/jasmine/private:jasmine_runner_test.bzl": "//@bazel/jasmine:private.bzl",
-    },
     deps = [
         ":README.md",
         ":npm_version_check",

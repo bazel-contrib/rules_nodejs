@@ -98,12 +98,15 @@ Defaults to `None`
 <h4 id="jasmine_node_test-jasmine">jasmine</h4>
 
 A label providing the `@bazel/jasmine` npm dependency.
+Intended for internal use only.
 
 Defaults to `None`
 
 <h4 id="jasmine_node_test-jasmine_entry_point">jasmine_entry_point</h4>
 
 A label providing the `@bazel/jasmine` entry point.
+This is a custom wrapper which adds features like sharding and ibazel support.
+Intended for internal use only.
 
 Defaults to `None`
 

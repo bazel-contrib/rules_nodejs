@@ -19,7 +19,7 @@ than launching a test in Karma, for example.
 """
 
 load("@rules_nodejs//nodejs:providers.bzl", "JSModuleInfo")
-load("//packages/jasmine/private:jasmine_runner_test.bzl", "jasmine_runner_test")
+load("//packages/jasmine/private:index.bzl", "bazel_jasmine_runner_test")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", nodejs_test = "nodejs_test_macro")
 
 def _js_sources_impl(ctx):
@@ -67,7 +67,7 @@ def jasmine_node_test(
         tags = [],
         config_file = None,
         use_direct_specs = None,
-        # Kept for backward compatibility
+        # TODO(6.0): remove these two attributes, users should never interact with them
         jasmine = None,
         jasmine_entry_point = None,
         **kwargs):
@@ -103,7 +103,12 @@ def jasmine_node_test(
         More info: https://github.com/bazelbuild/rules_nodejs/pull/2576
 
       jasmine: A label providing the `@bazel/jasmine` npm dependency.
+        Intended for internal use only.
+
       jasmine_entry_point: A label providing the `@bazel/jasmine` entry point.
+        This is a custom wrapper which adds features like sharding and ibazel support.
+        Intended for internal use only.
+
       **kwargs: Remaining arguments are passed to the test rule
     """
     if kwargs.pop("coverage", False):
@@ -161,4 +166,4 @@ def jasmine_node_test(
             **kwargs
         )
     else:
-        jasmine_runner_test(**kwargs)
+        bazel_jasmine_runner_test(**kwargs)
