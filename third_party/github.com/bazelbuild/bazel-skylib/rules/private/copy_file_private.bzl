@@ -49,13 +49,14 @@ def copy_cmd(ctx, src, dst):
 
     # Flags are documented at
     # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/copy
-    # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/xcopy
+    # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
+    # NB: robocopy return non-zero exit codes on success so we must exit 0 after calling it
     if dst.is_directory:
-        cmd_tmpl = "@xcopy \"%s\" \"%s\\\" /V /E /H /Y /Q >NUL"
+        cmd_tmpl = "@robocopy \"{src}\" \"{dst}\" /E >NUL & @exit 0"
         mnemonic = "CopyDirectory"
         progress_message = "Copying directory %s" % src.path
     else:
-        cmd_tmpl = "@copy /Y \"%s\" \"%s\" >NUL"
+        cmd_tmpl = "@copy /Y \"{src}\" \"{dst}\" >NUL"
         mnemonic = "CopyFile"
         progress_message = "Copying file %s" % src.path
 
@@ -63,9 +64,9 @@ def copy_cmd(ctx, src, dst):
         output = bat,
         # Do not use lib/shell.bzl's shell.quote() method, because that uses
         # Bash quoting syntax, which is different from cmd.exe's syntax.
-        content = cmd_tmpl % (
-            src.path.replace("/", "\\"),
-            dst.path.replace("/", "\\"),
+        content = cmd_tmpl.format(
+            src = src.path.replace("/", "\\"),
+            dst = dst.path.replace("/", "\\"),
         ),
         is_executable = True,
     )
