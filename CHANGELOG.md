@@ -1,3 +1,15 @@
+## [5.0.2](https://github.com/bazelbuild/rules_nodejs/compare/5.0.1...5.0.2) (2022-01-27)
+
+
+### Bug Fixes
+
+* **jasmine:** can not reference runner when exports_directories_only=… ([#3293](https://github.com/bazelbuild/rules_nodejs/issues/3293)) ([0be0eeb](https://github.com/bazelbuild/rules_nodejs/commit/0be0eeb))
+* use robocopy in copy_file#is_directory so we don't hit 254 file path limit of xcopy ([#3295](https://github.com/bazelbuild/rules_nodejs/issues/3295)) ([ed0249b](https://github.com/bazelbuild/rules_nodejs/commit/ed0249b))
+* **builtin:** pass kwargs from node_repositories helper ([#3287](https://github.com/bazelbuild/rules_nodejs/issues/3287)) ([b446fa1](https://github.com/bazelbuild/rules_nodejs/commit/b446fa1))
+* **jasmine:** replace deprecated Jasmine APIs that have been removed in version 4 ([#3283](https://github.com/bazelbuild/rules_nodejs/issues/3283)) ([bde750b](https://github.com/bazelbuild/rules_nodejs/commit/bde750b)), closes [#3289](https://github.com/bazelbuild/rules_nodejs/issues/3289)
+
+
+
 ## [5.0.1](https://github.com/bazelbuild/rules_nodejs/compare/5.0.0...5.0.1) (2022-01-24)
 
 

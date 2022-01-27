@@ -157,8 +157,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 def fetch_dependencies():
     http_archive(
         name = "build_bazel_rules_nodejs",
-        sha256 = "f690430f4d4cc403b5c90d0f0b21842183b56b732fff96cfe6555fe73189906a",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.0.1/rules_nodejs-5.0.1.tar.gz"],
+        sha256 = "a09edc4ba3931a856a5ac6836f248c302d55055d35d36e390a0549799c33145b",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.0.2/rules_nodejs-5.0.2.tar.gz"],
     )`
   let workspaceContent = `# Bazel workspace created by @bazel/create 0.0.0-PLACEHOLDER
 
