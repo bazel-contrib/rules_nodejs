@@ -52,7 +52,7 @@ if (TOTAL_SHARDS) {
 // the maximum (See: https://nodejs.org/api/errors.html#errors_error_stacktracelimit)
 Error.stackTraceLimit = Infinity;
 
-const IS_TEST_FILE = /[^a-zA-Z0-9](spec|test)\.js$/i;
+const IS_TEST_FILE = /[^a-zA-Z0-9](spec|test)\.(mjs|cjs|js)$/i;
 const IS_NODE_MODULE = /\/node_modules\//
 
 // We process arguments by splicing them out of the process.argv
