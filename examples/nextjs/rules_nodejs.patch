@@ -1,0 +1,14 @@
+index 49d0cd80e..6ce21b7ef 100644
+--- internal/node/npm_package_bin.bzl
++++ internal/node/npm_package_bin.bzl
+@@ -43,8 +43,8 @@ def _inputs(ctx):
+             inputs_depsets.append(d[ExternalNpmPackageInfo].sources)
+         if JSModuleInfo in d:
+             inputs_depsets.append(d[JSModuleInfo].sources)
+-        if DeclarationInfo in d:
+-            inputs_depsets.append(d[DeclarationInfo].declarations)
++        #if DeclarationInfo in d:
++        #    inputs_depsets.append(d[DeclarationInfo].declarations)
+     return depset(ctx.files.data, transitive = inputs_depsets).to_list()
+ 
+ def _impl(ctx):

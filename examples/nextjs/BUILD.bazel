@@ -1,0 +1,90 @@
+load("@npm//next:index.bzl", "next")
+load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
+
+copy_to_bin(
+    name = "data",
+    srcs = [
+        "next.config.js",
+        "next-env.d.ts",
+        "package.json",
+        "postcss.config.js",
+        "tailwind.config.js",
+        # "tsconfig.json",
+    ] + glob(["_posts/*.md"]),
+)
+
+exports_files(
+    [
+        "tsconfig.json",
+        "Global.d.ts",
+        ".swcrc",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+DATA = [
+    ":data",
+    "//pages:_app",
+    "//pages:_document",
+    "//pages:index",
+    "//styles:global_css",
+    "//styles:index_css",
+    "//styles:utils.module_css",
+    "@npm//tailwindcss",
+    "@npm//typescript",
+    # Image assets
+    "//public/images:profile_jpg",
+    "//public/favicon:safari-pinned-tab_svg",
+    "//public/favicon:mstile-150x150_png",
+    "//public/favicon:favicon-32x32_png",
+    "//public/favicon:favicon-16x16_png",
+    "//public/favicon:apple-touch-icon_png",
+    "//public/favicon:android-chrome-512x512_png",
+    "//public/favicon:android-chrome-192x192_png",
+    "//public/assets/blog/preview:cover_jpg",
+    "//public/assets/blog/hello-world:cover_jpg",
+    "//public/assets/blog/dynamic-routing:cover_jpg",
+    "//public:zeit_svg",
+]
+
+next(
+    name = ".next",
+    args = [
+        "--bazel_run_from_execroot",
+        "build",
+    ],
+    chdir = "$(RULEDIR)",
+    data = DATA,
+    output_dir = True,
+)
+
+next(
+    name = "start",
+    args = [
+        "start -p 8090",
+        "--node_options=--preserve-symlinks-main",
+    ],
+    data = [
+        ":.next",
+    ] + DATA,
+    tags = [
+        "manual",
+        # Tell ibazel not to restart the devserver when its deps change.
+        "ibazel_notify_changes",
+        # Tell ibazel to serve the live reload script, since we expect a browser will connect to
+        # this program.
+        "ibazel_live_reload",
+    ],
+    templated_args = ["--bazel_patch_module_resolver"],
+)
+
+nodejs_image(
+    name = "client_image",
+    args = ["start"],
+    data = [
+        ":.next",
+    ] + DATA,
+    entry_point = {"@npm//:node_modules/next": "dist/bin/next"},
+    templated_args = ["--bazel_patch_module_resolver"],
+)
