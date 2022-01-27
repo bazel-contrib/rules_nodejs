@@ -553,3 +553,9 @@ filegroup(
         package_json = "//packages/rollup/test/multi_linker:package.json",
         yarn_lock = "//packages/rollup/test/multi_linker:yarn.lock",
     )
+
+    yarn_install(
+        name = "ts_project_esm_support_deps",
+        package_json = "//packages/typescript/test/ts_project/esm:package.json",
+        yarn_lock = "//packages/typescript/test/ts_project/esm:yarn.lock",
+    )

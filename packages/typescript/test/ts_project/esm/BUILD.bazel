@@ -1,0 +1,52 @@
+load("//packages/typescript:index.bzl", "ts_project")
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+
+# https://www.typescriptlang.org/docs/handbook/esm-node.html
+ts_project(
+    name = "source",
+    srcs = [
+        "source.mts",
+        "source2.mts",
+    ],
+    composite = True,
+    extends = "//packages/typescript/test/ts_project:tsconfig-base.json",
+    tsc = "@ts_project_esm_support_deps//typescript/bin:tsc",
+    tsconfig = ":tsconfig.json",
+)
+
+generated_file_test(
+    name = "generated_file",
+    src = "source.golden.mjs",
+    # Refers to the output from ts_project above
+    generated = "source.mjs",
+)
+
+generated_file_test(
+    name = "generated_file2",
+    src = "source2.golden.mjs",
+    # Refers to the output from ts_project above
+    generated = "source2.mjs",
+)
+
+ts_project(
+    name = "source_spec",
+    testonly = True,
+    srcs = [
+        "source.spec.mts",
+    ],
+    composite = True,
+    extends = "//packages/typescript/test/ts_project:tsconfig-base.json",
+    tsc = "@ts_project_esm_support_deps//typescript/bin:tsc",
+    tsconfig = ":tsconfig.spec.json",
+    deps = [
+        ":source",
+        "@npm//@types/jasmine",
+        "@ts_project_esm_support_deps//@angular/core",
+    ],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = [":source_spec"],
+)

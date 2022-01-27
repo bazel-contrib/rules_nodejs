@@ -147,7 +147,7 @@ def _relative_to_package(path, ctx):
     return path
 
 def _is_ts_src(src, allow_js):
-    if not src.endswith(".d.ts") and (src.endswith(".ts") or src.endswith(".tsx")):
+    if not (src.endswith(".d.ts") or src.endswith(".d.mts")) and (src.endswith(".ts") or src.endswith(".tsx") or src.endswith(".mts")):
         return True
     return allow_js and (src.endswith(".js") or src.endswith(".jsx"))
 
@@ -183,9 +183,10 @@ def _calculate_js_outs(srcs, out_dir, root_dir, allow_js, preserve_jsx, emit_dec
 
     exts = {
         "*": ".js",
+        ".mts": ".mjs",
         ".jsx": ".jsx",
         ".tsx": ".jsx",
-    } if preserve_jsx else {"*": ".js"}
+    } if preserve_jsx else {"*": ".js", ".mts": ".mjs"}
     return _out_paths(srcs, out_dir, root_dir, allow_js, exts)
 
 def _calculate_map_outs(srcs, out_dir, root_dir, source_map, preserve_jsx, emit_declaration_only):
@@ -194,20 +195,21 @@ def _calculate_map_outs(srcs, out_dir, root_dir, source_map, preserve_jsx, emit_
 
     exts = {
         "*": ".js.map",
+        ".mts": ".mjs.map",
         ".tsx": ".jsx.map",
-    } if preserve_jsx else {"*": ".js.map"}
+    } if preserve_jsx else {"*": ".js.map", ".mts": ".mjs.map"}
     return _out_paths(srcs, out_dir, root_dir, False, exts)
 
 def _calculate_typings_outs(srcs, typings_out_dir, root_dir, declaration, composite, allow_js, include_srcs = True):
     if not (declaration or composite):
         return []
-    return _out_paths(srcs, typings_out_dir, root_dir, allow_js, {"*": ".d.ts"})
+    return _out_paths(srcs, typings_out_dir, root_dir, allow_js, {"*": ".d.ts", ".mts": ".d.mts"})
 
 def _calculate_typing_maps_outs(srcs, typings_out_dir, root_dir, declaration_map, allow_js):
     if not declaration_map:
         return []
 
-    exts = {"*": ".d.ts.map"}
+    exts = {"*": ".d.ts.map", ".mts": ".d.mts.map"}
     return _out_paths(srcs, typings_out_dir, root_dir, allow_js, exts)
 
 def _calculate_root_dir(ctx):
