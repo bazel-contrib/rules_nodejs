@@ -19,7 +19,7 @@
   "//comment": "TODO: Change runfiles dependency to an actual version once released.",
   "devDependencies": {
     "@bazel/ibazel": "^0.15.10",
-    "@bazel/runfiles": "^5.0.1",
+    "@bazel/runfiles": "^5.0.2",
     "patch-package": "^6.2.2"
   },
   "scripts": {
