@@ -15,6 +15,9 @@
         "jasmine",
         "bazel"
     ],
+    "bin": {
+        "bazel-jasmine-runner": "jasmine_runner.js"
+    },
     "main": "index.js",
     "dependencies": {
         "jasmine-reporters": "~2.5.0",
