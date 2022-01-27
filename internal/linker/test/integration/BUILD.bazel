@@ -40,8 +40,8 @@ sh_binary(
         # "runfiles" module mappings from `:some_program` in `:run_program` under the
         ":some_program",
         "//internal/linker:index.js",
-        "//internal/runfiles:index.js",
-        "//internal/runfiles:runfile_helper_main.js",
+        "//internal/runfiles:index.cjs",
+        "//internal/runfiles:runfile_helper_main.cjs",
         "//internal/linker/test/integration/static_linked_pkg",
         "//internal/linker/test/integration/static_linked_scoped_pkg",
         "//internal/linker/test/integration/absolute_import:index.js",

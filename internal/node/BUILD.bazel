@@ -18,9 +18,9 @@ load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
-    "node_patches.js",
-    "require_patch.js",
-    "loader.js",
+    "node_patches.cjs",
+    "require_patch.cjs",
+    "loader.cjs",
 ])
 
 bzl_library(
@@ -40,7 +40,7 @@ exports_files([
     "node.bzl",  # Exported to be consumed for generating stardoc.
     "node_repositories.bzl",  # Exported to be consumed for generating stardoc.
     "launcher.sh",
-    "loader.js",
+    "loader.cjs",
 ])
 
 filegroup(
@@ -60,7 +60,7 @@ filegroup(
 #   bazel run //internal/node:checked_in_node_patches.update
 generated_file_test(
     name = "checked_in_node_patches",
-    src = "node_patches.js",
+    src = "node_patches.cjs",
     generated = "//packages/node-patches:bundle",
     # For some reason rollup produces different, non-matching output with --config=no-runfiles
     tags = ["fix-windows"],

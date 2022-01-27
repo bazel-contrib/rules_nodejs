@@ -19,7 +19,7 @@ rollup_bundle(
 
 js_library(
     name = "runfiles_js",
-    srcs = ["index.js"],
+    srcs = ["index.cjs"],
     visibility = ["//internal/linker:__pkg__"],
 )
 
@@ -27,7 +27,7 @@ js_library(
 # unfile helpers change.
 generated_file_test(
     name = "runfiles_checked_in",
-    src = "index.js",
+    src = "index.cjs",
     generated = "index_bundled.js",
 )
 
@@ -37,13 +37,13 @@ filegroup(
     name = "package_contents",
     srcs = [
         "BUILD.bazel",
-        "index.js",
-        "runfile_helper_main.js",
+        "index.cjs",
+        "runfile_helper_main.cjs",
     ],
     visibility = ["//:__pkg__"],
 )
 
 exports_files([
-    "index.js",
-    "runfile_helper_main.js",
+    "index.cjs",
+    "runfile_helper_main.cjs",
 ])
