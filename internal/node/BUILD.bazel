@@ -47,7 +47,7 @@ filegroup(
     name = "package_contents",
     srcs = glob([
         "*.bzl",
-        "*.js",
+        "*.cjs",
         "*.sh",
     ]) + [
         "BUILD.bazel",

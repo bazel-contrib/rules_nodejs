@@ -199,11 +199,11 @@ for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
     --bazel_capture_exit_code=*) EXIT_CODE_CAPTURE="${PWD}/${ARG#--bazel_capture_exit_code=}" ;;
     # Outputs nothing on success
     --bazel_silent_on_success=*) SILENT_ON_SUCCESS=true ;;
-    # Disable the node_loader.js monkey patches for require()
+    # Disable the node_loader.cjs monkey patches for require()
     # Note that this means you need an explicit runfiles helper library
     # This flag is now a no-op since the default is also false
     --nobazel_patch_module_resolver) PATCH_REQUIRE=false ;;
-    # Enable the node_loader.js monkey patches for require()
+    # Enable the node_loader.cjs monkey patches for require()
     --bazel_patch_module_resolver) PATCH_REQUIRE=true ;;
     # Disable the --require node-patches (undocumented and unused; only here as an escape value)
     --nobazel_node_patches) NODE_PATCHES=false ;;
@@ -331,7 +331,7 @@ if [ "$PATCH_REQUIRE" = true ]; then
     *           ) require_patch_script="${PWD}/${require_patch_script}" ;;
   esac
   LAUNCHER_NODE_OPTIONS+=( "--require" "$require_patch_script" )
-  # Change the entry point to be the loader.js script so we run code before node
+  # Change the entry point to be the loader.cjs script so we run code before node
   MAIN=$(rlocation "TEMPLATED_loader_script")
 else
   # Entry point is the user-supplied script

@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # This shell script is a minimal fixture for the launcher.sh script
-# with a critical difference: instead of calling the loader.js script
+# with a critical difference: instead of calling the loader.cjs script
 # with the users program passed as an argument (allowing us to patch the node
 # loader), this one just runs vanilla node with the users program as the argument
 # which lets us assert that the linker is the reason the program works.
@@ -36,7 +36,7 @@ export VERBOSE_LOGS=1
 # export NODE_DEBUG=module
 
 # Export the location of the runfiles helpers script
-export BAZEL_NODE_RUNFILES_HELPER=$(rlocation "build_bazel_rules_nodejs/internal/runfiles/runfile_helper_main.js")
+export BAZEL_NODE_RUNFILES_HELPER=$(rlocation "build_bazel_rules_nodejs/internal/runfiles/runfile_helper_main.cjs")
 if [[ "${BAZEL_NODE_RUNFILES_HELPER}" != /* ]] && [[ ! "${BAZEL_NODE_RUNFILES_HELPER}" =~ ^[A-Z]:[\\/] ]]; then
   export BAZEL_NODE_RUNFILES_HELPER=$(pwd)/${BAZEL_NODE_RUNFILES_HELPER}
 fi

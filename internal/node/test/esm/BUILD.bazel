@@ -9,7 +9,6 @@ nodejs_binary(
     entry_point = ":has-deps.mjs",
 )
 
-
 nodejs_binary(
     name = "no_deps",
     data = ["no-deps.mjs"],

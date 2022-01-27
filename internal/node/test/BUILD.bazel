@@ -199,7 +199,7 @@ copy_file(
 )
 
 # This rule creates a file that alphabetically comes before any source file in this
-# package. This genfile can be then set up as runfile to verify that the "loader.js"
+# package. This genfile can be then set up as runfile to verify that the "loader.cjs"
 # properly determines the local workspace path without incorrectly using the genfile as base
 # for the local workspace path. See: https://github.com/bazelbuild/rules_nodejs/issues/352
 write_file(
