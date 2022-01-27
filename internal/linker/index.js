@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.main = exports.reduceModules = void 0;
 const fs = require("fs");
 const path = require("path");
-const { runfiles: _defaultRunfiles, _BAZEL_OUT_REGEX } = require('../runfiles/index.js');
+const { runfiles: _defaultRunfiles, _BAZEL_OUT_REGEX } = require('../runfiles/index.cjs');
 const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
 function log_verbose(...m) {
     if (VERBOSE_LOGS)

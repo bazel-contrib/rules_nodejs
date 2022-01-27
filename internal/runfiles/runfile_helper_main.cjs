@@ -6,4 +6,4 @@
  *   require(process.env['BAZEL_NODE_RUNFILES_HELPER'])
  * ```
  */
-module.exports = require('./index.js').runfiles;
+module.exports = require('./index.cjs').runfiles;

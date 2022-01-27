@@ -1,0 +1,17 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "has_deps",
+    data = [
+        "has-deps.mjs",
+        "@fine_grained_deps_yarn//typescript",
+    ],
+    entry_point = ":has-deps.mjs",
+)
+
+
+nodejs_binary(
+    name = "no_deps",
+    data = ["no-deps.mjs"],
+    entry_point = ":no-deps.mjs",
+)

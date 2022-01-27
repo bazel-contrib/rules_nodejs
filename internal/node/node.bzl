@@ -593,25 +593,25 @@ Predefined genrule variables are not supported in this context.
         allow_single_file = True,
     ),
     "_loader_template": attr.label(
-        default = Label("//internal/node:loader.js"),
+        default = Label("//internal/node:loader.cjs"),
         allow_single_file = True,
     ),
     "toolchain": attr.label(),
     "_node_args": attr.label(default = "@rules_nodejs//nodejs:default_args"),
     "_node_patches_script": attr.label(
-        default = Label("//internal/node:node_patches.js"),
+        default = Label("//internal/node:node_patches.cjs"),
         allow_single_file = True,
     ),
     "_require_patch_template": attr.label(
-        default = Label("//internal/node:require_patch.js"),
+        default = Label("//internal/node:require_patch.cjs"),
         allow_single_file = True,
     ),
     "_runfile_helpers_bundle": attr.label(
-        default = Label("//internal/runfiles:index.js"),
+        default = Label("//internal/runfiles:index.cjs"),
         allow_single_file = True,
     ),
     "_runfile_helpers_main": attr.label(
-        default = Label("//internal/runfiles:runfile_helper_main.js"),
+        default = Label("//internal/runfiles:runfile_helper_main.cjs"),
         allow_single_file = True,
     ),
     "_source_map_support_files": attr.label_list(
