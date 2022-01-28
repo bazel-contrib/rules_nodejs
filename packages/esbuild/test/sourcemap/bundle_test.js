@@ -9,6 +9,10 @@ const bundleDefaultLocation = helper.resolve(path.join(locationBase, 'bundle_def
 const bundleDefaultSourcemapLocation =
     helper.resolve(path.join(locationBase, 'bundle_default.js.map'));
 
+// Location for :bundle_sources_content
+const bundleSourcesContentLocation =
+    helper.resolve(path.join(locationBase, 'bundle_sources_content.js.map'));
+
 // Location for :bundle_inline
 const bundleInlineLocation = helper.resolve(path.join(locationBase, 'bundle_inline.js'));
 
@@ -33,6 +37,13 @@ describe('esbuild sourcemap', () => {
     expect(bundle).toContain('//# sourceMappingURL=bundle_default.js.map');
   });
 
+  it('inlines source in sourcemap when sources_content = True', () => {
+    const sourcemap = readFileSync(bundleSourcesContentLocation, {encoding: 'utf8'});
+    expect(sourcemap).toContain(
+        '"sources": ["../../../../../../../packages/esbuild/test/sourcemap/main.ts"]');
+    expect(sourcemap).toContain("foo: Foo");
+  });
+
   it('inlines the sourcemap when set to \'inline\'', () => {
     const bundle = readFileSync(bundleInlineLocation, {encoding: 'utf8'});
     expect(bundle).toContain('//# sourceMappingURL=data:application/json;base64');
@@ -50,12 +61,12 @@ describe('esbuild sourcemap', () => {
   });
 
   it('inlines the sourcemap when set to \'both\'', () => {
-    const bundle = readFileSync(bundleInlineLocation, {encoding: 'utf8'});
+    const bundle = readFileSync(bundleBothLocation, {encoding: 'utf8'});
     expect(bundle).toContain('//# sourceMappingURL=data:application/json;base64');
   });
 
   it('creates an external sourcemap when set to \'both\'', () => {
-    const sourcemap = readFileSync(bundleDefaultSourcemapLocation, {encoding: 'utf8'});
+    const sourcemap = readFileSync(bundleBothSourcemapLocation, {encoding: 'utf8'});
     expect(sourcemap).toContain(
         '"sources": ["../../../../../../../packages/esbuild/test/sourcemap/main.ts"]');
   });
