@@ -13,7 +13,7 @@ _DEFAULT_TSC = (
     "//typescript/bin:tsc"
 )
 
-_ATTRS = {
+_ATTRS = dict(_validate_lib.attrs, **{
     "args": attr.string_list(),
     "data": attr.label_list(default = [], allow_files = True),
     "declaration_dir": attr.string(),
@@ -25,7 +25,6 @@ _ATTRS = {
         ],
         aspects = [module_mappings_aspect],
     ),
-    "extends": attr.label(allow_files = [".json"]),
     "link_workspace_root": attr.bool(),
     "out_dir": attr.string(),
     "root_dir": attr.string(),
@@ -36,9 +35,9 @@ _ATTRS = {
     "srcs": attr.label_list(allow_files = True, mandatory = True),
     "supports_workers": attr.bool(default = False),
     "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "exec"),
-    "transpile": attr.bool(doc = "whether tsc should be used to produce .js outputs"),
+    "transpile": attr.bool(doc = "whether tsc should be used to produce .js outputs", default = True),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
-}
+})
 
 # tsc knows how to produce the following kinds of output files.
 # NB: the macro `ts_project_macro` will set these outputs based on user
@@ -56,6 +55,19 @@ def _join(*elements):
     if len(segments):
         return "/".join(segments)
     return "."
+
+def _relative_to_package(path, ctx):
+    for prefix in (ctx.bin_dir.path, ctx.label.package):
+        prefix += "/"
+        if path.startswith(prefix):
+            path = path[len(prefix):]
+    return path
+
+def _declare_outputs(ctx, paths):
+    return [
+        ctx.actions.declare_file(path)
+        for path in paths
+    ]
 
 def _calculate_root_dir(ctx):
     some_generated_path = None
@@ -91,6 +103,19 @@ def _calculate_root_dir(ctx):
     )
 
 def _ts_project_impl(ctx):
+    srcs = [_relative_to_package(src.path, ctx) for src in ctx.files.srcs]
+
+    # Recalculate outputs inside the rule implementation.
+    # The outs are first calculated in the macro in order to try to predetermine outputs so they can be declared as
+    # outputs on the rule. This provides the benefit of being able to reference an output file with a label.
+    # However, it is not possible to evaluate files in outputs of other rules such as filegroup, therefore the outs are
+    # recalculated here.
+    typings_out_dir = ctx.attr.declaration_dir or ctx.attr.out_dir
+    js_outs = _declare_outputs(ctx, [] if not ctx.attr.transpile else _calculate_js_outs(srcs, ctx.attr.out_dir, ctx.attr.root_dir, ctx.attr.allow_js, ctx.attr.preserve_jsx, ctx.attr.emit_declaration_only))
+    map_outs = _declare_outputs(ctx, [] if not ctx.attr.transpile else _calculate_map_outs(srcs, ctx.attr.out_dir, ctx.attr.root_dir, ctx.attr.source_map, ctx.attr.preserve_jsx, ctx.attr.emit_declaration_only))
+    typings_outs = _declare_outputs(ctx, _calculate_typings_outs(srcs, typings_out_dir, ctx.attr.root_dir, ctx.attr.declaration, ctx.attr.composite, ctx.attr.allow_js))
+    typing_maps_outs = _declare_outputs(ctx, _calculate_typing_maps_outs(srcs, typings_out_dir, ctx.attr.root_dir, ctx.attr.declaration_map, ctx.attr.allow_js))
+
     arguments = ctx.actions.args()
     execution_requirements = {}
     progress_prefix = "Compiling TypeScript project"
@@ -114,7 +139,7 @@ def _ts_project_impl(ctx):
         "--rootDir",
         _calculate_root_dir(ctx),
     ])
-    if len(ctx.outputs.typings_outs) > 0:
+    if len(typings_outs) > 0:
         declaration_dir = ctx.attr.declaration_dir if ctx.attr.declaration_dir else ctx.attr.out_dir
         arguments.add_all([
             "--declarationDir",
@@ -162,7 +187,7 @@ def _ts_project_impl(ctx):
     # However tsc will copy .json srcs to the output tree so we want to declare these outputs to include along with .js Default outs
     # NB: We don't have emit_declaration_only setting here, so use presence of any JS outputs as an equivalent.
     # tsc will only produce .json if it also produces .js
-    if len(ctx.outputs.js_outs):
+    if len(js_outs):
         pkg_len = len(ctx.label.package) + 1 if len(ctx.label.package) else 0
         json_outs = [
             ctx.actions.declare_file(_join(ctx.attr.out_dir, src.short_path[pkg_len:]))
@@ -172,15 +197,30 @@ def _ts_project_impl(ctx):
     else:
         json_outs = []
 
-    outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs
+    outputs = json_outs + js_outs + map_outs + typings_outs + typing_maps_outs
     if ctx.outputs.buildinfo_out:
         arguments.add_all([
             "--tsBuildInfoFile",
             ctx.outputs.buildinfo_out.path,
         ])
         outputs.append(ctx.outputs.buildinfo_out)
-    runtime_outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs
-    typings_outputs = ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
+    runtime_outputs = json_outs + js_outs + map_outs
+    typings_outputs = typings_outs + typing_maps_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
+
+    if not js_outs and not typings_outputs and not ctx.attr.deps:
+        label = "//{}:{}".format(ctx.label.package, ctx.label.name)
+        if ctx.attr.transpile:
+            no_outs_msg = """ts_project target %s is configured to produce no outputs.
+
+This might be because
+- you configured it with `noEmit`
+- the `srcs` are empty
+""" % label
+        else:
+            no_outs_msg = "ts_project target %s with custom transpiler needs `declaration = True`." % label
+        fail(no_outs_msg + """
+This is an error because Bazel does not run actions unless their outputs are needed for the requested targets to build.
+""")
 
     if ctx.attr.transpile:
         default_outputs_depset = depset(runtime_outputs) if len(runtime_outputs) else depset(typings_outputs)
@@ -274,12 +314,12 @@ def _replace_ext(f, ext_map):
         return new_ext
     return None
 
-def _out_paths(srcs, outdir, rootdir, allow_js, ext_map):
-    rootdir_replace_pattern = rootdir + "/" if rootdir else ""
+def _out_paths(srcs, out_dir, root_dir, allow_js, ext_map):
+    rootdir_replace_pattern = root_dir + "/" if root_dir else ""
     outs = []
     for f in srcs:
         if _is_ts_src(f, allow_js):
-            out = _join(outdir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + _replace_ext(f, ext_map))
+            out = _join(out_dir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + _replace_ext(f, ext_map))
 
             # Don't declare outputs that collide with inputs
             # for example, a.js -> a.js
@@ -287,8 +327,46 @@ def _out_paths(srcs, outdir, rootdir, allow_js, ext_map):
                 outs.append(out)
     return outs
 
+def _calculate_js_outs(srcs, out_dir, root_dir, allow_js, preserve_jsx, emit_declaration_only):
+    if emit_declaration_only:
+        return []
+
+    exts = {
+        "*": ".js",
+        ".jsx": ".jsx",
+        ".tsx": ".jsx",
+    } if preserve_jsx else {"*": ".js"}
+    return _out_paths(srcs, out_dir, root_dir, allow_js, exts)
+
+def _calculate_map_outs(srcs, out_dir, root_dir, source_map, preserve_jsx, emit_declaration_only):
+    if not source_map or emit_declaration_only:
+        return []
+
+    exts = {
+        "*": ".js.map",
+        ".tsx": ".jsx.map",
+    } if preserve_jsx else {"*": ".js.map"}
+    return _out_paths(srcs, out_dir, root_dir, False, exts)
+
+def _calculate_typings_outs(srcs, typings_out_dir, root_dir, declaration, composite, allow_js, include_srcs = True):
+    if not (declaration or composite):
+        return []
+
+    return _out_paths(srcs, typings_out_dir, root_dir, allow_js, {"*": ".d.ts"})
+
+def _calculate_typing_maps_outs(srcs, typings_out_dir, root_dir, declaration_map, allow_js):
+    if not declaration_map:
+        return []
+
+    exts = {"*": ".d.ts.map"}
+    return _out_paths(srcs, typings_out_dir, root_dir, allow_js, exts)
+
 lib = struct(
     is_ts_src = _is_ts_src,
     is_json_src = _is_json_src,
     out_paths = _out_paths,
+    calculate_js_outs = _calculate_js_outs,
+    calculate_map_outs = _calculate_map_outs,
+    calculate_typings_outs = _calculate_typings_outs,
+    calculate_typing_maps_outs = _calculate_typing_maps_outs,
 )

@@ -402,7 +402,7 @@ def ts_project(
         write_tsconfig(
             name = "_gen_tsconfig_%s" % name,
             config = tsconfig,
-            files = [s for s in srcs if _lib.is_ts_src(s, allow_js) or _lib.is_json_src(s, resolve_json_module)],
+            files = srcs,
             extends = Label("%s//%s:%s" % (native.repository_name(), native.package_name(), name)).relative(extends) if extends else None,
             out = "tsconfig_%s.json" % name,
         )
@@ -467,28 +467,11 @@ def ts_project(
         tsc = ":" + tsc_worker
     typings_out_dir = declaration_dir if declaration_dir else out_dir
     tsbuildinfo_path = ts_build_info_file if ts_build_info_file else name + ".tsbuildinfo"
-    js_outs = []
-    map_outs = []
-    typings_outs = []
-    typing_maps_outs = []
 
-    if not emit_declaration_only:
-        exts = {
-            "*": ".js",
-            ".jsx": ".jsx",
-            ".tsx": ".jsx",
-        } if preserve_jsx else {"*": ".js"}
-        js_outs.extend(_lib.out_paths(srcs, out_dir, root_dir, allow_js, exts))
-    if source_map and not emit_declaration_only:
-        exts = {
-            "*": ".js.map",
-            ".tsx": ".jsx.map",
-        } if preserve_jsx else {"*": ".js.map"}
-        map_outs.extend(_lib.out_paths(srcs, out_dir, root_dir, False, exts))
-    if declaration or composite:
-        typings_outs.extend(_lib.out_paths(srcs, typings_out_dir, root_dir, allow_js, {"*": ".d.ts"}))
-    if declaration_map:
-        typing_maps_outs.extend(_lib.out_paths(srcs, typings_out_dir, root_dir, allow_js, {"*": ".d.ts.map"}))
+    js_outs = _lib.calculate_js_outs(srcs, out_dir, root_dir, allow_js, preserve_jsx, emit_declaration_only)
+    map_outs = _lib.calculate_map_outs(srcs, out_dir, root_dir, source_map, preserve_jsx, emit_declaration_only)
+    typings_outs = _lib.calculate_typings_outs(srcs, typings_out_dir, root_dir, declaration, composite, allow_js)
+    typing_maps_outs = _lib.calculate_typing_maps_outs(srcs, typings_out_dir, root_dir, declaration_map, allow_js)
 
     tsc_js_outs = []
     tsc_map_outs = []
@@ -557,29 +540,21 @@ def ts_project(
             **common_kwargs
         )
 
-    if not len(tsc_js_outs) and not len(typings_outs):
-        label = "//{}:{}".format(native.package_name(), name)
-        if transpiler:
-            no_outs_msg = "ts_project target %s with custom transpiler needs `declaration = True`." % label
-        else:
-            no_outs_msg = """ts_project target %s is configured to produce no outputs.
-
-This might be because 
-- you configured it with `noEmit`
-- the `srcs` are empty
-""" % label
-        fail(no_outs_msg + """
-This is an error because Bazel does not run actions unless their outputs are needed for the requested targets to build.
-""")
-
     _ts_project(
         name = tsc_target_name,
         srcs = srcs,
         args = args,
         deps = tsc_deps,
         tsconfig = tsconfig,
+        allow_js = allow_js,
         extends = extends,
+        incremental = incremental,
+        preserve_jsx = preserve_jsx,
+        composite = composite,
+        declaration = declaration,
         declaration_dir = declaration_dir,
+        source_map = source_map,
+        declaration_map = declaration_map,
         out_dir = out_dir,
         root_dir = root_dir,
         js_outs = tsc_js_outs,
@@ -587,6 +562,7 @@ This is an error because Bazel does not run actions unless their outputs are nee
         typings_outs = typings_outs,
         typing_maps_outs = typing_maps_outs,
         buildinfo_out = tsbuildinfo_path if composite or incremental else None,
+        emit_declaration_only = emit_declaration_only,
         tsc = tsc,
         link_workspace_root = link_workspace_root,
         supports_workers = supports_workers,
