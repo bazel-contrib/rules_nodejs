@@ -1,5 +1,4 @@
-# Use the ts_project rule directly, not the wrapper macro. We don't want checking for empty outs.
-load("//packages/typescript/internal:ts_project.bzl", "ts_project")
+load("//packages/typescript:index.bzl", "ts_project")
 
 ts_project(
     name = "tsconfig-a",
@@ -18,7 +17,6 @@ ts_project(
 ts_project(
     name = "tsconfig-c",
     srcs = ["c.ts"],
-    js_outs = ["c.js"],
     tsconfig = ":tsconfig-c.json",
     deps = ["tsconfig-b"],
 )

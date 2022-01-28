@@ -52,26 +52,31 @@ def _validate_options_impl(ctx):
         ValidOptionsInfo(marker = marker),
     ]
 
+# These attrs are shared between the validate and the ts_project rules
+SHARED_ATTRS = {
+    "allow_js": attr.bool(),
+    "composite": attr.bool(),
+    "declaration": attr.bool(),
+    "declaration_map": attr.bool(),
+    "emit_declaration_only": attr.bool(),
+    "extends": attr.label(allow_files = [".json"]),
+    "incremental": attr.bool(),
+    "preserve_jsx": attr.bool(),
+    "resolve_json_module": attr.bool(),
+    "source_map": attr.bool(),
+}
+
 validate_options = rule(
     implementation = _validate_options_impl,
-    attrs = {
-        "allow_js": attr.bool(),
-        "composite": attr.bool(),
-        "declaration": attr.bool(),
-        "declaration_map": attr.bool(),
-        "emit_declaration_only": attr.bool(),
-        "extends": attr.label(allow_files = [".json"]),
-        "incremental": attr.bool(),
-        "preserve_jsx": attr.bool(),
-        "resolve_json_module": attr.bool(),
-        "source_map": attr.bool(),
+    attrs = dict(SHARED_ATTRS, **{
         "target": attr.string(),
         "ts_build_info_file": attr.string(),
         "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
         "validator": attr.label(default = Label("//packages/typescript/bin:ts_project_options_validator"), executable = True, cfg = "exec"),
-    },
+    }),
 )
 
 lib = struct(
     tsconfig_inputs = _tsconfig_inputs,
+    attrs = SHARED_ATTRS,
 )
