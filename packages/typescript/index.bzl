@@ -19,7 +19,8 @@ Users should not load files under "/internal"
 
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 load("//packages/typescript/internal:ts_config.bzl", "write_tsconfig", _ts_config = "ts_config")
-load("//packages/typescript/internal:ts_project.bzl", _lib = "lib", _ts_project = "ts_project")
+load("//packages/typescript/internal:ts_project.bzl", _ts_project = "ts_project")
+load("//packages/typescript/internal:tslib.bzl", _lib = "lib")
 load("//packages/typescript/internal:validate_options.bzl", "validate_options")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("@bazel_skylib//lib:partial.bzl", "partial")
@@ -405,6 +406,8 @@ def ts_project(
             files = srcs,
             extends = Label("%s//%s:%s" % (native.repository_name(), native.package_name(), name)).relative(extends) if extends else None,
             out = "tsconfig_%s.json" % name,
+            allow_js = allow_js,
+            resolve_json_module = resolve_json_module,
         )
 
         # From here, tsconfig becomes a file, the same as if the
