@@ -14,6 +14,8 @@
 
 "tsconfig.json files using extends"
 
+load(":tslib.bzl", _lib = "lib")
+
 TsConfigInfo = provider(
     doc = """Provides TypeScript configuration, in the form of a tsconfig.json file
         along with any transitively referenced tsconfig.json files chained by the
@@ -77,6 +79,13 @@ def _relative_path(tsconfig, dest):
         result = "./" + result
     return result
 
+def _filter_input_files(files, allow_js, resolve_json_module):
+    return [
+        f
+        for f in files
+        if _lib.is_ts_src(f.basename, allow_js) or _lib.is_json_src(f.basename, resolve_json_module)
+    ]
+
 def _write_tsconfig_rule(ctx):
     # TODO: is it useful to expand Make variables in the content?
     content = "\n".join(ctx.attr.content)
@@ -85,10 +94,12 @@ def _write_tsconfig_rule(ctx):
             "__extends__",
             _relative_path(ctx.outputs.out, ctx.file.extends),
         )
-    if ctx.attr.files:
+
+    filtered_files = _filter_input_files(ctx.files.files, ctx.attr.allow_js, ctx.attr.resolve_json_module)
+    if filtered_files:
         content = content.replace(
             "\"__files__\"",
-            str([_relative_path(ctx.outputs.out, f) for f in ctx.files.files]),
+            str([_relative_path(ctx.outputs.out, f) for f in filtered_files]),
         )
     ctx.actions.write(
         output = ctx.outputs.out,
@@ -103,11 +114,13 @@ write_tsconfig_rule = rule(
         "extends": attr.label(allow_single_file = True),
         "files": attr.label_list(allow_files = True),
         "out": attr.output(),
+        "allow_js": attr.bool(),
+        "resolve_json_module": attr.bool(),
     },
 )
 
 # Syntax sugar around skylib's write_file
-def write_tsconfig(name, config, files, out, extends = None):
+def write_tsconfig(name, config, files, out, extends = None, allow_js = None, resolve_json_module = None):
     """Wrapper around bazel_skylib's write_file which understands tsconfig paths
 
     Args:
@@ -133,4 +146,6 @@ def write_tsconfig(name, config, files, out, extends = None):
         extends = extends,
         content = [json.encode(amended_config)],
         out = out,
+        allow_js = allow_js,
+        resolve_json_module = resolve_json_module,
     )
