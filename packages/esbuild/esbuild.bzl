@@ -37,10 +37,13 @@ def _esbuild_impl(ctx):
 
         # Collect the path alias mapping to resolve packages correctly
         if LinkerPackageMappingInfo in dep:
-            for key, value in dep[LinkerPackageMappingInfo].mappings.items():
-                # key is of format "package_name:package_path"
-                package_name = key.split(":")[0]
-                path_alias_mappings.update(generate_path_mapping(package_name, value.replace(ctx.bin_dir.path + "/", "")))
+            for mapping in dep[LinkerPackageMappingInfo].mappings.to_list():
+                path_alias_mappings.update(
+                    generate_path_mapping(
+                        mapping.package_name,
+                        mapping.link_path.replace(ctx.bin_dir.path + "/", ""),
+                    ),
+                )
 
     entry_points = desugar_entry_point_names(ctx.file.entry_point, ctx.files.entry_points)
 
