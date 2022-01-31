@@ -66,12 +66,10 @@ def _compute_node_modules_roots(ctx):
     # Add in roots for multi-linked npm deps
     for dep in deps:
         if LinkerPackageMappingInfo in dep:
-            for k, v in dep[LinkerPackageMappingInfo].mappings.items():
-                map_key_split = k.split(":")
-                package_name = map_key_split[0]
-                package_path = map_key_split[1] if len(map_key_split) > 1 else ""
-                if package_path not in node_modules_roots:
-                    node_modules_roots[package_path] = ""
+            linker_node_modules_roots = dep[LinkerPackageMappingInfo].node_modules_roots.to_list()
+            for node_modules_root in linker_node_modules_roots:
+                if node_modules_root not in node_modules_roots:
+                    node_modules_roots[node_modules_root] = ""
 
     return node_modules_roots
 
