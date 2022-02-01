@@ -77,7 +77,7 @@ YARN_VERSIONS = {
     "1.11.0": ("yarn-v1.11.0.tar.gz", "yarn-v1.11.0", "97f1f1456686764a581fdebc061a79a64429ce7518a9ff8722facd4e86874e34"),
     "1.11.1": ("yarn-v1.11.1.tar.gz", "yarn-v1.11.1", "03acd60fd8e2c111989e017244596bf9b4d8c20e6d4404155fe142007023cabb"),
     "1.12.0": ("yarn-v1.12.0.tar.gz", "yarn-v1.12.0", "90c40e80743eebbce63d83c539f3ca97e24b30eb2d98b9858e37e13fbe8fafdc"),
-    "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"),
+    "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "95d25a35411a1ff8329f0ce1e29526aa9bf9e93376184e231a8c0f4ba5d200ef"),
     "1.12.3": ("yarn-v1.12.3.tar.gz", "yarn-v1.12.3", "02cd4b589ec22c4bdbd2bc5ebbfd99c5e99b07242ad68a539cb37896b93a24f2"),
     "1.13.0": ("yarn-v1.13.0.tar.gz", "yarn-v1.13.0", "125d40ebf621ebb08e3f66a618bd2cc5cd77fa317a312900a1ab4360ed38bf14"),
     "1.14.0": ("yarn-v1.14.0.tar.gz", "yarn-v1.14.0", "2d38fc0700f106762f72f0aeebcec0e227f1e94bd10488d179ca1596053ab700"),
