@@ -6,9 +6,13 @@ def _join(*elements):
         return "/".join(segments)
     return "."
 
+def _strip_external(path):
+    return path[len("external/"):] if path.startswith("external/") else path
+
 def _relative_to_package(path, ctx):
-    for prefix in (ctx.bin_dir.path, ctx.label.package):
+    for prefix in [ctx.bin_dir.path, ctx.label.workspace_name, ctx.label.package]:
         prefix += "/"
+        path = _strip_external(path)
         if path.startswith(prefix):
             path = path[len(prefix):]
     return path
@@ -30,7 +34,6 @@ def _replace_ext(f, ext_map):
     if new_ext != None:
         return new_ext
     return None
-
 
 def _out_paths(srcs, out_dir, root_dir, allow_js, ext_map):
     rootdir_replace_pattern = root_dir + "/" if root_dir else ""
