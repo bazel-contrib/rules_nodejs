@@ -1,3 +1,20 @@
+# [5.1.0](https://github.com/bazelbuild/rules_nodejs/compare/5.0.2...5.1.0) (2022-02-02)
+
+
+### Bug Fixes
+
+* **builtin:** make linker aspect run in constant time per target ([522fd7c](https://github.com/bazelbuild/rules_nodejs/commit/522fd7c))
+* **builtin:** reduce linker debug string allocations ([#3309](https://github.com/bazelbuild/rules_nodejs/issues/3309)) ([fb2eeac](https://github.com/bazelbuild/rules_nodejs/commit/fb2eeac))
+* **typescript:** include workspace name in relativize helper ([f78a2b8](https://github.com/bazelbuild/rules_nodejs/commit/f78a2b8))
+
+
+### Features
+
+* **typescript:** added support for using non-file targets in srcs of ts_project ([96d37b6](https://github.com/bazelbuild/rules_nodejs/commit/96d37b6))
+* **typescript:** moved file functions to tslb.bzl ([20c5c58](https://github.com/bazelbuild/rules_nodejs/commit/20c5c58))
+
+
+
 ## [5.0.2](https://github.com/bazelbuild/rules_nodejs/compare/5.0.1...5.0.2) (2022-01-27)
 
 
