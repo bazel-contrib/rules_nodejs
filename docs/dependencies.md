@@ -249,7 +249,7 @@ This will run node in the current working directory.
 To run the Bazel fetched npm and/or yarn you can use:
 
 ```sh
-$ bazel run @nodejs_host//:yarn -- <arguments passed to yarn>
+$ bazel run @yarn//:yarn -- <arguments passed to yarn>
 $ bazel run @nodejs_host//:npm -- <arguments passed to npm>
 ```
 
@@ -258,7 +258,7 @@ This will run yarn/npm in the current working directory.
 For example, to add a package with the `yarn add` command you would run:
 
 ```sh
-$ bazel run @nodejs_host//:yarn -- add <package>
+$ bazel run @yarn//:yarn -- add <package>
 ```
 
 Note: the arguments passed to `bazel run` after `--` are forwarded to the executable being run.
