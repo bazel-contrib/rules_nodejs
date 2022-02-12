@@ -1,8 +1,28 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 
-# Dummy test targets that import various targets from the
-# corresponding "@node*" repository. If a target of the repository is
+# Dummy test target that imports various targets from the
+# "@nodejs" repository. If a target of the repository is
 # misconfigured, Bazel will complain about missing input files.
+nodejs_test(
+    name = "test_default",
+    data = [
+        "index.spec.js",
+        "@nodejs_host//:node",
+        "@nodejs_host//:node_bin",
+        "@nodejs_host//:node_files",
+        "@nodejs_host//:npm",
+        "@nodejs_host//:npm_bin",
+        "@nodejs_host//:npm_files",
+        "@nodejs_host//:npx_bin",
+        "@npm//:node_modules",
+        "@yarn",
+        "@yarn//:yarn_bin",
+        "@yarn//:yarn_files",
+    ],
+    entry_point = ":index.spec.js",
+)
+
+# Additional targets to test the use of parallel node toolchains
 [
     nodejs_test(
         name = "test_" + id,
@@ -21,16 +41,14 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
             "@yarn_%s//:yarn_files" % id,
         ],
         entry_point = ":index.spec.js",
-        toolchain = toolchain,
+        toolchain = select({
+            "@bazel_tools//src/conditions:linux_x86_64": "@%s_linux_amd64//:node_toolchain" % id,
+            "@bazel_tools//src/conditions:darwin": "@%s_darwin_amd64//:node_toolchain" % id,
+            "@bazel_tools//src/conditions:windows": "@%s_windows_amd64//:node_toolchain" % id,
+        }),
     )
-    for id, toolchain in zip(
-        [
-            "node12",
-            "node16_nvmrc",
-        ],
-        [
-            "@node12_linux_amd64//:node_toolchain",
-            "@node16_nvmrc_linux_amd64//:node_toolchain",
-        ],
-    )
+    for id in [
+        "node14",
+        "node16_nvmrc",
+    ]
 ]

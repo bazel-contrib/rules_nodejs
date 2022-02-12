@@ -12,13 +12,19 @@ load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_d
 
 build_bazel_rules_nodejs_dependencies()
 
-
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 load("@rules_nodejs//nodejs:yarn_repositories.bzl", "yarn_repositories")
 
-nodejs_register_toolchains(
-    name = "node12",
+# Create the default node toolchain using node_repositories
+node_repositories(
     node_version = "12.12.0",
+)
+
+# Create additional parallel toolchains using explicit nodejs_register_toolchains targets
+nodejs_register_toolchains(
+    name = "node14",
+    node_version = "14.19.0",
 )
 
 nodejs_register_toolchains(
@@ -27,8 +33,8 @@ nodejs_register_toolchains(
 )
 
 yarn_repositories(
-    name = "yarn_node12",
-    node_repository = "node12",
+    name = "yarn_node14",
+    node_repository = "node14",
 )
 
 yarn_repositories(
@@ -36,26 +42,33 @@ yarn_repositories(
     node_repository = "node16_nvmrc",
 )
 
-load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
-
 yarn_install(
-    name = "npm_node12",
+    name = "npm",
     package_json = "//:package.json",
-    yarn = "@yarn_node12//:bin/yarn",
-    yarn_lock = "//:yarn.lock",
-    node_repository = "node12",
     package_json_replace = {
         "scripts.postinstall": "node -e \"require('assert').equal(process.version, 'v12.12.0')\"",
     },
+    yarn_lock = "//:yarn.lock",
+)
+
+yarn_install(
+    name = "npm_node14",
+    node_repository = "node14",
+    package_json = "//:package.json",
+    package_json_replace = {
+        "scripts.postinstall": "node -e \"require('assert').equal(process.version, 'v14.19.0')\"",
+    },
+    yarn = "@yarn_node14//:bin/yarn",
+    yarn_lock = "//:yarn.lock",
 )
 
 yarn_install(
     name = "npm_node16_nvmrc",
-    package_json = "//:package.json",
-    yarn = "@yarn_node16_nvmrc//:bin/yarn",
-    yarn_lock = "//:yarn.lock",
     node_repository = "node16_nvmrc",
+    package_json = "//:package.json",
     package_json_replace = {
         "scripts.postinstall": "node -e \"require('assert').equal(process.version, 'v16.13.2')\"",
     },
+    yarn = "@yarn_node16_nvmrc//:bin/yarn",
+    yarn_lock = "//:yarn.lock",
 )
