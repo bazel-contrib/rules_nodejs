@@ -1095,10 +1095,10 @@
   resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-4.2.5.tgz#de51339613e2ca1f39dda6ade8b0062e6575b3e1"
   integrity sha512-lTg3YEuCO1e7dCc/fLUWu5R7KOHmpPDSkoSeT+rPrszFfxqrWGJTSxZbtk/4AJZnuC3p704po8RUJinPtmxTmQ==
 
-"@bazel/esbuild@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@bazel/esbuild/-/esbuild-5.0.2.tgz#842f275406f31afeccc32b6e5ecfcfc45ab5bb08"
-  integrity sha512-cVlC9Ht5OdsJUp/mwYaRDJXF11yYQTyzkh7MSwUlmU+itceHNyDmNDWZezn0RW11PSWnnC+ln7vPGECSX+Yk9Q==
+"@bazel/esbuild@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/esbuild/-/esbuild-5.1.0.tgz#ec3863cfe0ed713dbe55e804a48f9e26ebb29f9c"
+  integrity sha512-7pxqoukSyNMAR5QRikFfe7vzLPIjg9YhWEE/qhUPZOyx8njxkSELp7nhSl6fdrToO0itsXQ7U7F4+wGFK9G/0A==
 
 "@bazel/ibazel@0.3.1":
   version "0.3.1"
@@ -1115,38 +1115,38 @@
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.15.10.tgz#cf0cff1aec6d8e7bb23e1fc618d09fbd39b7a13f"
   integrity sha512-0v+OwCQ6fsGFa50r6MXWbUkSGuWOoZ22K4pMSdtWiL5LKFIE4kfmMmtQS+M7/ICNwk2EIYob+NRreyi/DGUz5A==
 
-"@bazel/protractor@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-5.0.2.tgz#19320a339578243019b08caefe7f27e530df83a3"
-  integrity sha512-ggqnjJ1q9hVh3SlHxjJSrkOulIAWstwyQzGWtwVIM23UTmY0bqX/X2pmOjGXCrQmU+Rr5GB1fIGVnCxc9Pt4Gw==
+"@bazel/protractor@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-5.1.0.tgz#912845225f28cf705802d9b79386329047071e35"
+  integrity sha512-50fjMwQSAfTk9BAhqN1blp0wTGTrUJuAFClCidE74WBp/elShs8Sy7j8BaOFKWMIHl5glmFn5vSyfB6FFgUIQw==
 
-"@bazel/rollup@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-5.0.2.tgz#26f686867bc08503146c7ce95189ee6d1bbe2e23"
-  integrity sha512-fd7AGn+lGA2z7Z4moj+Dtie6H6UwoeD1xhawmZpEuSJoBdp7Ic8Sp7E+6ziP+DAmEfngl+L2Kz6Iwok1g8VtMQ==
+"@bazel/rollup@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-5.1.0.tgz#dc858ddc93c9fdb9cc2e7982e632c939c646ebdc"
+  integrity sha512-wEiWdSyVbsycSirSYjR6FGfPGbRNI7sGNAYmrV0hIzYIi+KqXeTNcwKIRSE9PESP3mb0VWbZmHvXvmrWk6daPQ==
   dependencies:
-    "@bazel/worker" "5.0.2"
+    "@bazel/worker" "5.1.0"
 
-"@bazel/terser@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-5.0.2.tgz#732c4259d8d1c15413d988434591aa8368767114"
-  integrity sha512-fOcLwG065KGufi+c67V7xThAIpbZt93lDYsVyWVdxeYIFZ/1ZO7AIN0tkdcwQXM42rslmmGhK/N3RrfDVuOWoA==
+"@bazel/terser@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-5.1.0.tgz#5c82b93f4d9def8103c16be2dd33900d156fa066"
+  integrity sha512-uE3hTqfkZr4nvlk3jwi0xx6URqqI7r6GGPtDAU02/PVei+O4PfThaov7cwHO+D1FnoLncDqChb9Iolr7Crw/8A==
 
-"@bazel/typescript@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.0.2.tgz#4c20dea5b47672d3a1bf9492a32c7471719f5821"
-  integrity sha512-9tbVfDBJ9VHtE0dJZ0TIz2t/OvsWUtFLkOJXcTJUvCkgpn3kKbqhok4D7/oRi+F1yk24k9/6xdYhf+JTh/tc5w==
+"@bazel/typescript@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.1.0.tgz#348552355cc92a43f22e637fabce76ed64505548"
+  integrity sha512-E7wYv1tBFtcsFp0YN7Cf9Lv184xOzvT5WJKwZxt+43oq8R5tGmTSuqQwm4c9JmEq6s0eZmwUaRv+WXp9hxsE4A==
   dependencies:
-    "@bazel/worker" "5.0.2"
+    "@bazel/worker" "5.1.0"
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.0.2.tgz#ebe5b67f5b6699d6ab42e6b1ecc0b521b023a177"
-  integrity sha512-WlMsnnpbl9OnTbWDw4FlJbZy1LBklbmbon9lmRTSVr8RCA7iiFfh5yOFZq9YEUxHvZYHS6Uyh0dtjjYf8frykA==
+"@bazel/worker@5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.1.0.tgz#6f1e0f3ef628e3449d424cacd341c9abd09a3735"
+  integrity sha512-u3aU93UtHz3vL6ozezq0jnw83s1cNT4dAnW+vvB7M++YKFlB3CWzZFb0JRJbCp1b6DDe30ML0WOdd3nVYuylpw==
   dependencies:
     google-protobuf "^3.6.1"
 

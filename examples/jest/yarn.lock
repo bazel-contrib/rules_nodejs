@@ -1063,21 +1063,21 @@
     "@babel/helper-validator-identifier" "^7.14.0"
     to-fast-properties "^2.0.0"
 
-"@bazel/typescript@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.0.2.tgz#4c20dea5b47672d3a1bf9492a32c7471719f5821"
-  integrity sha512-9tbVfDBJ9VHtE0dJZ0TIz2t/OvsWUtFLkOJXcTJUvCkgpn3kKbqhok4D7/oRi+F1yk24k9/6xdYhf+JTh/tc5w==
+"@bazel/typescript@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.1.0.tgz#348552355cc92a43f22e637fabce76ed64505548"
+  integrity sha512-E7wYv1tBFtcsFp0YN7Cf9Lv184xOzvT5WJKwZxt+43oq8R5tGmTSuqQwm4c9JmEq6s0eZmwUaRv+WXp9hxsE4A==
   dependencies:
-    "@bazel/worker" "5.0.2"
+    "@bazel/worker" "5.1.0"
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.0.2.tgz#ebe5b67f5b6699d6ab42e6b1ecc0b521b023a177"
-  integrity sha512-WlMsnnpbl9OnTbWDw4FlJbZy1LBklbmbon9lmRTSVr8RCA7iiFfh5yOFZq9YEUxHvZYHS6Uyh0dtjjYf8frykA==
+"@bazel/worker@5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.1.0.tgz#6f1e0f3ef628e3449d424cacd341c9abd09a3735"
+  integrity sha512-u3aU93UtHz3vL6ozezq0jnw83s1cNT4dAnW+vvB7M++YKFlB3CWzZFb0JRJbCp1b6DDe30ML0WOdd3nVYuylpw==
   dependencies:
     google-protobuf "^3.6.1"
 
