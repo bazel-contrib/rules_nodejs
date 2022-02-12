@@ -1,23 +1,36 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 
-# Dummy test target that imports various targets from the
-# "@nodejs" repository. If a target of the repository is
+# Dummy test targets that import various targets from the
+# corresponding "@node*" repository. If a target of the repository is
 # misconfigured, Bazel will complain about missing input files.
-nodejs_test(
-    name = "test",
-    data = [
-        "index.spec.js",
-        "@nodejs_host//:node",
-        "@nodejs_host//:node_bin",
-        "@nodejs_host//:node_files",
-        "@nodejs_host//:npm",
-        "@nodejs_host//:npm_bin",
-        "@nodejs_host//:npm_files",
-        "@nodejs_host//:npx_bin",
-        "@npm//:node_modules",
-        "@yarn",
-        "@yarn//:yarn_bin",
-        "@yarn//:yarn_files",
-    ],
-    entry_point = ":index.spec.js",
-)
+[
+    nodejs_test(
+        name = "test_" + id,
+        data = [
+            "index.spec.js",
+            "@%s_host//:node" % id,
+            "@%s_host//:node_bin" % id,
+            "@%s_host//:node_files" % id,
+            "@%s_host//:npm" % id,
+            "@%s_host//:npm_bin" % id,
+            "@%s_host//:npm_files" % id,
+            "@%s_host//:npx_bin" % id,
+            "@npm_%s//:node_modules" % id,
+            "@yarn_%s//:yarn" % id,
+            "@yarn_%s//:yarn_bin" % id,
+            "@yarn_%s//:yarn_files" % id,
+        ],
+        entry_point = ":index.spec.js",
+        toolchain = toolchain,
+    )
+    for id, toolchain in zip(
+        [
+            "node12",
+            "node16_nvmrc",
+        ],
+        [
+            "@node12_linux_amd64//:node_toolchain",
+            "@node16_nvmrc_linux_amd64//:node_toolchain",
+        ],
+    )
+]
