@@ -7,9 +7,6 @@ ts_project(
     srcs = [
         "main.ts",
     ],
-    deps = [
-        "@npm//@types/node",
-    ],
     tsconfig = {
         "compilerOptions": {
             "sourceMap": True,
@@ -17,6 +14,9 @@ ts_project(
             "inlineSources": True,
         },
     },
+    deps = [
+        "@npm//@types/node",
+    ],
 )
 
 esbuild(
