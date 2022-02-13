@@ -44,6 +44,10 @@ repository so all files that the package manager depends on must be listed.
         doc = """Environment variables to set before calling the package manager.""",
         default = {},
     ),
+    "verbose": attr.bool(
+        default = False,
+        doc = """Print commands and their arguments as they are executed; currently ignored in Windows.""",
+    ),
     "exports_directories_only": attr.bool(
         default = True,
         doc = """Export only top-level package directory artifacts from node_modules.
@@ -697,9 +701,10 @@ def _npm_install_impl(repository_ctx):
             "_npm.sh",
             content = """#!/usr/bin/env bash
 # Immediately exit if any command fails.
-set -e
+set -e{verbose}
 (cd "{root}"; "{npm}" {npm_args})
 """.format(
+                verbose = "x" if repository_ctx.attr.verbose else "",
                 root = root,
                 npm = repository_ctx.path(npm),
                 npm_args = " ".join(npm_args),
@@ -903,12 +908,13 @@ def _yarn_install_impl(repository_ctx):
             "_yarn.sh",
             content = """#!/usr/bin/env bash
 # Immediately exit if any command fails.
-set -e
+set -e{verbose}
 unset YARN_IGNORE_PATH
 unset INIT_CWD
 unset npm_config_registry
 (cd "{root}"; {yarn} {yarn_args})
 """.format(
+                verbose = "x" if repository_ctx.attr.verbose else "",
                 root = root,
                 yarn = yarn,
                 yarn_args = " ".join(yarn_args),
