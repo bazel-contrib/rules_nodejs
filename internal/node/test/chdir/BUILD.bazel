@@ -52,3 +52,10 @@ nodejs_test(
     data = ["build/app.js"],
     entry_point = "test.js",
 )
+
+nodejs_test(
+    name = "test_multithread",
+    chdir = package_name(),
+    data = ["worker.js"],
+    entry_point = "multithread.js",
+)
