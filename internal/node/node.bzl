@@ -279,7 +279,15 @@ fi
             fail("""nodejs_binary/nodejs_test only support chdir inside the current package
                     but %s is not a subfolder of %s""" % (ctx.attr.chdir, ctx.label.package))
         chdir_script = ctx.actions.declare_file(_join(relative_dir, "__chdir.js__"))
-        ctx.actions.write(chdir_script, "process.chdir(__dirname)")
+        ctx.actions.write(chdir_script, """
+/* This script is preloaded with --require, meaning it will run for the main node process
+   as well as each worker thread that gets spawned. Calling process.chdir() in a worker
+   is an error in node, so ensure it's only called once for the main process.
+*/
+if (process.cwd() !== __dirname) {
+    process.chdir(__dirname);
+}
+""")
         runfiles.append(chdir_script)
 
         # this join is effectively a $(rootdir) expansion
