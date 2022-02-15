@@ -1,3 +1,15 @@
+## [4.6.2](https://github.com/bazelbuild/rules_nodejs/compare/4.6.1...4.6.2) (2022-02-15)
+
+
+### Bug Fixes
+
+* **builtin:** avoid unnecessary chdir to prevent worker threads from failing ([2e4d279](https://github.com/bazelbuild/rules_nodejs/commit/2e4d279))
+* **builtin:** npm_package_bin include runfiles in DefaultInfo ([#3261](https://github.com/bazelbuild/rules_nodejs/issues/3261)) ([6d6f750](https://github.com/bazelbuild/rules_nodejs/commit/6d6f750))
+* **cypress:** use depsets for runfiles and data ([#3240](https://github.com/bazelbuild/rules_nodejs/issues/3240)) ([709ec2f](https://github.com/bazelbuild/rules_nodejs/commit/709ec2f))
+* **typescript:** propagate tags to validate_options ([#3260](https://github.com/bazelbuild/rules_nodejs/issues/3260)) ([e8b2e8f](https://github.com/bazelbuild/rules_nodejs/commit/e8b2e8f))
+
+
+
 ## [4.6.1](https://github.com/bazelbuild/rules_nodejs/compare/4.6.0...4.6.1) (2022-01-13)
 
 
