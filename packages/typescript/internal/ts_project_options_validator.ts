@@ -111,7 +111,7 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
       console.error('This makes it likely that TypeScript will be unable to resolve dependencies using relative import paths');
       console.error(`For example, if you 'import {} from ./foo', this expects to resolve foo.d.ts from Bazel's output tree`);
       console.error('and TypeScript only knows how to locate this when the rootDirs attribute includes that path.');
-      console.error('See the ts_project documentation.');
+      console.error('See the ts_project documentation: https://bazelbuild.github.io/rules_nodejs/TypeScript.html#ts_project');
       return 1;
     }
   }
