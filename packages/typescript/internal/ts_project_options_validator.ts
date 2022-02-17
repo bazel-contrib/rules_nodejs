@@ -1,4 +1,4 @@
-import {relative} from 'path';
+import {dirname, relative} from 'path';
 import * as ts from 'typescript';
 
 const diagnosticsHost: ts.FormatDiagnosticsHost = {
@@ -19,12 +19,12 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
   const {config, error} = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
   if (error) throw new Error(tsconfigPath + ':' + ts.formatDiagnostic(error, diagnosticsHost));
   const {errors, options} =
-      ts.parseJsonConfigFileContent(config, ts.sys, require('path').dirname(tsconfigPath));
+      ts.parseJsonConfigFileContent(config, ts.sys, dirname(tsconfigPath));
   // We don't pass the srcs to this action, so it can't know if the program has the right sources.
   // Diagnostics look like
   // error TS18002: The 'files' list in config file 'tsconfig.json' is empty.
   // error TS18003: No inputs were found in config file 'tsconfig.json'. Specified 'include'...
-  const fatalErrors = errors.filter(e => e.code !== 18002 && e.code != 18003);
+  const fatalErrors = errors.filter(e => e.code !== 18002 && e.code !== 18003);
   if (fatalErrors.length > 0)
     throw new Error(tsconfigPath + ':' + ts.formatDiagnostics(fatalErrors, diagnosticsHost));
 
@@ -93,6 +93,28 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
     console.error('- Otherwise, remove the noEmit option from tsconfig and try again.');
     return 1;
   } 
+  
+  // When there are dependencies on other ts_project targets, the tsconfig must be configured
+  // to help TypeScript resolve them.
+  if (attrs.has_local_deps) {
+    let rootDirsValid = true
+    if (!options.rootDirs) {
+      console.error(`ERROR: ts_project rule ${target} is configured without rootDirs.`);
+      rootDirsValid = false;
+    }
+    else if (!options.rootDirs.some(d => d.startsWith(process.env['BINDIR']))) {
+      console.error(`ERROR: ts_project rule ${target} is missing a needed rootDir under ${process.env['BINDIR']}.`);
+      console.error('Found only: ', options.rootDirs);
+      rootDirsValid = false;
+    }
+    if (!rootDirsValid) {
+      console.error('This makes it likely that TypeScript will be unable to resolve dependencies using relative import paths');
+      console.error(`For example, if you 'import {} from ./foo', this expects to resolve foo.d.ts from Bazel's output tree`);
+      console.error('and TypeScript only knows how to locate this when the rootDirs attribute includes that path.');
+      console.error('See the ts_project documentation: https://bazelbuild.github.io/rules_nodejs/TypeScript.html#ts_project');
+      return 1;
+    }
+  }
 
   check('allowJs', 'allow_js');
   check('declarationMap', 'declaration_map');
