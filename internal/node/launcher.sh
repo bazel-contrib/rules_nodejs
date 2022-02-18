@@ -152,7 +152,7 @@ for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
     # Captures stderr of the node process to the file specified
     --bazel_capture_stderr=*) STDERR_CAPTURE="${PWD}/${ARG#--bazel_capture_stderr=}" ;;
     # Captures the exit code of the node process to the file specified
-    --bazel_capture_exit_code=*) EXIT_CODE_CAPTURE="${ARG#--bazel_capture_exit_code=}" ;;
+    --bazel_capture_exit_code=*) EXIT_CODE_CAPTURE="${PWD}/${ARG#--bazel_capture_exit_code=}" ;;
     # Disable the node_loader.js monkey patches for require()
     # Note that this means you need an explicit runfiles helper library
     # This flag is now a no-op since the default is also false
