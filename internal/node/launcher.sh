@@ -185,6 +185,8 @@ for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
     --bazel_capture_stderr=*) STDERR_CAPTURE="${PWD}/${ARG#--bazel_capture_stderr=}" ;;
     # Captures the exit code of the node process to the file specified
     --bazel_capture_exit_code=*) EXIT_CODE_CAPTURE="${PWD}/${ARG#--bazel_capture_exit_code=}" ;;
+    # Outputs nothing on success
+    --bazel_silent_on_success=*) SILENT_ON_SUCCESS=true ;;
     # Disable the node_loader.js monkey patches for require()
     # Note that this means you need an explicit runfiles helper library
     # This flag is now a no-op since the default is also false
@@ -338,6 +340,17 @@ else
   fi
 fi
 
+if [ "${SILENT_ON_SUCCESS:-}" = true ]; then
+  if [[ -z "${STDOUT_CAPTURE}" ]]; then
+    STDOUT_CAPTURE_IS_NOT_AN_OUTPUT=true
+    STDOUT_CAPTURE=$(mktemp)
+  fi
+  if [[ -z "${STDERR_CAPTURE}" ]]; then
+    STDERR_CAPTURE_IS_NOT_AN_OUTPUT=true
+    STDERR_CAPTURE=$(mktemp)
+  fi
+fi
+
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
 # a binary fails to run. Otherwise any failure would make such a test
 # fail before we could assert that we expected that failure.
@@ -362,6 +375,23 @@ _int() {
   kill -INT "${child}" 2>/dev/null
 }
 
+_exit() {
+  EXIT_CODE=$?
+
+  if [[ "$EXIT_CODE" != 0 ]]; then
+    if [ ${STDOUT_CAPTURE_IS_NOT_AN_OUTPUT} = true ]; then
+      cat "$STDOUT_CAPTURE"
+      rm "$STDOUT_CAPTURE"
+    fi
+    if [ ${STDERR_CAPTURE_IS_NOT_AN_OUTPUT} = true ]; then
+      cat "$STDERR_CAPTURE"
+      rm "$STDERR_CAPTURE"
+    fi
+  fi
+
+  exit $EXIT_CODE
+}
+
 # Execute the main program
 if [[ -n "$NODE_WORKING_DIR" ]]; then
   cd "$NODE_WORKING_DIR"
@@ -380,6 +410,7 @@ fi
 readonly child=$!
 trap _term SIGTERM
 trap _int SIGINT
+trap _exit EXIT
 wait "${child}"
 # Remove trap after first signal has been receieved and wait for child to exit
 # (first wait returns immediatel if SIGTERM is received while waiting). Second

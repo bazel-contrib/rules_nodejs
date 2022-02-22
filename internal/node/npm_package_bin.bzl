@@ -17,6 +17,7 @@ _ATTRS = {
     "link_workspace_root": attr.bool(),
     "output_dir": attr.bool(),
     "outs": attr.output_list(),
+    "silent_on_success": attr.bool(),
     "stderr": attr.output(),
     "stdout": attr.output(),
     "tool": attr.label(
@@ -91,6 +92,7 @@ def _impl(ctx):
         stdout = ctx.outputs.stdout,
         stderr = ctx.outputs.stderr,
         exit_code_out = ctx.outputs.exit_code_out,
+        silent_on_success = ctx.attr.silent_on_success,
         link_workspace_root = ctx.attr.link_workspace_root,
     )
     files = outputs + tool_outputs
@@ -118,6 +120,7 @@ def npm_package_bin(
         output_dir = False,
         link_workspace_root = False,
         chdir = None,
+        silent_on_success = False,
         **kwargs):
     """Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
 
@@ -146,6 +149,8 @@ def npm_package_bin(
         exit_code_out: set to capture the exit code of the binary to a file, which can later be used as an input to another target
                 subject to the same semantics as `outs`. Note that setting this will force the binary to exit 0.
                 If the binary creates outputs and these are declared, they must still be created
+        silent_on_success: produce no output on stdout nor stderr when program exits with status code 0.
+                This makes node binaries match the expected bazel paradigm.
 
         args: Command-line arguments to the tool.
 
@@ -239,5 +244,6 @@ def npm_package_bin(
         output_dir = output_dir,
         tool = tool,
         link_workspace_root = link_workspace_root,
+        silent_on_success = silent_on_success,
         **kwargs
     )

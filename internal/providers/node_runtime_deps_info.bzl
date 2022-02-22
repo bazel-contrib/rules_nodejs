@@ -127,6 +127,10 @@ def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
         add_arg(arguments, "--bazel_capture_exit_code=%s" % exit_code_file.path)
         outputs = outputs + [exit_code_file]
 
+    silent_on_success = kwargs.pop("silent_on_success", False)
+    if silent_on_success:
+        add_arg(arguments, "--bazel_silent_on_success=1")
+
     if chdir:
         add_arg(arguments, "--bazel_node_working_dir=" + chdir)
 
