@@ -198,8 +198,8 @@ rollup_bundle(
 
 <pre>
 rollup_bundle(<a href="#rollup_bundle-name">name</a>, <a href="#rollup_bundle-args">args</a>, <a href="#rollup_bundle-config_file">config_file</a>, <a href="#rollup_bundle-deps">deps</a>, <a href="#rollup_bundle-entry_point">entry_point</a>, <a href="#rollup_bundle-entry_points">entry_points</a>, <a href="#rollup_bundle-format">format</a>, <a href="#rollup_bundle-link_workspace_root">link_workspace_root</a>,
-              <a href="#rollup_bundle-output_dir">output_dir</a>, <a href="#rollup_bundle-rollup_bin">rollup_bin</a>, <a href="#rollup_bundle-rollup_worker_bin">rollup_worker_bin</a>, <a href="#rollup_bundle-silent">silent</a>, <a href="#rollup_bundle-sourcemap">sourcemap</a>, <a href="#rollup_bundle-srcs">srcs</a>, <a href="#rollup_bundle-stamp">stamp</a>,
-              <a href="#rollup_bundle-supports_workers">supports_workers</a>)
+              <a href="#rollup_bundle-output_dir">output_dir</a>, <a href="#rollup_bundle-rollup_bin">rollup_bin</a>, <a href="#rollup_bundle-rollup_worker_bin">rollup_worker_bin</a>, <a href="#rollup_bundle-silent">silent</a>, <a href="#rollup_bundle-silent_on_success">silent_on_success</a>, <a href="#rollup_bundle-sourcemap">sourcemap</a>, <a href="#rollup_bundle-srcs">srcs</a>,
+              <a href="#rollup_bundle-stamp">stamp</a>, <a href="#rollup_bundle-supports_workers">supports_workers</a>)
 </pre>
 
 Runs the rollup.js CLI under Bazel.
@@ -350,6 +350,15 @@ Defaults to `@npm//@bazel/rollup/bin:rollup-worker`
 Using --silent can cause rollup to [ignore errors/warnings](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#onwarn) 
 which are only surfaced via logging.  Since bazel expects printing nothing on success, setting silent to True
 is a more Bazel-idiomatic experience, however could cause rollup to drop important warnings.
+
+Defaults to `False`
+
+<h4 id="rollup_bundle-silent_on_success">silent_on_success</h4>
+
+(*Boolean*): Even stronger than --silent, defaults to False.
+
+Since the build still emits some texted, even when passed --silent, this uses the same flag as npm_package_bin to
+supress all output on sucess.
 
 Defaults to `False`
 

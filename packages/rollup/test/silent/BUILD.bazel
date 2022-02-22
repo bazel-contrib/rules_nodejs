@@ -1,0 +1,15 @@
+load("//packages/rollup:index.bzl", "rollup_bundle")
+
+rollup_bundle(
+    name = "silent",
+    srcs = ["input.js"],
+    entry_points = {"input.js": "silent"},
+    silent = True,
+)
+
+rollup_bundle(
+    name = "silent_on_success",
+    srcs = ["input.js"],
+    entry_points = {"input.js": "silent_on_success"},
+    silent_on_success = True,
+)
