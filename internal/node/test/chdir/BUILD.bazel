@@ -3,7 +3,7 @@
 # the project when you call them.
 # See https://github.com/bazelbuild/rules_nodejs/issues/1840
 
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "nodejs_test", "npm_package_bin")
 
 # Trivial tool that expects to run in source directory under the package
 nodejs_binary(
@@ -25,8 +25,15 @@ npm_package_bin(
     args = ["/".join([".."] * _package_segments + ["$@"])],
     chdir = package_name(),
     data = ["_package.json"],
+    exit_code_out = "exit.code",
     stdout = "do_copy.log",
     tool = ":tool_cp",
+)
+
+generated_file_test(
+    name = "exit_code_test",
+    src = "exit_code_test.golden",
+    generated = ":exit.code",
 )
 
 # Trivial tool to mock react-scripts
