@@ -11,6 +11,10 @@ nodejs_binary(
     entry_point = "cp.js",
 )
 
+# TODO: figure out why this suddenly stopped producing package.json output
+# https://github.com/bazelbuild/rules_nodejs/issues/3328
+i3328 = ["fix-windows"]
+
 # A tool like react-scripts needs to run in the output directory since it writes outputs
 # to $pwd/build
 # That means it also needs to find inputs in that directory.
@@ -26,6 +30,7 @@ npm_package_bin(
     chdir = package_name(),
     data = ["_package.json"],
     stdout = "do_copy.log",
+    tags = i3328,
     tool = ":tool_cp",
 )
 
@@ -42,6 +47,7 @@ npm_package_bin(
     outs = ["build/app.js"],
     chdir = "$(RULEDIR)",
     data = ["package.json"],
+    tags = i3328,
     tool = ":tool_bin",
 )
 
@@ -51,6 +57,7 @@ nodejs_test(
     chdir = package_name() + "/build",
     data = ["build/app.js"],
     entry_point = "test.js",
+    tags = i3328,
 )
 
 nodejs_test(
@@ -58,4 +65,5 @@ nodejs_test(
     chdir = package_name(),
     data = ["worker.js"],
     entry_point = "multithread.js",
+    tags = i3328,
 )
