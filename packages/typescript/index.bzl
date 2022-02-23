@@ -30,6 +30,50 @@ load("@bazel_skylib//rules:build_test.bzl", "build_test")
 
 ts_config = _ts_config
 
+# Copied from aspect_bazel_lib
+# https://github.com/aspect-build/bazel-lib/blob/main/lib/private/utils.bzl#L73-L82
+# TODO(6.0): depend on that library and remove this copy
+def _to_label(param):
+    """Converts a string to a Label. If Label is supplied, the same label is returned.
+
+    Args:
+        param: a string representing a label or a Label
+    Returns:
+        a Label
+    """
+    param_type = type(param)
+    if param_type == "string":
+        if param.startswith("@"):
+            return Label(param)
+        if param.startswith("//"):
+            return Label("@" + param)
+
+        # resolve the relative label from the current package
+        # if 'param' is in another workspace, then this would return the label relative to that workspace, eg:
+        # `Label("@my//foo:bar").relative("@other//baz:bill") == Label("@other//baz:bill")`
+        if param.startswith(":"):
+            param = param[1:]
+        if native.package_name():
+            return Label("@//" + native.package_name()).relative(param)
+        else:
+            return Label("@//:" + param)
+
+    elif param_type == "Label":
+        return param
+    else:
+        fail("Expected 'string' or 'Label' but got '%s'" % param_type)
+
+# copied from aspect_bazel_lib, see comment above
+def _is_external_label(param):
+    """Returns True if the given Label (or stringy version of a label) represents a target outside of the workspace
+
+    Args:
+        param: a string or label
+    Returns:
+        a bool
+    """
+    return len(_to_label(param).workspace_root) > 0
+
 _DEFAULT_TYPESCRIPT_PACKAGE = (
     # BEGIN-INTERNAL
     "@npm" +
@@ -96,12 +140,16 @@ def ts_project(
       Worse, if you build them separately then the output directory will contain whichever
       one you happened to build most recently. This is highly discouraged.
 
+    As a thin wrapper, this rule doesn't try to compensate for behavior of the TypeScript compiler.
+    See https://github.com/bazelbuild/rules_nodejs/wiki/Debugging-problems-with-ts_project for notes
+    that may help you debug issues.
+
     > Note: in order for TypeScript to resolve relative references to the bazel-out folder,
     > we recommend that the base tsconfig contain a rootDirs section that includes all
     > possible locations they may appear.
     >
     > We hope this will not be needed in some future release of TypeScript.
-    > Follow https://github.com/microsoft/TypeScript/issues/37257 for more info.
+    > Follow https://github.com/microsoft/TypeScript/issues/37378 for more info.
     >
     > For example, if the base tsconfig file relative to the workspace root is
     > `path/to/tsconfig.json` then you should configure like:
@@ -434,6 +482,7 @@ def ts_project(
                 allow_js = allow_js,
                 tsconfig = tsconfig,
                 extends = extends,
+                has_local_deps = len([d for d in deps if not _is_external_label(d)]) > 0,
                 **common_kwargs
             )
             tsc_deps = tsc_deps + ["_validate_%s_options" % name]

@@ -3,7 +3,10 @@ module.exports = {
   haste: {
     enableSymlinks: true,
   },
-  reporters: ['default'],
+  reporters: [
+    'default', 
+    ['jest-junit', { outputFile: process.env.XML_OUTPUT_FILE }]
+  ],
   testMatch: ['**/*.test.js'],
   moduleNameMapper: {
     'examples_jest/(.*)': '<rootDir>/$1',

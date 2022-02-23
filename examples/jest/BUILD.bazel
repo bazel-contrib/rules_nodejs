@@ -27,6 +27,7 @@ jest_test(
         "@npm//@babel/preset-env",
         "@npm//@jest/transform",
         "@npm//babel-jest",
+        "@npm//jest-junit",
     ],
 )
 
