@@ -13,32 +13,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# It helps to normalizes paths when running on Windows.
+# It helps to determine if we are running on a Windows environment (excludes WSL as it acts like Unix)
+function isWindows {
+  case "$(uname -s)" in
+      CYGWIN*)    local IS_WINDOWS=1 ;;
+      MINGW*)     local IS_WINDOWS=1 ;;
+      MSYS_NT*)   local IS_WINDOWS=1 ;;
+      *)          local IS_WINDOWS=0 ;;
+  esac
 
+  echo $IS_WINDOWS
+  return
+}
+
+# It helps to normalizes paths when running on Windows.
+#
 # Example:
 # C:/Users/XUser/_bazel_XUser/7q7kkv32/execroot/A/b/C -> /c/users/xuser/_bazel_xuser/7q7kkv32/execroot/a/b/c
 function normalizeWindowsPath {
-  # Determine if we are running on a Windows environment
-  # that can generate problematic paths (excludes WSL as it acts like unix)
-  case "$(uname -s)" in
-      CYGWIN*)    local IS_WINDOWS=true ;;
-      MINGW*)     local IS_WINDOWS=true ;;
-      MSYS_NT*)   local IS_WINDOWS=true ;;
-      *)          local IS_WINDOWS=false ;;
-  esac
-
-  # In case we are running on Windows apply the paths transformations
+  # Apply the followings paths transformations to normalize paths on Windows
   # -process driver letter
   # -convert path separator
   # -lowercase everything
-  if $IS_WINDOWS ; then
-    local retval=$(sed -e 's#^\(.\):#/\L\1#' -e 's#\\#/#g' -e 's/[A-Z]/\L&/g' <<< "$1")
-    echo "$retval"
-    return
-  fi
-
-  # otherwise doesnt change the given path and just return the argument as is
-  echo "$1"
+  echo $(sed -e 's#^\(.\):#/\L\1#' -e 's#\\#/#g' -e 's/[A-Z]/\L&/g' <<< "$1")
+  return
 }
 
 # --- begin runfiles.bash initialization v2 ---
@@ -77,9 +75,13 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
 # Case 6a is handled like case 3.
 if [[ -n "${RUNFILES_MANIFEST_ONLY:-}" ]]; then
   # Windows only has a manifest file instead of symlinks.
-  # Normalizing the path and case insensitive removing the `/MANIFEST` part of the path
-  NORMALIZED_RUNFILES_MANIFEST_FILE_PATH=$(normalizeWindowsPath $RUNFILES_MANIFEST_FILE)
-  RUNFILES=$(sed 's|\/MANIFEST$||i' <<< $NORMALIZED_RUNFILES_MANIFEST_FILE_PATH)
+  if [[ $(isWindows) -eq "1" ]]; then
+    # If Windows normalizing the path and case insensitive removing the `/MANIFEST` part of the path
+    NORMALIZED_RUNFILES_MANIFEST_FILE_PATH=$(normalizeWindowsPath $RUNFILES_MANIFEST_FILE)
+    RUNFILES=$(sed 's|\/MANIFEST$||i' <<< $NORMALIZED_RUNFILES_MANIFEST_FILE_PATH)
+  else
+    RUNFILES=${RUNFILES_MANIFEST_FILE%/MANIFEST}
+  fi
 elif [[ -n "${TEST_SRCDIR:-}" ]]; then
   # Case 4, bazel has identified runfiles for us.
   RUNFILES="${TEST_SRCDIR:-}"
