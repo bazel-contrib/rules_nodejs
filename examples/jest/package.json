@@ -12,6 +12,7 @@
         "babel-jest": "27.0.2",
         "babel-plugin-istanbul": "6.0.0",
         "jest-cli": "27.0.4",
+        "jest-junit": "13.0.0",
         "typescript": "~4.2.0"
     },
     "scripts": {

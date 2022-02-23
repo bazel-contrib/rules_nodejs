@@ -5,7 +5,11 @@ module.exports = {
   haste: {
     enableSymlinks: true,
   },
-  reporters: ['default', './jest-reporter'],
+  reporters: [
+  'default',
+  ['jest-junit', { outputFile: process.env.XML_OUTPUT_FILE }],
+  './jest-reporter',
+  ],
   // explicitly specify the path to babel.config.js relative to jest.config.js so
   // jest can find it even when jest.config.js is not in the root folder of the workspace
   transform:
