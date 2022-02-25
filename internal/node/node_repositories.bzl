@@ -42,13 +42,20 @@ def node_repositories(**kwargs):
         minimum_bazel_version = "4.0.0",
     )
 
+    # Cheap check to see if we have already set up the node_repositories when being called via the
+    # npm_install or yarn_install macros that call this first
+    if "nodejs" in native.existing_rules().keys():
+        return
+
     # This needs to be setup so toolchains can access nodejs for all different versions
     node_version = kwargs.get("node_version", DEFAULT_NODE_VERSION)
+    node_repositories = kwargs.get("node_repositories", None)
+
     for os_arch_name in OS_ARCH_NAMES:
         os_name = "_".join(os_arch_name)
 
         # If we couldn't download node, don't make an external repo for it either
-        if not node_exists_for_os(node_version, os_name):
+        if not node_exists_for_os(node_version, os_name, node_repositories):
             continue
         node_repository_name = "nodejs_%s" % os_name
         _maybe(
