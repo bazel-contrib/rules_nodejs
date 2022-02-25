@@ -72,12 +72,17 @@ def is_linux_os(rctx):
     name = os_name(rctx)
     return name == OS_NAMES[3] or name == OS_NAMES[4] or name == OS_NAMES[5] or name == OS_NAMES[6]
 
-def node_exists_for_os(node_version, os_name):
-    return "-".join([node_version, os_name]) in NODE_VERSIONS.keys()
+def node_exists_for_os(node_version, os_name, node_repositories):
+    if not node_repositories:
+        node_repositories = NODE_VERSIONS
+
+    return "-".join([node_version, os_name]) in node_repositories.keys()
 
 def assert_node_exists_for_host(rctx):
     node_version = rctx.attr.node_version
-    if not node_exists_for_os(node_version, os_name(rctx)):
+    node_repositories = rctx.attr.node_repositories
+
+    if not node_exists_for_os(node_version, os_name(rctx), node_repositories):
         fail("No nodejs is available for {} at version {}".format(os_name(rctx), node_version) +
              "\n    Consider upgrading by setting node_version in a call to node_repositories in WORKSPACE." +
              "\n    Note that Node 16.x is the minimum published for Apple Silicon (M1 Macs)")
