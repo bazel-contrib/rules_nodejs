@@ -13,7 +13,7 @@ def _impl(ctx):
 user_args = rule(
     implementation = _impl,
     # This line separates a build setting from a regular target, by using
-    # the `build_setting` atttribute, you mark this rule as a build setting
+    # the `build_setting` attribute, you mark this rule as a build setting
     # including what raw type it is and if it can be used on the command
     # line or not (if yes, you must set `flag = True`)
     build_setting = config.string(flag = True),

@@ -147,15 +147,17 @@ def _download_node(repository_ctx):
 
     _verify_version_is_valid(node_version)
 
-    # Skip the download if we know it will fail
-    if not node_exists_for_os(node_version, host_os):
-        return
     node_repositories = repository_ctx.attr.node_repositories
 
     # We insert our default value here, not on the attribute's default, so it isn't documented.
     # The size of NODE_VERSIONS constant is huge and not useful to document.
     if not node_repositories.items():
         node_repositories = NODE_VERSIONS
+
+    # Skip the download if we know it will fail
+    if not node_exists_for_os(node_version, host_os, node_repositories):
+        return
+
     node_urls = repository_ctx.attr.node_urls
 
     # Download node & npm
