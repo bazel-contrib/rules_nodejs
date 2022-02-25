@@ -359,6 +359,15 @@ npm_package_bin(
         "somearg$$",
         "some0arg",
     ],
+    env = {
+        "OUTFILE": "$@",
+        "COMPLATION_MODE": "$(COMPILATION_MODE)",
+        "TARGET_CPU": "$(TARGET_CPU)",
+        "BINDIR": "$(BINDIR)",
+        "SOME_TEST_ENV": "$(SOME_TEST_ENV)",
+        "SOMEARG$$": "somearg$$",
+        "SOME0ARG": "some0arg",
+    },
     tool = ":expand_variables",
 )
 
@@ -368,6 +377,7 @@ jasmine_node_test(
     data = [":expand_variables.out"],
     templated_args = [
         "$(rootpath :expand_variables.out)",
+        "$(execpath :expand_variables.out)",
         "$(COMPILATION_MODE)",
         "$(TARGET_CPU)",
         "$(BINDIR)",
