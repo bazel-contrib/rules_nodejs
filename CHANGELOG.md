@@ -1,3 +1,12 @@
+## [4.6.3](https://github.com/bazelbuild/rules_nodejs/compare/4.6.2...4.6.3) (2022-02-25)
+
+
+### Bug Fixes
+
+* **builtin:** take custom node_repositories value into account when checking if Node version exists for the platform ([#3342](https://github.com/bazelbuild/rules_nodejs/issues/3342)) ([fa30036](https://github.com/bazelbuild/rules_nodejs/commit/fa30036))
+
+
+
 ## [4.6.2](https://github.com/bazelbuild/rules_nodejs/compare/4.6.1...4.6.2) (2022-02-15)
 
 
