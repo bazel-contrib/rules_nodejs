@@ -63,6 +63,10 @@ def _impl(ctx):
     for a in ctx.attr.args:
         args.add_all([expand_variables(ctx, e, outs = ctx.outputs.outs, output_dir = ctx.attr.output_dir) for e in _expand_locations(ctx, a)])
 
+    envs = {}
+    for k, v in ctx.attr.env.items():
+        envs[k] = " ".join([expand_variables(ctx, e, outs = ctx.outputs.outs, output_dir = ctx.attr.output_dir, attribute_name = "env") for e in _expand_locations(ctx, v)])
+
     tool_outputs = []
     if ctx.outputs.stdout:
         tool_outputs.append(ctx.outputs.stdout)
@@ -81,7 +85,7 @@ def _impl(ctx):
         arguments = [args],
         configuration_env_vars = ctx.attr.configuration_env_vars,
         chdir = expand_variables(ctx, ctx.attr.chdir),
-        env = ctx.attr.env,
+        env = envs,
         stdout = ctx.outputs.stdout,
         stderr = ctx.outputs.stderr,
         exit_code_out = ctx.outputs.exit_code_out,
@@ -211,7 +215,8 @@ def npm_package_bin(
                 args = ["/".join([".."] * _package_segments + ["$@"])],
             )
             ```
-        env: specifies additional environment variables to set when the target is executed
+        env: specifies additional environment variables to set when the target is executed. The values of environment variables
+            are subject to 'Make variable' substitution (see [args](#npm_package_bin-args)).
         **kwargs: additional undocumented keyword args
     """
     if not tool:

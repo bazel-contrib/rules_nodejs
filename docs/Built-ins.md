@@ -2223,7 +2223,8 @@ Defaults to `[]`
 
 <h4 id="npm_package_bin-env">env</h4>
 
-specifies additional environment variables to set when the target is executed
+specifies additional environment variables to set when the target is executed. The values of environment variables
+are subject to 'Make variable' substitution (see [args](#npm_package_bin-args)).
 
 Defaults to `{}`
 
