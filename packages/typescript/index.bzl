@@ -41,6 +41,7 @@ def ts_project(
         tsconfig = None,
         srcs = None,
         args = [],
+        data = [],
         deps = [],
         extends = None,
         allow_js = False,
@@ -180,6 +181,10 @@ def ts_project(
             - Include `**/*.ts[x]` (all TypeScript files in the package).
             - If `allow_js` is set, include `**/*.js[x]` (all JavaScript files in the package).
             - If `resolve_json_module` is set, include `**/*.json` (all JSON files in the package), but exclude `**/package.json`, `**/package-lock.json`, and `**/tsconfig*.json`.
+
+        data: files needed at runtime by binaries or tests that transitively depend on this target.
+
+            See https://bazel.build/reference/be/common-definitions#typical-attributes
 
         deps: List of labels of other rules that produce TypeScript typings (.d.ts files)
 
@@ -576,6 +581,7 @@ This is an error because Bazel does not run actions unless their outputs are nee
         name = tsc_target_name,
         srcs = srcs,
         args = args,
+        data = data,
         deps = tsc_deps,
         tsconfig = tsconfig,
         extends = extends,
