@@ -1,3 +1,22 @@
+# [5.2.0](https://github.com/bazelbuild/rules_nodejs/compare/5.1.0...5.2.0) (2022-03-01)
+
+
+### Bug Fixes
+
+* **builtin:** avoid unnecessary chdir to prevent worker threads from failing ([550673f](https://github.com/bazelbuild/rules_nodejs/commit/550673f))
+* **builtin:** take custom node_repositories value into account when checking if Node version exists for the platform ([#3339](https://github.com/bazelbuild/rules_nodejs/issues/3339)) ([5a1cbfa](https://github.com/bazelbuild/rules_nodejs/commit/5a1cbfa))
+* **builtin:** use srcs on genrule to not build tool for host ([#3344](https://github.com/bazelbuild/rules_nodejs/issues/3344)) ([17e3e2b](https://github.com/bazelbuild/rules_nodejs/commit/17e3e2b))
+* **typescript:** account for rootDir when predicting json output paths ([#3348](https://github.com/bazelbuild/rules_nodejs/issues/3348)) ([bd36cd0](https://github.com/bazelbuild/rules_nodejs/commit/bd36cd0)), closes [#3330](https://github.com/bazelbuild/rules_nodejs/issues/3330)
+
+
+### Features
+
+* **builtin:** perform make variable substitution in npm_package_bin env vars ([#3343](https://github.com/bazelbuild/rules_nodejs/issues/3343)) ([dfe4392](https://github.com/bazelbuild/rules_nodejs/commit/dfe4392))
+* **examples:** example jest add junit reporter ([#3338](https://github.com/bazelbuild/rules_nodejs/issues/3338)) ([840395f](https://github.com/bazelbuild/rules_nodejs/commit/840395f))
+* **typescript:** warn the user when rootDirs looks wrong in ts_proje… ([#3126](https://github.com/bazelbuild/rules_nodejs/issues/3126)) ([8df86cc](https://github.com/bazelbuild/rules_nodejs/commit/8df86cc))
+
+
+
 # [5.1.0](https://github.com/bazelbuild/rules_nodejs/compare/5.0.2...5.1.0) (2022-02-02)
 
 
