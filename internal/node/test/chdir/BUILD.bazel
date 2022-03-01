@@ -39,6 +39,7 @@ generated_file_test(
     name = "exit_code_test",
     src = "exit_code_test.golden",
     generated = ":exit.code",
+    tags = i3328,
 )
 
 # Trivial tool to mock react-scripts
