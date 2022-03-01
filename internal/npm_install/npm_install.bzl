@@ -24,6 +24,7 @@ See discussion in the README.
 load("@rules_nodejs//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
 load("@rules_nodejs//nodejs/private:node_labels.bzl", "get_node_label", "get_npm_label")
 load("//:version.bzl", "VERSION")
+load("//internal/common:is_js_file.bzl", "is_javascript_filename")
 load("@bazel_skylib//lib:paths.bzl", "paths")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
@@ -240,7 +241,7 @@ will modify files in your workspace.
 
 NB: If `symlink_node_modules` is enabled, the node_modules folder is re-used between executions of the
     repository rule. Patches may be re-applied to files in this case and fail to apply. A marker file
-    `node_modules/.bazel-post-install-patches` is left in this mode when patches are applied. When the 
+    `node_modules/.bazel-post-install-patches` is left in this mode when patches are applied. When the
     marker file is detected, patch file failures are treated as WARNINGS. For this reason, it is recommended
     to patch npm packages with an npm tool such as https://www.npmjs.com/package/patch-package when
     `symlink_node_modules` is enabled which handles re-apply patching logic more robustly.""",
@@ -829,7 +830,7 @@ def _yarn_install_impl(repository_ctx):
     if is_windows_host and _repository_contains_file(repository_ctx, yarn_label.workspace_name, "bin/yarn.cmd"):
         yarn_label = yarn_label.relative(":bin/yarn.cmd")
 
-    if yarn_label.name.endswith(".js"):
+    if is_javascript_filename(yarn_label.name):
         yarn_cmd = [node, yarn_label]
     else:
         # Our wrapper scripts include the "node" executable
