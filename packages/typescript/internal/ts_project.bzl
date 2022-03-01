@@ -177,11 +177,12 @@ def _ts_project_impl(ctx):
     # tsc will only produce .json if it also produces .js
     if len(js_outs):
         pkg_len = len(ctx.label.package) + 1 if len(ctx.label.package) else 0
-        json_outs = [
-            ctx.actions.declare_file(_lib.join(ctx.attr.out_dir, src.short_path[pkg_len:]))
+        rootdir_replace_pattern = ctx.attr.root_dir + "/" if ctx.attr.root_dir else ""
+        json_outs = _declare_outputs(ctx, [
+            _lib.join(ctx.attr.out_dir, src.short_path[pkg_len:].replace(rootdir_replace_pattern, ""))
             for src in ctx.files.srcs
             if src.basename.endswith(".json") and src.is_source
-        ]
+        ])
     else:
         json_outs = []
 
