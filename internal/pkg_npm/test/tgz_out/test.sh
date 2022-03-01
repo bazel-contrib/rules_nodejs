@@ -17,6 +17,7 @@ function test_tgz_package_json() {
     tar -vxf "${TGZ}"
     
     assert_contains "awesome-package" "./package/package.json"
+    assert_contains "1.2.3" "./package/package.json"
     assert_contains "MAIN" "./package/main.js"
 }
 

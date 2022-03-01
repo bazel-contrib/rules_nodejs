@@ -7,6 +7,10 @@ pkg_npm(
         "main.js",
         "package.json",
     ],
+    stamp = "@rules_nodejs//nodejs/stamp:always",
+    substitutions = {
+        "0.0.0-PLACEHOLDER": "${BUILD_SCM_VERSION}",
+    },
     tgz = "my_tar.tgz",
 )
 
