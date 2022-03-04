@@ -1,5 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("//packages/typescript:index.bzl", "ts_project")
+load("@npm//jest-cli:index.bzl", "jest_test")
 
 # Ensure that a.js produces outDir/a.js, outDir/a.d.ts, and outDir/a.d.ts.map
 SRCS = [
@@ -44,5 +45,59 @@ ts_project(
     allow_js = True,
     declaration = True,
     declaration_map = True,
+    extends = ":tsconfig.json",
     source_map = True,
+)
+
+# Jest test requires copy_to_bin
+
+ts_project(
+    name = "c",
+    srcs = ["c.js"],
+    allow_js = True,
+    declaration = True,
+    declaration_map = True,
+    extends = ":tsconfig.json",
+    source_map = True,
+)
+
+ts_project(
+    name = "import_js",
+    srcs = ["d.ts"],
+    allow_js = True,
+    declaration = True,
+    declaration_map = True,
+    extends = ":tsconfig.json",
+    source_map = True,
+    deps = [":c"],
+)
+
+ts_project(
+    name = "test_d",
+    srcs = ["d.test.ts"],
+    allow_js = True,
+    declaration = True,
+    declaration_map = True,
+    extends = ":tsconfig.json",
+    source_map = True,
+    deps = [
+        ":import_js",
+        "@npm//@types/jest",
+    ],
+)
+
+jest_test(
+    name = "jest_test",
+    data = [
+        ":jest.config.js",
+        ":test_d",
+    ],
+    templated_args = [
+        "--no-cache",
+        "--no-watchman",
+        "--ci",
+        "--colors",
+        "--config",
+        "$(rootpath :jest.config.js)",
+    ],
 )

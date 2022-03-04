@@ -649,5 +649,9 @@ def ts_project(
         link_workspace_root = link_workspace_root,
         supports_workers = supports_workers,
         transpile = not transpiler,
+        is_windows = select({
+            "@bazel_tools//src/conditions:host_windows": True,
+            "//conditions:default": False,
+        }),
         **kwargs
     )
