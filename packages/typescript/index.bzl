@@ -124,7 +124,7 @@ def ts_project(
 
     Some TypeScript options affect which files are emitted, and Bazel wants to know these ahead-of-time.
     So several options from the tsconfig file must be mirrored as attributes to ts_project.
-    See https://www.typescriptlang.org/v2/en/tsconfig for a listing of the TypeScript options.
+    See https://www.typescriptlang.org/tsconfig for a listing of the TypeScript options.
 
     Any code that works with `tsc` should work with `ts_project` with a few caveats:
 
