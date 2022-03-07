@@ -1,0 +1,8 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+
+js_library(
+    name = "bar",
+    srcs = ["index.js"],
+    visibility = ["//internal/linker/test/double_workspace_link:__pkg__"],
+    deps = ["@npm//npm"],
+)
