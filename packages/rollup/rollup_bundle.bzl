@@ -140,6 +140,13 @@ which are only surfaced via logging.  Since bazel expects printing nothing on su
 is a more Bazel-idiomatic experience, however could cause rollup to drop important warnings.
 """,
     ),
+    "silent_on_success": attr.bool(
+        doc = """Even stronger than --silent, defaults to False.
+
+Since the build still emits some texted, even when passed --silent, this uses the same flag as npm_package_bin to
+supress all output on sucess.
+""",
+    ),
     "sourcemap": attr.string(
         doc = """Whether to produce sourcemaps.
 
@@ -345,6 +352,7 @@ def _rollup_bundle(ctx):
         execution_requirements = execution_requirements,
         env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
         link_workspace_root = ctx.attr.link_workspace_root,
+        silent_on_success = ctx.attr.silent_on_success,
     )
 
     outputs_depset = depset(outputs)

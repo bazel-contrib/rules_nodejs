@@ -267,6 +267,21 @@ generated_file_test(
     generated = ":minified.stdout.js",
 )
 
+# target that shouldn't print anything on stdout nor stderr when built even through the binary does
+npm_package_bin(
+    name = "loud_binary",
+    args = [
+        "$(execpath terser_input_with_diagnostics.js)",
+        "--compress",
+        "--verbose",
+        "--warn",
+    ],
+    data = ["terser_input_with_diagnostics.js"],
+    output_dir = True,
+    package = "terser",
+    silent_on_success = True,
+)
+
 # capture stderr to diagnostics.out, then analyze it in terser_diagnostics_stats printing some stats
 # stdout is captured into greeter.min.js (again, without the --output $@ flags)
 # the exit code is also capture to a file with exit_code_out, allowing downstream actions to read it

@@ -1859,7 +1859,7 @@ Other attributes
 
 <pre>
 npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-env">env</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-stderr">stderr</a>, <a href="#npm_package_bin-stdout">stdout</a>, <a href="#npm_package_bin-exit_code_out">exit_code_out</a>,
-                <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>, <a href="#npm_package_bin-chdir">chdir</a>, <a href="#npm_package_bin-kwargs">kwargs</a>)
+                <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>, <a href="#npm_package_bin-chdir">chdir</a>, <a href="#npm_package_bin-silent_on_success">silent_on_success</a>, <a href="#npm_package_bin-kwargs">kwargs</a>)
 </pre>
 
 Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
@@ -2027,6 +2027,13 @@ npm_package_bin(
 ```
 
 Defaults to `None`
+
+<h4 id="npm_package_bin-silent_on_success">silent_on_success</h4>
+
+produce no output on stdout nor stderr when program exits with status code 0.
+This makes node binaries match the expected bazel paradigm.
+
+Defaults to `False`
 
 <h4 id="npm_package_bin-kwargs">kwargs</h4>
 
