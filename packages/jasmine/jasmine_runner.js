@@ -146,9 +146,9 @@ async function main(args) {
 
   // TODO(6.0): remove support for deprecated versions of Jasmine that use the old API &
   // remember to update the `peerDependencies` as well.
-  // Jasmine versions prior to 3.10.0 should use the old API.
-  if (/^3\.[1-9]\.|^2\./.test(jrunner.coreVersion())) {
-    console.warn(`DEPRECATED: Support for Jasmine versions prior to '3.10.x' is deprecated in '@bazel/jasmine'.`);
+  // Jasmine versions prior to 4.0.0 should use the old API.
+  if (jrunner.coreVersion().charAt(0) !== '4') {
+    console.warn(`DEPRECATED: Support for Jasmine versions prior to '4.0.x' is deprecated in '@bazel/jasmine'.`);
 
     // Old Jasmine API.
     let noSpecsFound = true;
