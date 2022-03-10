@@ -285,9 +285,10 @@ def _impl(ctx):
             deps = ctx.attr.deps,
         ))
         providers.append(OutputGroupInfo(types = decls))
-    elif has_directories:
-        # If this is directory artifacts npm package then always provide declaration_info
-        # since we can't scan through files
+    else:
+
+        # Always propagate declaration_info so that downstream ts_project can depend on js_library
+        # Also important when has_directories since we can't scan through files
         decls = depset(transitive = files_depsets)
         providers.append(declaration_info(
             declarations = decls,

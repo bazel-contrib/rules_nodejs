@@ -4,6 +4,7 @@
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
+    "skipLibCheck": true,
     // Help TypeScript locate the a.d.ts file from dep.
     // Note that it comes from a js_library which means the .d.ts file is copied to the bazel-out folder.
     // Needed when running in a sandbox or remote.
