@@ -1898,4 +1898,12 @@ NODE_VERSIONS = {
     "17.6.0-linux_s390x": ("node-v17.6.0-linux-s390x.tar.xz", "node-v17.6.0-linux-s390x", "6fbb134c24dd978cd063682b3312954ebb454fa48fda10d3315105e505509be3"),
     "17.6.0-linux_amd64": ("node-v17.6.0-linux-x64.tar.xz", "node-v17.6.0-linux-x64", "65728b619e8c498c32e592433fff0057a31ab5256407a659f0cab880001e25f1"),
     "17.6.0-windows_amd64": ("node-v17.6.0-win-x64.zip", "node-v17.6.0-win-x64", "eb9ff1dde916436716fe9054e6b5fd310e7f6bac3599bbd0cb335d4ac8b0cc96"),
+    # 17.7.0
+    "17.7.0-darwin_arm64": ("node-v17.7.0-darwin-arm64.tar.gz", "node-v17.7.0-darwin-arm64", "4badbaf77e80cdc7333fdddbfaea80bf019adc4d09f71378ffa7e903eebd3b33"),
+    "17.7.0-darwin_amd64": ("node-v17.7.0-darwin-x64.tar.gz", "node-v17.7.0-darwin-x64", "6cf672f1b26105ea42f36f6834fb1a7ede86f6a39aee497e69e1dd319775b1fc"),
+    "17.7.0-linux_arm64": ("node-v17.7.0-linux-arm64.tar.xz", "node-v17.7.0-linux-arm64", "f43e27d9b918aa7a257277a257f439c39c095360d11cbff20f490301457fd4aa"),
+    "17.7.0-linux_ppc64le": ("node-v17.7.0-linux-ppc64le.tar.xz", "node-v17.7.0-linux-ppc64le", "55a7ec1225793f501559331975b47baa3a86facf710b9909f6b56b13844dd9c9"),
+    "17.7.0-linux_s390x": ("node-v17.7.0-linux-s390x.tar.xz", "node-v17.7.0-linux-s390x", "055bfaa0d5f200a17e44af855ff43f1c9c809620c7c2f1e5290e1760e88994b6"),
+    "17.7.0-linux_amd64": ("node-v17.7.0-linux-x64.tar.xz", "node-v17.7.0-linux-x64", "dcd3c8f43db86ad6b788ab740745a8928c6ff87ddacae30902770147147572fd"),
+    "17.7.0-windows_amd64": ("node-v17.7.0-win-x64.zip", "node-v17.7.0-win-x64", "c5e4d393f56743a6f4424786fc57a394dc6da72705dbdee04d27158ab6693ba1"),
 }
