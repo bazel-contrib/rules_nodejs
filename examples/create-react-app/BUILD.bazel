@@ -105,7 +105,10 @@ react_scripts(
         "--node_options=--require=$(rootpath chdir.js)",
         "start",
     ],
-    data = _RUNTIME_DEPS,
+    data = _RUNTIME_DEPS + [
+        "@npm//@types/react",
+        "@npm//@types/react-dom",
+    ],
     tags = [
         # This tag instructs ibazel to pipe into stdin a event describing actions.
         # ibazel send EOF to stdin by default and `react-scripts start` will stop when getting EOF in stdin.
