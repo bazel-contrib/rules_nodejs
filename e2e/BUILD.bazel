@@ -70,9 +70,9 @@ e2e_integration_test(
     # Old API
     "2.99.x",
     "3.9.x",
+    "3.10.x",
     # New API
     "4.0.x",
-    "3.10.x",
 ]]
 
 e2e_integration_test(
