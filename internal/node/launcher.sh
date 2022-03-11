@@ -379,11 +379,11 @@ _exit() {
   EXIT_CODE=$?
 
   if [[ "$EXIT_CODE" != 0 ]]; then
-    if [ ${STDOUT_CAPTURE_IS_NOT_AN_OUTPUT} = true ]; then
+    if [[ ${STDOUT_CAPTURE_IS_NOT_AN_OUTPUT:-} == true ]]; then
       cat "$STDOUT_CAPTURE"
       rm "$STDOUT_CAPTURE"
     fi
-    if [ ${STDERR_CAPTURE_IS_NOT_AN_OUTPUT} = true ]; then
+    if [[ ${STDERR_CAPTURE_IS_NOT_AN_OUTPUT:-} == true ]]; then
       cat "$STDERR_CAPTURE"
       rm "$STDERR_CAPTURE"
     fi
