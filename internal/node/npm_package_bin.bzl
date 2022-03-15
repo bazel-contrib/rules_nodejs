@@ -94,6 +94,7 @@ def _impl(ctx):
         exit_code_out = ctx.outputs.exit_code_out,
         silent_on_success = ctx.attr.silent_on_success,
         link_workspace_root = ctx.attr.link_workspace_root,
+        mnemonic = "NpmPackageBin",
     )
     files = outputs + tool_outputs
     return [DefaultInfo(
