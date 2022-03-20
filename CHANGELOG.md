@@ -1,3 +1,22 @@
+# [5.3.0](https://github.com/bazelbuild/rules_nodejs/compare/5.2.0...5.3.0) (2022-03-20)
+
+
+### Bug Fixes
+
+* **builtin:** `yarn_install` with vendored yarn `.cjs` file breaks ([#3350](https://github.com/bazelbuild/rules_nodejs/issues/3350)) ([4a025c0](https://github.com/bazelbuild/rules_nodejs/commit/4a025c0))
+* **builtin:** default STDOUT_CAPTURE_IS_NOT_AN_OUTPUT to falsey ([#3364](https://github.com/bazelbuild/rules_nodejs/issues/3364)) ([11952b1](https://github.com/bazelbuild/rules_nodejs/commit/11952b1))
+* **concatjs:** tsc-wrapped compilation workers are subject to linker race-conditions ([#3370](https://github.com/bazelbuild/rules_nodejs/issues/3370)) ([d907eb5](https://github.com/bazelbuild/rules_nodejs/commit/d907eb5))
+* **jasmine:** sharded test never fail when using Jasmine < 4 ([#3360](https://github.com/bazelbuild/rules_nodejs/issues/3360)) ([add1452](https://github.com/bazelbuild/rules_nodejs/commit/add1452))
+* update source for generated docs ([#3354](https://github.com/bazelbuild/rules_nodejs/issues/3354)) ([097732b](https://github.com/bazelbuild/rules_nodejs/commit/097732b))
+* **runfiles:** use normalized paths when guarding runfiles root and node_modules on Windows ([#3331](https://github.com/bazelbuild/rules_nodejs/issues/3331)) ([7993296](https://github.com/bazelbuild/rules_nodejs/commit/7993296))
+
+
+### Features
+
+* **builtin:** add silent_on_success option to npm_package_bin ([#3336](https://github.com/bazelbuild/rules_nodejs/issues/3336)) ([78aefa3](https://github.com/bazelbuild/rules_nodejs/commit/78aefa3))
+
+
+
 # [5.2.0](https://github.com/bazelbuild/rules_nodejs/compare/5.1.0...5.2.0) (2022-03-01)
 
 
