@@ -1,7 +1,7 @@
 {
   "devDependencies": {
-    "@bazel/concatjs": "^5.2.0",
-    "@bazel/typescript": "^5.2.0",
+    "@bazel/concatjs": "^5.3.0",
+    "@bazel/typescript": "^5.3.0",
     "@types/jasmine": "2.8.2",
     "@types/node": "11.11.1",
     "karma": "~4.1.0",

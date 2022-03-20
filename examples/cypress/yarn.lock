@@ -2,31 +2,31 @@
 # yarn lockfile v1
 
 
-"@bazel/cypress@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-5.2.0.tgz#8a5646605bcb2875a9856c96c531f43f7fa01ab7"
-  integrity sha512-Mu6FnrYnrZytJUPisjVmr0eHjbhWkrM9/QTCQP3gQ/hTwstT3uV+M9Y1C/Xx0OJBTqfuofLqqcoZpi/X7rRAHw==
+"@bazel/cypress@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-5.3.0.tgz#63a9b4fc11a6a5508c598917a3d6d9a0e3874f02"
+  integrity sha512-k6xPHvEg4oZSma6ZO1IAcVKFOPtpDdP2SLXPOjsKBJDYhTMXY4uA0h6NB+Uos8E3MLZSrfA+P+OEIPK/ZGD9eQ==
 
-"@bazel/ibazel@^0.15.10":
-  version "0.15.10"
-  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.15.10.tgz#cf0cff1aec6d8e7bb23e1fc618d09fbd39b7a13f"
-  integrity sha512-0v+OwCQ6fsGFa50r6MXWbUkSGuWOoZ22K4pMSdtWiL5LKFIE4kfmMmtQS+M7/ICNwk2EIYob+NRreyi/DGUz5A==
+"@bazel/ibazel@^0.16.2":
+  version "0.16.2"
+  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.16.2.tgz#05dd7f06659759fda30f87b15534f1e42f1201bb"
+  integrity sha512-KgqAWMH0emL6f3xH6nqyTryoBMqlJ627LBIe9PT1PRRQPz2FtHib3FIHJPukp1slzF3hJYZvdiVwgPnHbaSOOA==
 
-"@bazel/typescript@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.2.0.tgz#131127c8016c712ef1b291f2b52108e5326f0447"
-  integrity sha512-hNpSCQj5dOX95iC4Yf/fuyxfMU5uTAe84thqPcTCvOJFmpypN6qzxH24S5UiXkwbsL8sQM9DP0+qFyT/TRKdNw==
+"@bazel/typescript@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.3.0.tgz#84ff0f0d5a1c885c8246b52dc4351029d03213cb"
+  integrity sha512-n49HdHo/qFqXGYnNlzol203MKb5EytvC1GChroBzqoT6woWpb+p4e/xEatiMOEKWnlyPT/ZUAMQ8Ve/6yv1Dig==
   dependencies:
-    "@bazel/worker" "5.2.0"
+    "@bazel/worker" "5.3.0"
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.2.0.tgz#464726821f9d98b11c6536e2547d44459a321a61"
-  integrity sha512-C9ozvgRP2iug4e9XaVjfXSKmrUMyzsYhDN2/A+MqKl8qlAf5AlveNofCUBASHxJsYiBn3ATbPNUznGsjeMpVWg==
+"@bazel/worker@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.3.0.tgz#c3a1296d741057a1ea380afc2fda06b74c182cd6"
+  integrity sha512-Tgyaud2/6mtYeaH+uCFQuuIVd/VRDvbUDFJgz8b+/LxTcXaDCb8OSI0ZnrEzLV7FJizMCam3/vWE2x9Ul4SOJw==
   dependencies:
     google-protobuf "^3.6.1"
 

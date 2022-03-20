@@ -655,38 +655,38 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/protractor@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-5.2.0.tgz#c9a999dffa9021b7c1e0a3fa65dad37061cb83dc"
-  integrity sha512-WdpPa9onYJ0ghAfeK4lIzzdNx0QeOGXCYX0+eF7SJYKsiQtvihph+MQUTSFjqunaHKhCFA9q2IoJ6N+5+7Zuvw==
+"@bazel/protractor@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-5.3.0.tgz#4f690ca8854fe1abb564f4817a7821ebaa152846"
+  integrity sha512-of7Cxrr6hUnDzzO6aDCy//lYT5v2KgSlfDsq573VdtD/zbkY+UKcRPFCfG9maD3NixsLJCkxdt/DVZrsvmiOYA==
 
-"@bazel/rollup@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-5.2.0.tgz#54ab0589601a1b7620f031adae24ee2e7b099af3"
-  integrity sha512-NzQDNMncsJjKCpBWtVyOxtyN7JzQJ1tjWyRM9WezgJT+/2FKDdIV2LWCBoOkPywe7A2x3OXyR4m93Za4X52QRQ==
+"@bazel/rollup@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-5.3.0.tgz#f759fc06f16a32ca137d432c1de39890cc456e5d"
+  integrity sha512-Y3qtWatJPVlLtROiyBPQSAb5otUOfn8SOt4cnoC/+nPsMbzNDjn/2QYNVqbw1ZWVgPeUykHgyyuB1vGnfWOsww==
   dependencies:
-    "@bazel/worker" "5.2.0"
+    "@bazel/worker" "5.3.0"
 
-"@bazel/terser@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-5.2.0.tgz#7e98626cf5dfc3e41bd9d724c35eff4270261b1f"
-  integrity sha512-ett6c+T1tIXu4f4dy2ohYznaHlvH7tuQcFvdEltU4Fv6JfV/Lmo1QtAqBgq9D+05Jr3n/vqA+Fxk3Gc4h48Iog==
+"@bazel/terser@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-5.3.0.tgz#50d0f67f6111640b11800cac90d39f26d02eb8dd"
+  integrity sha512-M4We9XzocIk9ivvgCV2zIIwHEdhP8C+BQQbsrmt5h63S0XKMVrn5bEQiWqE1Q9WxyrZ7pUqHGVelYV/d7QFvtQ==
 
-"@bazel/typescript@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.2.0.tgz#131127c8016c712ef1b291f2b52108e5326f0447"
-  integrity sha512-hNpSCQj5dOX95iC4Yf/fuyxfMU5uTAe84thqPcTCvOJFmpypN6qzxH24S5UiXkwbsL8sQM9DP0+qFyT/TRKdNw==
+"@bazel/typescript@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.3.0.tgz#84ff0f0d5a1c885c8246b52dc4351029d03213cb"
+  integrity sha512-n49HdHo/qFqXGYnNlzol203MKb5EytvC1GChroBzqoT6woWpb+p4e/xEatiMOEKWnlyPT/ZUAMQ8Ve/6yv1Dig==
   dependencies:
-    "@bazel/worker" "5.2.0"
+    "@bazel/worker" "5.3.0"
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.2.0.tgz#464726821f9d98b11c6536e2547d44459a321a61"
-  integrity sha512-C9ozvgRP2iug4e9XaVjfXSKmrUMyzsYhDN2/A+MqKl8qlAf5AlveNofCUBASHxJsYiBn3ATbPNUznGsjeMpVWg==
+"@bazel/worker@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.3.0.tgz#c3a1296d741057a1ea380afc2fda06b74c182cd6"
+  integrity sha512-Tgyaud2/6mtYeaH+uCFQuuIVd/VRDvbUDFJgz8b+/LxTcXaDCb8OSI0ZnrEzLV7FJizMCam3/vWE2x9Ul4SOJw==
   dependencies:
     google-protobuf "^3.6.1"
 
