@@ -1,0 +1,10 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+# Test that a runfile can be loaded in a subdirectory
+# when chdir is used with nodejs_binary.
+nodejs_binary(
+    name = "chdir-test",
+    chdir = package_name(),
+    data = ["file.json"],
+    entry_point = "reader.js",
+)

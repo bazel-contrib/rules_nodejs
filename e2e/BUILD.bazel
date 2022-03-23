@@ -176,3 +176,12 @@ e2e_integration_test(
     "4.2.x",
     "4.3.x",
 ]]
+
+e2e_integration_test(
+    name = "e2e_bazel_run_chdir",
+    bazel_commands = [
+        "run //subfolder:chdir-test",
+    ],
+    # TODO: figure out why this fails on Windows
+    tags = ["no-bazelci-windows"],
+)
