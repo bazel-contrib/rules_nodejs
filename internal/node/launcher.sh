@@ -165,7 +165,19 @@ ARGS=()
 NODE_ARGS=("TEMPLATED_node_args")
 LAUNCHER_NODE_OPTIONS=($NODE_ARGS)
 USER_NODE_OPTIONS=()
-ALL_ARGS=(TEMPLATED_args "$@")
+CHDIR="TEMPLATED_chdir"
+CHDIR_REQUIRE_ARG=""
+if [ $CHDIR ]; then
+  # rlocation doesn't return the correct runfiles path to the chdir script when
+  # called under the bazel run context. Manually check if the runfile exists
+  # otherwise fallback to rlocation.
+  if [[ -f "${RUNFILES}/${CHDIR}" ]]; then
+    CHDIR_REQUIRE_ARG="--node_options=--require=${RUNFILES}/${CHDIR}"
+  else
+    CHDIR_REQUIRE_ARG="--node_options=--require=$(rlocation ${CHDIR})"
+  fi
+fi
+ALL_ARGS=(TEMPLATED_args $CHDIR_REQUIRE_ARG "$@")
 STDOUT_CAPTURE=""
 STDERR_CAPTURE=""
 EXIT_CODE_CAPTURE=""

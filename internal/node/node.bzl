@@ -291,7 +291,7 @@ if (process.cwd() !== __dirname) {
         runfiles.append(chdir_script)
 
         # this join is effectively a $(rootdir) expansion
-        expanded_args.append("--node_options=--require=$$(rlocation %s)" % _join(ctx.workspace_name, chdir_script.short_path))
+        chdir_script_runfiles_path = _join(ctx.workspace_name, chdir_script.short_path)
 
     # Next expand predefined source/output path variables:
     # $(execpath), $(rootpath) & legacy $(location)
@@ -322,6 +322,7 @@ if (process.cwd() !== __dirname) {
         "TEMPLATED_runfiles_helper_script": _to_manifest_path(ctx, ctx.file._runfile_helpers_main),
         "TEMPLATED_node_tool_path": strip_external(node_toolchain.nodeinfo.target_tool_path),
         "TEMPLATED_node_args": ctx.attr._node_args[UserBuildSettingInfo].value,
+        "TEMPLATED_chdir": chdir_script_runfiles_path if ctx.attr.chdir else "",
     }
 
     # TODO when we have "link_all_bins" we will only need to look in one place for the entry point
