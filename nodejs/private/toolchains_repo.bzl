@@ -18,18 +18,6 @@ with only the toolchain attribute pointing into the platform-specific repositori
 """
 
 PLATFORMS = {
-    "darwin_amd64": struct(
-        compatible_with = [
-            "@platforms//os:macos",
-            "@platforms//cpu:x86_64",
-        ],
-    ),
-    "darwin_arm64": struct(
-        compatible_with = [
-            "@platforms//os:macos",
-            "@platforms//cpu:aarch64",
-        ],
-    ),
     "linux_amd64": struct(
         compatible_with = [
             "@platforms//os:linux",
@@ -42,12 +30,6 @@ PLATFORMS = {
             "@platforms//cpu:aarch64",
         ],
     ),
-    "windows_amd64": struct(
-        compatible_with = [
-            "@platforms//os:windows",
-            "@platforms//cpu:x86_64",
-        ],
-    ),
     "linux_s390x": struct(
         compatible_with = [
             "@platforms//os:linux",
@@ -58,6 +40,24 @@ PLATFORMS = {
         compatible_with = [
             "@platforms//os:linux",
             "@platforms//cpu:ppc",
+        ],
+    ),
+    "darwin_amd64": struct(
+        compatible_with = [
+            "@platforms//os:macos",
+            "@platforms//cpu:x86_64",
+        ],
+    ),
+    "darwin_arm64": struct(
+        compatible_with = [
+            "@platforms//os:macos",
+            "@platforms//cpu:aarch64",
+        ],
+    ),
+    "windows_amd64": struct(
+        compatible_with = [
+            "@platforms//os:windows",
+            "@platforms//cpu:x86_64",
         ],
     ),
 }
@@ -104,6 +104,12 @@ resolved_toolchain(name = "resolved_toolchain", visibility = ["//visibility:publ
         build_content += """
 toolchain(
     name = "{platform}_toolchain",
+    exec_compatible_with = {compatible_with},
+    toolchain = "@{user_node_repository_name}_{platform}//:node_toolchain",
+    toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
+)
+toolchain(
+    name = "{platform}_toolchain_target",
     target_compatible_with = {compatible_with},
     toolchain = "@{user_node_repository_name}_{platform}//:node_toolchain",
     toolchain_type = "@rules_nodejs//nodejs:toolchain_type",

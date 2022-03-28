@@ -388,7 +388,10 @@ def nodejs_register_toolchains(name, register = True, **kwargs):
             **kwargs
         )
         if register:
-            native.register_toolchains("@%s_toolchains//:%s_toolchain" % (name, platform))
+            native.register_toolchains(
+                "@%s_toolchains//:%s_toolchain_target" % (name, platform),
+                "@%s_toolchains//:%s_toolchain" % (name, platform),
+            )
 
     nodejs_repo_host_os_alias(
         name = name + "_host",
