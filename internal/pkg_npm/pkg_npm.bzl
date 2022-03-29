@@ -122,7 +122,7 @@ If package_path is not set the this will be the root node_modules of the workspa
     "stamp": STAMP_ATTR,
     "substitutions": attr.string_dict(
         doc = """Key-value pairs which are replaced in all the files while building the package.
-        
+
 You can use values from the workspace status command using curly braces, for example
 `{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
 
@@ -192,7 +192,7 @@ def _serialize_files_for_arg(files):
     return json.encode(result)
 
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
-def create_package(ctx, deps_files, nested_packages):
+def create_package(ctx, static_files, deps_files, nested_packages):
     """Creates an action that produces the npm package.
 
     It copies srcs and deps into the artifact and produces the .pack and .publish
@@ -200,6 +200,7 @@ def create_package(ctx, deps_files, nested_packages):
 
     Args:
       ctx: the starlark rule context
+      static_files: list of static files to be copied over into the package
       deps_files: list of files to include in the package which have been
                   specified as dependencies
       nested_packages: list of TreeArtifact outputs from other actions which are
@@ -211,7 +212,7 @@ def create_package(ctx, deps_files, nested_packages):
 
     stamp = ctx.attr.stamp[StampSettingInfo].value
 
-    all_files = deps_files + ctx.files.srcs
+    all_files = deps_files + static_files
 
     if not stamp and len(all_files) == 1 and all_files[0].is_directory and len(ctx.files.nested_packages) == 0:
         # Special case where these is a single dep that is a directory artifact and there are no
@@ -233,12 +234,12 @@ def create_package(ctx, deps_files, nested_packages):
     filtered_deps_sources = _filter_out_external_files(ctx, deps_files, owning_package_name)
 
     args = ctx.actions.args()
-    inputs = ctx.files.srcs + deps_files + nested_packages
+    inputs = static_files + deps_files + nested_packages
 
     args.use_param_file("%s", use_always = True)
     args.add(package_dir.path)
     args.add(owning_package_name)
-    args.add(_serialize_files_for_arg(ctx.files.srcs))
+    args.add(_serialize_files_for_arg(static_files))
     args.add(_serialize_files_for_arg(filtered_deps_sources))
     args.add(_serialize_files_for_arg(nested_packages))
     args.add(ctx.attr.substitutions)
@@ -330,7 +331,7 @@ def _pkg_npm(ctx):
     # Note: to_list() should be called once per rule!
     deps_files = depset(transitive = deps_files_depsets).to_list()
 
-    package_dir = create_package(ctx, deps_files, ctx.files.nested_packages)
+    package_dir = create_package(ctx, ctx.files.srcs, deps_files, ctx.files.nested_packages)
 
     package_dir_depset = depset([package_dir])
 

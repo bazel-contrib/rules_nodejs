@@ -1080,7 +1080,7 @@ Defaults to `@rules_nodejs//nodejs/stamp:use_stamp_flag`
 <h4 id="pkg_npm-substitutions">substitutions</h4>
 
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Key-value pairs which are replaced in all the files while building the package.
-        
+
 You can use values from the workspace status command using curly braces, for example
 `{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
 
