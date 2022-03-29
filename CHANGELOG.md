@@ -1,3 +1,13 @@
+## [5.3.1](https://github.com/bazelbuild/rules_nodejs/compare/5.3.0...5.3.1) (2022-03-29)
+
+
+### Bug Fixes
+
+* condition on target instead of exec ([#3373](https://github.com/bazelbuild/rules_nodejs/issues/3373)) ([43159a5](https://github.com/bazelbuild/rules_nodejs/commit/43159a5))
+* **builtin:** require correct runfiles path to chdir script ([#3374](https://github.com/bazelbuild/rules_nodejs/issues/3374)) ([9ed16c0](https://github.com/bazelbuild/rules_nodejs/commit/9ed16c0))
+
+
+
 # [5.3.0](https://github.com/bazelbuild/rules_nodejs/compare/5.2.0...5.3.0) (2022-03-20)
 
 
