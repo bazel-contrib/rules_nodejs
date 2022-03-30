@@ -1344,14 +1344,16 @@ export function printIndexBzl(pkg: Dep) {
       const entryPoint = config.exports_directories_only ? 
         `{ "@${config.workspace}//:node_modules/${pkg._dir}": "${path}" }` :
         `"@${config.workspace}//:node_modules/${pkg._dir}/${path}"`;
+      const args = config.exports_directories_only ? ["--bazel_run_from_execroot"]:[]
       result = `${result}
 
 # Generated helper macro to call ${name}
 def ${name.replace(/-/g, '_')}(**kwargs):
     output_dir = kwargs.pop("output_dir", False)
     if "outs" in kwargs or output_dir:
+        args = kwargs.pop("args", []) + [${args.map(p => `"${p}"`).join(', ')}]
         npm_package_bin(tool = "@${config.workspace}//${pkg._dir}/bin:${
-          name}", output_dir = output_dir, **kwargs)
+          name}", output_dir = output_dir, args = args, **kwargs)
     else:
         nodejs_binary(
             entry_point = ${entryPoint},
