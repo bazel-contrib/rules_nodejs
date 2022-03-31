@@ -1,0 +1,10 @@
+{
+    "version": "0.0.1",
+    "description": "See: internal/node/test/instanceof_test_execroot",
+    "bin": {
+        "instanceof_execroot": "main.js"
+    },
+    "peerDependencies": {
+        "node_resolve_main": "*"
+    }
+}

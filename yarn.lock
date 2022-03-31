@@ -8745,6 +8745,9 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
+"pkg_with_bin@file:./tools/npm_packages/pkg_with_bin":
+  version "0.0.1"
+
 please-upgrade-node@^3.1.1:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/please-upgrade-node/-/please-upgrade-node-3.2.0.tgz#aeddd3f994c933e4ad98b99d9a556efa0e2fe942"

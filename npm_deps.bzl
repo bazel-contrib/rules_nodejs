@@ -42,6 +42,8 @@ def npm_deps():
             "//:tools/npm_packages/node_resolve_nested_main/nested/package.json",
             "//:tools/npm_packages/testy/index.js",
             "//:tools/npm_packages/testy/package.json",
+            "//:tools/npm_packages/pkg_with_bin/main.js",
+            "//:tools/npm_packages/pkg_with_bin/package.json",
         ],
         environment = {
             "SOME_USER_ENV": "yarn is great!",
@@ -107,6 +109,8 @@ js_library(
             "//:tools/npm_packages/node_resolve_nested_main/nested/package.json",
             "//:tools/npm_packages/testy/index.js",
             "//:tools/npm_packages/testy/package.json",
+            "//:tools/npm_packages/pkg_with_bin/main.js",
+            "//:tools/npm_packages/pkg_with_bin/package.json",
         ],
         environment = {
             "SOME_USER_ENV": "yarn is great!",

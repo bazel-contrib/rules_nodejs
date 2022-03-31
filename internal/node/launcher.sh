@@ -337,7 +337,7 @@ else
   # Entry point is the user-supplied script
   MAIN="${PWD}/"TEMPLATED_entry_point_execroot_path
   # TODO: after we link-all-bins we should not need this extra lookup
-  if [[ ! -f "$MAIN" ]]; then
+  if [[ ! -e "$MAIN" ]]; then
     if [ "$FROM_EXECROOT" = true ]; then
       MAIN="$EXECROOT/"TEMPLATED_entry_point_execroot_path
     else
