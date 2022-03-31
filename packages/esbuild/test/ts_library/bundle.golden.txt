@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 
-var getId = () => "dynamic-id";
+var getId = /* @__PURE__ */ __name(() => "dynamic-id", "getId");
 
 
 var getId2 = /* @__PURE__ */ __name(() => "module-one", "getId");

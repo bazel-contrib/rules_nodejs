@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 
-var getId = () => "module-one";
+var getId = /* @__PURE__ */ __name(() => "module-one", "getId");
 
 
 var getId2 = /* @__PURE__ */ __name(() => "module-two", "getId");
