@@ -13,6 +13,6 @@
     "bazel"
   ],
   "dependencies": {
-    "esbuild": "0.14.27"
+    "esbuild": "0.14.29"
   }
 }
