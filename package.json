@@ -77,6 +77,7 @@
         "node_resolve_main": "file:./tools/npm_packages/node_resolve_main",
         "node_resolve_main_2": "file:./tools/npm_packages/node_resolve_main_2",
         "node_resolve_nested_main": "file:./tools/npm_packages/node_resolve_nested_main",
+        "pkg_with_bin": "file:./tools/npm_packages/pkg_with_bin",
         "npm": "6.13.7",
         "patch-package": "^6.2.2",
         "protobufjs": "6.8.8",

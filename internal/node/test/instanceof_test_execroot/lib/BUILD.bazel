@@ -1,0 +1,16 @@
+load("//:index.bzl", "js_library")
+
+package(default_visibility = ["//internal/node/test/instanceof_test_execroot:__subpackages__"])
+
+js_library(
+    name = "lib",
+    # required by tools/npm_packages/pkg_with_bin as third-party dep
+    package_name = "instanceof_test_execroot_lib",
+    srcs = [
+        "index.js",
+        "package.json",
+    ],
+    deps = [
+        "@npm//node_resolve_main",
+    ],
+)
