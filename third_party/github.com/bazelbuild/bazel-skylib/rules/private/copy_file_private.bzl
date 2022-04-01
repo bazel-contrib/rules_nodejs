@@ -85,7 +85,7 @@ def copy_cmd(ctx, src, dst):
 # buildifier: disable=function-docstring
 def copy_bash(ctx, src, dst):
     if dst.is_directory:
-        cmd_tmpl = "rm -rf \"$2\" && cp -rf \"$1/\" \"$2\""
+        cmd_tmpl = "rm -rf \"$2\" && cp -fR \"$1/\" \"$2\""
         mnemonic = "CopyDirectory"
         progress_message = "Copying directory %s" % src.path
     else:
