@@ -25,7 +25,7 @@ bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]),
     deps = [
-        "//packages/typescript/internal:bzl",
+        "//nodejs/private:bzl",
         "@bazel_skylib//lib:partial",
         "@bazel_skylib//lib:types",
         "@bazel_skylib//rules:build_test",

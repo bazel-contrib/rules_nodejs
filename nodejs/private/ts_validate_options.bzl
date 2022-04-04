@@ -1,9 +1,15 @@
 "Helper rule to check that ts_project attributes match tsconfig.json properties"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "run_node")
 load(":ts_config.bzl", "TsConfigInfo")
+load(":ts_lib.bzl", "COMPILER_OPTION_ATTRS")
 
-ValidOptionsInfo = provider()
+ValidOptionsInfo = provider(
+    doc = "Internal: whether the validator ran successfully",
+    fields = {
+        "marker": """useless file that must be depended on to cause the validation action to run.
+        TODO: replace with https://docs.bazel.build/versions/main/skylark/rules.html#validation-actions""",
+    },
+)
 
 def _tsconfig_inputs(ctx):
     """Returns all transitively referenced tsconfig files from "tsconfig" and "extends" attributes."""
@@ -19,7 +25,7 @@ def _tsconfig_inputs(ctx):
             inputs.extend(ctx.attr.extends.files.to_list())
     return inputs
 
-def _validate_options_impl(ctx):
+def _validate_options_impl(ctx, run_action):
     # Bazel won't run our action unless its output is needed, so make a marker file
     # We make it a .d.ts file so we can plumb it to the deps of the ts_project compile.
     marker = ctx.actions.declare_file("%s.optionsvalid.d.ts" % ctx.label.name)
@@ -42,7 +48,7 @@ def _validate_options_impl(ctx):
 
     inputs = _tsconfig_inputs(ctx)
 
-    run_node(
+    run_action(
         ctx,
         inputs = inputs,
         outputs = [marker],
@@ -56,32 +62,16 @@ def _validate_options_impl(ctx):
         ValidOptionsInfo(marker = marker),
     ]
 
-# These attrs are shared between the validate and the ts_project rules
-SHARED_ATTRS = {
-    "allow_js": attr.bool(),
-    "composite": attr.bool(),
-    "declaration": attr.bool(),
-    "declaration_map": attr.bool(),
-    "emit_declaration_only": attr.bool(),
-    "extends": attr.label(allow_files = [".json"]),
-    "incremental": attr.bool(),
-    "preserve_jsx": attr.bool(),
-    "resolve_json_module": attr.bool(),
-    "source_map": attr.bool(),
-}
-
-validate_options = rule(
-    implementation = _validate_options_impl,
-    attrs = dict(SHARED_ATTRS, **{
-        "has_local_deps": attr.bool(doc = "Whether any of the deps are in the local workspace (not starting with '@')"),
-        "target": attr.string(),
-        "ts_build_info_file": attr.string(),
-        "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
-        "validator": attr.label(default = Label("//packages/typescript/bin:ts_project_options_validator"), executable = True, cfg = "exec"),
-    }),
-)
+_ATTRS = dict(COMPILER_OPTION_ATTRS, **{
+    "has_local_deps": attr.bool(doc = "Whether any of the deps are in the local workspace (not starting with '@')"),
+    "target": attr.string(),
+    "ts_build_info_file": attr.string(),
+    "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
+    "validator": attr.label(mandatory = True, executable = True, cfg = "exec"),
+})
 
 lib = struct(
+    attrs = _ATTRS,
+    implementation = _validate_options_impl,
     tsconfig_inputs = _tsconfig_inputs,
-    attrs = SHARED_ATTRS,
 )

@@ -14,7 +14,7 @@
 
 "tsconfig.json files using extends"
 
-load(":tslib.bzl", _lib = "lib")
+load(":ts_lib.bzl", _lib = "lib")
 
 TsConfigInfo = provider(
     doc = """Provides TypeScript configuration, in the form of a tsconfig.json file

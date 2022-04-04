@@ -18,10 +18,12 @@ Users should not load files under "/internal"
 """
 
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
-load("//packages/typescript/internal:ts_config.bzl", "write_tsconfig", _ts_config = "ts_config")
-load("//packages/typescript/internal:ts_project.bzl", _ts_project = "ts_project")
-load("//packages/typescript/internal:tslib.bzl", _lib = "lib")
-load("//packages/typescript/internal:validate_options.bzl", "validate_options")
+load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "run_node")
+load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
+load("//nodejs/private:ts_config.bzl", "write_tsconfig", _ts_config = "ts_config")
+load("//nodejs/private:ts_project.bzl", _ts_project_lib = "ts_project")
+load("//nodejs/private:ts_lib.bzl", _lib = "lib")
+load("//nodejs/private:ts_validate_options.bzl", validate_lib = "lib")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("@bazel_skylib//lib:partial.bzl", "partial")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
@@ -29,6 +31,28 @@ load("@bazel_skylib//rules:build_test.bzl", "build_test")
 # If adding rules here also add to index.docs.bzl
 
 ts_config = _ts_config
+
+def _validate_options_impl(ctx):
+    return validate_lib.implementation(ctx, run_node)
+
+validate_options = rule(
+    implementation = _validate_options_impl,
+    attrs = validate_lib.attrs,
+)
+
+def _ts_project_impl(ctx):
+    return _ts_project_lib.implementation(ctx, run_node, ExternalNpmPackageInfo)
+
+_ts_project = rule(
+    implementation = _ts_project_impl,
+    # Override the "deps" key to attach our linker aspect
+    attrs = dict(_ts_project_lib.attrs, **{
+        "deps": attr.label_list(
+            providers = _ts_project_lib.deps_providers,
+            aspects = [module_mappings_aspect],
+        ),
+    }),
+)
 
 # Copied from aspect_bazel_lib
 # https://github.com/aspect-build/bazel-lib/blob/main/lib/private/utils.bzl#L73-L82
@@ -100,7 +124,12 @@ def ts_project(
         emit_declaration_only = False,
         transpiler = None,
         ts_build_info_file = None,
-        tsc = None,
+        tsc = Label(
+            # BEGIN-INTERNAL
+            "@npm" +
+            # END-INTERNAL
+            "//typescript/bin:tsc",
+        ),
         typescript_package = _DEFAULT_TYPESCRIPT_PACKAGE,
         typescript_require_path = "typescript",
         validate = True,
@@ -488,6 +517,7 @@ def ts_project(
                 tsconfig = tsconfig,
                 extends = extends,
                 has_local_deps = len([d for d in deps if not _is_external_label(d)]) > 0,
+                validator = Label("//packages/typescript/bin:ts_project_options_validator"),
                 **common_kwargs
             )
             tsc_deps = tsc_deps + ["_validate_%s_options" % name]

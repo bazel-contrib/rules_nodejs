@@ -1,54 +1,20 @@
 "ts_project rule"
 
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "declaration_info", "js_module_info")
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "run_node")
-load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
-load(":tslib.bzl", _lib = "lib")
+load(":ts_lib.bzl", "COMPILER_OPTION_ATTRS", "OUTPUT_ATTRS", "STD_ATTRS", _lib = "lib")
 load(":ts_config.bzl", "TsConfigInfo")
-load(":validate_options.bzl", "ValidOptionsInfo", _validate_lib = "lib")
+load(":ts_validate_options.bzl", "ValidOptionsInfo", _validate_lib = "lib")
 
-_DEFAULT_TSC = (
-    # BEGIN-INTERNAL
-    "@npm" +
-    # END-INTERNAL
-    "//typescript/bin:tsc"
-)
-
-_ATTRS = dict(_validate_lib.attrs, **{
-    "args": attr.string_list(),
-    "data": attr.label_list(default = [], allow_files = True),
-    "declaration_dir": attr.string(),
-    "deps": attr.label_list(
-        providers = [
-            # Provide one or the other of these
-            [DeclarationInfo],
-            [ValidOptionsInfo],
-        ],
-        aspects = [module_mappings_aspect],
-    ),
+_DEPS_PROVIDERS = [
+    # Targets in deps must provide one or the other of these
+    [DeclarationInfo],
+    [ValidOptionsInfo],
+]
+_ATTRS = {
+    "deps": attr.label_list(providers = _DEPS_PROVIDERS),
     "link_workspace_root": attr.bool(),
-    "out_dir": attr.string(),
-    "root_dir": attr.string(),
-    # NB: no restriction on extensions here, because tsc sometimes adds type-check support
-    # for more file kinds (like require('some.json')) and also
-    # if you swap out the `compiler` attribute (like with ngtsc)
-    # that compiler might allow more sources than tsc does.
-    "srcs": attr.label_list(allow_files = True, mandatory = True),
     "supports_workers": attr.bool(default = False),
-    "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "exec"),
-    "transpile": attr.bool(doc = "whether tsc should be used to produce .js outputs", default = True),
-    "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
-})
-
-# tsc knows how to produce the following kinds of output files.
-# NB: the macro `ts_project_macro` will set these outputs based on user
-# telling us which settings are enabled in the tsconfig for this project.
-_OUTPUTS = {
-    "buildinfo_out": attr.output(),
-    "js_outs": attr.output_list(),
-    "map_outs": attr.output_list(),
-    "typing_maps_outs": attr.output_list(),
-    "typings_outs": attr.output_list(),
 }
 
 def _declare_outputs(ctx, paths):
@@ -57,40 +23,10 @@ def _declare_outputs(ctx, paths):
         for path in paths
     ]
 
-def _calculate_root_dir(ctx):
-    some_generated_path = None
-    some_source_path = None
-    root_path = None
-
-    # Note we don't have access to the ts_project macro allow_js param here.
-    # For error-handling purposes, we can assume that any .js/.jsx
-    # input is meant to be in the rootDir alongside .ts/.tsx sources,
-    # whether the user meant for them to be sources or not.
-    # It's a non-breaking change to relax this constraint later, but would be
-    # a breaking change to restrict it further.
-    allow_js = True
-    for src in ctx.files.srcs:
-        if _lib.is_ts_src(src.path, allow_js):
-            if src.is_source:
-                some_source_path = src.path
-            else:
-                some_generated_path = src.path
-                root_path = ctx.bin_dir.path
-
-    if some_source_path and some_generated_path:
-        fail("ERROR: %s srcs cannot be a mix of generated files and source files " % ctx.label +
-             "since this would prevent giving a single rootDir to the TypeScript compiler\n" +
-             "    found generated file %s and source file %s" %
-             (some_generated_path, some_source_path))
-
-    return _lib.join(
-        root_path,
-        ctx.label.workspace_root,
-        ctx.label.package,
-        ctx.attr.root_dir,
-    )
-
-def _ts_project_impl(ctx):
+# This function has two extra arguments that are particular to how it's called locally.
+# - run_action is used with the build_bazel_rules_nodejs linker, but other rule authors might just use ctx.actions.run
+# - ExternalNpmPackageInfo is in the build_bazel_rules_nodejs linker and the symbol is not part of rules_nodejs core.
+def _ts_project_impl(ctx, run_action, ExternalNpmPackageInfo = None):
     srcs = [_lib.relative_to_package(src.path, ctx) for src in ctx.files.srcs]
 
     # Recalculate outputs inside the rule implementation.
@@ -125,7 +61,7 @@ def _ts_project_impl(ctx):
         "--outDir",
         _lib.join(ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package, ctx.attr.out_dir),
         "--rootDir",
-        _calculate_root_dir(ctx),
+        _lib.calculate_root_dir(ctx),
     ])
     if len(typings_outs) > 0:
         declaration_dir = ctx.attr.declaration_dir if ctx.attr.declaration_dir else ctx.attr.out_dir
@@ -155,7 +91,7 @@ def _ts_project_impl(ctx):
     for dep in ctx.attr.deps:
         if TsConfigInfo in dep:
             deps_depsets.append(dep[TsConfigInfo].deps)
-        if ExternalNpmPackageInfo in dep:
+        if ExternalNpmPackageInfo != None and ExternalNpmPackageInfo in dep:
             # TODO: we could maybe filter these to be tsconfig.json or *.d.ts only
             # we don't expect tsc wants to read any other files from npm packages.
             deps_depsets.append(dep[ExternalNpmPackageInfo].sources)
@@ -223,7 +159,7 @@ This is an error because Bazel does not run actions unless their outputs are nee
         default_outputs_depset = depset([])
 
     if len(outputs) > 0:
-        run_node(
+        run_action(
             ctx,
             inputs = inputs,
             arguments = [arguments],
@@ -280,7 +216,8 @@ This is an error because Bazel does not run actions unless their outputs are nee
 
     return providers
 
-ts_project = rule(
+ts_project = struct(
     implementation = _ts_project_impl,
-    attrs = dict(_ATTRS, **_OUTPUTS),
+    deps_providers = _DEPS_PROVIDERS,
+    attrs = dicts.add(_ATTRS, COMPILER_OPTION_ATTRS, STD_ATTRS, OUTPUT_ATTRS),
 )
