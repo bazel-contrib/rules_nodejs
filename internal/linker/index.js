@@ -291,6 +291,8 @@ function main(args, runfiles) {
         log_verbose('isExecroot:', isExecroot.toString());
         const isBazelRun = !!process.env['BUILD_WORKSPACE_DIRECTORY'];
         log_verbose('isBazelRun:', isBazelRun.toString());
+        const isiBazel = !!process.env['IBAZEL'];
+        log_verbose('isiBazel:', isiBazel.toString());
         if (!isExecroot && execroot) {
             process.chdir(execroot);
             log_verbose('changed directory to execroot', execroot);
@@ -358,17 +360,19 @@ function main(args, runfiles) {
                     primaryNodeModules = execrootNodeModules;
                 }
             }
-            if (!isExecroot) {
-                const runfilesNodeModules = path.posix.join(startCwd, packagePath, 'node_modules');
-                yield mkdirp(path.dirname(runfilesNodeModules));
-                yield symlinkWithUnlink(primaryNodeModules, runfilesNodeModules);
-            }
-            if (process.env['RUNFILES']) {
-                const stat = yield gracefulLstat(process.env['RUNFILES']);
-                if (stat && stat.isDirectory()) {
-                    const runfilesNodeModules = path.posix.join(process.env['RUNFILES'], workspace, 'node_modules');
+            if (isiBazel) {
+                if (!isExecroot) {
+                    const runfilesNodeModules = path.posix.join(startCwd, packagePath, 'node_modules');
                     yield mkdirp(path.dirname(runfilesNodeModules));
                     yield symlinkWithUnlink(primaryNodeModules, runfilesNodeModules);
+                }
+                if (process.env['RUNFILES']) {
+                    const stat = yield gracefulLstat(process.env['RUNFILES']);
+                    if (stat && stat.isDirectory()) {
+                        const runfilesNodeModules = path.posix.join(process.env['RUNFILES'], workspace, 'node_modules');
+                        yield mkdirp(path.dirname(runfilesNodeModules));
+                        yield symlinkWithUnlink(primaryNodeModules, runfilesNodeModules);
+                    }
                 }
             }
         }
