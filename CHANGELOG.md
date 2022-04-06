@@ -1,3 +1,20 @@
+# [5.4.0](https://github.com/bazelbuild/rules_nodejs/compare/5.3.1...5.4.0) (2022-04-06)
+
+
+### Bug Fixes
+
+* exports_directories_only causes node to resolve from runfiles/node_modules ([#3380](https://github.com/bazelbuild/rules_nodejs/issues/3380)) ([5bf3782](https://github.com/bazelbuild/rules_nodejs/commit/5bf3782))
+* use -R in copy_file(is_dir=True) so macos & linux behavior are the same ([#3383](https://github.com/bazelbuild/rules_nodejs/issues/3383)) ([2fd97fb](https://github.com/bazelbuild/rules_nodejs/commit/2fd97fb))
+* use python3 instead of python in unittest.bash ([#3382](https://github.com/bazelbuild/rules_nodejs/issues/3382)) ([b74d12d](https://github.com/bazelbuild/rules_nodejs/commit/b74d12d))
+
+
+### Features
+
+* **builtin:** add basic ESM support ([bc62f37](https://github.com/bazelbuild/rules_nodejs/commit/bc62f37))
+* **jasmine:** add basic ESM support ([b4b2c74](https://github.com/bazelbuild/rules_nodejs/commit/b4b2c74))
+
+
+
 ## [5.3.1](https://github.com/bazelbuild/rules_nodejs/compare/5.3.0...5.3.1) (2022-03-29)
 
 
