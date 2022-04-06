@@ -1,6 +1,6 @@
 "Utilities functions for selecting and filtering ts and other files"
 
-load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo")
+load("@rules_nodejs//nodejs/private/providers:declaration_info.bzl", "DeclarationInfo")
 
 ValidOptionsInfo = provider(
     doc = "Internal: whether the validator ran successfully",
