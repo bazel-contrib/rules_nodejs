@@ -2,31 +2,25 @@
 
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "declaration_info", "js_module_info")
-load(":ts_lib.bzl", "COMPILER_OPTION_ATTRS", "OUTPUT_ATTRS", "STD_ATTRS", _lib = "lib")
+load(":ts_lib.bzl", "COMPILER_OPTION_ATTRS", "OUTPUT_ATTRS", "STD_ATTRS", "ValidOptionsInfo", _lib = "lib")
 load(":ts_config.bzl", "TsConfigInfo")
-load(":ts_validate_options.bzl", "ValidOptionsInfo", _validate_lib = "lib")
+load(":ts_validate_options.bzl", _validate_lib = "lib")
 
-_DEPS_PROVIDERS = [
-    # Targets in deps must provide one or the other of these
-    [DeclarationInfo],
-    [ValidOptionsInfo],
-]
-_ATTRS = {
-    "deps": attr.label_list(providers = _DEPS_PROVIDERS),
-    "link_workspace_root": attr.bool(),
-    "supports_workers": attr.bool(default = False),
-}
+def _ts_project_impl(ctx, run_action = None, ExternalNpmPackageInfo = None):
+    """Creates the action which spawns `tsc`.
 
-def _declare_outputs(ctx, paths):
-    return [
-        ctx.actions.declare_file(path)
-        for path in paths
-    ]
+    This function has two extra arguments that are particular to how it's called
+    within build_bazel_rules_nodejs and @bazel/typescript npm package.
+    Other TS rule implementations wouldn't need to pass these:
 
-# This function has two extra arguments that are particular to how it's called locally.
-# - run_action is used with the build_bazel_rules_nodejs linker, but other rule authors might just use ctx.actions.run
-# - ExternalNpmPackageInfo is in the build_bazel_rules_nodejs linker and the symbol is not part of rules_nodejs core.
-def _ts_project_impl(ctx, run_action, ExternalNpmPackageInfo = None):
+    Args:
+        ctx: starlark rule execution context
+        run_action: used with the build_bazel_rules_nodejs linker, by default we use ctx.actions.run
+        ExternalNpmPackageInfo: a provider symbol specific to the build_bazel_rules_nodejs linker
+
+    Returns:
+        list of providers
+    """
     srcs = [_lib.relative_to_package(src.path, ctx) for src in ctx.files.srcs]
 
     # Recalculate outputs inside the rule implementation.
@@ -35,10 +29,10 @@ def _ts_project_impl(ctx, run_action, ExternalNpmPackageInfo = None):
     # However, it is not possible to evaluate files in outputs of other rules such as filegroup, therefore the outs are
     # recalculated here.
     typings_out_dir = ctx.attr.declaration_dir or ctx.attr.out_dir
-    js_outs = _declare_outputs(ctx, [] if not ctx.attr.transpile else _lib.calculate_js_outs(srcs, ctx.attr.out_dir, ctx.attr.root_dir, ctx.attr.allow_js, ctx.attr.preserve_jsx, ctx.attr.emit_declaration_only))
-    map_outs = _declare_outputs(ctx, [] if not ctx.attr.transpile else _lib.calculate_map_outs(srcs, ctx.attr.out_dir, ctx.attr.root_dir, ctx.attr.source_map, ctx.attr.preserve_jsx, ctx.attr.emit_declaration_only))
-    typings_outs = _declare_outputs(ctx, _lib.calculate_typings_outs(srcs, typings_out_dir, ctx.attr.root_dir, ctx.attr.declaration, ctx.attr.composite, ctx.attr.allow_js))
-    typing_maps_outs = _declare_outputs(ctx, _lib.calculate_typing_maps_outs(srcs, typings_out_dir, ctx.attr.root_dir, ctx.attr.declaration_map, ctx.attr.allow_js))
+    js_outs = _lib.declare_outputs(ctx, [] if not ctx.attr.transpile else _lib.calculate_js_outs(srcs, ctx.attr.out_dir, ctx.attr.root_dir, ctx.attr.allow_js, ctx.attr.preserve_jsx, ctx.attr.emit_declaration_only))
+    map_outs = _lib.declare_outputs(ctx, [] if not ctx.attr.transpile else _lib.calculate_map_outs(srcs, ctx.attr.out_dir, ctx.attr.root_dir, ctx.attr.source_map, ctx.attr.preserve_jsx, ctx.attr.emit_declaration_only))
+    typings_outs = _lib.declare_outputs(ctx, _lib.calculate_typings_outs(srcs, typings_out_dir, ctx.attr.root_dir, ctx.attr.declaration, ctx.attr.composite, ctx.attr.allow_js))
+    typing_maps_outs = _lib.declare_outputs(ctx, _lib.calculate_typing_maps_outs(srcs, typings_out_dir, ctx.attr.root_dir, ctx.attr.declaration_map, ctx.attr.allow_js))
 
     arguments = ctx.actions.args()
     execution_requirements = {}
@@ -114,7 +108,7 @@ def _ts_project_impl(ctx, run_action, ExternalNpmPackageInfo = None):
     if len(js_outs):
         pkg_len = len(ctx.label.package) + 1 if len(ctx.label.package) else 0
         rootdir_replace_pattern = ctx.attr.root_dir + "/" if ctx.attr.root_dir else ""
-        json_outs = _declare_outputs(ctx, [
+        json_outs = _lib.declare_outputs(ctx, [
             _lib.join(ctx.attr.out_dir, src.short_path[pkg_len:].replace(rootdir_replace_pattern, ""))
             for src in ctx.files.srcs
             if src.basename.endswith(".json") and src.is_source
@@ -159,21 +153,30 @@ This is an error because Bazel does not run actions unless their outputs are nee
         default_outputs_depset = depset([])
 
     if len(outputs) > 0:
-        run_action(
-            ctx,
-            inputs = inputs,
-            arguments = [arguments],
-            outputs = outputs,
-            mnemonic = "TsProject",
-            executable = "tsc",
-            execution_requirements = execution_requirements,
-            progress_message = "%s %s [tsc -p %s]" % (
+        run_action_kwargs = {
+            "inputs": inputs,
+            "arguments": [arguments],
+            "outputs": outputs,
+            "mnemonic": "TsProject",
+            "execution_requirements": execution_requirements,
+            "progress_message": "%s %s [tsc -p %s]" % (
                 progress_prefix,
                 ctx.label,
                 ctx.file.tsconfig.short_path,
             ),
-            link_workspace_root = ctx.attr.link_workspace_root,
-        )
+        }
+        if run_action != None:
+            run_action(
+                ctx,
+                link_workspace_root = ctx.attr.link_workspace_root,
+                executable = "tsc",
+                **run_action_kwargs
+            )
+        else:
+            ctx.actions.run(
+                executable = ctx.executable.tsc,
+                **run_action_kwargs
+            )
 
     providers = [
         # DefaultInfo is what you see on the command-line for a built library,
@@ -218,6 +221,5 @@ This is an error because Bazel does not run actions unless their outputs are nee
 
 ts_project = struct(
     implementation = _ts_project_impl,
-    deps_providers = _DEPS_PROVIDERS,
-    attrs = dicts.add(_ATTRS, COMPILER_OPTION_ATTRS, STD_ATTRS, OUTPUT_ATTRS),
+    attrs = dicts.add(COMPILER_OPTION_ATTRS, STD_ATTRS, OUTPUT_ATTRS),
 )

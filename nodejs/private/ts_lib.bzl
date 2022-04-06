@@ -1,5 +1,21 @@
 "Utilities functions for selecting and filtering ts and other files"
 
+load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo")
+
+ValidOptionsInfo = provider(
+    doc = "Internal: whether the validator ran successfully",
+    fields = {
+        "marker": """useless file that must be depended on to cause the validation action to run.
+        TODO: replace with https://docs.bazel.build/versions/main/skylark/rules.html#validation-actions""",
+    },
+)
+
+# Targets in deps must provide one or the other of these
+DEPS_PROVIDERS = [
+    [DeclarationInfo],
+    [ValidOptionsInfo],
+]
+
 # Attributes common to all TypeScript rules
 STD_ATTRS = {
     "args": attr.string_list(
@@ -12,6 +28,12 @@ STD_ATTRS = {
     ),
     "declaration_dir": attr.string(
         doc = "Always controlled by Bazel. https://www.typescriptlang.org/tsconfig#declarationDir",
+    ),
+    # Note, this is overridden by the @bazel/typescript implementation in build_bazel_rules_nodejs
+    # to add an aspect on the deps attribute.
+    "deps": attr.label_list(
+        doc = "Other targets which produce TypeScript typings",
+        providers = DEPS_PROVIDERS,
     ),
     "out_dir": attr.string(
         doc = "Always controlled by Bazel. https://www.typescriptlang.org/tsconfig#outDir",
@@ -27,6 +49,10 @@ STD_ATTRS = {
         doc = "TypeScript source files",
         allow_files = True,
         mandatory = True,
+    ),
+    "supports_workers": attr.bool(
+        doc = "Whether the tsc compiler understands Bazel's persistent worker protocol",
+        default = False,
     ),
     "transpile": attr.bool(
         doc = "whether tsc should be used to produce .js outputs",
@@ -217,7 +243,14 @@ def _calculate_root_dir(ctx):
         ctx.attr.root_dir,
     )
 
+def _declare_outputs(ctx, paths):
+    return [
+        ctx.actions.declare_file(path)
+        for path in paths
+    ]
+
 lib = struct(
+    declare_outputs = _declare_outputs,
     join = _join,
     relative_to_package = _relative_to_package,
     is_ts_src = _is_ts_src,

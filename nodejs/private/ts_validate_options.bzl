@@ -1,15 +1,7 @@
 "Helper rule to check that ts_project attributes match tsconfig.json properties"
 
 load(":ts_config.bzl", "TsConfigInfo")
-load(":ts_lib.bzl", "COMPILER_OPTION_ATTRS")
-
-ValidOptionsInfo = provider(
-    doc = "Internal: whether the validator ran successfully",
-    fields = {
-        "marker": """useless file that must be depended on to cause the validation action to run.
-        TODO: replace with https://docs.bazel.build/versions/main/skylark/rules.html#validation-actions""",
-    },
-)
+load(":ts_lib.bzl", "COMPILER_OPTION_ATTRS", "ValidOptionsInfo")
 
 def _tsconfig_inputs(ctx):
     """Returns all transitively referenced tsconfig files from "tsconfig" and "extends" attributes."""
@@ -25,7 +17,7 @@ def _tsconfig_inputs(ctx):
             inputs.extend(ctx.attr.extends.files.to_list())
     return inputs
 
-def _validate_options_impl(ctx, run_action):
+def _validate_options_impl(ctx, run_action = None):
     # Bazel won't run our action unless its output is needed, so make a marker file
     # We make it a .d.ts file so we can plumb it to the deps of the ts_project compile.
     marker = ctx.actions.declare_file("%s.optionsvalid.d.ts" % ctx.label.name)
@@ -48,16 +40,26 @@ def _validate_options_impl(ctx, run_action):
 
     inputs = _tsconfig_inputs(ctx)
 
-    run_action(
-        ctx,
-        inputs = inputs,
-        outputs = [marker],
-        arguments = [arguments],
-        executable = "validator",
-        env = {
+    run_action_kwargs = {
+        "inputs": inputs,
+        "outputs": [marker],
+        "arguments": [arguments],
+        "env": {
             "BINDIR": ctx.var["BINDIR"],
         },
-    )
+    }
+    if run_action != None:
+        run_action(
+            ctx,
+            executable = "validator",
+            **run_action_kwargs
+        )
+    else:
+        ctx.actions.run(
+            executable = ctx.executable.validator,
+            **run_action_kwargs
+        )
+
     return [
         ValidOptionsInfo(marker = marker),
     ]

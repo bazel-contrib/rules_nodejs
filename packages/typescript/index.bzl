@@ -22,7 +22,7 @@ load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "run
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 load("//nodejs/private:ts_config.bzl", "write_tsconfig", _ts_config = "ts_config")
 load("//nodejs/private:ts_project.bzl", _ts_project_lib = "ts_project")
-load("//nodejs/private:ts_lib.bzl", _lib = "lib")
+load("//nodejs/private:ts_lib.bzl", "DEPS_PROVIDERS", _lib = "lib")
 load("//nodejs/private:ts_validate_options.bzl", validate_lib = "lib")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("@bazel_skylib//lib:partial.bzl", "partial")
@@ -48,9 +48,10 @@ _ts_project = rule(
     # Override the "deps" key to attach our linker aspect
     attrs = dict(_ts_project_lib.attrs, **{
         "deps": attr.label_list(
-            providers = _ts_project_lib.deps_providers,
+            providers = DEPS_PROVIDERS,
             aspects = [module_mappings_aspect],
         ),
+        "link_workspace_root": attr.bool(),
     }),
 )
 
