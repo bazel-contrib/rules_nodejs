@@ -2,30 +2,30 @@
 # yarn lockfile v1
 
 
-"@bazel/concatjs@^5.3.1":
-  version "5.3.1"
-  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-5.3.1.tgz#0842a9ed647abb4ce6bf7261b00f43d9b96dfd3b"
-  integrity sha512-zTH/8mALNrBq8PjXO6S7ThwDr8ueAEIXiy98isnufGq31A3etkUQVkUsCByxVMAXRCa+AcXb3x/IHfhWV5y5qw==
+"@bazel/concatjs@^5.4.0":
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-5.4.0.tgz#04e752a6ea3e684f00879e6683657c4ede72df6e"
+  integrity sha512-jlupaDKxqFS3B1lttOIgkKxirP7v5Qx7KCFtOXO7JxtvYJD/qKtKXEQggTrGKJqLPyiZlNiYimHHGICLSWIZcQ==
   dependencies:
     protobufjs "6.8.8"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/typescript@^5.3.1":
-  version "5.3.1"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.3.1.tgz#f996abebfa57a29a170a83d0c84780286f06cb72"
-  integrity sha512-fP0fGzLbsOVdbAn6mlrX1LBAT0TJ+S0VVOap9SSSXCb2PknnKEHZupUww/raVSczy+cqcd/Vfpllzm/AcdOmyw==
+"@bazel/typescript@^5.4.0":
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.4.0.tgz#0a24e8d47152728f71b26b73adc3913645e5309e"
+  integrity sha512-AWmS9HcnjqGsPQv5lnqecA8xof+d4ChpbI/Z6aiSM0qOemc8e1WT9wb1VzM6g6hRfV5foWyIHt0VhTonTsPhYw==
   dependencies:
-    "@bazel/worker" "5.3.1"
+    "@bazel/worker" "5.4.0"
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@5.3.1":
-  version "5.3.1"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.3.1.tgz#87d850fdfc22cde24f380961f66daa5cbfd4acf7"
-  integrity sha512-KB+Xs198NLhN01zhlOPr/VEmz/tzwGq/pI1gdnCTLDMTCspV6LnJaIeGgicXuKrzz0V1LhvlvsI5lqJt9yuGYw==
+"@bazel/worker@5.4.0":
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.4.0.tgz#ce50e34951ccf7233b651f0be665bbd43d7ed7f1"
+  integrity sha512-Rtkol9WoYs0NCZl1wt4Q8T7Rs0wbQjIvFiJzVeeoC/00TG0e/qi4mYE5iQwUJmO8st3N8VnaWz2N31UHc6yhRA==
   dependencies:
     google-protobuf "^3.6.1"
 
