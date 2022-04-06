@@ -181,7 +181,7 @@ See many examples in our test cases:
 https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project
 """
 
-load("//packages/typescript/internal:ts_config.bzl", _ts_config = "ts_config")
+load("//nodejs/private:ts_config.bzl", _ts_config = "ts_config")
 load("//packages/typescript:index.bzl", _ts_project = "ts_project")
 
 ts_config = _ts_config

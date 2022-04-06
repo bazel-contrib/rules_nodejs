@@ -1,96 +1,26 @@
 "ts_project rule"
 
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "declaration_info", "js_module_info")
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "run_node")
-load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
-load(":tslib.bzl", _lib = "lib")
+load(":ts_lib.bzl", "COMPILER_OPTION_ATTRS", "OUTPUT_ATTRS", "STD_ATTRS", "ValidOptionsInfo", _lib = "lib")
 load(":ts_config.bzl", "TsConfigInfo")
-load(":validate_options.bzl", "ValidOptionsInfo", _validate_lib = "lib")
+load(":ts_validate_options.bzl", _validate_lib = "lib")
 
-_DEFAULT_TSC = (
-    # BEGIN-INTERNAL
-    "@npm" +
-    # END-INTERNAL
-    "//typescript/bin:tsc"
-)
+def _ts_project_impl(ctx, run_action = None, ExternalNpmPackageInfo = None):
+    """Creates the action which spawns `tsc`.
 
-_ATTRS = dict(_validate_lib.attrs, **{
-    "args": attr.string_list(),
-    "data": attr.label_list(default = [], allow_files = True),
-    "declaration_dir": attr.string(),
-    "deps": attr.label_list(
-        providers = [
-            # Provide one or the other of these
-            [DeclarationInfo],
-            [ValidOptionsInfo],
-        ],
-        aspects = [module_mappings_aspect],
-    ),
-    "link_workspace_root": attr.bool(),
-    "out_dir": attr.string(),
-    "root_dir": attr.string(),
-    # NB: no restriction on extensions here, because tsc sometimes adds type-check support
-    # for more file kinds (like require('some.json')) and also
-    # if you swap out the `compiler` attribute (like with ngtsc)
-    # that compiler might allow more sources than tsc does.
-    "srcs": attr.label_list(allow_files = True, mandatory = True),
-    "supports_workers": attr.bool(default = False),
-    "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "exec"),
-    "transpile": attr.bool(doc = "whether tsc should be used to produce .js outputs", default = True),
-    "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
-})
+    This function has two extra arguments that are particular to how it's called
+    within build_bazel_rules_nodejs and @bazel/typescript npm package.
+    Other TS rule implementations wouldn't need to pass these:
 
-# tsc knows how to produce the following kinds of output files.
-# NB: the macro `ts_project_macro` will set these outputs based on user
-# telling us which settings are enabled in the tsconfig for this project.
-_OUTPUTS = {
-    "buildinfo_out": attr.output(),
-    "js_outs": attr.output_list(),
-    "map_outs": attr.output_list(),
-    "typing_maps_outs": attr.output_list(),
-    "typings_outs": attr.output_list(),
-}
+    Args:
+        ctx: starlark rule execution context
+        run_action: used with the build_bazel_rules_nodejs linker, by default we use ctx.actions.run
+        ExternalNpmPackageInfo: a provider symbol specific to the build_bazel_rules_nodejs linker
 
-def _declare_outputs(ctx, paths):
-    return [
-        ctx.actions.declare_file(path)
-        for path in paths
-    ]
-
-def _calculate_root_dir(ctx):
-    some_generated_path = None
-    some_source_path = None
-    root_path = None
-
-    # Note we don't have access to the ts_project macro allow_js param here.
-    # For error-handling purposes, we can assume that any .js/.jsx
-    # input is meant to be in the rootDir alongside .ts/.tsx sources,
-    # whether the user meant for them to be sources or not.
-    # It's a non-breaking change to relax this constraint later, but would be
-    # a breaking change to restrict it further.
-    allow_js = True
-    for src in ctx.files.srcs:
-        if _lib.is_ts_src(src.path, allow_js):
-            if src.is_source:
-                some_source_path = src.path
-            else:
-                some_generated_path = src.path
-                root_path = ctx.bin_dir.path
-
-    if some_source_path and some_generated_path:
-        fail("ERROR: %s srcs cannot be a mix of generated files and source files " % ctx.label +
-             "since this would prevent giving a single rootDir to the TypeScript compiler\n" +
-             "    found generated file %s and source file %s" %
-             (some_generated_path, some_source_path))
-
-    return _lib.join(
-        root_path,
-        ctx.label.workspace_root,
-        ctx.label.package,
-        ctx.attr.root_dir,
-    )
-
-def _ts_project_impl(ctx):
+    Returns:
+        list of providers
+    """
     srcs = [_lib.relative_to_package(src.path, ctx) for src in ctx.files.srcs]
 
     # Recalculate outputs inside the rule implementation.
@@ -99,10 +29,10 @@ def _ts_project_impl(ctx):
     # However, it is not possible to evaluate files in outputs of other rules such as filegroup, therefore the outs are
     # recalculated here.
     typings_out_dir = ctx.attr.declaration_dir or ctx.attr.out_dir
-    js_outs = _declare_outputs(ctx, [] if not ctx.attr.transpile else _lib.calculate_js_outs(srcs, ctx.attr.out_dir, ctx.attr.root_dir, ctx.attr.allow_js, ctx.attr.preserve_jsx, ctx.attr.emit_declaration_only))
-    map_outs = _declare_outputs(ctx, [] if not ctx.attr.transpile else _lib.calculate_map_outs(srcs, ctx.attr.out_dir, ctx.attr.root_dir, ctx.attr.source_map, ctx.attr.preserve_jsx, ctx.attr.emit_declaration_only))
-    typings_outs = _declare_outputs(ctx, _lib.calculate_typings_outs(srcs, typings_out_dir, ctx.attr.root_dir, ctx.attr.declaration, ctx.attr.composite, ctx.attr.allow_js))
-    typing_maps_outs = _declare_outputs(ctx, _lib.calculate_typing_maps_outs(srcs, typings_out_dir, ctx.attr.root_dir, ctx.attr.declaration_map, ctx.attr.allow_js))
+    js_outs = _lib.declare_outputs(ctx, [] if not ctx.attr.transpile else _lib.calculate_js_outs(srcs, ctx.attr.out_dir, ctx.attr.root_dir, ctx.attr.allow_js, ctx.attr.preserve_jsx, ctx.attr.emit_declaration_only))
+    map_outs = _lib.declare_outputs(ctx, [] if not ctx.attr.transpile else _lib.calculate_map_outs(srcs, ctx.attr.out_dir, ctx.attr.root_dir, ctx.attr.source_map, ctx.attr.preserve_jsx, ctx.attr.emit_declaration_only))
+    typings_outs = _lib.declare_outputs(ctx, _lib.calculate_typings_outs(srcs, typings_out_dir, ctx.attr.root_dir, ctx.attr.declaration, ctx.attr.composite, ctx.attr.allow_js))
+    typing_maps_outs = _lib.declare_outputs(ctx, _lib.calculate_typing_maps_outs(srcs, typings_out_dir, ctx.attr.root_dir, ctx.attr.declaration_map, ctx.attr.allow_js))
 
     arguments = ctx.actions.args()
     execution_requirements = {}
@@ -125,7 +55,7 @@ def _ts_project_impl(ctx):
         "--outDir",
         _lib.join(ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package, ctx.attr.out_dir),
         "--rootDir",
-        _calculate_root_dir(ctx),
+        _lib.calculate_root_dir(ctx),
     ])
     if len(typings_outs) > 0:
         declaration_dir = ctx.attr.declaration_dir if ctx.attr.declaration_dir else ctx.attr.out_dir
@@ -155,7 +85,7 @@ def _ts_project_impl(ctx):
     for dep in ctx.attr.deps:
         if TsConfigInfo in dep:
             deps_depsets.append(dep[TsConfigInfo].deps)
-        if ExternalNpmPackageInfo in dep:
+        if ExternalNpmPackageInfo != None and ExternalNpmPackageInfo in dep:
             # TODO: we could maybe filter these to be tsconfig.json or *.d.ts only
             # we don't expect tsc wants to read any other files from npm packages.
             deps_depsets.append(dep[ExternalNpmPackageInfo].sources)
@@ -178,7 +108,7 @@ def _ts_project_impl(ctx):
     if len(js_outs):
         pkg_len = len(ctx.label.package) + 1 if len(ctx.label.package) else 0
         rootdir_replace_pattern = ctx.attr.root_dir + "/" if ctx.attr.root_dir else ""
-        json_outs = _declare_outputs(ctx, [
+        json_outs = _lib.declare_outputs(ctx, [
             _lib.join(ctx.attr.out_dir, src.short_path[pkg_len:].replace(rootdir_replace_pattern, ""))
             for src in ctx.files.srcs
             if src.basename.endswith(".json") and src.is_source
@@ -223,21 +153,30 @@ This is an error because Bazel does not run actions unless their outputs are nee
         default_outputs_depset = depset([])
 
     if len(outputs) > 0:
-        run_node(
-            ctx,
-            inputs = inputs,
-            arguments = [arguments],
-            outputs = outputs,
-            mnemonic = "TsProject",
-            executable = "tsc",
-            execution_requirements = execution_requirements,
-            progress_message = "%s %s [tsc -p %s]" % (
+        run_action_kwargs = {
+            "inputs": inputs,
+            "arguments": [arguments],
+            "outputs": outputs,
+            "mnemonic": "TsProject",
+            "execution_requirements": execution_requirements,
+            "progress_message": "%s %s [tsc -p %s]" % (
                 progress_prefix,
                 ctx.label,
                 ctx.file.tsconfig.short_path,
             ),
-            link_workspace_root = ctx.attr.link_workspace_root,
-        )
+        }
+        if run_action != None:
+            run_action(
+                ctx,
+                link_workspace_root = ctx.attr.link_workspace_root,
+                executable = "tsc",
+                **run_action_kwargs
+            )
+        else:
+            ctx.actions.run(
+                executable = ctx.executable.tsc,
+                **run_action_kwargs
+            )
 
     providers = [
         # DefaultInfo is what you see on the command-line for a built library,
@@ -280,7 +219,7 @@ This is an error because Bazel does not run actions unless their outputs are nee
 
     return providers
 
-ts_project = rule(
+ts_project = struct(
     implementation = _ts_project_impl,
-    attrs = dict(_ATTRS, **_OUTPUTS),
+    attrs = dicts.add(COMPILER_OPTION_ATTRS, STD_ATTRS, OUTPUT_ATTRS),
 )

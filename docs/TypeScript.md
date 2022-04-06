@@ -555,7 +555,7 @@ An example can be found in the rules_nodejs repo under `packages/typescript/test
 &gt; To apply the fix, you can use the patch-package package to apply this patch:
 &gt; https://gist.github.com/alexeagle/ba44b2601bd7c953d29c6e8ec44d1ef9
 
-Defaults to `None`
+Defaults to `Label("@npm//typescript/bin:tsc")`
 
 <h4 id="ts_project-typescript_package">typescript_package</h4>
 

@@ -20,6 +20,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS")
 TYPESCRIPT_REPLACEMENTS = dict(
     COMMON_REPLACEMENTS,
     **{
+        "//nodejs": "@rules_nodejs//nodejs",
         # Replace the worker filegroup with the entire @bazel/typescript node_module and its transitive node_modules
         "//packages/typescript/internal/worker:filegroup": "//@bazel/typescript",
         # Change the worker entry point from the checked_in_ts_project target to the checked in .js

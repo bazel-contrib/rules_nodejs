@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 
 # gazelle:exclude worker_protocol.proto
 load("@npm//typescript:index.bzl", "tsc")
@@ -33,18 +33,13 @@ tsc(
     ],
 )
 
-bzl_library(
-    name = "bzl",
-    srcs = glob(
-        ["*.bzl"],
-        exclude = ["internal_*"],
-    ),
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "@build_bazel_rules_nodejs//:bzl",
-        "@build_bazel_rules_nodejs//internal/common:bzl",
-        "@rules_nodejs//nodejs:bzl",
-    ],
+diff_test(
+    name = "check_validator.js",
+    # We are copying across packages here, so don't use generated_file_test, just print a command
+    failure_message = "\nRun:\n    cp dist/bin/packages/typescript/internal/*.js nodejs/private",
+    file1 = "compile",
+    file2 = "//nodejs/private:ts_project_options_validator.js",
+    tags = ["no-bazelci-windows"],
 )
 
 # We don't need to distribute any of the content of the BUILD.bazel file in this package
