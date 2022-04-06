@@ -63,7 +63,7 @@ def _validate_options_impl(ctx, run_action):
     ]
 
 _ATTRS = dict(COMPILER_OPTION_ATTRS, **{
-    "has_local_deps": attr.bool(doc = "Whether any of the deps are in the local workspace (not starting with '@')"),
+    "has_local_deps": attr.bool(doc = "Whether any of the deps are in the local workspace"),
     "target": attr.string(),
     "ts_build_info_file": attr.string(),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),

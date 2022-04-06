@@ -599,7 +599,7 @@ def ts_project(
                 **common_kwargs
             )
         else:
-            fail("transpiler attribute should be a rule/macro, a skylib partial, or the string 'tsc'. Got " + type(transpiler))
+            fail("transpiler attribute should be a rule/macro or a skylib partial. Got " + type(transpiler))
 
         # Users should build this target to get a failed build when typechecking fails
         native.filegroup(
@@ -610,7 +610,7 @@ def ts_project(
             **common_kwargs
         )
 
-        # Ensures the target above gets built under `bazel test --build_tests_only`
+        # Ensures the typecheck target gets built under `bazel test --build_tests_only`
         build_test(
             name = test_target_name,
             targets = [typecheck_target_name],
