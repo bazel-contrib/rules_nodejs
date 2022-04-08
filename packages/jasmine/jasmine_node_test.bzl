@@ -21,6 +21,7 @@ than launching a test in Karma, for example.
 load("@rules_nodejs//nodejs:providers.bzl", "JSModuleInfo")
 load("//packages/jasmine/private:index.bzl", "bazel_jasmine_runner_test")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", nodejs_test = "nodejs_test_macro")
+load("@build_bazel_rules_nodejs//internal/common:is_js_file.bzl", "is_javascript_file")
 
 def _js_sources_impl(ctx):
     depsets = []
@@ -36,7 +37,7 @@ def _js_sources_impl(ctx):
     ctx.actions.write(ctx.outputs.manifest, "".join([
         f.short_path + "\n"
         for f in sources.to_list()
-        if f.path.endswith(".js") or f.path.endswith(".mjs")
+        if is_javascript_file(f)
     ]))
 
     return [DefaultInfo(files = sources)]
