@@ -3,33 +3,54 @@ load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/typescript:index.bzl", "ts_project")
 
-jasmine_node_test(
-    name = "underscore_spec_test",
-    srcs = ["foo_spec.js"],
-)
+_JS_EXTENSIONS = [
+    "js",
+    "cjs",
+    "mjs",
+]
+
+[
+    jasmine_node_test(
+        name = "underscore_spec_%s_test" % ext,
+        srcs = ["foo_spec.%s" % ext],
+    )
+    for ext in _JS_EXTENSIONS
+]
 
 # Verify that a bootstrap script does not break the test
-jasmine_node_test(
-    name = "underscore_spec_bootstrap_test",
-    srcs = ["foo_spec.js"],
-    data = ["bootstrap.js"],
-    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap.js))"],
-)
+[
+    jasmine_node_test(
+        name = "underscore_spec_%s_bootstrap_test" % ext,
+        srcs = ["foo_spec.%s" % ext],
+        data = ["bootstrap.js"],
+        templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap.js))"],
+    )
+    for ext in _JS_EXTENSIONS
+]
 
-jasmine_node_test(
-    name = "underscore_test_test",
-    srcs = ["foo_test.js"],
-)
+[
+    jasmine_node_test(
+        name = "underscore_test_%s_test" % ext,
+        srcs = ["foo_test.%s" % ext],
+    )
+    for ext in _JS_EXTENSIONS
+]
 
-jasmine_node_test(
-    name = "dot_spec_test",
-    srcs = ["foo.spec.js"],
-)
+[
+    jasmine_node_test(
+        name = "dot_spec_%s_test" % ext,
+        srcs = ["foo.spec.%s" % ext],
+    )
+    for ext in _JS_EXTENSIONS
+]
 
-jasmine_node_test(
-    name = "dot_test_test",
-    srcs = ["foo.test.js"],
-)
+[
+    jasmine_node_test(
+        name = "dot_test_%s_test" % ext,
+        srcs = ["foo.test.%s" % ext],
+    )
+    for ext in _JS_EXTENSIONS
+]
 
 jasmine_node_test(
     name = "sharding_test",
