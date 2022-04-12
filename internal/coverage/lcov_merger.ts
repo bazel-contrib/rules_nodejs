@@ -76,7 +76,7 @@ async function main() {
   let c8;
   try {
     c8 = require('c8');
-  } catch (e) {
+  } catch (e: any) {
     if (e.code == 'MODULE_NOT_FOUND') {
       console.error('ERROR: c8 npm package is required for bazel coverage');
       process.exit(1);

@@ -20,7 +20,7 @@ function main(_a) {
     var _c = ts.readConfigFile(tsconfigPath, ts.sys.readFile), config = _c.config, error = _c.error;
     if (error)
         throw new Error(tsconfigPath + ':' + ts.formatDiagnostic(error, diagnosticsHost));
-    var _d = ts.parseJsonConfigFileContent(config, ts.sys, path_1.dirname(tsconfigPath)), errors = _d.errors, options = _d.options;
+    var _d = ts.parseJsonConfigFileContent(config, ts.sys, (0, path_1.dirname)(tsconfigPath)), errors = _d.errors, options = _d.options;
     // We don't pass the srcs to this action, so it can't know if the program has the right sources.
     // Diagnostics look like
     // error TS18002: The 'files' list in config file 'tsconfig.json' is empty.
@@ -37,7 +37,7 @@ function main(_a) {
             // so when echoing that back to the user, we need to reverse that resolution.
             // First turn //path/to/pkg:tsconfig into path/to/pkg
             var packageDir = target.substr(2, target.indexOf(':') - 2);
-            return path_1.relative(packageDir, options[option]);
+            return (0, path_1.relative)(packageDir, options[option]);
         }
         return options[option];
     }
@@ -48,18 +48,18 @@ function main(_a) {
         var match = optionVal === attrs[attr] ||
             (optionVal === undefined && (attrs[attr] === false || attrs[attr] === ''));
         if (!match) {
-            failures.push("attribute " + attr + "=" + attrs[attr] + " does not match compilerOptions." + option + "=" + optionVal);
+            failures.push("attribute ".concat(attr, "=").concat(attrs[attr], " does not match compilerOptions.").concat(option, "=").concat(optionVal));
             if (typeof (optionVal) === 'boolean') {
-                buildozerCmds.push("set " + attr + " " + (optionVal ? 'True' : 'False'));
+                buildozerCmds.push("set ".concat(attr, " ").concat(optionVal ? 'True' : 'False'));
             }
             else if (typeof (optionVal) === 'string') {
-                buildozerCmds.push("set " + attr + " \"" + optionVal + "\"");
+                buildozerCmds.push("set ".concat(attr, " \"").concat(optionVal, "\""));
             }
             else if (optionVal === undefined) {
                 // nothing to sync
             }
             else {
-                throw new Error("cannot check option " + option + " of type " + typeof (option));
+                throw new Error("cannot check option ".concat(option, " of type ").concat(typeof (option)));
             }
         }
     }
@@ -75,12 +75,12 @@ function main(_a) {
         var attr = 'preserve_jsx';
         var jsxVal = options['jsx'];
         if ((jsxVal === ts.JsxEmit.Preserve) !== Boolean(attrs[attr])) {
-            failures.push("attribute " + attr + "=" + attrs[attr] + " does not match compilerOptions.jsx=" + jsxEmit[jsxVal]);
-            buildozerCmds.push("set " + attr + " " + (jsxVal === ts.JsxEmit.Preserve ? 'True' : 'False'));
+            failures.push("attribute ".concat(attr, "=").concat(attrs[attr], " does not match compilerOptions.jsx=").concat(jsxEmit[jsxVal]));
+            buildozerCmds.push("set ".concat(attr, " ").concat(jsxVal === ts.JsxEmit.Preserve ? 'True' : 'False'));
         }
     }
     if (options.noEmit) {
-        console.error("ERROR: ts_project rule " + target + " cannot be built because the 'noEmit' option is specified in the tsconfig.");
+        console.error("ERROR: ts_project rule ".concat(target, " cannot be built because the 'noEmit' option is specified in the tsconfig."));
         console.error('This is not compatible with ts_project, which always produces outputs.');
         console.error('- If you mean to only typecheck the code, use the tsc_test rule instead.');
         console.error('  (See the Alternatives section in the documentation.)');
@@ -92,11 +92,11 @@ function main(_a) {
     if (attrs.has_local_deps) {
         var rootDirsValid = true;
         if (!options.rootDirs) {
-            console.error("ERROR: ts_project rule " + target + " is configured without rootDirs.");
+            console.error("ERROR: ts_project rule ".concat(target, " is configured without rootDirs."));
             rootDirsValid = false;
         }
         else if (!options.rootDirs.some(function (d) { return d.startsWith(process.env['BINDIR']); })) {
-            console.error("ERROR: ts_project rule " + target + " is missing a needed rootDir under " + process.env['BINDIR'] + ".");
+            console.error("ERROR: ts_project rule ".concat(target, " is missing a needed rootDir under ").concat(process.env['BINDIR'], "."));
             console.error('Found only: ', options.rootDirs);
             rootDirsValid = false;
         }
@@ -119,15 +119,15 @@ function main(_a) {
     check('tsBuildInfoFile', 'ts_build_info_file');
     check_preserve_jsx();
     if (failures.length > 0) {
-        console.error("ERROR: ts_project rule " + target + " was configured with attributes that don't match the tsconfig");
+        console.error("ERROR: ts_project rule ".concat(target, " was configured with attributes that don't match the tsconfig"));
         failures.forEach(function (f) { return console.error(' - ' + f); });
         console.error('You can automatically fix this by running:');
-        console.error("    npx @bazel/buildozer " + buildozerCmds.map(function (c) { return "'" + c + "'"; }).join(' ') + " " + target);
+        console.error("    npx @bazel/buildozer ".concat(buildozerCmds.map(function (c) { return "'".concat(c, "'"); }).join(' '), " ").concat(target));
         return 1;
     }
     // We have to write an output so that Bazel needs to execute this action.
     // Make the output change whenever the attributes changed.
-    require('fs').writeFileSync(output, "\n// " + process.argv[1] + " checked attributes for " + target + "\n// allow_js:              " + attrs.allow_js + "\n// composite:             " + attrs.composite + "\n// declaration:           " + attrs.declaration + "\n// declaration_map:       " + attrs.declaration_map + "\n// incremental:           " + attrs.incremental + "\n// source_map:            " + attrs.source_map + "\n// emit_declaration_only: " + attrs.emit_declaration_only + "\n// ts_build_info_file:    " + attrs.ts_build_info_file + "\n// preserve_jsx:          " + attrs.preserve_jsx + "\n", 'utf-8');
+    require('fs').writeFileSync(output, "\n// ".concat(process.argv[1], " checked attributes for ").concat(target, "\n// allow_js:              ").concat(attrs.allow_js, "\n// composite:             ").concat(attrs.composite, "\n// declaration:           ").concat(attrs.declaration, "\n// declaration_map:       ").concat(attrs.declaration_map, "\n// incremental:           ").concat(attrs.incremental, "\n// source_map:            ").concat(attrs.source_map, "\n// emit_declaration_only: ").concat(attrs.emit_declaration_only, "\n// ts_build_info_file:    ").concat(attrs.ts_build_info_file, "\n// preserve_jsx:          ").concat(attrs.preserve_jsx, "\n"), 'utf-8');
     return 0;
 }
 if (require.main === module) {
@@ -135,7 +135,7 @@ if (require.main === module) {
         process.exitCode = main(process.argv.slice(2));
         if (process.exitCode != 0) {
             console.error('Or to suppress this error, run:');
-            console.error("    npx @bazel/buildozer 'set validate False' " + process.argv[4]);
+            console.error("    npx @bazel/buildozer 'set validate False' ".concat(process.argv[4]));
         }
     }
     catch (e) {

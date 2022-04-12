@@ -21,7 +21,7 @@ describe('our bundled, vendored browserify binary', () => {
     expect(fs.readFileSync(umd, {encoding: 'utf-8'})).toContain(`define('typeorm'`);
   });
   it('should have a rxjs named AMD module', () => {
-    const umd = require.resolve(path.join(directory, 'rxjs.umd.js'));
+    const umd = require.resolve(path.join(directory, 'dist', 'bundles', 'rxjs.umd.js'));
     expect(fs.readFileSync(umd, {encoding: 'utf-8'})).toContain(`define('rxjs'`);
   });
   it('should have a sinon named AMD module', () => {

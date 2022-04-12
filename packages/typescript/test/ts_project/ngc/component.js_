@@ -16,7 +16,5 @@ Comp.ɵcmp = /*@__PURE__*/ i0.ɵɵdefineComponent({ type: Comp, selectors: [["ng
     } }, encapsulation: 2 });
 (function () { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(Comp, [{
         type: Component,
-        args: [{
-                templateUrl: './comp.ng.html',
-            }]
+        args: [{ template: "<div>{{thing}}</div>\n" }]
     }], null, null); })();

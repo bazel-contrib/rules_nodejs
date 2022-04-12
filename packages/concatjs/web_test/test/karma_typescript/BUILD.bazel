@@ -72,7 +72,7 @@ filegroup(
     name = "rxjs_umd_modules",
     srcs = [
         # do not sort
-        "@npm//:node_modules/rxjs/bundles/rxjs.umd.js",
+        "@npm//:node_modules/rxjs/dist/bundles/rxjs.umd.js",
         ":rxjs_shims.js",
     ],
 )

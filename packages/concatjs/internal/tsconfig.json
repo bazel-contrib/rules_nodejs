@@ -6,6 +6,7 @@
     "types": [
       "node",
     ],
+    "esModuleInterop": true,
     "lib": [
       "dom",
       "es5",

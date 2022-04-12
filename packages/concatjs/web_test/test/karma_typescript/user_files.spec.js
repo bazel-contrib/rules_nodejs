@@ -40,7 +40,7 @@ describe('karma_web_test_suite', () => {
       'build_bazel_rules_nodejs/packages/concatjs/web_test/test/karma_typescript/decrement.spec.js',
       'build_bazel_rules_nodejs/packages/concatjs/web_test/test/karma_typescript/foobar.spec.js',
       'build_bazel_rules_nodejs/packages/concatjs/web_test/test/karma_typescript/decrement.js',
-      'npm/node_modules/rxjs/bundles/rxjs.umd.js',
+      'npm/node_modules/rxjs/dist/bundles/rxjs.umd.js',
       'build_bazel_rules_nodejs/packages/concatjs/web_test/test/karma_typescript/rxjs_shims.js',
       'build_bazel_rules_nodejs/packages/concatjs/web_test/test/karma_typescript/hello_world.js',
     ]);

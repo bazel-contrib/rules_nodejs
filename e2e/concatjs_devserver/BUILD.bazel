@@ -47,7 +47,7 @@ concatjs_devserver(
     entry_module = "e2e_concatjs_devserver/app",
     scripts = [
         "@npm//date-fns:date-fns.umd.js",
-        "@npm//rxjs:rxjs.umd.js",
+        "@npm//rxjs:dist/bundles/rxjs.umd.js",
         ":typeorm.umd.js",
     ],
     # We'll collect all the devmode JS sources from these TypeScript libraries
