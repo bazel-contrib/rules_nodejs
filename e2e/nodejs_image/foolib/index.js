@@ -1,5 +1,1 @@
-function foo(str) {
-  return `foo_${str}`;
-}
-
-exports.foo = foo;
+exports.drawing = {width:1,height:1,channels:4,background:{r:0,g:0,b:0}}

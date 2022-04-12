@@ -1,5 +1,12 @@
+# See https://github.com/GoogleContainerTools/container-structure-test
 schemaVersion: 2.0.0
 
 metadataTest:
   entrypoint: ['/app//main']
   workdir: "/app//main.runfiles/e2e_nodejs_image"
+
+
+commandTests:
+  - name: "sharp"
+    command: "/app/main"
+    expectedOutput: ["iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADUlEQVQImWNgYGD4DwABBAEAfbLI3wAAAABJRU5ErkJggg=="]

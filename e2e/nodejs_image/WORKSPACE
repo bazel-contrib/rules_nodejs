@@ -35,6 +35,19 @@ yarn_install(
     yarn_lock = "//:yarn.lock",
 )
 
+yarn_install(
+    name = "npm_linux",
+    # The `sharp` package from npm looks for these in a post-install script
+    # and determines which native code package to download.
+    # See https://www.electronjs.org/docs/latest/tutorial/using-native-node-modules#using-npm
+    environment = {
+        "npm_config_arch": "x64",
+        "npm_config_platform": "linux",
+    },
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
+
 http_archive(
     name = "io_bazel_rules_docker",
     sha256 = "db427107e4c36a3713c24daf5fcdf7719fe664e0c36e089b5b16d15cf331ce60",

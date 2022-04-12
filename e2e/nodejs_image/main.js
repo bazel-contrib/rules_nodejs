@@ -1,5 +1,7 @@
-const format = require('date-fns').format;
-const foo = require('@foo/lib').foo;
+const create = require('@foo/lib').drawing;
+const sharp = require('sharp');
 
-const date = format(new Date(2019, 4, 7), 'MMMM d, yyyy');
-console.log(foo('lib'), date);
+(async () => {
+    const data = await sharp({create}).png().toBuffer();
+    console.log(data.toString('base64'))
+})()
