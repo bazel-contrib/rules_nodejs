@@ -10,5 +10,5 @@ nodejs_binary(
     name = "ts_project_options_validator",
     data = ["@npm//typescript"],
     entry_point = "//packages/typescript/internal:ts_project_options_validator.js",
-    visibility = ["//:__subpackages__"],
+    visibility = ["//visibility:public"],
 )
