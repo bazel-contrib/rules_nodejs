@@ -49,7 +49,7 @@ To use it, add the load statement `load("@npm//typescript:index.bzl", "tsc")` to
 Then call it, using the [`npm_package_bin`](Built-ins#npm_package_bin) documentation.
 
 Here is an example:
-https://github.com/bazelbuild/rules_nodejs/blob/3.2.2/internal/node/test/BUILD.bazel#L491-L507
+<https://github.com/bazelbuild/rules_nodejs/blob/3.2.2/internal/node/test/BUILD.bazel#L491-L507>
 
 ### Option 2: tsc_test
 
@@ -72,7 +72,7 @@ filegroup(name = "types", srcs = ["//some:js_library"], output_group = "types")
 
 And then include the `:types` target in the `data` of the `tsc_test`.
 
-See example in https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/tsc_test
+See example in <https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/tsc_test>
 
 ### Option 3: ts_project
 
@@ -86,9 +86,9 @@ Any behavior of `ts_project` should be reproducible outside of Bazel, with a cou
 `ts_project` is recommended for all new code.
 
 Exhaustive examples of calling `ts_project` are in the test suite:
-https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project
+<https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project>
 
-And there are also many uses of it in our <examples>
+And there are also many uses of it in our [examples](https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project).
 
 [DeclarationInfo]: Built-ins#declarationinfo
 
@@ -178,7 +178,7 @@ transpile only, outdir, rootdir, and so on.
 > Alternatively, see the `tsc_test` rule documented above.
 
 See many examples in our test cases:
-https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project
+<https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project>
 """
 
 load("//nodejs/private:ts_config.bzl", _ts_config = "ts_config")
