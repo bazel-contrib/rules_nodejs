@@ -23,6 +23,7 @@ a `module_name` attribute can be `require`d by that name.
 load("@rules_nodejs//nodejs:providers.bzl", "DirectoryFilePathInfo", "JSModuleInfo", "UserBuildSettingInfo")
 load("//:providers.bzl", "ExternalNpmPackageInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
+load("//internal/common:is_js_file.bzl", "is_javascript_file")
 load("//internal/common:maybe_directory_file_path.bzl", "maybe_directory_file_path")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
@@ -361,8 +362,8 @@ if (process.cwd() !== __dirname) {
         executable = ctx.outputs.launcher_sh
 
     # syntax sugar: allows you to avoid repeating the entry point in data
-    # entry point is only needed in runfiles if it is a .js file
-    if len(ctx.files.entry_point) == 1 and ctx.files.entry_point[0].extension == "js":
+    # entry point is only needed in runfiles if it is a javascript file
+    if len(ctx.files.entry_point) == 1 and is_javascript_file(ctx.files.entry_point[0]):
         runfiles.extend(ctx.files.entry_point)
 
     return [
