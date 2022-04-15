@@ -24,7 +24,7 @@ cmd.exe (on Windows). `_copy_xfile` marks the resulting file executable,
 `_copy_file` does not.
 """
 
-load(":copy_common_private.bzl", _COPY_EXECUTION_REQUIREMENTS = "COPY_EXECUTION_REQUIREMENTS")
+load(":rules/private/copy_common_private.bzl", _COPY_EXECUTION_REQUIREMENTS = "COPY_EXECUTION_REQUIREMENTS")
 
 def _hash_file(file):
     return str(hash(file.path))
