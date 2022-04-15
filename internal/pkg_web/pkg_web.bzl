@@ -15,8 +15,15 @@
 """Contains the pkg_web rule.
 """
 
-load("@rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_common.bzl", "COPY_EXECUTION_REQUIREMENTS")
+# load("@rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_common.bzl", "COPY_EXECUTION_REQUIREMENTS")
 load("@rules_nodejs//nodejs:providers.bzl", "STAMP_ATTR", "StampSettingInfo")
+
+# Hints for Bazel spawn strategy
+_execution_requirements = {
+    # Copying files is entirely IO-bound and there is no point doing this work
+    # remotely.
+    "no-remote-exec": "1",
+}
 
 _DOC = """Assembles a web application from source files."""
 
@@ -75,7 +82,7 @@ def _move_files(ctx, root_paths):
         outputs = [www_dir],
         executable = ctx.executable._assembler,
         arguments = [args],
-        execution_requirements = COPY_EXECUTION_REQUIREMENTS,
+        execution_requirements = _execution_requirements,
         env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
     )
     return depset([www_dir])
