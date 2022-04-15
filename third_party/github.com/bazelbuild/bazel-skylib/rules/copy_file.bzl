@@ -24,6 +24,8 @@ on Windows (no Bash is required).
 load(
     "//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_file_private.bzl",
     _copy_file = "copy_file",
+    _COPY_EXECUTION_REQUIREMENTS = "COPY_EXECUTION_REQUIREMENTS",
 )
 
 copy_file = _copy_file
+COPY_EXECUTION_REQUIREMENTS = _COPY_EXECUTION_REQUIREMENTS
