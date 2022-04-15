@@ -15,7 +15,7 @@
 """Contains the pkg_web rule.
 """
 
-load("@rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_common.bzl", "COPY_EXECUTION_REQUIREMENTS")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_common.bzl", "COPY_EXECUTION_REQUIREMENTS")
 load("@rules_nodejs//nodejs:providers.bzl", "STAMP_ATTR", "StampSettingInfo")
 
 _DOC = """Assembles a web application from source files."""
