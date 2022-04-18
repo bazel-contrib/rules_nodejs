@@ -12,14 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""A rule that copies a file to another place.
-
-native.genrule() is sometimes used to copy files (often wishing to rename them).
-The 'copy_file' rule does this with a simpler interface than genrule.
-
-The rule uses a Bash command on Linux/macOS/non-Windows, and a cmd.exe command
-on Windows (no Bash is required).
-"""
+"""Exposes common helpers to help on copying files rules"""
 
 load(
     "//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_common_private.bzl",
