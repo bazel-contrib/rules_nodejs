@@ -24,16 +24,7 @@ cmd.exe (on Windows). `_copy_xfile` marks the resulting file executable,
 `_copy_file` does not.
 """
 
-# Hints for Bazel spawn strategy
-_execution_requirements = {
-    # Copying files is entirely IO-bound and there is no point doing this work remotely.
-    # Also, remote-execution does not allow source directory inputs, see
-    # https://github.com/bazelbuild/bazel/commit/c64421bc35214f0414e4f4226cc953e8c55fa0d2
-    # So we must not attempt to execute remotely in that case.
-    # no-remote | Prevents the action or test from being executed remotely or cached remotely.
-    #           | This is equivalent to using both `no-remote-cache` and `no-remote-exec`.
-    "no-remote": "1",
-}
+load(":rules/private/copy_common_private.bzl", _COPY_EXECUTION_REQUIREMENTS = "COPY_EXECUTION_REQUIREMENTS")
 
 def _hash_file(file):
     return str(hash(file.path))
@@ -81,7 +72,7 @@ def copy_cmd(ctx, src, dst):
         mnemonic = mnemonic,
         progress_message = progress_message,
         use_default_shell_env = True,
-        execution_requirements = _execution_requirements,
+        execution_requirements = _COPY_EXECUTION_REQUIREMENTS,
     )
 
 # buildifier: disable=function-docstring
@@ -103,7 +94,7 @@ def copy_bash(ctx, src, dst):
         mnemonic = mnemonic,
         progress_message = progress_message,
         use_default_shell_env = True,
-        execution_requirements = _execution_requirements,
+        execution_requirements = _COPY_EXECUTION_REQUIREMENTS,
     )
 
 def _copy_file_impl(ctx):
