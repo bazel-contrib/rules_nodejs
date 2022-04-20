@@ -58,4 +58,5 @@ nodejs_test(
     chdir = package_name(),
     data = ["worker.js"],
     entry_point = "multithread.js",
+    tags = ["no-bazelci-windows"],
 )
