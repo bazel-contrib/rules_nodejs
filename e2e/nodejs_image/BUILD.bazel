@@ -3,12 +3,19 @@ load("@io_bazel_rules_docker//contrib:test.bzl", "container_test")
 load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 
+SHARP = select({
+    # When the target platform is Linux, request the copy of the package
+    # which downloaded linux executables in its post-install
+    "@bazel_tools//src/conditions:linux_x86_64": ["@npm_linux//sharp"],
+    # Otherwise just use it for the host platform.
+    "//conditions:default": ["@npm//sharp"],
+})
+
 nodejs_binary(
     name = "main",
     data = [
         "//foolib",
-        "@npm//date-fns",
-    ],
+    ] + SHARP,
     entry_point = "main.js",
 )
 
@@ -48,10 +55,7 @@ container_test(
         ),
         nodejs_binary(
             name = "main_" + id,
-            data = [
-                "//foolib",
-                "@npm//date-fns",
-            ],
+            data = ["//foolib"],
             entry_point = "binary_version.js",
             toolchain = toolchain,
         ),
