@@ -1,7 +1,8 @@
 "ts_project rule"
 
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
-load("@rules_nodejs//nodejs:providers.bzl", "DeclarationInfo", "declaration_info", "js_module_info")
+load("@rules_nodejs//nodejs/private/providers:declaration_info.bzl", "DeclarationInfo", "declaration_info")
+load("@rules_nodejs//nodejs/private/providers:js_providers.bzl", "js_module_info")
 load(":ts_lib.bzl", "COMPILER_OPTION_ATTRS", "OUTPUT_ATTRS", "STD_ATTRS", "ValidOptionsInfo", _lib = "lib")
 load(":ts_config.bzl", "TsConfigInfo")
 load(":ts_validate_options.bzl", _validate_lib = "lib")
