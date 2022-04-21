@@ -63,7 +63,7 @@ There is a basic example at [examples/react_webpack](https://github.com/bazelbui
 
 ### Vue
 
-We don't have a dedicated example yet, but Vue has been known to work. Follow https://github.com/bazelbuild/rules_nodejs/issues/1840 for an example.
+We don't have a dedicated example yet, but Vue has been known to work. Follow <https://github.com/bazelbuild/rules_nodejs/issues/1840> for an example.
 
 ### Svelte
 
@@ -77,7 +77,7 @@ There is a dedicated example for Jest: [examples/jest](https://github.com/bazelb
 
 ### Cypress
 
-We have done some early work to run Cypress under Bazel. Follow https://github.com/bazelbuild/rules_nodejs/issues/1904 for an example.
+We have done some early work to run Cypress under Bazel. Follow <https://github.com/bazelbuild/rules_nodejs/issues/1904> for an example.
 
 ### Mocha
 
@@ -139,7 +139,7 @@ Check for a BazelCon 2021 talk by @pcj about it.
 
 <https://github.com/Dig-Doug/rules_typescript_proto> seems promising.
 
-[protobuf.js](https://github.com/protobufjs/protobuf.js) from https://github.com/dcodeIO is a simple alternative.
+[protobuf.js](https://github.com/protobufjs/protobuf.js) from <https://github.com/dcodeIO> is a simple alternative.
 See the example in [examples/protobufjs](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/protobufjs)
 
 ## Bazel-specific
