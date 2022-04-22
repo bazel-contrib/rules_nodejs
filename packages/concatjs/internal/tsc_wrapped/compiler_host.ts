@@ -401,24 +401,25 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
    * typescript secondary search behavior needs to be overridden to support
    * looking under `bazelOpts.nodeModulesPrefix`
    */
-  resolveTypeReferenceDirectives(names: string[], containingFile: string): ts.ResolvedTypeReferenceDirective[] {
+  resolveTypeReferenceDirectives(names: string[] | ts.FileReference[], containingFile: string): ts.ResolvedTypeReferenceDirective[] {
     if (!this.allowActionInputReads) return [];
     const result: ts.ResolvedTypeReferenceDirective[] = [];
     names.forEach(name => {
+      const fileName = typeof name === 'string' ? name : name.fileName;
       let resolved: ts.ResolvedTypeReferenceDirective | undefined;
 
       // primary search
       if (this.options.typeRoots) {
         this.options.typeRoots.forEach(typeRoot => {
           if (!resolved) {
-            resolved = this.resolveTypingFromDirectory(path.posix.join(typeRoot, name), true);
+            resolved = this.resolveTypingFromDirectory(path.posix.join(typeRoot, fileName), true);
           }
         });
       }
 
       // secondary search
       if (!resolved) {
-        resolved = this.resolveTypingFromDirectory(path.posix.join(this.bazelOpts.nodeModulesPrefix, name), false);
+        resolved = this.resolveTypingFromDirectory(path.posix.join(this.bazelOpts.nodeModulesPrefix, fileName), false);
       }
 
       // Types not resolved should be silently ignored. Leave it to Typescript
@@ -426,7 +427,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       // 'foo'" or for the build to fail due to a missing type that is used.
       if (!resolved) {
         if (DEBUG) {
-          debug(`Failed to resolve type reference directive '${name}'`);
+          debug(`Failed to resolve type reference directive '${fileName}'`);
         }
         return;
       }
