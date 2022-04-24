@@ -57,7 +57,7 @@ def ts_setup_dev_workspace():
 
     go_repository(
         name = "com_github_mattn_go_isatty",
-        commit = "3fb116b820352b7f0c281308a4d6250c22d94e27",
+        commit = "504425e14f742f1f517c4586048b49b37f829c8e",  # v0.0.14
         importpath = "github.com/mattn/go-isatty",
     )
 
