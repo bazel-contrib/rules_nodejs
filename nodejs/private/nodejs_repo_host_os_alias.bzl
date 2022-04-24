@@ -18,6 +18,7 @@ alias(name = "npm_bin",                 actual = "@{node_repository}_{os_name}//
 alias(name = "npx_bin",                 actual = "@{node_repository}_{os_name}//:npx_bin")
 alias(name = "node",                    actual = "@{node_repository}_{os_name}//:node")
 alias(name = "npm",                     actual = "@{node_repository}_{os_name}//:npm")
+alias(name = "npx",                     actual = "@{node_repository}_{os_name}//:npx")
 alias(name = "node_files",              actual = "@{node_repository}_{os_name}//:node_files")
 alias(name = "npm_files",               actual = "@{node_repository}_{os_name}//:npm_files")
 exports_files([

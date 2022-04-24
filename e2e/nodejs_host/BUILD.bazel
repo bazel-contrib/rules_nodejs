@@ -34,3 +34,46 @@ sh_test(
         "node16_nvmrc",
     ]
 ]
+
+sh_test(
+    name = "version",
+    srcs = ["version_test.sh"],
+    data = [
+        "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
+        "@node16_nvmrc_host//:npx_bin",
+    ],
+)
+
+[
+    sh_test(
+        name = "test_node_version_%s_%s" % (bin, id),
+        srcs = ["version_test.sh"],
+        args = select({
+            "@bazel_tools//src/conditions:linux_x86_64": [
+                "%s_linux_amd64/bin" % id,
+                bin,
+            ],
+            "@bazel_tools//src/conditions:darwin": [
+                "%s_darwin_arm64/bin" % id,
+                bin,
+            ],
+            "@bazel_tools//src/conditions:windows": [
+                "%s_windows_amd64/bin" % id,
+                bin,
+            ],
+        }),
+        data = [
+            "@%s_host//:%s" % (id, bin),
+            "@%s_host//:node" % id,
+            "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
+        ],
+    )
+    for id in [
+        "node14",
+        "node16_nvmrc",
+    ]
+    for bin in [
+        "npx",
+        "npm",
+    ]
+]
