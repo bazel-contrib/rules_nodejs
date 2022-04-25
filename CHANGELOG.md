@@ -1,3 +1,16 @@
+## [5.4.1](https://github.com/bazelbuild/rules_nodejs/compare/5.4.0...5.4.1) (2022-04-25)
+
+
+### Bug Fixes
+
+* **concatjs:** resolve error with TypeScript 4.7 ([#3420](https://github.com/bazelbuild/rules_nodejs/issues/3420)) ([1074231](https://github.com/bazelbuild/rules_nodejs/commit/1074231))
+* enable stardoc generation for rules that depend on ts in core ([#3394](https://github.com/bazelbuild/rules_nodejs/issues/3394)) ([5d1c2ad](https://github.com/bazelbuild/rules_nodejs/commit/5d1c2ad))
+* **builtin:** fix a bug where mjs entry points were not added to ([#3406](https://github.com/bazelbuild/rules_nodejs/issues/3406)) ([e24473c](https://github.com/bazelbuild/rules_nodejs/commit/e24473c))
+* **builtin:** improve execution requirements for copy file operations ([#3413](https://github.com/bazelbuild/rules_nodejs/issues/3413)) ([43e478d](https://github.com/bazelbuild/rules_nodejs/commit/43e478d))
+* **jasmine:** allow cjs specs + add cjs/mjs tests ([#3401](https://github.com/bazelbuild/rules_nodejs/issues/3401)) ([dd7e778](https://github.com/bazelbuild/rules_nodejs/commit/dd7e778))
+
+
+
 # [5.4.0](https://github.com/bazelbuild/rules_nodejs/compare/5.3.1...5.4.0) (2022-04-06)
 
 
