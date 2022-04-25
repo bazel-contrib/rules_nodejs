@@ -1,3 +1,12 @@
+## [4.7.1](https://github.com/bazelbuild/rules_nodejs/compare/4.6.3...4.7.1) (2022-04-25)
+
+
+### Features
+
+* **builtin:** perform make variable substitution in npm_package_bin env vars ([#3343](https://github.com/bazelbuild/rules_nodejs/issues/3343)) ([87da874](https://github.com/bazelbuild/rules_nodejs/commit/87da874))
+
+
+
 # [4.7.0](https://github.com/bazelbuild/rules_nodejs/compare/4.6.3...4.7.0) (2022-03-01)
 
 
