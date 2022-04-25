@@ -287,7 +287,7 @@ CALL "%SCRIPT_DIR%\\{node}" %*
                 executable = True,
             )
         else:
-            # Npm entry point
+            # entry point
             repository_ctx.file(
                 "bin/%s.cmd" % kind["name"],
                 content = """@echo off
