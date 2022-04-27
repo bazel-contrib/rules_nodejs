@@ -8,7 +8,7 @@ load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
-DEFAULT_NODE_VERSION = "16.12.0"
+DEFAULT_NODE_VERSION = "16.15.0"
 
 BUILT_IN_NODE_PLATFORMS = PLATFORMS.keys()
 

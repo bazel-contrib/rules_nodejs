@@ -158,7 +158,7 @@ Defaults to `["https://nodejs.org/dist/v{version}/{filename}"]`
 
 (*String*): the specific version of NodeJS to install
 
-Defaults to `"16.12.0"`
+Defaults to `"16.15.0"`
 
 <h4 id="node_repositories-platform">platform</h4>
 
