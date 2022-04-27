@@ -30,10 +30,11 @@ def _ts_config_impl(ctx):
     transitive_deps = []
     for dep in ctx.attr.deps:
         if TsConfigInfo in dep:
-            transitive_deps.extend(dep[TsConfigInfo].deps)
+            transitive_deps.append(dep[TsConfigInfo].deps)
+    transitive_deps.append(depset(ctx.files.deps))
     return [
         DefaultInfo(files = files),
-        TsConfigInfo(deps = [ctx.file.src] + ctx.files.deps + transitive_deps),
+        TsConfigInfo(deps = depset([ctx.file.src], transitive = transitive_deps)),
     ]
 
 ts_config = rule(
