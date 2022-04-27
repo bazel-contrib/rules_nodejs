@@ -1,11 +1,6 @@
 "extensions for bzlmod"
 
-load(":repositories.bzl", "nodejs_register_toolchains")
-
-node_toolchain = tag_class(attrs = {
-    "name": attr.string(doc = "Base name for generated repositories"),
-    "node_version": attr.string(doc = "Version of the Node.js interpreter"),
-})
+load(":repositories.bzl", "DEFAULT_NODE_VERSION", "nodejs_register_toolchains")
 
 def _toolchain_extension(module_ctx):
     registrations = {}
@@ -31,5 +26,13 @@ def _toolchain_extension(module_ctx):
 
 node = module_extension(
     implementation = _toolchain_extension,
-    tag_classes = {"toolchain": node_toolchain},
+    tag_classes = {
+        "toolchain": tag_class(attrs = {
+            "name": attr.string(doc = "Base name for generated repositories"),
+            "node_version": attr.string(
+                doc = "Version of the Node.js interpreter",
+                default = DEFAULT_NODE_VERSION,
+            ),
+        }),
+    },
 )
