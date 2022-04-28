@@ -38,10 +38,17 @@ export interface BazelOptions {
   googmodule: boolean;
 
   /**
+   * DEPRECATED. being replaced by devmode.
    * If true, emit devmode output into filename.js.
    * If false, emit prodmode output into filename.mjs.
    */
   es5Mode: boolean;
+
+  /**
+   * If true, emit devmode output into filename.js.
+   * If false, emit prodmode output into filename.mjs.
+   */
+  devmode: boolean;
 
   /** If true, convert TypeScript code into a Closure-compatible variant. */
   tsickle: boolean;
