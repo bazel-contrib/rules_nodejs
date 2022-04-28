@@ -7,15 +7,15 @@ def _tsconfig_inputs(ctx):
     """Returns all transitively referenced tsconfig files from "tsconfig" and "extends" attributes."""
     inputs = []
     if TsConfigInfo in ctx.attr.tsconfig:
-        inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
+        inputs.append(ctx.attr.tsconfig[TsConfigInfo].deps)
     else:
-        inputs.append(ctx.file.tsconfig)
+        inputs.append(depset([ctx.file.tsconfig]))
     if hasattr(ctx.attr, "extends") and ctx.attr.extends:
         if TsConfigInfo in ctx.attr.extends:
-            inputs.extend(ctx.attr.extends[TsConfigInfo].deps)
+            inputs.append(ctx.attr.extends[TsConfigInfo].deps)
         else:
-            inputs.extend(ctx.attr.extends.files.to_list())
-    return inputs
+            inputs.append(ctx.attr.extends.files)
+    return depset(transitive = inputs)
 
 def _validate_options_impl(ctx, run_action = None):
     # Bazel won't run our action unless its output is needed, so make a marker file

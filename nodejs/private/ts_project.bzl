@@ -81,25 +81,23 @@ def _ts_project_impl(ctx, run_action = None, ExternalNpmPackageInfo = None):
             "--extendedDiagnostics",
         ])
 
-    deps_depsets = []
+    transitive_inputs = []
     inputs = ctx.files.srcs[:]
     for dep in ctx.attr.deps:
         if TsConfigInfo in dep:
-            deps_depsets.append(dep[TsConfigInfo].deps)
+            transitive_inputs.append(dep[TsConfigInfo].deps)
         if ExternalNpmPackageInfo != None and ExternalNpmPackageInfo in dep:
             # TODO: we could maybe filter these to be tsconfig.json or *.d.ts only
             # we don't expect tsc wants to read any other files from npm packages.
-            deps_depsets.append(dep[ExternalNpmPackageInfo].sources)
+            transitive_inputs.append(dep[ExternalNpmPackageInfo].sources)
         if DeclarationInfo in dep:
-            deps_depsets.append(dep[DeclarationInfo].transitive_declarations)
+            transitive_inputs.append(dep[DeclarationInfo].transitive_declarations)
         if ValidOptionsInfo in dep:
-            inputs.append(dep[ValidOptionsInfo].marker)
-
-    inputs.extend(depset(transitive = deps_depsets).to_list())
+            transitive_inputs.append(depset([dep[ValidOptionsInfo].marker]))
 
     # Gather TsConfig info from both the direct (tsconfig) and indirect (extends) attribute
     tsconfig_inputs = _validate_lib.tsconfig_inputs(ctx)
-    inputs.extend(tsconfig_inputs)
+    transitive_inputs.append(tsconfig_inputs)
 
     # We do not try to predeclare json_outs, because their output locations generally conflict with their path in the source tree.
     # (The exception is when out_dir is used, then the .json output is a different path than the input.)
@@ -155,7 +153,7 @@ This is an error because Bazel does not run actions unless their outputs are nee
 
     if len(outputs) > 0:
         run_action_kwargs = {
-            "inputs": inputs,
+            "inputs": depset(inputs, transitive = transitive_inputs),
             "arguments": [arguments],
             "outputs": outputs,
             "mnemonic": "TsProject",
@@ -198,7 +196,7 @@ This is an error because Bazel does not run actions unless their outputs are nee
             sources = depset(runtime_outputs),
             deps = ctx.attr.deps,
         ),
-        TsConfigInfo(deps = depset(tsconfig_inputs, transitive = [
+        TsConfigInfo(deps = depset(transitive = [tsconfig_inputs] + [
             dep[TsConfigInfo].deps
             for dep in ctx.attr.deps
             if TsConfigInfo in dep
