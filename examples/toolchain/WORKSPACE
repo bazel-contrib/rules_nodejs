@@ -4,8 +4,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "rules_nodejs",
-    sha256 = "2f8e1d44d7fc0aa34c499e0b284f257552f42a1e403ee41cedbed5e40434d9b9",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.4.1/rules_nodejs-core-5.4.1.tar.gz"],
+    sha256 = "26766278d815a6e2c43d2f6c9c72fde3fec8729e84138ffa4dabee47edc7702a",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.4.2/rules_nodejs-core-5.4.2.tar.gz"],
 )
 
 # Note: skylib 1.1.1 has some bug on Windows with diff_test, which we use in this example

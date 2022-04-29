@@ -1,3 +1,17 @@
+## [5.4.2](https://github.com/bazelbuild/rules_nodejs/compare/5.4.1...5.4.2) (2022-04-29)
+
+
+### Bug Fixes
+
+* **concatjs:** adding devmode to BazelOpts ([#3433](https://github.com/bazelbuild/rules_nodejs/issues/3433)) ([5afaab8](https://github.com/bazelbuild/rules_nodejs/commit/5afaab8))
+
+
+### Features
+
+* expose [@nodejs](https://github.com/nodejs)_host//:bin/node without using alias ([7d338cb](https://github.com/bazelbuild/rules_nodejs/commit/7d338cb))
+
+
+
 ## [5.4.1](https://github.com/bazelbuild/rules_nodejs/compare/5.4.0...5.4.1) (2022-04-25)
 
 
