@@ -2,22 +2,22 @@
 # yarn lockfile v1
 
 
-"@bazel/rollup@^5.4.1":
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-5.4.1.tgz#3a79e6fd58e0afb540d2b975ecc2b8cb97374a07"
-  integrity sha512-HT+C2r9Q3/5Lzy6i31zV+a4s32VqhyUYpqUhdyTWWshAmKnkjE4T0KDKBGfZ6sBveTnbnEL2Y+822FAv05gPgg==
+"@bazel/rollup@^5.4.2":
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-5.4.2.tgz#4b640740f1d57f9acc39b407045ff69bea896057"
+  integrity sha512-IIawuwfh3OE1u7KAGagqw+3EOFW5O01W/HUtV48ereSOMILDsHi85oY9fQNJ76O1ZxrI3mRLCPKs9xWmHAenUQ==
   dependencies:
-    "@bazel/worker" "5.4.1"
+    "@bazel/worker" "5.4.2"
 
-"@bazel/terser@^5.4.1":
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-5.4.1.tgz#1a863c53f89f9882dcb489ec6ee1d1e64de8dd78"
-  integrity sha512-osQkFkQU0gHUjlhhcbu7SXEKJ7bNGUr75eo7WLhMAnTtoHSzMP+9Fn/gbSNiGv1ekLjW71SRABt9xQNG3hl14g==
+"@bazel/terser@^5.4.2":
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-5.4.2.tgz#c3ecf9be0c6c589bc981e67d0af2457d5a596e2a"
+  integrity sha512-bQFbsxaUTu0vhVCX+P6yY1t/Fg9vo/irOcB3OzX1iTBBS1eDK36fChMx6sFQu6QD5yq7zZxzpb6YH3RyPyri9w==
 
-"@bazel/worker@5.4.1":
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.4.1.tgz#7b7fbc329b81f8aef308c14999618be67a741b19"
-  integrity sha512-0tfP/ASibVAU+ksnTRmPjib3nBXW6cqyCMzVsx3i/eQu5JpyBZLSOxQZq4KrnKBLvp3UbgI599DqQVbMaJhbEw==
+"@bazel/worker@5.4.2":
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.4.2.tgz#b5229140c2087b7f3977ee671624f3c65c6a46a4"
+  integrity sha512-wQZ1ybgiCPkuITaiPfh91zB/lBYqBglf1XYh9hJZCQnWZ+oz9krCnZcywI/i1U9/E9p3A+4Y1ni5akAwTMmfUA==
   dependencies:
     google-protobuf "^3.6.1"
 

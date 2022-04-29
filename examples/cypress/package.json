@@ -5,9 +5,9 @@
         "express": "4.17.1"
     },
     "devDependencies": {
-        "@bazel/cypress": "^5.4.1",
+        "@bazel/cypress": "^5.4.2",
         "@bazel/ibazel": "^0.16.2",
-        "@bazel/typescript": "^5.4.1",
+        "@bazel/typescript": "^5.4.2",
         "@types/node": "14.0.13",
         "cypress": "7.3.0",
         "rxjs": "^6.5.2",

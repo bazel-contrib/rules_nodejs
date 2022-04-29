@@ -2,35 +2,35 @@
 # yarn lockfile v1
 
 
-"@bazel/concatjs@^5.4.1":
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-5.4.1.tgz#590b7944d89136863ba4e3e264c555b0efc815de"
-  integrity sha512-E5lVBdJNeTcXgDM4phmY2JbHdwWIJZ61ls22McXpWhsDlfItURhNuzxbg/+8gDDX0AlMsJnBpAtFLNVH5c2xwA==
+"@bazel/concatjs@^5.4.2":
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-5.4.2.tgz#2ec0943b50e229a163a277a6de2cc38aeb852e14"
+  integrity sha512-MoQfmY+6N8RCgqDI2+bRuD+I0p3CLI1JCYZZNSnbZySv1SnT5oQHxoerojEYwyOmsS5sUt2sR8uGtMYZSdoycQ==
   dependencies:
     protobufjs "6.8.8"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/protractor@^5.4.1":
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-5.4.1.tgz#f246f5e1fbcc5ed36e6d48824009bb29482e1660"
-  integrity sha512-uYIrYuxyZMplpov7pkjNF2igQA3CrnHOF4W68xJlHWhw3tjbacWHd4OJJ1BYrpPoYShaiKYxuVnzRVF9/0f7Bg==
+"@bazel/protractor@^5.4.2":
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-5.4.2.tgz#4b29920445ab2d87769340551df92e70b43e33a3"
+  integrity sha512-uW4aDbQZfa+Y2qCbg59sndZROMpcv7Hg0i1ijkU98GiWS+vYaJyWQQUzyWPL3jWZXf8UIJbgyIEmneB4s13gjw==
 
-"@bazel/typescript@^5.4.1":
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.4.1.tgz#c708ab2a0436620e28371fcedbf86abb1cf8abdd"
-  integrity sha512-LB/JbjPmj4/7R7fkZnWp2wc6tBEFT/5As+FqqJoAzS+YVhtp8sSmJXxZT1aq8/GO0DdA0uX2HZwlFUAzcF3VQQ==
+"@bazel/typescript@^5.4.2":
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.4.2.tgz#73ff56d124841eeb3e55aa10c146d9cc25b0e973"
+  integrity sha512-QtCNPJHEeJhVGnRijRxzA3bUaY5mpURJ/Ss4QCjNTyJXbJAQ+F05LiEeFmxlhvouRXy4lW4/4EIhfucZ9YG5tw==
   dependencies:
-    "@bazel/worker" "5.4.1"
+    "@bazel/worker" "5.4.2"
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@5.4.1":
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.4.1.tgz#7b7fbc329b81f8aef308c14999618be67a741b19"
-  integrity sha512-0tfP/ASibVAU+ksnTRmPjib3nBXW6cqyCMzVsx3i/eQu5JpyBZLSOxQZq4KrnKBLvp3UbgI599DqQVbMaJhbEw==
+"@bazel/worker@5.4.2":
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.4.2.tgz#b5229140c2087b7f3977ee671624f3c65c6a46a4"
+  integrity sha512-wQZ1ybgiCPkuITaiPfh91zB/lBYqBglf1XYh9hJZCQnWZ+oz9krCnZcywI/i1U9/E9p3A+4Y1ni5akAwTMmfUA==
   dependencies:
     google-protobuf "^3.6.1"
 

@@ -1,7 +1,7 @@
 {
   "name": "e2e-jasmine",
   "dependencies": {
-    "@bazel/jasmine": "^5.4.1",
+    "@bazel/jasmine": "^5.4.2",
     "zone.js": "0.8.29"
   },
   "//": "Include an incompatible jasmine as a devDependency to verify that jasmine_node_test works regardless",
