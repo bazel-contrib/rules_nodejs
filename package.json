@@ -92,6 +92,7 @@
         "source-map": "^0.7.3",
         "source-map-support": "0.5.9",
         "terser": "4.4.0",
+        "test_esm_pkg": "file:./tools/npm_packages/test_esm_pkg",
         "testy": "file:./tools/npm_packages/testy",
         "tmp": "0.1.0",
         "ts-lit-plugin": "1.1.9",
