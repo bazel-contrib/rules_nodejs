@@ -7,6 +7,9 @@ workflows:
       push:
         branches:
           - stable
+      pull_request:
+        branches:
+          - "**"
     steps:
       - name: bazel test
         bazel:
