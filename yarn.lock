@@ -10367,6 +10367,9 @@ test-exclude@^6.0.0:
     glob "^7.1.4"
     minimatch "^3.0.4"
 
+"test_esm_pkg@file:./tools/npm_packages/test_esm_pkg":
+  version "0.0.1"
+
 "testy@file:./tools/npm_packages/testy":
   version "0.0.1"
 

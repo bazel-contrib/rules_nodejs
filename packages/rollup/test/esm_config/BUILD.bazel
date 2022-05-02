@@ -1,0 +1,20 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("//packages/rollup:index.bzl", "rollup_bundle")
+
+rollup_bundle(
+    name = "esm_config",
+    config_file = "rollup.config.mjs",
+    entry_point = "input.js",
+    sourcemap = "false",
+    supports_workers = True,
+    deps = [
+        # Fake test ESM package from `npm_deps.bzl`.
+        "@npm//test_esm_pkg",
+    ],
+)
+
+generated_file_test(
+    name = "test",
+    src = "golden.js_",
+    generated = ":esm_config.js",
+)

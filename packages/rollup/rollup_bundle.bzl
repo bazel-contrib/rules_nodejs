@@ -135,7 +135,7 @@ Otherwise, the outputs are assumed to be a single file.
     "silent": attr.bool(
         doc = """Whether to execute the rollup binary with the --silent flag, defaults to False.
 
-Using --silent can cause rollup to [ignore errors/warnings](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#onwarn) 
+Using --silent can cause rollup to [ignore errors/warnings](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#onwarn)
 which are only surfaced via logging.  Since bazel expects printing nothing on success, setting silent to True
 is a more Bazel-idiomatic experience, however could cause rollup to drop important warnings.
 """,
@@ -312,7 +312,8 @@ def _rollup_bundle(ctx):
 
     stamp = ctx.attr.stamp[StampSettingInfo].value
 
-    config = ctx.actions.declare_file("_%s.rollup_config.js" % ctx.label.name)
+    config_extension = ctx.file.config_file.extension
+    config = ctx.actions.declare_file("_%s.rollup_config.%s" % (ctx.label.name, config_extension))
     ctx.actions.expand_template(
         template = ctx.file.config_file,
         output = config,
