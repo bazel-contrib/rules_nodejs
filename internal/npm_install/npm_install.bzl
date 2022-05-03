@@ -449,11 +449,14 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
             fail("link target must be label of form '@wksp//path/to:target', '@//path/to:target' or '//path/to:target'")
         validated_links[k] = v
 
-    package_json_dir = paths.dirname(paths.normalize(paths.join(repository_ctx.attr.package_json.package, repository_ctx.attr.package_json.name)))
+    package_json_dir = paths.dirname(paths.normalize(paths.join(
+        repository_ctx.attr.package_json.package,
+        repository_ctx.attr.package_json.name,
+    )))
     package_path = repository_ctx.attr.package_path
     if not package_path:
         # By default the package_path is the directory of the package.json file
-        package_path = package_json_dir
+        package_path = paths.join(repository_ctx.attr.package_json.workspace_root, package_json_dir)
     elif package_path == "/":
         # User specified root path
         package_path = ""
