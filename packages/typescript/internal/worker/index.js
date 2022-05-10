@@ -57,7 +57,8 @@ function emitOnce(args) {
             consolidateChangesCallback();
         }
         workerRequestTimestamp = Date.now();
-        const result = yield (watchProgram === null || watchProgram === void 0 ? void 0 : watchProgram.getProgram().emit(undefined, undefined, {
+        const program = watchProgram === null || watchProgram === void 0 ? void 0 : watchProgram.getProgram();
+        const cancellationToken = {
             isCancellationRequested: function (timestamp) {
                 return timestamp !== workerRequestTimestamp;
             }.bind(null, workerRequestTimestamp),
@@ -66,8 +67,11 @@ function emitOnce(args) {
                     throw new ts.OperationCanceledException();
                 }
             }.bind(null, workerRequestTimestamp),
-        }));
-        return Boolean(result && result.diagnostics.length === 0);
+        };
+        const result = program.emit(undefined, undefined, cancellationToken);
+        const diagnostics = ts.getPreEmitDiagnostics(program, undefined, cancellationToken);
+        let succeded = result && result.diagnostics.length === 0 && diagnostics.length == 0;
+        return succeded;
     });
 }
 function main() {

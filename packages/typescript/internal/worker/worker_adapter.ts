@@ -99,9 +99,9 @@ async function emitOnce(args: string[]) {
     consolidateChangesCallback();
   }
 
-
   workerRequestTimestamp = Date.now();
-  const result = await watchProgram ?.getProgram().emit(undefined, undefined, {
+  const program = watchProgram?.getProgram()
+  const cancellationToken: ts.CancellationToken = {
     isCancellationRequested: function(timestamp: number) {
       return timestamp !== workerRequestTimestamp;
     }.bind(null, workerRequestTimestamp),
@@ -110,9 +110,12 @@ async function emitOnce(args: string[]) {
         throw new ts.OperationCanceledException();
       }
     }.bind(null, workerRequestTimestamp),
-  });
-
-  return Boolean(result && result.diagnostics.length === 0);
+  }
+ 
+  const result = program.emit(undefined, undefined, cancellationToken);
+  const diagnostics = ts.getPreEmitDiagnostics(program as unknown as ts.Program, undefined,  cancellationToken)
+  let succeded = result && result.diagnostics.length === 0 && diagnostics.length == 0
+  return succeded
 }
 
 function main() {
