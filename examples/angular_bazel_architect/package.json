@@ -9,9 +9,12 @@
     "lint": "bazel run :lint",
     "e2e": "bazel test :e2e",
     "postinstall": "patch-package && yarn webdriver-update && ngcc --properties es2015 browser module main --first-only",
-    "webdriver-update": "webdriver-manager update --standalone false --gecko false --versions.chrome 85.0.4183.38"
+    "webdriver-update": "webdriver-manager update --standalone false --gecko false --versions.chrome 96.0.4664.110"
   },
   "private": true,
+  "resolutions": {
+    "**/webdriver-manager": "^12.1.8"
+  },
   "dependencies": {
     "@angular/animations": "11.2.3",
     "@angular/common": "11.2.3",
