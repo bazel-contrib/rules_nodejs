@@ -549,8 +549,7 @@ Defaults to `[]`
 If symlink_node_modules is True, this attribute is optional since the package manager
 will run in your workspace folder. It is recommended, however, that all files that the
 package manager depends on, such as `.rc` files or files used in `postinstall`, are added
-symlink_node_modules is True so that the repository rule is rerun when any of these files
-change.
+so that the repository rule is rerun when any of these files change.
 
 If symlink_node_modules is False, the package manager is run in the bazel external
 repository so all files that the package manager depends on must be listed.
@@ -1214,8 +1213,7 @@ Defaults to `[]`
 If symlink_node_modules is True, this attribute is optional since the package manager
 will run in your workspace folder. It is recommended, however, that all files that the
 package manager depends on, such as `.rc` files or files used in `postinstall`, are added
-symlink_node_modules is True so that the repository rule is rerun when any of these files
-change.
+so that the repository rule is rerun when any of these files change.
 
 If symlink_node_modules is False, the package manager is run in the bazel external
 repository so all files that the package manager depends on must be listed.
