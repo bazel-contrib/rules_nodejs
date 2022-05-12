@@ -16,8 +16,6 @@ nodejs_binary(
     name = "packager",
     data = ["//third_party/github.com/gjtorikian/isBinaryFile"],
     entry_point = ":packager.js",
-    # TODO: figure out why isbinaryfile is not linked in a way this can resolve
-    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 nodejs_binary(

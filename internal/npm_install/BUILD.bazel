@@ -57,7 +57,5 @@ nodejs_binary(
         "//third_party/npm/node_modules/named-amd",
     ],
     entry_point = ":browserify-wrapped.js",
-    # TODO: figure out why browserify isn't resolved properly
-    templated_args = ["--bazel_patch_module_resolver"],
     visibility = ["//visibility:public"],
 )

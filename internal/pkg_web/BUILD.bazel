@@ -22,16 +22,12 @@ nodejs_binary(
         "//third_party/github.com/gjtorikian/isBinaryFile",
     ],
     entry_point = ":assembler.js",
-    # TODO: figure out why isbinaryfile isn't resolved properly
-    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 # BEGIN-INTERNAL
 jasmine_node_test(
     name = "assembler_test",
     srcs = ["assembler_spec.js"],
-    # TODO: figure out why isbinaryfile isn't resolved properly
-    templated_args = ["--bazel_patch_module_resolver"],
     deps = [
         "assembler.js",
         "//third_party/github.com/gjtorikian/isBinaryFile",
