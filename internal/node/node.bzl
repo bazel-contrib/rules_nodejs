@@ -25,7 +25,7 @@ load("//:providers.bzl", "ExternalNpmPackageInfo", "JSNamedModuleInfo", "NodeRun
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:is_js_file.bzl", "is_javascript_file")
 load("//internal/common:maybe_directory_file_path.bzl", "maybe_directory_file_path")
-load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
+load("//internal/common:module_mappings.bzl", "RunfilesModuleMappingInfo", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:preserve_legacy_templated_args.bzl", "preserve_legacy_templated_args")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
@@ -73,8 +73,8 @@ def _write_require_patch_script(ctx, data, node_modules_root):
     #   {module_name: /^mod_name\b/, module_root: 'path/to/mod_name'}
     module_mappings = []
     for d in data:
-        if hasattr(d, "runfiles_module_mappings"):
-            for [mn, mr] in d.runfiles_module_mappings.items():
+        if RunfilesModuleMappingInfo in d:
+            for [mn, mr] in d[RunfilesModuleMappingInfo].mappings.items():
                 escaped = mn.replace("/", "\\/").replace(".", "\\.")
                 mapping = "{module_name: /^%s\\b/, module_root: '%s'}" % (escaped, mr)
                 module_mappings.append(mapping)

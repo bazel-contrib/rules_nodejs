@@ -23,6 +23,12 @@
 """Helper function and aspect to get module mappings from deps
 """
 
+RunfilesModuleMappingInfo = provider(
+    fields = {
+        "mappings": "{module_name - module_root} hash from all transitive dependencies",
+    },
+)
+
 def _get_deps(attrs, names):
     return [
         d
@@ -41,8 +47,7 @@ def _debug(vars, *args):
         print("[module_mappings.bzl]", *args)
 
 def _get_module_mappings(target, ctx):
-    """Returns the module_mappings from the given attrs.
-
+    """
     Collects a {module_name - module_root} hash from all transitive dependencies,
     checking for collisions. If a module has a non-empty `module_root` attribute,
     all sources underneath it are treated as if they were rooted at a folder
@@ -53,16 +58,15 @@ def _get_module_mappings(target, ctx):
       ctx: ctx
 
     Returns:
-      The module mappings
+      A RunfilesModuleMappingInfo provider
     """
     mappings = dict()
-    mappings_attr = "runfiles_module_mappings"
     workspace_name = target.label.workspace_name if target.label.workspace_name else ctx.workspace_name
     all_deps = _get_deps(ctx.rule.attr, names = _MODULE_MAPPINGS_DEPS_NAMES)
     for dep in all_deps:
-        if not hasattr(dep, mappings_attr):
+        if not RunfilesModuleMappingInfo in dep:
             continue
-        for k, v in getattr(dep, mappings_attr).items():
+        for k, v in dep[RunfilesModuleMappingInfo].mappings.items():
             if k in mappings and mappings[k] != v:
                 fail(("duplicate module mapping at %s: %s maps to both %s and %s" %
                       (target.label, k, mappings[k], v)), "deps")
@@ -100,11 +104,10 @@ def _get_module_mappings(target, ctx):
                   (target.label, mn, mappings[mn], mr)), "deps")
         mappings[mn] = mr
     _debug(ctx.var, "Mappings at %s: %s" % (target.label, mappings))
-    return mappings
+    return RunfilesModuleMappingInfo(mappings = mappings)
 
 def _module_mappings_runtime_aspect_impl(target, ctx):
-    mappings = _get_module_mappings(target, ctx)
-    return struct(runfiles_module_mappings = mappings)
+    return [_get_module_mappings(target, ctx)]
 
 module_mappings_runtime_aspect = aspect(
     _module_mappings_runtime_aspect_impl,
