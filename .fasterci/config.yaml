@@ -19,3 +19,4 @@ workflows:
             - "--test_tag_filters=-e2e,-examples"
           test_targets: 
             - //... 
+    cleanup: git clean -ffdx
