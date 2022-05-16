@@ -237,7 +237,7 @@ Defaults to `@npm//@bazel/cypress/internal:run-cypress.js`
 <h4 id="cypress_web_test-env">env</h4>
 
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Specifies additional environment variables to set when the target is executed, subject to location
-expansion.
+and make variable expansion.
 
 Defaults to `{}`
 

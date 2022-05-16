@@ -118,4 +118,9 @@ describe('launcher.sh environment', function() {
     expect(env['FOO']).toBe('BAR');
     expect(env['LOC']).toBe('build_bazel_rules_nodejs/internal/node/test/dump_build_env.js');
   });
+
+  it('should expand make variables from env attr', function() {
+      const env = require(runfiles.resolvePackageRelative('dump_build_env_attr.json'));
+      expect(env['SOME_TEST_ENV']).toBe('some_value')
+  });
 });
