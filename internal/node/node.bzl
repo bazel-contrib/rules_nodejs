@@ -210,7 +210,7 @@ def _nodejs_binary_impl(ctx, data = [], runfiles = [], expanded_args = []):
 
     # Add all env vars from the ctx attr
     for [key, value] in ctx.attr.env.items():
-        env_vars += "export %s=%s\n" % (key, expand_location_into_runfiles(ctx, value, data))
+        env_vars += "export %s=%s\n" % (key, ctx.expand_make_variables("env", expand_location_into_runfiles(ctx, value, data), {}))
 
     # While we can derive the workspace from the pwd when running locally
     # because it is in the execroot path `execroot/my_wksp`, on RBE the
@@ -502,7 +502,7 @@ nodejs_binary(
     ),
     "env": attr.string_dict(
         doc = """Specifies additional environment variables to set when the target is executed, subject to location
-expansion.
+and make variable expansion.
         """,
         default = {},
     ),

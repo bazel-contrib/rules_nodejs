@@ -409,6 +409,7 @@ nodejs_binary(
     entry_point = "dump_build_env.js",
     env = {
         "LOC": "$(location :dump_build_env.js)",
+        "SOME_TEST_ENV": "$(SOME_TEST_ENV)",
     },
 )
 
