@@ -1,3 +1,23 @@
+# [5.5.0](https://github.com/bazelbuild/rules_nodejs/compare/5.4.1...5.5.0) (2022-05-18)
+
+
+### Bug Fixes
+
+* **docs:** stray text in npm_install docs ([#3450](https://github.com/bazelbuild/rules_nodejs/issues/3450)) ([6d519eb](https://github.com/bazelbuild/rules_nodejs/commit/6d519eb))
+* **examples:** fix architect example on m1 ([#3447](https://github.com/bazelbuild/rules_nodejs/issues/3447)) ([d234328](https://github.com/bazelbuild/rules_nodejs/commit/d234328))
+* **typescript:** correctly process diagnostics in worker mode ([#3441](https://github.com/bazelbuild/rules_nodejs/issues/3441)) ([e4842c1](https://github.com/bazelbuild/rules_nodejs/commit/e4842c1))
+* set correct linking location for yarn_install using package.json from external repository ([#3442](https://github.com/bazelbuild/rules_nodejs/issues/3442)) ([55a84d1](https://github.com/bazelbuild/rules_nodejs/commit/55a84d1))
+* **concatjs:** adding devmode to BazelOpts ([#3433](https://github.com/bazelbuild/rules_nodejs/issues/3433)) ([5afaab8](https://github.com/bazelbuild/rules_nodejs/commit/5afaab8))
+
+
+### Features
+
+* **builtin:** expand make vars in nodejs_binary/test env attr ([#3456](https://github.com/bazelbuild/rules_nodejs/issues/3456)) ([353593c](https://github.com/bazelbuild/rules_nodejs/commit/353593c))
+* **rollup:** support esm configurations to be provided ([#3435](https://github.com/bazelbuild/rules_nodejs/issues/3435)) ([7bac805](https://github.com/bazelbuild/rules_nodejs/commit/7bac805))
+* expose [@nodejs](https://github.com/nodejs)_host//:bin/node without using alias ([#3434](https://github.com/bazelbuild/rules_nodejs/issues/3434)) ([506eebc](https://github.com/bazelbuild/rules_nodejs/commit/506eebc))
+
+
+
 ## [5.4.2](https://github.com/bazelbuild/rules_nodejs/compare/5.4.1...5.4.2) (2022-04-29)
 
 
