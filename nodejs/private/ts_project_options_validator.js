@@ -127,7 +127,7 @@ function main(_a) {
     }
     // We have to write an output so that Bazel needs to execute this action.
     // Make the output change whenever the attributes changed.
-    require('fs').writeFileSync(output, "\n// " + process.argv[1] + " checked attributes for " + target + "\n// allow_js:              " + attrs.allow_js + "\n// composite:             " + attrs.composite + "\n// declaration:           " + attrs.declaration + "\n// declaration_map:       " + attrs.declaration_map + "\n// incremental:           " + attrs.incremental + "\n// source_map:            " + attrs.source_map + "\n// emit_declaration_only: " + attrs.emit_declaration_only + "\n// ts_build_info_file:    " + attrs.ts_build_info_file + "\n// preserve_jsx:          " + attrs.preserve_jsx + "\n", 'utf-8');
+    require('fs').writeFileSync(output, "\n// checked attributes for " + target + "\n// allow_js:              " + attrs.allow_js + "\n// composite:             " + attrs.composite + "\n// declaration:           " + attrs.declaration + "\n// declaration_map:       " + attrs.declaration_map + "\n// incremental:           " + attrs.incremental + "\n// source_map:            " + attrs.source_map + "\n// emit_declaration_only: " + attrs.emit_declaration_only + "\n// ts_build_info_file:    " + attrs.ts_build_info_file + "\n// preserve_jsx:          " + attrs.preserve_jsx + "\n", 'utf-8');
     return 0;
 }
 if (require.main === module) {

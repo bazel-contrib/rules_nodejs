@@ -141,7 +141,7 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
   // Make the output change whenever the attributes changed.
   require('fs').writeFileSync(
       output, `
-// ${process.argv[1]} checked attributes for ${target}
+// checked attributes for ${target}
 // allow_js:              ${attrs.allow_js}
 // composite:             ${attrs.composite}
 // declaration:           ${attrs.declaration}
