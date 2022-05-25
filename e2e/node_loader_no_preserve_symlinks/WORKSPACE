@@ -1,9 +1,4 @@
-workspace(
-    name = "e2e_node_loader_no_preserve_symlinks",
-    managed_directories = {
-        "@npm": ["node_modules"],
-    },
-)
+workspace(name = "e2e_node_loader_no_preserve_symlinks")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 

@@ -64,6 +64,22 @@ npm_install(
 
 ### symlink_node_modules and managed_directories
 
+**The `managed_directories` feature is being removed from Bazel.**
+See https://github.com/bazelbuild/bazel/issues/15463.
+Using `managed_directories` is not recommended.
+
+Furthermore, as of rules_nodejs 5.0, `symlink_node_modules` defaults to `False`. We've found that the benefits of using
+`symlink_node_modules`, which allows Bazel to use a `node_modules` directory
+that is in the user workspace, do not outweigh the downsides of the repository
+rule not defining all of their inputs and of having to re-run the repository rule
+if the user's `node_modules` folder is deleted. On persistent CI machines, that
+will delete the `node_modules` folder when cleaning the clone between jobs, the
+repository rule will run for every job when `symlink_node_modules` is enabled.
+With `symlink_node_modules` disabled, the repository rule will only re-run if
+its inputs change between jobs.
+
+The remaining documentation in this section is for legacy usage only.
+
 Set `symlink_node_modules` to `True` to configure `npm_install` and/or
 `yarn_install` to install `node_modules` inside the user workspace and have
 Bazel use the `node_modules` folder in the user workspace for the build via a
@@ -90,24 +106,6 @@ workspace(
     name = "my_wksp",
     managed_directories = {"@npm": ["node_modules"]},
 )
-```
-
-As of rules_nodejs 5.0, `symlink_node_modules` defaults to `False` and using
-`managed_directories` is not recommended. We've found that the benefits of using
-`symlink_node_modules`, which allows Bazel to use a `node_modules` directory
-that is in the user workspace, do not outweigh the downsides of the repository
-rule not defining all of their inputs and of having to re-run the repository rule
-if the user's `node_modules` folder is deleted. On persistent CI machines, that
-will delete the `node_modules` folder when cleaning the clone between jobs, the
-repository rule will run for every job when `symlink_node_modules` is enabled.
-With `symlink_node_modules` disabled, the repository rule will only re-run if
-its inputs change between jobs.
-
-NB: On older versions of Bazel you may have to add the following flag to your
-`.bazelrc` to enable managed directories.
-
-```
-common --experimental_allow_incremental_repository_updates
 ```
 
 ### yarn_install vs. npm_install

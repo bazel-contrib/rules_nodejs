@@ -872,7 +872,10 @@ Defaults to `True`
 
 <h4 id="npm_install-symlink_node_modules">symlink_node_modules</h4>
 
-(*Boolean*): Turn symlinking of node_modules on
+(*Boolean*): Turn symlinking of node_modules on.
+
+**Use of this feature is not recommended, as Bazel is removing `managed_directories`.
+See https://github.com/bazelbuild/bazel/issues/15463
 
 When False, the package manager will run in the external repository
 created by this rule.
@@ -1537,7 +1540,10 @@ Defaults to `True`
 
 <h4 id="yarn_install-symlink_node_modules">symlink_node_modules</h4>
 
-(*Boolean*): Turn symlinking of node_modules on
+(*Boolean*): Turn symlinking of node_modules on.
+
+**Use of this feature is not recommended, as Bazel is removing `managed_directories`.
+See https://github.com/bazelbuild/bazel/issues/15463
 
 When False, the package manager will run in the external repository
 created by this rule.

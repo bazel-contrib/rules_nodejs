@@ -14,13 +14,6 @@
 
 workspace(
     name = "build_bazel_rules_nodejs",
-    managed_directories = {
-        # cypress_deps must be a managed directory to ensure it is downloaded before cypress_repositories is run.
-        "@cypress_deps": ["packages/cypress/test/node_modules"],
-        "@internal_npm_install_test_patches_npm_symlinked": ["internal/npm_install/test/patches_npm_symlinked/node_modules"],
-        "@internal_npm_install_test_patches_yarn_symlinked": ["internal/npm_install/test/patches_yarn_symlinked/node_modules"],
-        "@npm": ["node_modules"],
-    },
 )
 
 #
