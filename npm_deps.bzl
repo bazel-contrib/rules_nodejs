@@ -470,7 +470,6 @@ filegroup(
         patch_args = ["-p0"],
         patch_tool = "patch",
         post_install_patches = ["//internal/npm_install/test/patches_yarn_symlinked:semver+1.0.0.patch"],
-        symlink_node_modules = True,
         yarn_lock = "//internal/npm_install/test/patches_yarn_symlinked:yarn.lock",
         quiet = False,
     )
@@ -482,7 +481,6 @@ filegroup(
         patch_args = ["-p0"],
         patch_tool = "patch",
         post_install_patches = ["//internal/npm_install/test/patches_npm_symlinked:semver+1.0.0.patch"],
-        symlink_node_modules = True,
         quiet = False,
     )
 
@@ -546,8 +544,6 @@ filegroup(
         name = "cypress_deps",
         package_json = "//packages/cypress/test:package.json",
         yarn_lock = "//packages/cypress/test:yarn.lock",
-        # TODO: get cypress rule working with symlink_node_modules = False
-        symlink_node_modules = True,
         # TODO: get cypress rule working with exports_directories_only = True
         exports_directories_only = False,
     )
