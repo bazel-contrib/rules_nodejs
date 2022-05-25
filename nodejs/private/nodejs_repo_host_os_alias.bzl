@@ -20,6 +20,7 @@ alias(name = "node",                    actual = "@{node_repository}_{os_name}//
 alias(name = "npm",                     actual = "@{node_repository}_{os_name}//:npm")
 alias(name = "node_files",              actual = "@{node_repository}_{os_name}//:node_files")
 alias(name = "npm_files",               actual = "@{node_repository}_{os_name}//:npm_files")
+alias(name = "all_node_files",               actual = "@{node_repository}_{os_name}//:all_node_files")
 exports_files([
     "index.bzl",
     "bin/node{ext}",

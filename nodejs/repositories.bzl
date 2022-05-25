@@ -322,11 +322,16 @@ filegroup(
   name = "npm_files",
   srcs = {npm_files_glob}[":node_files"],
 )
+filegroup(
+  name = "all_node_files",
+  srcs = {all_node_files_glob}[":node_files"],
+)
 """.format(
         node_bin_export = "\n  \"%s\"," % node_bin,
         npm_bin_export = "\n  \"%s\"," % npm_bin,
         npx_bin_export = "\n  \"%s\"," % npx_bin,
         npm_files_glob = "glob([\"bin/nodejs/**\"]) + ",
+        all_node_files_glob = "glob([\"bin/nodejs/**\"]) + ",
         node_bin_label = node_bin_label,
         npm_bin_label = npm_bin_label,
         npx_bin_label = npx_bin_label,
@@ -342,6 +347,7 @@ node_toolchain(
     name = "node_toolchain",
     target_tool = ":node_bin",
     run_npm = ":run_npm.template",
+    all_node_files = ":all_node_files",
 )
 """
     repository_ctx.file("BUILD.bazel", content = build_content)

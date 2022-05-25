@@ -260,6 +260,8 @@ fi
 
     node_tool_files = []
     node_tool_files.extend(node_toolchain.nodeinfo.tool_files)
+    if ctx.attr.include_all_node_files:
+        node_tool_files.extend(node_toolchain.nodeinfo.all_node_files)
     node_tool_files.append(ctx.file._link_modules_script)
     node_tool_files.append(ctx.file._runfile_helpers_bundle)
     node_tool_files.append(ctx.file._runfile_helpers_main)
@@ -505,6 +507,12 @@ nodejs_binary(
 and make variable expansion.
         """,
         default = {},
+    ),
+    "include_all_node_files": attr.bool(
+        doc = """Include all files shipped with node as inputs as specified by the toolchain.
+
+By default, only the node executable is specified as an input as the remaining node distribution files
+are not needed by most programs.""",
     ),
     "link_workspace_root": attr.bool(
         doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.

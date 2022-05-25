@@ -26,6 +26,9 @@ NodeInfo = provider(
 May be empty if the target_tool_path points to a locally installed node binary.""",
         "run_npm": """A template for a script that wraps npm.
         On Windows, this is a Batch script, otherwise it uses Bash.""",
+        "all_node_files": """All files in the node distrubution.
+        
+These are generally not needed for most programs since the node executable is self-contained.""",
     },
 )
 
@@ -44,10 +47,14 @@ def _node_toolchain_impl(ctx):
 
     tool_files = []
     target_tool_path = ctx.attr.target_tool_path
+    all_node_files = []
 
     if ctx.attr.target_tool:
-        tool_files = ctx.attr.target_tool.files.to_list()
+        tool_files.extend(ctx.attr.target_tool.files.to_list())
         target_tool_path = _to_manifest_path(ctx, tool_files[0])
+
+    if ctx.attr.all_node_files:
+        all_node_files.extend(ctx.attr.all_node_files.files.to_list())
 
     # Make the $(NODE_PATH) variable available in places like genrules.
     # See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables
@@ -62,6 +69,7 @@ def _node_toolchain_impl(ctx):
         target_tool_path = target_tool_path,
         tool_files = tool_files,
         run_npm = ctx.file.run_npm,
+        all_node_files = all_node_files,
     )
 
     # Export all the providers inside our ToolchainInfo
@@ -92,6 +100,10 @@ node_toolchain = rule(
         "run_npm": attr.label(
             doc = "A template file that allows us to execute npm",
             allow_single_file = True,
+        ),
+        "all_node_files": attr.label(
+            doc = "All files in the node distribution",
+            allow_files = True,
         ),
     },
     doc = """Defines a node toolchain.

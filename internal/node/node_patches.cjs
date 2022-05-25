@@ -573,6 +573,18 @@ set Path=${nodeDir};%Path%
 "${process.execPath}" --require "${requireScriptName}" %*
 `);
         }
+        ['npm', 'npx'].forEach(cmd => {
+            const cmdBat = `${cmd}.bat`;
+            const cmdEntry = path__default['default'].join(nodeDir, cmdBat);
+            const cmdActual = path__default['default'].join(path__default['default'].dirname(process.execPath), cmdBat);
+            if (!fs__default['default'].existsSync(cmdEntry)) {
+                fs__default['default'].writeFileSync(cmdEntry, `@if not defined DEBUG_HELPER @ECHO OFF
+set NP_SUBPROCESS_NODE_DIR=${nodeDir}
+set Path=${nodeDir};%Path%
+exec ${cmdActual} %*
+  `, { mode: 0o777 });
+            }
+        });
     }
     else {
         const nodeEntry = path__default['default'].join(nodeDir, 'node');
@@ -587,6 +599,17 @@ else
 fi
 `, { mode: 0o777 });
         }
+        ['npm', 'npx'].forEach(cmd => {
+            const cmdEntry = path__default['default'].join(nodeDir, cmd);
+            const cmdActual = path__default['default'].join(path__default['default'].dirname(process.execPath), `../lib/node_modules/npm/bin/${cmd}-cli.js`);
+            if (!fs__default['default'].existsSync(cmdEntry)) {
+                fs__default['default'].writeFileSync(cmdEntry, `#!/bin/bash
+export NP_SUBPROCESS_NODE_DIR="${nodeDir}"
+export PATH="${nodeDir}":\$PATH
+exec ${cmdActual} "$@"
+  `, { mode: 0o777 });
+            }
+        });
     }
     if (!process.env.PATH) {
         process.env.PATH = nodeDir;

@@ -702,3 +702,15 @@ nodejs_test(
         ],
     )
 ]
+
+nodejs_test(
+    name = "spawn_npm_test",
+    entry_point = "spawn-npm.js",
+    include_all_node_files = True,
+)
+
+nodejs_test(
+    name = "spawn_npx_test",
+    entry_point = "spawn-npx.js",
+    include_all_node_files = True,
+)
