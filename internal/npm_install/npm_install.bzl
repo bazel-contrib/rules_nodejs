@@ -48,7 +48,7 @@ repository so all files that the package manager depends on must be listed.
         default = True,
         doc = """Export only top-level package directory artifacts from node_modules.
 
-Set to `False` to export all individual files from node_modules.
+Set to `False` to export all individual files from node_modules, or when using remote execution.
 
 When enabled, this decreases the time it takes for Bazel to setup runfiles and sandboxing when
 there are a large number of npm dependencies as inputs to an action.
@@ -59,6 +59,8 @@ Note, some rules still need upgrading to support consuming `DirectoryFilePathInf
 NB: This feature requires runfiles be enabled due to an issue in Bazel which we are still investigating.
     On Windows runfiles are off by default and must be enabled with the `--enable_runfiles` flag when
     using this feature.
+
+NB: This feature is incompatible with remote execution.
 
 NB: `ts_library` does not support directory npm deps due to internal dependency on having all input sources files explicitly specified.
 
