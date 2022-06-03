@@ -25,6 +25,7 @@ load(
     _declaration_info = "declaration_info",
     _js_module_info = "js_module_info",
 )
+load(":defs.bzl", _ts_declaration = "ts_declaration")
 load(":directory_file_path.bzl", _directory_file_path = "directory_file_path")
 load(":repositories.bzl", _node_repositories = "node_repositories")
 load(":yarn_repositories.bzl", _yarn_repositories = "yarn_repositories")
@@ -32,6 +33,7 @@ load(":toolchain.bzl", _node_toolchain = "node_toolchain")
 
 DeclarationInfo = _DeclarationInfo
 declaration_info = _declaration_info
+ts_declaration = _ts_declaration
 directory_file_path = _directory_file_path
 JSModuleInfo = _JSModuleInfo
 js_module_info = _js_module_info

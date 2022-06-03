@@ -250,6 +250,42 @@ Defaults to `None`
 Defaults to `""`
 
 
+## ts_declaration
+
+**USAGE**
+
+<pre>
+ts_declaration(<a href="#ts_declaration-name">name</a>, <a href="#ts_declaration-deps">deps</a>, <a href="#ts_declaration-srcs">srcs</a>)
+</pre>
+
+Adapter from .d.ts sources to a DeclarationInfo.
+    
+    This rule has no actions, so it's similar to a fileset.
+    It allows you to feed typings into rules which require DeclarationInfo,
+    for example as to `ts_project#deps`.
+    
+
+**ATTRIBUTES**
+
+
+<h4 id="ts_declaration-name">name</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
+
+
+<h4 id="ts_declaration-deps">deps</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*)
+
+Defaults to `[]`
+
+<h4 id="ts_declaration-srcs">srcs</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*)
+
+Defaults to `[]`
+
+
 ## yarn_repositories
 
 **USAGE**
