@@ -188,6 +188,12 @@ def _download_node(repository_ctx):
         sha256 = sha256,
     ))
 
+
+def _is_windows_platform(repository_ctx):
+    # TODO: Maybe we want to encode the OS as a specific attribute rather than do it based on naming?
+    return "_windows_" in repository_ctx.attr.name
+
+
 def _prepare_node(repository_ctx):
     """Sets up BUILD files and shell wrappers for the versions of NodeJS, npm & yarn just set up.
 
@@ -202,8 +208,7 @@ def _prepare_node(repository_ctx):
       repository_ctx: The repository rule context
     """
 
-    # TODO: Maybe we want to encode the OS as a specific attribute rather than do it based on naming?
-    is_windows = "_windows_" in repository_ctx.attr.name
+    is_windows = _is_windows_platform(repository_ctx)
 
     node_path = NODE_EXTRACT_DIR
     node_package = NODE_EXTRACT_DIR
