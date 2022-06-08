@@ -108,4 +108,5 @@ YARN_VERSIONS = {
     "1.22.16": ("yarn-v1.22.16.tar.gz", "yarn-v1.22.16", "c0369d6a9aeb4f3b86095c6e6f64de7a7555a888e03260c3f02727636e1f1693"),
     "1.22.17": ("yarn-v1.22.17.tar.gz", "yarn-v1.22.17", "267982c61119a055ba2b23d9cf90b02d3d16c202c03cb0c3a53b9633eae37249"),
     "1.22.18": ("yarn-v1.22.18.tar.gz", "yarn-v1.22.18", "816e5c073b3d35936a398d1fe769ebbcd517298e3510b649e8fc67cd3a62e113"),
+    "1.22.19": ("yarn-v1.22.19.tar.gz", "yarn-v1.22.19", "732620bac8b1690d507274f025f3c6cfdc3627a84d9642e38a07452cc00e0f2e"),
 }
