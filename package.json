@@ -80,7 +80,7 @@
         "pkg_with_bin": "file:./tools/npm_packages/pkg_with_bin",
         "npm": "6.13.7",
         "patch-package": "^6.2.2",
-        "protobufjs": "6.8.8",
+        "protobufjs": "6.11.3",
         "protractor": "^5.4.2",
         "requirejs": "2.3.6",
         "rollup": "2.44.0",
