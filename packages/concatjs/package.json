@@ -22,7 +22,7 @@
         "tsc_wrapped": "./internal/tsc_wrapped/tsc_wrapped.js"
     },
     "dependencies": {
-        "protobufjs": "6.8.8",
+        "protobufjs": "6.11.3",
         "source-map-support": "0.5.9",
         "tsutils": "3.21.0"
     },
