@@ -309,7 +309,10 @@ NB: replaces specified are performed after preinstall_patches so if you are usin
 to the source `package.json`.""",
     ),
     "symlink_node_modules": attr.bool(
-        doc = """Turn symlinking of node_modules on
+        doc = """Turn symlinking of node_modules on.
+
+**Use of this feature is not recommended, as Bazel is removing `managed_directories`.
+See https://github.com/bazelbuild/bazel/issues/15463
 
 When False, the package manager will run in the external repository
 created by this rule.
