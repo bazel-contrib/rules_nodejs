@@ -25,6 +25,7 @@ OS_ARCH_NAMES = [
     ("linux", "arm64"),
     ("linux", "s390x"),
     ("linux", "ppc64le"),
+    ("freebsd", "amd64"),
 ]
 
 OS_NAMES = ["_".join(os_arch_name) for os_arch_name in OS_ARCH_NAMES]
@@ -58,6 +59,9 @@ def os_name(rctx):
             return OS_NAMES[5]
         elif arch == "ppc64le":
             return OS_NAMES[6]
+    elif os_name.startswith("freebsd"):
+        if arch == "amd64":
+            return OS_NAMES[7]
 
     fail("Unsupported operating system {} architecture {}".format(os_name, arch))
 
