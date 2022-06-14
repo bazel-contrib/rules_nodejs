@@ -76,13 +76,6 @@ e2e_integration_test(
 ]]
 
 e2e_integration_test(
-    name = "e2e_node_loader_no_preserve_symlinks",
-    # TODO: figure out why this fails on Windows since setting
-    # symlink_node_modules to False in the test WORKSPACE
-    tags = ["no-bazelci-windows"],
-)
-
-e2e_integration_test(
     name = "e2e_node_loader_preserve_symlinks",
     # TODO: figure out why this fails on Windows since setting
     # symlink_node_modules to False in the test WORKSPACE
