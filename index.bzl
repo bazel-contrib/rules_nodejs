@@ -17,8 +17,8 @@
 Users should not load files under "/internal"
 """
 
-load("@rules_nodejs//nodejs:repositories.bzl", _nodejs_register_toolchains = "nodejs_register_toolchains")
-load("@rules_nodejs//nodejs:yarn_repositories.bzl", _yarn_repositories = "yarn_repositories")
+load("//nodejs:repositories.bzl", _nodejs_register_toolchains = "nodejs_register_toolchains")
+load("//nodejs:yarn_repositories.bzl", _yarn_repositories = "yarn_repositories")
 load("//:version.bzl", "VERSION")
 load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
