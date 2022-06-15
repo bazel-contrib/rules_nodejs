@@ -30,7 +30,30 @@
         "karma-requirejs": ">=1.0.0",
         "karma-sourcemap-loader": ">=0.3.0"
     },
+    "peerDependenciesMeta": {
+        "jasmine-core": {
+            "optional": true
+        },
+        "karma": {
+            "optional": true
+        },
+        "karma-chrome-launcher": {
+            "optional": true
+        },
+        "karma-firefox-launcher": {
+            "optional": true
+        },
+        "karma-jasmine": {
+            "optional": true
+        },
+        "karma-requirejs": {
+            "optional": true
+        },
+        "karma-sourcemap-loader": {
+            "optional": true
+        }
+    },
     "scripts": {
-      "postinstall": "node npm_version_check.js"
+        "postinstall": "node npm_version_check.js"
     }
 }
