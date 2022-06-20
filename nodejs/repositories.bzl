@@ -100,6 +100,9 @@ and `{filename}` with the matching entry from the `node_repositories` attribute.
         default = DEFAULT_NODE_VERSION,
         doc = "the specific version of NodeJS to install",
     ),
+    "vendored_node_label": attr.label(
+        doc = "Label of the Node executable in a vendored Node distribution",
+    ),
     "use_nvmrc": attr.label(
         allow_single_file = True,
         default = None,
@@ -383,10 +386,12 @@ def nodejs_register_toolchains(name, register = True, **kwargs):
             which has its own toolchain registration syntax.
         **kwargs: passed to each node_repositories call
     """
+    node_label_dict = kwargs.pop("vendored_node_labels") if "vendored_node_labels" in kwargs else None
     for platform in BUILT_IN_NODE_PLATFORMS:
         node_repositories(
             name = name + "_" + platform,
             platform = platform,
+            vendored_node_label = _get_platform_specific_node_label(platform, node_label_dict),
             **kwargs
         )
         if register:
@@ -403,6 +408,14 @@ def nodejs_register_toolchains(name, register = True, **kwargs):
         name = name + "_toolchains",
         user_node_repository_name = name,
     )
+
+
+def _get_platform_specific_node_label(platform, node_label_dict):
+    if not node_label_dict or platform not in node_label_dict.keys():
+        return None
+
+    return node_label_dict[platform]
+
 
 def rules_nodejs_dependencies():
     maybe(
