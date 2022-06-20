@@ -231,26 +231,24 @@ def _prepare_node(repository_ctx):
 
     is_windows = _is_windows_platform(repository_ctx)
 
-    node_path = NODE_EXTRACT_DIR
-    node_package = NODE_EXTRACT_DIR
-    node_bin = ("%s/bin/node" % node_path) if not is_windows else ("%s/node.exe" % node_path)
-    node_bin_label = ("%s/bin/node" % node_package) if not is_windows else ("%s/node.exe" % node_package)
+    vendored_node_label = repository_ctx.attr.vendored_node_label
+    is_vendored = bool(vendored_node_label)
+    vendored_node_path = is_vendored and repository_ctx.path(vendored_node_label)
+
+    node_path = _get_workspace_path(vendored_node_label, vendored_node_path) if is_vendored else NODE_EXTRACT_DIR
+    node_package = _get_fully_qualified_package(vendored_node_label) if is_vendored else NODE_EXTRACT_DIR
+    node_bin = vendored_node_path or repository_ctx.path(("%s/bin/node" % node_path) if not is_windows else ("%s/node.exe" % node_path))
+    node_bin_label = vendored_node_label or (_join_label_segments(node_package, "bin/node") if not is_windows else _join_label_segments(node_package, "node.exe"))
 
     # Use the npm-cli.js script as the bin for osx & linux so there are no symlink issues with `%s/bin/npm`
-    npm_bin = ("%s/lib/node_modules/npm/bin/npm-cli.js" % node_path) if not is_windows else ("%s/npm.cmd" % node_path)
-    npm_bin_label = ("%s/lib/node_modules/npm/bin/npm-cli.js" % node_package) if not is_windows else ("%s/npm.cmd" % node_package)
-    npm_script = ("%s/lib/node_modules/npm/bin/npm-cli.js" % node_path) if not is_windows else ("%s/node_modules/npm/bin/npm-cli.js" % node_path)
+    npm_bin_label = _join_label_segments(node_package, "lib/node_modules/npm/bin/npm-cli.js") if not is_windows else _join_label_segments(node_package, "npm.cmd")
+    npm_script = repository_ctx.path(("%s/lib/node_modules/npm/bin/npm-cli.js" % node_path) if not is_windows else ("%s/node_modules/npm/bin/npm-cli.js" % node_path))
 
     # Use the npx-cli.js script as the bin for osx & linux so there are no symlink issues with `%s/bin/npx`
-    npx_bin = ("%s/lib/node_modules/npm/bin/npx-cli.js" % node_path) if not is_windows else ("%s/npx.cmd" % node_path)
-    npx_bin_label = ("%s/lib/node_modules/npm/bin/npx-cli.js" % node_package) if not is_windows else ("%s/npx.cmd" % node_package)
+    npx_bin_label = _join_label_segments(node_package, "lib/node_modules/npm/bin/npx-cli.js") if not is_windows else _join_label_segments(node_package, "npx.cmd")
 
-    entry_ext = ".cmd" if is_windows else ""
-    node_entry = "bin/node%s" % entry_ext
-    npm_entry = "bin/npm%s" % entry_ext
-
-    node_bin_relative = paths.relativize(node_bin, "bin")
-    npm_script_relative = paths.relativize(npm_script, "bin")
+    node_entry_label = _create_platform_sensitive_script_name("bin/node", is_windows)
+    npm_entry_label = _create_platform_sensitive_script_name("bin/npm", is_windows)
 
     # The entry points for node for osx/linux and windows
     if not is_windows:
@@ -261,10 +259,10 @@ def _prepare_node(repository_ctx):
 set -e
 {get_script_dir}
 export PATH="$SCRIPT_DIR":$PATH
-exec "$SCRIPT_DIR/{node}" "$@"
+exec "{node}" "$@"
 """.format(
             get_script_dir = GET_SCRIPT_DIR,
-            node = node_bin_relative,
+            node = node_bin,
         ))
     else:
         # Sets PATH for node, npm & yarn and run user script
@@ -272,8 +270,8 @@ exec "$SCRIPT_DIR/{node}" "$@"
 @echo off
 SET SCRIPT_DIR=%~dp0
 SET PATH=%SCRIPT_DIR%;%PATH%
-CALL "%SCRIPT_DIR%\\{node}" %*
-""".format(node = node_bin_relative))
+CALL "{node}" %*
+""".format(node = node_bin))
 
     # The entry points for npm for osx/linux and windows
     # Runs npm using appropriate node entry point
@@ -289,11 +287,11 @@ CALL "%SCRIPT_DIR%\\{node}" %*
 # Immediately exit if any command fails.
 set -e
 {get_script_dir}
-"$SCRIPT_DIR/{node}" "$SCRIPT_DIR/{script}" --scripts-prepend-node-path=false "$@"
+"{node}" "{script}" --scripts-prepend-node-path=false "$@"
 """.format(
                 get_script_dir = GET_SCRIPT_DIR,
-                node = paths.relativize(node_entry, "bin"),
-                script = npm_script_relative,
+                node = node_bin,
+                script = npm_script,
             ),
             executable = True,
         )
@@ -303,10 +301,10 @@ set -e
             "bin/npm.cmd",
             content = """@echo off
 SET SCRIPT_DIR=%~dp0
-"%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" --scripts-prepend-node-path=false %*
+"{node}" "{script}" --scripts-prepend-node-path=false %*
 """.format(
-                node = paths.relativize(node_entry, "bin"),
-                script = npm_script_relative,
+                node = node_bin,
+                script = npm_script,
             ),
             executable = True,
         )
@@ -323,8 +321,8 @@ SET SCRIPT_DIR=%~dp0
 """
 
     repository_ctx.file("run_npm.template", content = run_npm.format(
-        node = repository_ctx.path(node_entry),
-        script = repository_ctx.path(npm_script),
+        node = repository_ctx.path(node_entry_label),
+        script = npm_script,
     ))
 
     # Base BUILD file for this repository
@@ -332,29 +330,28 @@ SET SCRIPT_DIR=%~dp0
 package(default_visibility = ["//visibility:public"])
 exports_files([
   "run_npm.template",
-  "{node_entry}",
-  "{npm_entry}",
+  "{node_entry_label}",
+  "{npm_entry_label}",
   ])
 alias(name = "node_bin", actual = "{node_bin_label}")
 alias(name = "npm_bin", actual = "{npm_bin_label}")
 alias(name = "npx_bin", actual = "{npx_bin_label}")
-alias(name = "node", actual = "{node_entry}")
-alias(name = "npm", actual = "{npm_entry}")
+alias(name = "node", actual = "{node_entry_label}")
+alias(name = "npm", actual = "{npm_entry_label}")
 filegroup(
   name = "node_files",
   srcs = [":node", ":node_bin"],
 )
 filegroup(
   name = "npm_files",
-  srcs = {npm_files_glob}[":node_files"],
+  srcs = [":node_files"],
 )
 """.format(
-        npm_files_glob = "glob([\"bin/nodejs/**\"]) + ",
         node_bin_label = node_bin_label,
         npm_bin_label = npm_bin_label,
         npx_bin_label = npx_bin_label,
-        node_entry = node_entry,
-        npm_entry = npm_entry,
+        node_entry_label = node_entry_label,
+        npm_entry_label = npm_entry_label,
     )
 
     # the platform attribute is only set when used from this file, not from build_bazel_rules_nodejs
