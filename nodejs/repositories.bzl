@@ -328,9 +328,6 @@ filegroup(
   srcs = {npm_files_glob}[":node_files"],
 )
 """.format(
-        node_bin_export = "\n  \"%s\"," % node_bin,
-        npm_bin_export = "\n  \"%s\"," % npm_bin,
-        npx_bin_export = "\n  \"%s\"," % npx_bin,
         npm_files_glob = "glob([\"bin/nodejs/**\"]) + ",
         node_bin_label = node_bin_label,
         npm_bin_label = npm_bin_label,
