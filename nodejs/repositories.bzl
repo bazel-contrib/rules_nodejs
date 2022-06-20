@@ -197,6 +197,24 @@ def _is_windows_platform(repository_ctx):
     return "_windows_" in repository_ctx.attr.name
 
 
+def _get_workspace_path(label, label_path):
+    path_within_workspace = paths.join(label.package, label.name)
+    full_path = str(label_path)
+    return paths.normalize(full_path.replace(path_within_workspace, ""))
+
+
+def _get_fully_qualified_package(label):
+    return "@{}//{}".format(label.workspace_name, label.package)
+
+
+def _join_label_segments(a, b):
+    return "{}{}".format(a, b) if a.endswith("//") else "{}/{}".format(a, b)
+
+
+def _create_platform_sensitive_script_name(name, is_windows):
+    return "{}.cmd".format(name) if is_windows else name
+
+
 def _prepare_node(repository_ctx):
     """Sets up BUILD files and shell wrappers for the versions of NodeJS, npm & yarn just set up.
 
