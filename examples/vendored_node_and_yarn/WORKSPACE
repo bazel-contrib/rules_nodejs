@@ -61,12 +61,19 @@ http_archive(
 
 register_toolchains("//toolchains:all")
 
-load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
+
+node_repositories(
+    vendored_node_labels = {
+        "linux_amd64": "@vendored_node_linux_amd64//:bin/node",
+        "darwin_amd64": "@vendored_node_darwin_amd64//:bin/node",
+        "windows_amd64": "@vendored_node_windows_amd64//:node.exe",
+    },
+)
 
 yarn_install(
     name = "npm",
     exports_directories_only = False,
-    node_repository = "vendored_node",
     package_json = "//:package.json",
     yarn = "@vendored_yarn_1_10_0//:bin/yarn.js",
     yarn_lock = "//:yarn.lock",
