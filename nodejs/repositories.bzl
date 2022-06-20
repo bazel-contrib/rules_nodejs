@@ -358,7 +358,8 @@ def _verify_version_is_valid(version):
 
 def _nodejs_repo_impl(repository_ctx):
     assert_node_exists_for_host(repository_ctx)
-    _download_node(repository_ctx)
+    if not repository_ctx.attr.vendored_node_label:
+        _download_node(repository_ctx)
     _prepare_node(repository_ctx)
 
 node_repositories = repository_rule(
