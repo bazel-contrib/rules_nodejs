@@ -14,7 +14,7 @@
 
 """Helper function and variable for determining JavaScript files."""
 
-JS_FILE_EXTENSIONS = ["js", "mjs", "cjs"]
+JS_FILE_EXTENSIONS = ["js", "jsx", "mjs", "cjs"]
 
 def is_javascript_filename(filename, include_map_files = False):
     """Gets whether the specified filename corresponds to a JavaScript file.
