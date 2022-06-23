@@ -1,0 +1,34 @@
+workspace(
+    name = "e2e_linker_disabled_regression",
+    managed_directories = {
+        "@npm": ["node_modules"],
+        "@subdir_npm": ["subdir/node_modules"],
+    },
+)
+
+local_repository(
+    name = "build_bazel_rules_nodejs",
+    path = "../..",
+)
+
+load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_dependencies")
+
+build_bazel_rules_nodejs_dependencies()
+
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
+
+node_repositories()
+
+yarn_install(
+    name = "npm",
+    exports_directories_only = False,
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
+
+yarn_install(
+    name = "subdir_npm",
+    exports_directories_only = False,
+    package_json = "//subdir:package.json",
+    yarn_lock = "//subdir:yarn.lock",
+)

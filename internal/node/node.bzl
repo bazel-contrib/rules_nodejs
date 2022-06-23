@@ -197,7 +197,13 @@ def _nodejs_binary_impl(ctx, data = [], runfiles = [], expanded_args = []):
 
     if "" in node_modules_roots:
         node_modules_root = node_modules_roots[""] + "/node_modules"
+    elif len(node_modules_roots) == 1:
+        node_modules_root = node_modules_roots[node_modules_roots.keys()[0]] + "/node_modules"
     else:
+        if len(node_modules_roots) > 1:
+            # buildifier disable=print
+            print("Warning: nodejs_binary found more than one node_modules root: %s. Falling back to build_bazel_rules_nodejs/node_modules." % node_modules_roots.keys())
+
         # there are no fine grained deps but we still need a node_modules_root even if it is a non-existant one
         node_modules_root = "build_bazel_rules_nodejs/node_modules"
     _write_require_patch_script(ctx, data, node_modules_root)

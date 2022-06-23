@@ -1,0 +1,7 @@
+{
+    "name": "root",
+    "private": true,
+    "dependencies": {
+        "acorn": "8.7.1"
+    }
+}
