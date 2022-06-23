@@ -178,3 +178,12 @@ e2e_integration_test(
     # TODO: figure out why this fails on Windows
     tags = ["no-bazelci-windows"],
 )
+
+e2e_integration_test(
+    name = "e2e_esm_no_linker",
+    bazel_commands = [
+        "run //:binary",
+    ],
+    # TODO: figure out why this fails on Windows
+    tags = ["no-bazelci-windows"],
+)

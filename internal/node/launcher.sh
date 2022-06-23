@@ -331,25 +331,23 @@ if [ "$PATCH_REQUIRE" = true ]; then
     *           ) require_patch_script="${PWD}/${require_patch_script}" ;;
   esac
   LAUNCHER_NODE_OPTIONS+=( "--require" "$require_patch_script" )
-  # Change the entry point to be the loader.cjs script so we run code before node
-  MAIN=$(rlocation "TEMPLATED_loader_script")
-else
-  # Entry point is the user-supplied script
-  MAIN="${PWD}/"TEMPLATED_entry_point_execroot_path
-  # TODO: after we link-all-bins we should not need this extra lookup
-  if [[ ! -e "$MAIN" ]]; then
-    if [ "$FROM_EXECROOT" = true ]; then
-      MAIN="$EXECROOT/"TEMPLATED_entry_point_execroot_path
-    else
-      MAIN=TEMPLATED_entry_point_manifest_path
-    fi
+fi
+
+# Entry point is the user-supplied script
+MAIN="${PWD}/"TEMPLATED_entry_point_execroot_path
+# TODO: after we link-all-bins we should not need this extra lookup
+if [[ ! -e "$MAIN" ]]; then
+  if [ "$FROM_EXECROOT" = true ]; then
+    MAIN="$EXECROOT/"TEMPLATED_entry_point_execroot_path
+  else
+    MAIN=TEMPLATED_entry_point_manifest_path
   fi
-  # Always set up source-map-support using our vendored copy, just like the require_patch_script
-  register_source_map_support=$(rlocation build_bazel_rules_nodejs/third_party/github.com/source-map-support/register.js)
-  LAUNCHER_NODE_OPTIONS+=( "--require" "${register_source_map_support}" )
-  if [[ -n "TEMPLATED_entry_point_main" ]]; then
-    MAIN="${MAIN}/"TEMPLATED_entry_point_main
-  fi
+fi
+# Always set up source-map-support using our vendored copy, just like the require_patch_script
+register_source_map_support=$(rlocation build_bazel_rules_nodejs/third_party/github.com/source-map-support/register.js)
+LAUNCHER_NODE_OPTIONS+=( "--require" "${register_source_map_support}" )
+if [[ -n "TEMPLATED_entry_point_main" ]]; then
+  MAIN="${MAIN}/"TEMPLATED_entry_point_main
 fi
 
 if [ "${SILENT_ON_SUCCESS:-}" = true ]; then
@@ -484,3 +482,4 @@ if [[ -n "${EXIT_CODE_CAPTURE}" ]]; then
 else
   exit ${RESULT}
 fi
+
