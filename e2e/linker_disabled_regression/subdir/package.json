@@ -1,0 +1,7 @@
+{
+    "name": "subdir",
+    "private": true,
+    "dependencies": {
+        "acorn": "8.7.1"
+    }
+}
