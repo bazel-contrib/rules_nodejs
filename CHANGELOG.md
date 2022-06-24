@@ -1,3 +1,14 @@
+## [5.5.1](https://github.com/bazelbuild/rules_nodejs/compare/5.5.0...5.5.1) (2022-06-24)
+
+
+### Bug Fixes
+
+* **builtin:** fix an bug where a nodejs_binary would fail to resolve an npm package when the linker is disabled ([#3492](https://github.com/bazelbuild/rules_nodejs/issues/3492)) ([8a2dfc8](https://github.com/bazelbuild/rules_nodejs/commit/8a2dfc8))
+* **typescript:** remove protobufjs dependency ([#3491](https://github.com/bazelbuild/rules_nodejs/issues/3491)) ([d46502d](https://github.com/bazelbuild/rules_nodejs/commit/d46502d))
+* deterministic output from ts_options_validator ([#3462](https://github.com/bazelbuild/rules_nodejs/issues/3462)) ([d69c646](https://github.com/bazelbuild/rules_nodejs/commit/d69c646)), closes [#3461](https://github.com/bazelbuild/rules_nodejs/issues/3461)
+
+
+
 # [5.5.0](https://github.com/bazelbuild/rules_nodejs/compare/5.4.1...5.5.0) (2022-05-18)
 
 
