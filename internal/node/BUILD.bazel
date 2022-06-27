@@ -20,7 +20,6 @@ package(default_visibility = ["//visibility:public"])
 exports_files([
     "node_patches.cjs",
     "require_patch.cjs",
-    "loader.cjs",
 ])
 
 bzl_library(
@@ -40,7 +39,6 @@ exports_files([
     "node.bzl",  # Exported to be consumed for generating stardoc.
     "node_repositories.bzl",  # Exported to be consumed for generating stardoc.
     "launcher.sh",
-    "loader.cjs",
 ])
 
 filegroup(

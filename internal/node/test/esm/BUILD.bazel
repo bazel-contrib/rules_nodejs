@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "npm_package_bin")
 
 nodejs_binary(
     name = "has_deps",
@@ -11,4 +11,17 @@ nodejs_binary(
 nodejs_binary(
     name = "no_deps",
     entry_point = ":no-deps.mjs",
+)
+
+nodejs_binary(
+    name = "no_deps_linker_disabled",
+    entry_point = ":no-deps-create-file.mjs",
+    templated_args = ["--nobazel_run_linker"],
+)
+
+npm_package_bin(
+    name = "run_with_linker_disabled",
+    outs = ["out.txt"],
+    args = ["$@"],
+    tool = ":no_deps_linker_disabled",
 )

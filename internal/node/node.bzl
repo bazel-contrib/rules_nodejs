@@ -117,21 +117,6 @@ def _get_entry_point_file(ctx):
         return ctx.attr.entry_point[DirectoryFilePathInfo].directory
     fail("entry_point must either be a file, or provide DirectoryFilePathInfo")
 
-def _write_loader_script(ctx):
-    substitutions = {}
-    substitutions["TEMPLATED_entry_point_path"] = _ts_to_js(_to_manifest_path(ctx, _get_entry_point_file(ctx)))
-    if DirectoryFilePathInfo in ctx.attr.entry_point:
-        substitutions["TEMPLATED_entry_point_main"] = ctx.attr.entry_point[DirectoryFilePathInfo].path
-    else:
-        substitutions["TEMPLATED_entry_point_main"] = ""
-
-    ctx.actions.expand_template(
-        template = ctx.file._loader_template,
-        output = ctx.outputs.loader_script,
-        substitutions = substitutions,
-        is_executable = True,
-    )
-
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
     if file.short_path.startswith("../"):
@@ -208,8 +193,6 @@ def _nodejs_binary_impl(ctx, data = [], runfiles = [], expanded_args = []):
         node_modules_root = "build_bazel_rules_nodejs/node_modules"
     _write_require_patch_script(ctx, data, node_modules_root)
 
-    _write_loader_script(ctx)
-
     # Provide the target name as an environment variable avaiable to all actions for the
     # runfiles helpers to use.
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
@@ -276,7 +259,6 @@ fi
     runfiles = runfiles[:]
     runfiles.extend(node_tool_files)
     runfiles.extend(ctx.files._bash_runfile_helper)
-    runfiles.append(ctx.outputs.loader_script)
     runfiles.append(ctx.outputs.require_patch_script)
 
     # First replace any instances of "$(rlocation " with "$$(rlocation " to preserve
@@ -331,7 +313,6 @@ if (process.cwd() !== __dirname) {
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
         "TEMPLATED_lcov_merger_script": _to_manifest_path(ctx, ctx.file._lcov_merger_script),
         "TEMPLATED_link_modules_script": _to_manifest_path(ctx, ctx.file._link_modules_script),
-        "TEMPLATED_loader_script": _to_manifest_path(ctx, ctx.outputs.loader_script),
         "TEMPLATED_modules_manifest": _to_manifest_path(ctx, node_modules_manifest),
         "TEMPLATED_node_patches_script": _to_manifest_path(ctx, ctx.file._node_patches_script),
         "TEMPLATED_require_patch_script": _to_manifest_path(ctx, ctx.outputs.require_patch_script),
@@ -378,7 +359,6 @@ if (process.cwd() !== __dirname) {
             runfiles = ctx.runfiles(
                 transitive_files = depset(runfiles),
                 files = node_tool_files + [
-                            ctx.outputs.loader_script,
                             ctx.outputs.require_patch_script,
                         ] + ctx.files._source_map_support_files +
 
@@ -608,10 +588,6 @@ Predefined genrule variables are not supported in this context.
         default = Label("//internal/linker:index.js"),
         allow_single_file = True,
     ),
-    "_loader_template": attr.label(
-        default = Label("//internal/node:loader.cjs"),
-        allow_single_file = True,
-    ),
     "toolchain": attr.label(),
     "_node_args": attr.label(default = "@rules_nodejs//nodejs:default_args"),
     "_node_patches_script": attr.label(
@@ -642,7 +618,6 @@ Predefined genrule variables are not supported in this context.
 
 _NODEJS_EXECUTABLE_OUTPUTS = {
     "launcher_sh": "%{name}.sh",
-    "loader_script": "%{name}_loader.cjs",
     "require_patch_script": "%{name}_require_patch.cjs",
 }
 
