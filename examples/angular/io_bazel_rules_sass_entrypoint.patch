@@ -1,0 +1,12 @@
+index cfa8b8b..394f6c2 100644
+--- a/sass/BUILD
++++ b/sass/BUILD
+@@ -11,7 +11,7 @@ exports_files([
+ # Executable for the sass_binary rule
+ nodejs_binary(
+     name = "sass",
+-    entry_point = "sass_wrapper",
++    entry_point = "sass_wrapper.js",
+     data = [
+         ":sass_wrapper.js",
+         "@build_bazel_rules_sass_deps//sass",
