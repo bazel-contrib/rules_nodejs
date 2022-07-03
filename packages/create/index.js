@@ -75,7 +75,15 @@ function main(argv, error = console.error, log = console.log) {
   }
 
   // Which package manager will be used in the new project
-  const pkgMgr = args['packageManager'] || detectRunningUnderYarn() ? 'yarn' : 'npm';
+  let pkgMgr = args['packageManager'];
+
+  if (!pkgMgr) {
+    pkgMgr = detectRunningUnderYarn() ? 'yarn' : 'npm';
+  } else if(pkgMgr !== 'yarn' && pkgMgr !== 'npm') {
+    error('Please select between \'yarn\' and \'npm\' when providing --packageManager');
+    usage(error);
+    return 1;
+  }
 
   log_verbose('Running with', process.argv);
   log_verbose('Environment', process.env);
