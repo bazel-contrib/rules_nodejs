@@ -70,6 +70,16 @@ wkspContent = read('default_to_yarn/WORKSPACE');
 if (wkspContent.indexOf('yarn_install(') < 0) {
   fail('should use yarn by default');
 }
+
+exitCode = main(['use_npm_with_yarn', '--packageManager=npm']);
+if (exitCode != 0) fail('should be success');
+wkspContent = read('use_npm_with_yarn/WORKSPACE');
+if (wkspContent.indexOf('npm_install(') < 0) {
+  fail('should use npm as selected');
+}
+
+exitCode = main(['neither_yarn_nor_npm', '--packageManager=foo']);
+if (exitCode != 1) fail('should exit 1 when selecting neither \'yarn\' nor \'npm\'');
 // TODO: run bazel in the new directory to verify a build works
 
 exitCode = main(['--typescript', 'with_ts'], captureError);
