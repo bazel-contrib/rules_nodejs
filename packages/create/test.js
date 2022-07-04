@@ -89,5 +89,13 @@ if (pkgContent.indexOf('"@bazel/typescript": "latest"') < 0) {
   fail('should install @bazel/typescript dependency', pkgContent);
 }
 
+exitCode = main(['different_workspace_dir', '--workspaceDir=some-other-dir'])
+if (exitCode != 0) fail('should be success');
+if (!fs.existsSync('some-other-dir')) fail('should create directory');
+
+exitCode = main(['workspace_in_current_dir', '--workspaceDir=.'])
+if (exitCode != 0) fail('should be success');
+if (!fs.existsSync('./WORKSPACE')) fail('should create WORKSPACE file in current directory');
+
 exitCode = main(['--help'], captureError);
 if (exitCode != 0) fail('should be success');

@@ -53,6 +53,8 @@ function usage(error) {
     --packageManager=[yarn|npm]   Select npm or yarn to install packages
                                   (default: npm if you ran npm/npx, yarn if you ran yarn create)
     --typescript                  Set up the workspace for TypeScript development
+    --workspaceDir                Set a name for the directory containing the workspace
+                                  (default: workspace name)
 
   Run @bazel/create --help to see all options
   `);
@@ -88,16 +90,17 @@ function main(argv, error = console.error, log = console.log) {
   log_verbose('Running with', process.argv);
   log_verbose('Environment', process.env);
 
-  const [wkspDir] = args['_'];
-  // TODO: user might want these to differ
-  const wkspName = wkspDir;
+  const [wkspName] = args['_'];
+  const wkspDir = args['workspaceDir'] || wkspName;
 
   if (!validateWorkspaceName(wkspName, error)) {
     return 1;
   }
 
   log(`Creating Bazel workspace ${wkspName}...`);
-  fs.mkdirSync(wkspDir);
+  if (!fs.existsSync(wkspDir)) {
+    fs.mkdirSync(wkspDir);
+  }
   fs.mkdirSync(path.join(wkspDir, 'tools'));
 
   function write(workspaceRelativePath, content) {
