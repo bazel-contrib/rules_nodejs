@@ -18,10 +18,10 @@ bzl_library(
 nodejs_binary(
     name = "assembler",
     data = [
-        "assembler.js",
+        "assembler.cjs",
         "//third_party/github.com/gjtorikian/isBinaryFile",
     ],
-    entry_point = ":assembler.js",
+    entry_point = ":assembler.cjs",
     # TODO: figure out why isbinaryfile isn't resolved properly
     templated_args = ["--bazel_patch_module_resolver"],
 )
@@ -29,11 +29,11 @@ nodejs_binary(
 # BEGIN-INTERNAL
 jasmine_node_test(
     name = "assembler_test",
-    srcs = ["assembler_spec.js"],
+    srcs = ["assembler_spec.cjs"],
     # TODO: figure out why isbinaryfile isn't resolved properly
     templated_args = ["--bazel_patch_module_resolver"],
     deps = [
-        "assembler.js",
+        "assembler.cjs",
         "//third_party/github.com/gjtorikian/isBinaryFile",
     ],
 )
@@ -43,6 +43,6 @@ filegroup(
     name = "package_contents",
     srcs = glob(
         ["*"],
-        exclude = ["*_spec.js"],
+        exclude = ["*_spec.cjs"],
     ),
 )

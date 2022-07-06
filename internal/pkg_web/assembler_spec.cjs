@@ -1,4 +1,4 @@
-const assembler = require('./assembler');
+const assembler = require('./assembler.cjs');
 const path = require('path');
 const fs = require('fs');
 
