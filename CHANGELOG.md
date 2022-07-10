@@ -1,3 +1,13 @@
+## [5.5.2](https://github.com/bazelbuild/rules_nodejs/compare/5.5.1...5.5.2) (2022-07-10)
+
+
+### Bug Fixes
+
+* **builtin:** remove unnecessary loader script ([#3495](https://github.com/bazelbuild/rules_nodejs/issues/3495)) ([1641136](https://github.com/bazelbuild/rules_nodejs/commit/1641136))
+* **create:** make `--packageManager` flag work ([#3498](https://github.com/bazelbuild/rules_nodejs/issues/3498)) ([cd3db48](https://github.com/bazelbuild/rules_nodejs/commit/cd3db48))
+
+
+
 ## [5.5.1](https://github.com/bazelbuild/rules_nodejs/compare/5.5.0...5.5.1) (2022-06-24)
 
 
