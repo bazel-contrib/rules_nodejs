@@ -357,6 +357,14 @@ Using managed_directories will mean that
         default = 3600,
         doc = """Maximum duration of the package manager execution in seconds.""",
     ),
+    "generate_build_files_concurrency_limit": attr.int(
+        default = 64,
+        doc = """Limit the maximum concurrency of npm package processing when generating
+        BUILD files from the node_modules tree. Unlimited concurrency can lead to too many
+        open files errors (https://github.com/bazelbuild/rules_nodejs/issues/3507).
+
+        Set to 0 or negative for unlimited concurrency.""",
+    ),
 })
 
 def _apply_pre_install_patches(repository_ctx):
@@ -461,6 +469,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
     generate_config_json = json.encode(
         struct(
             exports_directories_only = repository_ctx.attr.exports_directories_only,
+            generate_build_files_concurrency_limit = repository_ctx.attr.generate_build_files_concurrency_limit,
             generate_local_modules_build_files = generate_local_modules_build_files,
             included_files = repository_ctx.attr.included_files,
             links = validated_links,
@@ -470,8 +479,8 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
             rule_type = rule_type,
             strict_visibility = repository_ctx.attr.strict_visibility,
             workspace = repository_ctx.attr.name,
-            workspace_rerooted_path = _WORKSPACE_REROOTED_PATH,
             workspace_rerooted_package_json_dir = paths.normalize(paths.join(_WORKSPACE_REROOTED_PATH, package_json_dir)),
+            workspace_rerooted_path = _WORKSPACE_REROOTED_PATH,
         ),
     )
     repository_ctx.file("generate_config.json", generate_config_json)

@@ -155,24 +155,28 @@ js_library(
         },
         package_json = "//internal/linker/test/multi_linker/test_a:package.json",
         yarn_lock = "//internal/linker/test/multi_linker/test_a:yarn.lock",
+        generate_build_files_concurrency_limit = 0,
     )
 
     yarn_install(
         name = "internal_test_multi_linker_test_b_deps",
         package_json = "//internal/linker/test/multi_linker/test_b:package.json",
         yarn_lock = "//internal/linker/test/multi_linker/test_b:yarn.lock",
+        generate_build_files_concurrency_limit = 0,
     )
 
     yarn_install(
         name = "internal_test_multi_linker_test_c_deps",
         package_json = "//internal/linker/test/multi_linker/test_c:package.json",
         yarn_lock = "//internal/linker/test/multi_linker/test_c:yarn.lock",
+        generate_build_files_concurrency_limit = 0,
     )
 
     yarn_install(
         name = "internal_test_multi_linker_test_d_deps",
         package_json = "//internal/linker/test/multi_linker/test_d:package.json",
         yarn_lock = "//internal/linker/test/multi_linker/test_d:yarn.lock",
+        generate_build_files_concurrency_limit = 0,
     )
 
     yarn_install(
@@ -181,6 +185,7 @@ js_library(
         args = ["--production"],
         package_json = "//internal/linker/test/multi_linker/lib_b:package.json",
         yarn_lock = "//internal/linker/test/multi_linker/lib_b:yarn.lock",
+        generate_build_files_concurrency_limit = 0,
     )
 
     yarn_install(
@@ -189,6 +194,7 @@ js_library(
         args = ["--production"],
         package_json = "//internal/linker/test/multi_linker/lib_c:lib/package.json",
         yarn_lock = "//internal/linker/test/multi_linker/lib_c:lib/yarn.lock",
+        generate_build_files_concurrency_limit = 0,
     )
 
     yarn_install(
