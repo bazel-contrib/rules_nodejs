@@ -55,6 +55,7 @@ let LEGACY_NODE_MODULES_PACKAGE_NAME = '$node_modules$';
 let config: any = {
   exports_directories_only: false,
   generate_local_modules_build_files: false,
+  generate_build_files_concurrency_limit: 64,
   included_files: [],
   links: {},
   package_json: 'package.json',
@@ -688,7 +689,7 @@ async function findPackagesAndPush(pkgs: Dep[], p: string, dependencies: Set<str
 
   const listing = await fs.readdir(p);
 
-  await Promise.all(listing.map(async f => {
+  let promises = listing.map(async f => {
     // filter out folders such as `.bin` which can create
     // issues on Windows since these are "hidden" by default
     if (f.startsWith('.')) return [];
@@ -702,7 +703,17 @@ async function findPackagesAndPush(pkgs: Dep[], p: string, dependencies: Set<str
         await findPackagesAndPush(pkgs, path.posix.join(pf, 'node_modules'), dependencies);
       }
     }
-  }));
+  });
+
+  if (config.generate_build_files_concurrency_limit < 1) {
+    // unlimited concurrency
+    await Promise.all(promises);
+  } else {
+    while (promises.length) {
+      // run batches of generate_build_files_concurrency_limit at a time
+      await Promise.all(promises.splice(0, config.generate_build_files_concurrency_limit))
+    }
+  }
 }
 
 /**

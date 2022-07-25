@@ -13,6 +13,7 @@ let LEGACY_NODE_MODULES_PACKAGE_NAME = '$node_modules$';
 let config = {
     exports_directories_only: false,
     generate_local_modules_build_files: false,
+    generate_build_files_concurrency_limit: 64,
     included_files: [],
     links: {},
     package_json: 'package.json',
@@ -443,7 +444,7 @@ async function findPackagesAndPush(pkgs, p, dependencies) {
         return;
     }
     const listing = await fs_1.promises.readdir(p);
-    await Promise.all(listing.map(async (f) => {
+    let promises = listing.map(async (f) => {
         if (f.startsWith('.'))
             return [];
         const pf = path.posix.join(p, f);
@@ -456,7 +457,15 @@ async function findPackagesAndPush(pkgs, p, dependencies) {
                 await findPackagesAndPush(pkgs, path.posix.join(pf, 'node_modules'), dependencies);
             }
         }
-    }));
+    });
+    if (config.generate_build_files_concurrency_limit < 1) {
+        await Promise.all(promises);
+    }
+    else {
+        while (promises.length) {
+            await Promise.all(promises.splice(0, config.generate_build_files_concurrency_limit));
+        }
+    }
 }
 async function findScopes() {
     const p = nodeModulesFolder();

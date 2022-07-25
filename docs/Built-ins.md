@@ -513,11 +513,11 @@ Defaults to `None`
 
 <pre>
 npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-exports_directories_only">exports_directories_only</a>,
-            <a href="#npm_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#npm_install-included_files">included_files</a>, <a href="#npm_install-links">links</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>,
-            <a href="#npm_install-node_repository">node_repository</a>, <a href="#npm_install-npm_command">npm_command</a>, <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_json_remove">package_json_remove</a>, <a href="#npm_install-package_json_replace">package_json_replace</a>,
-            <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>, <a href="#npm_install-patch_args">patch_args</a>, <a href="#npm_install-patch_tool">patch_tool</a>, <a href="#npm_install-post_install_patches">post_install_patches</a>,
-            <a href="#npm_install-pre_install_patches">pre_install_patches</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>,
-            <a href="#npm_install-timeout">timeout</a>)
+            <a href="#npm_install-generate_build_files_concurrency_limit">generate_build_files_concurrency_limit</a>, <a href="#npm_install-generate_local_modules_build_files">generate_local_modules_build_files</a>,
+            <a href="#npm_install-included_files">included_files</a>, <a href="#npm_install-links">links</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install-node_repository">node_repository</a>, <a href="#npm_install-npm_command">npm_command</a>,
+            <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_json_remove">package_json_remove</a>, <a href="#npm_install-package_json_replace">package_json_replace</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>,
+            <a href="#npm_install-patch_args">patch_args</a>, <a href="#npm_install-patch_tool">patch_tool</a>, <a href="#npm_install-post_install_patches">post_install_patches</a>, <a href="#npm_install-pre_install_patches">pre_install_patches</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>,
+            <a href="#npm_install-strict_visibility">strict_visibility</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
 </pre>
 
 Runs npm install during workspace setup.
@@ -602,6 +602,16 @@ $(rootpath @npm///:node_modules/prettier)/bin-prettier.js
 ```
 
 Defaults to `True`
+
+<h4 id="npm_install-generate_build_files_concurrency_limit">generate_build_files_concurrency_limit</h4>
+
+(*Integer*): Limit the maximum concurrency of npm package processing when generating
+        BUILD files from the node_modules tree. Unlimited concurrency can lead to too many
+        open files errors (https://github.com/bazelbuild/rules_nodejs/issues/3507).
+
+        Set to 0 or negative for unlimited concurrency.
+
+Defaults to `64`
 
 <h4 id="npm_install-generate_local_modules_build_files">generate_local_modules_build_files</h4>
 
@@ -1176,10 +1186,11 @@ Defaults to `{}`
 
 <pre>
 yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-exports_directories_only">exports_directories_only</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>,
-             <a href="#yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-links">links</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>,
-             <a href="#yarn_install-node_repository">node_repository</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_json_remove">package_json_remove</a>, <a href="#yarn_install-package_json_replace">package_json_replace</a>, <a href="#yarn_install-package_path">package_path</a>,
-             <a href="#yarn_install-patch_args">patch_args</a>, <a href="#yarn_install-patch_tool">patch_tool</a>, <a href="#yarn_install-post_install_patches">post_install_patches</a>, <a href="#yarn_install-pre_install_patches">pre_install_patches</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>,
-             <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn">yarn</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
+             <a href="#yarn_install-generate_build_files_concurrency_limit">generate_build_files_concurrency_limit</a>, <a href="#yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</a>,
+             <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-links">links</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-node_repository">node_repository</a>, <a href="#yarn_install-package_json">package_json</a>,
+             <a href="#yarn_install-package_json_remove">package_json_remove</a>, <a href="#yarn_install-package_json_replace">package_json_replace</a>, <a href="#yarn_install-package_path">package_path</a>, <a href="#yarn_install-patch_args">patch_args</a>, <a href="#yarn_install-patch_tool">patch_tool</a>,
+             <a href="#yarn_install-post_install_patches">post_install_patches</a>, <a href="#yarn_install-pre_install_patches">pre_install_patches</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>,
+             <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn">yarn</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
 </pre>
 
 Runs yarn install during workspace setup.
@@ -1286,6 +1297,16 @@ vendored yarn binary. `bazel run @nodejs_host//:yarn install`. You can pass the 
 `bazel run @nodejs_host//:yarn install -- -D <dep-name>`.
 
 Defaults to `True`
+
+<h4 id="yarn_install-generate_build_files_concurrency_limit">generate_build_files_concurrency_limit</h4>
+
+(*Integer*): Limit the maximum concurrency of npm package processing when generating
+        BUILD files from the node_modules tree. Unlimited concurrency can lead to too many
+        open files errors (https://github.com/bazelbuild/rules_nodejs/issues/3507).
+
+        Set to 0 or negative for unlimited concurrency.
+
+Defaults to `64`
 
 <h4 id="yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</h4>
 
