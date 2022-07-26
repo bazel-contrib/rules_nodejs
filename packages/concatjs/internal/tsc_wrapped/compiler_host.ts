@@ -84,6 +84,8 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
 
   getCancelationToken?: () => ts.CancellationToken;
   directoryExists?: (dir: string) => boolean;
+    
+  generateExtraSuppressions: boolean;
 
   googmodule: boolean;
   es5Mode: boolean;
@@ -128,6 +130,8 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     if (this.allowActionInputReads && delegate && delegate.directoryExists) {
       this.directoryExists = delegate.directoryExists.bind(delegate);
     }
+          
+    this.generateExtraSuppressions = true;
 
     validateBazelOptions(bazelOpts);
     this.googmodule = bazelOpts.googmodule;
