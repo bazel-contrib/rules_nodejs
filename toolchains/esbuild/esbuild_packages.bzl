@@ -1,12 +1,12 @@
 """Info for the esbuild packages used"""
 
 ### These values are updated automaticly via `yarn update-esbuild-versions`
-_VERSION = "0.14.48"
-_DARWIN_AMD64_SHA = "d3a15f37e9f44254aab764bf59f192b6a618b728349a9de7a255df74bdf8320f"
-_DARWIN_ARM64_SHA = "6d809a6d0438a7effa410621a1a70d3b3683ff227a55d5763dfb4b5c491242da"
-_LINUX_AMD64_SHA = "12d8efe75c82c0fb36f65f9b41556afa71e58ab49e3cd63a88075dd5db0a102b"
-_LINUX_ARM64_SHA = "2898bcdb7c10ca6dff33233473baada77cb3bacbaa26971fd7c1a10bc8ca5e57"
-_WINDOWS_AMD64_SHA = "bb75a6ed835a35d9023be3ca3592b378a473defef3cc238a4f5db4dfeac62053"
+_VERSION = "0.14.50"
+_DARWIN_AMD64_SHA = "cc1a8f7a8c25a6336dca4ba67cbc72cea031c8cb1c5c5bcb04aa184f65ae52bc"
+_DARWIN_ARM64_SHA = "f04eb1011ae8e739cbe0d06504e9c2307e92c8d07e397bfb11509cad8158eade"
+_LINUX_AMD64_SHA = "ed5ac6edacbcfdd4c905f59b00a4c62e0775064c68925ff7b31b5d98a6ab0b8a"
+_LINUX_ARM64_SHA = "a0412af0cb4f92ad6d638fecc4c3ab5589eda3414593cc185ee86c98fc2ffca6"
+_WINDOWS_AMD64_SHA = "61b9b299630e2ac3bfdd21fb0ccf17f6fe85ef183f2f95a2abd615b6935b1765"
 
 ESBUILD_PACKAGES = struct(
     version = _VERSION,
