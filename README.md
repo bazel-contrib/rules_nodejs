@@ -45,7 +45,6 @@ Open-source repositories:
 - Angular: [Angular monorepo](https://github.com/angular/angular), [CLI](https://github.com/angular/angular-cli), [Components](https://github.com/angular/components), [Universal](https://github.com/angular/universal)
 - Tensorflow: [tf.js](https://github.com/tensorflow/tfjs) and [tensorboard](https://github.com/tensorflow/tensorboard)
 - [Selenium](https://github.com/SeleniumHQ/selenium)
-- [NgRX](https://github.com/ngrx/platform)
 - [tsickle](https://github.com/angular/tsickle)
 - [incremental-dom](https://github.com/google/incremental-dom)
 - [dataform](https://github.com/dataform-co/dataform)
