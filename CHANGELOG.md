@@ -1,3 +1,14 @@
+## [5.5.3](https://github.com/bazelbuild/rules_nodejs/compare/5.5.2...5.5.3) (2022-08-01)
+
+
+### Bug Fixes
+
+* delete ngrx from README. Currently not used ([#3513](https://github.com/bazelbuild/rules_nodejs/issues/3513)) ([828d77c](https://github.com/bazelbuild/rules_nodejs/commit/828d77c))
+* **concatjs:** sync with internal change to ensure it works with `tsickle` host ([#3510](https://github.com/bazelbuild/rules_nodejs/issues/3510)) ([78a0528](https://github.com/bazelbuild/rules_nodejs/commit/78a0528))
+* limit concurrency when generating BUILD files in npm_install and yarn_install ([#3509](https://github.com/bazelbuild/rules_nodejs/issues/3509)) ([4001716](https://github.com/bazelbuild/rules_nodejs/commit/4001716))
+
+
+
 ## [5.5.2](https://github.com/bazelbuild/rules_nodejs/compare/5.5.1...5.5.2) (2022-07-10)
 
 
