@@ -2,25 +2,25 @@
 # yarn lockfile v1
 
 
-"@bazel/esbuild@^5.5.2":
-  version "5.5.2"
-  resolved "https://registry.yarnpkg.com/@bazel/esbuild/-/esbuild-5.5.2.tgz#598b75ffcb28972c5b0eb04c26db486fc001156b"
-  integrity sha512-vSDnBOjydzwutg8rC97ftPDQmdhig8ya/IhsvsaoZdV0WbfNmqECCxri/7RH9e4PU7cb6YzBL/MCBNmwwTHLVg==
+"@bazel/esbuild@^5.5.3":
+  version "5.5.3"
+  resolved "https://registry.yarnpkg.com/@bazel/esbuild/-/esbuild-5.5.3.tgz#2172ecad5f5729d5d71c34a836b28cd081f84e6d"
+  integrity sha512-A+mVZfJsnTYc4dvrmGy/Sxu4pt2jvJFRFONP+ngve4qont3K1xK3LF3C6uOEFk4lMNoykUptr7/bvhGRr/j9Vw==
 
-"@bazel/typescript@^5.5.2":
-  version "5.5.2"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.5.2.tgz#dc7464577a99e4586e9a26c4be6f6c7e898d738f"
-  integrity sha512-E5JQoBueGZO83sA86ygKOnCAUZH3FNKOGPJe9mAnZ/4ME2w+lE4FJ+amxoCKVAS8qC95Tn5MIVEbCmWmMSB07g==
+"@bazel/typescript@^5.5.3":
+  version "5.5.3"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.5.3.tgz#3505f92c0bb9598e7ef090dec75f52a1eceab26b"
+  integrity sha512-DGlzz2RmzRrNWhoL1ynr62qsTk5cUzjIJj2MreeQVoYHQZfB3FCCu/TGtDS5xyEbfWhsn7Zwo5qpOxvdYiPWng==
   dependencies:
-    "@bazel/worker" "5.5.2"
+    "@bazel/worker" "5.5.3"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@5.5.2":
-  version "5.5.2"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.5.2.tgz#192bf8809e8a74095f41c3ee580c4fe9d362ff58"
-  integrity sha512-YLmgESJZWrGlEZWJ8gKUOpI8GIB91Jzuru6NULJ+64xUX1S3nQicHp9hBG34GOPGfd8DFB+fgC5m0HdA3F7QYQ==
+"@bazel/worker@5.5.3":
+  version "5.5.3"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.5.3.tgz#3c23135a4e9d6c8ef05f1de85bc3c0c30df2ad38"
+  integrity sha512-Wm0istBBko5w2ddDwCK4rvDQrWfeFGaWdG3iTNkYAHKfQrkgYeMucMoAbFB6LZ87KZKuBEN9KSDq+fi8MXtGlw==
   dependencies:
     google-protobuf "^3.6.1"
 
