@@ -1,9 +1,9 @@
 # JavaScript rules for Bazel
 
 
-Circle CI | Bazel CI
-:---: | :---:
-[![CircleCI](https://circleci.com/gh/bazelbuild/rules_nodejs/tree/stable.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_nodejs/tree/stable) | [![Build status](https://badge.buildkite.com/af1a592b39b11923ef0f523cbb223dd3dbd61629f8bc813c07.svg?branch=stable)](https://buildkite.com/bazel/nodejs-rules-nodejs-postsubmit)
+Circle CI | Bazel CI | Faster CI
+:---: | :---: | :---:
+[![CircleCI](https://circleci.com/gh/bazelbuild/rules_nodejs/tree/stable.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_nodejs/tree/stable) | [![Build status](https://badge.buildkite.com/af1a592b39b11923ef0f523cbb223dd3dbd61629f8bc813c07.svg?branch=stable)](https://buildkite.com/bazel/nodejs-rules-nodejs-postsubmit) | [![Faster CI](https://fasterci.com/badge/bazelbuild/rules_nodejs/faster%20CI/badge.svg?branch=stable)](https://fasterci.com/app/dashboard/bazelbuild/rules_nodejs)
 
 The nodejs rules integrate NodeJS development toolchain and runtime with Bazel.
 
