@@ -223,7 +223,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
    * /build/work/bazel-out/local-fastbuild/bin/path/to/file
    * @return the path without any rootDirs, eg. path/to/file
    */
-  private rootDirsRelative(fileName: string): string {
+  rootDirsRelative(fileName: string): string {
     for (const root of this.options.rootDirs) {
       if (fileName.startsWith(root)) {
         // rootDirs are sorted longest-first, so short-circuit the iteration
