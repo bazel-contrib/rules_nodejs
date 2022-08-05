@@ -39,8 +39,8 @@ def rules_typescript_dev_dependencies():
     maybe(
         http_archive,
         name = "io_bazel",
-        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.25.0/bazel-0.25.0-dist.zip"],
-        sha256 = "f624fe9ca8d51de192655369ac538c420afb7cde16e1ad052554b582fff09287",
+        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.29.1/bazel-0.29.1-dist.zip"],
+        sha256 = "872a52cff208676e1169b3e1cae71b1fe572c4109cbd66eab107d8607c378de5",
     )
 
     # For building concatjs_devserver binary
