@@ -121,9 +121,13 @@ finishes.
 
 [ibazel]: https://github.com/bazelbuild/bazel-watcher
 
-## Testing with Karma
+## Karma
 
-The `karma_web_test` rule runs karma tests with Bazel.
+The `karma_web_test_suite` rule runs karma tests with Bazel.
+
+```python
+load("@npm//@bazel/concatjs/web_test:index.bzl", "karma_web_test_suite")
+```
 
 It depends on rules_webtesting, so you need to add this to your `WORKSPACE`
 if you use the web testing rules in `@bazel/concatjs`:
@@ -149,7 +153,7 @@ browser_repositories(
 )
 ```
 
-## Known issues with running Chromium for macOS/Windows in Bazel
+### Known issues with running Chromium for macOS/Windows in Bazel
 
 For macOS and Windows, Chromium comes with files that contain spaces in their file names. This breaks runfile tree
 creation within Bazel due to a bug. There are various workarounds that allow for Chromium on these platforms:
@@ -157,7 +161,7 @@ creation within Bazel due to a bug. There are various workarounds that allow for
 * Instruct Bazel to automatically disable runfile tree creation if not needed. [More details here](https://github.com/bazelbuild/bazel/issues/4327#issuecomment-922106293)
 * Instruct Bazel to use an alternative experimental approach for creating runfile trees. [More details here](https://github.com/bazelbuild/bazel/issues/4327#issuecomment-627422865)
 
-## Installing with user-managed dependencies
+### Installing with user-managed dependencies
 
 If you didn't use the `yarn_install` or `npm_install` rule to create an `npm` workspace, you'll have to declare a rule in your root `BUILD.bazel` file to execute karma:
 

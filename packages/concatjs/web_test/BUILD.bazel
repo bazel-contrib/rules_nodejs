@@ -53,6 +53,7 @@ filegroup(
     name = "package_contents",
     srcs = [
         "BUILD.bazel",
+        "index.bzl",
         "karma.conf.js",
         "karma_web_test.bzl",
     ],

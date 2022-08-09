@@ -40,7 +40,6 @@ It also supports running Node.js programs and has a number of useful rules.
     - [Cypress](Cypress.md)
     - [esbuild](esbuild.md)
     - [Jasmine](Jasmine.md)
-    - [Karma](Karma.md)
     - [Labs](Labs.md)
     - [Protractor](Protractor.md)
     - [Rollup](Rollup.md)
