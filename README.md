@@ -1,5 +1,19 @@
 # JavaScript rules for Bazel
 
+## Maintenance Update
+
+As of [this announcement(https://blog.aspect.dev/rulesjs-launch),
+the maintainers of rules_nodejs have all moved to a faster, more compatible alternative:
+[rules_js](https://github.com/aspect-build/rules_js/).
+
+`rules_js` has a dependency on the "core" module in rules_nodejs, just supplying the nodejs toolchain.
+So we'll continue to maintain that code (the /nodejs folder under this repo, essentially).
+
+However, unless some new maintainers want to step up for this repository, the remainder of the code (the build_bazel_rules_nodejs starlark module and npm packages like @bazel/typescript) will be unmaintained and effectively deprecated. (We'll still accept small PRs and push patch/minor releases. If you want to sign up as a maintainer, DM Alex Eagle or Jason Dobies on [bazel slack](http://slack.bazel.build).
+
+At this point we expect there will never be another major (6.x) of rules_nodejs. If there is, it would include only the core, with the rest of the code removed.
+
+
 
 Circle CI | Bazel CI
 :---: | :---:
