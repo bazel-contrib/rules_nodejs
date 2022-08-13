@@ -15,13 +15,15 @@ This repository contains three layers:
 1. The `@rules_nodejs` Bazel module, also referred to as the "core".
 This contains a toolchain that fetches a hermetic node, npm, and yarn (independent of what's on the developer's machine),
 and Bazel Providers to allow interop between JS rules.
-It is currently useful for Bazel Rules developers who want to make their own JavaScript support.
+It is currently useful for Bazel Rules developers who want to make their own JavaScript support, and
+is maintained by community volunteers from [Aspect](https://aspect.dev).
     - [Install and setup](install.md)
     - [Rules API](Core.md)
     - [Toolchains](Toolchains.md)
 
 2. The `@build_bazel_rules_nodejs` Bazel module depends on the `@rules_nodejs` module.
-We expect over the course of future releases that everything in this module will either be migrated to `@rules_nodejs`, move to another repository, or be deprecated.
+**There are currently no maintainers of this module, so it is effectively deprecated.**
+See the notes in the repository's main README.md.
 This module gives the ability to install third-party dependencies using npm or yarn.
 `BUILD` files are generated so that Bazel can load the third-party dependency graph and can call the CLI of installed tools.
 It also supports running Node.js programs and has a number of useful rules.
@@ -33,9 +35,11 @@ It also supports running Node.js programs and has a number of useful rules.
     - [Patching build_bazel_rules_nodejs](changing-rules.md)
 
 3. Custom rules that are distributed under the `@bazel` scope on [npm](http://npmjs.com/~bazel).
+    **There are currently no maintainers of these npm packages, so they are effectively deprecated.**
+    See the notes in the repository's main README.md.
     This is required when rules have JavaScript code which wants to `require` from peerDependency packages,
     since the node resolution algorithm requires the callsite of `require` to be in the node_modules tree.
-    Note: we no longer accept new npm packages, and would prefer such custom rules to be in their own repo.
+    
     - [Concatjs](Concatjs.md)
     - [Cypress](Cypress.md)
     - [esbuild](esbuild.md)
