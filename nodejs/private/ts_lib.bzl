@@ -169,7 +169,7 @@ def _out_paths(srcs, out_dir, root_dir, allow_js, ext_map):
     outs = []
     for f in srcs:
         if _is_ts_src(f, allow_js):
-            out = _join(out_dir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + _replace_ext(f, ext_map))
+            out = _join(out_dir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "", 1) + _replace_ext(f, ext_map))
 
             # Don't declare outputs that collide with inputs
             # for example, a.js -> a.js

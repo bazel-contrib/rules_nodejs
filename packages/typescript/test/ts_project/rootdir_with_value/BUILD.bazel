@@ -5,6 +5,7 @@ load("//packages/typescript:index.bzl", "ts_project")
 SRCS = [
     "subdir/a.ts",
     "subdir/file.json",
+    "subdir/deep/subdir/b.ts",
 ]
 
 ts_project(
