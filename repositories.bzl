@@ -109,10 +109,10 @@ def build_bazel_rules_nodejs_dev_dependencies():
     maybe(
         http_archive,
         name = "rules_codeowners",
-        strip_prefix = "rules_codeowners-27fe3bbe6e5b0df196e360fc9e081835f22a10be",
-        sha256 = "0aada1d5df72cb13161a78dff965e02575930f3ea9550e778f6fa45f3f4e2537",
+        strip_prefix = "rules_codeowners-c7110f512d45c71afdbd0b8e778ca4f8b19efec7",
+        sha256 = "fb17a90ca3b4bb2cbe4eb529f7920bd9e1548c23111641625277f77f9931a98d",
         urls = [
-            "https://github.com/zegl/rules_codeowners/archive/27fe3bbe6e5b0df196e360fc9e081835f22a10be.zip",
+            "https://github.com/zegl/rules_codeowners/archive/c7110f512d45c71afdbd0b8e778ca4f8b19efec7.zip",
         ],
     )
 
