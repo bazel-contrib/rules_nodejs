@@ -23,6 +23,7 @@ let config = {
     strict_visibility: true,
     workspace_rerooted_path: '',
     workspace: '',
+    all_node_modules_target_name: 'node_modules',
 };
 function generateBuildFileHeader(visibility = PUBLIC_VISIBILITY) {
     return `# Generated file from ${config.rule_type} rule.
@@ -208,7 +209,7 @@ ${exportsStarlark}])
 # there are many files in target.
 # See https://github.com/bazelbuild/bazel/issues/5153.
 js_library(
-    name = "node_modules",
+    name = "${config.all_node_modules_target_name}",
     package_name = "${LEGACY_NODE_MODULES_PACKAGE_NAME}",
     package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
 )
