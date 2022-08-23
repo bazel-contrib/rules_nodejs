@@ -359,6 +359,15 @@ Using managed_directories will mean that
         default = 3600,
         doc = """Maximum duration of the package manager execution in seconds.""",
     ),
+    "all_node_modules_target_name": attr.string(
+        default = "node_modules",
+        doc = """The name used for the generated all node_modules js_library target.
+
+        This can be used to name the all node_modules target something other than `//:node_modules`,
+        such as `//:node_modules_all`, so you can use the `//:node_modules` label to reference the
+        `node_modules` source directory in `manual_build_file_contents` for custom use cases.
+        """,
+    ),
     "generate_build_files_concurrency_limit": attr.int(
         default = 64,
         doc = """Limit the maximum concurrency of npm package processing when generating
@@ -486,6 +495,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
             workspace = repository_ctx.attr.name,
             workspace_rerooted_package_json_dir = paths.normalize(paths.join(_WORKSPACE_REROOTED_PATH, package_json_dir)),
             workspace_rerooted_path = _WORKSPACE_REROOTED_PATH,
+            all_node_modules_target_name = repository_ctx.attr.all_node_modules_target_name,
         ),
     )
     repository_ctx.file("generate_config.json", generate_config_json)
