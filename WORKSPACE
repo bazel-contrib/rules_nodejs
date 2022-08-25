@@ -165,7 +165,7 @@ bazel_skylib_workspace()
 # RBE configuration
 #
 
-load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS")
+load("//:index.bzl", "SUPPORTED_BAZEL_VERSIONS")
 load("@bazelci_rules//:rbe_repo.bzl", "rbe_preconfig")
 
 # Creates toolchain configuration for remote execution with BuildKite CI
