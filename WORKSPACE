@@ -165,18 +165,19 @@ bazel_skylib_workspace()
 # RBE configuration
 #
 
-load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS")
-load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
+load("//:index.bzl", "SUPPORTED_BAZEL_VERSIONS")
+load("@bazelci_rules//:rbe_repo.bzl", "rbe_preconfig")
 
 # Creates toolchain configuration for remote execution with BuildKite CI
 # for rbe_ubuntu1604
-rbe_autoconfig(
+rbe_preconfig(
     name = "buildkite_config",
+    toolchain = "ubuntu1804-bazel-java11",
 )
 
-rbe_autoconfig(
+rbe_preconfig(
     name = "rbe_default",
-    bazel_version = BAZEL_VERSION,
+    toolchain = "ubuntu1804-bazel-java11",
 )
 
 load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
