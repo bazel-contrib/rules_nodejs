@@ -65,11 +65,11 @@ class Runfiles {
                  --spawn_strategy=standalone to the command line.`);
         }
         // Bazel starts actions with pwd=execroot/my_wksp or pwd=runfiles/my_wksp
-        this.workspace = _env['BAZEL_WORKSPACE'] || undefined;
+        this.workspace = _env['BAZEL_WORKSPACE'] || _env['JS_BINARY__WORKSPACE'] || undefined;
         // If target is from an external workspace such as @npm//rollup/bin:rollup
         // resolvePackageRelative is not supported since package is in an external
         // workspace.
-        const target = _env['BAZEL_TARGET'];
+        let target = _env['BAZEL_TARGET'] || _env['JS_BINARY__TARGET'];
         if (!!target && !target.startsWith('@')) {
             // //path/to:target -> path/to
             this.package = target.split(':')[0].replace(/^\/\//, '');
