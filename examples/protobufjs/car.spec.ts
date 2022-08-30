@@ -1,4 +1,4 @@
-import {Proto as pb} from './car_pb';
+import {Proto as pb} from './car_and_animal_pb';
 
 describe('protocol buffers', () => {
   it('allows creation of an object described by proto', () => {

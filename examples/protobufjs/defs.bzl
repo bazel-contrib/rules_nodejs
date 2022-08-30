@@ -42,34 +42,40 @@ _proto_sources = rule(
     attrs = {"proto": attr.label(providers = [ProtoInfo])},
 )
 
-def protobufjs_library(name, proto, **kwargs):
+def _sanitize_label(label_string):
+    """Replace characters in a label so it can be used as part of a target name."""
+    return label_string.replace(":", "_").replace("/", "_")
+
+def protobufjs_library(name, protos, **kwargs):
     """Minimal wrapper macro around pbjs/pbts tooling
 
     Args:
         name: name of generated js_library target, also used to name the .js/.d.ts outputs
-        proto: label of a single proto_library target to generate for
+        protos: labels of proto_library targets to generate for
         **kwargs: passed through to the js_library
     """
 
     js_out = name + "_pb.js"
     ts_out = js_out.replace(".js", ".d.ts")
 
-    # Generate some target names, based on the provided name
-    # (so that they are unique if the macro is called several times in one package)
-    proto_target = "_%s_protos" % name
     js_target = "_%s_pbjs" % name
     ts_target = "_%s_pbts" % name
 
+    # Generate some target names, based on the provided name
+    # (so that they are unique if the macro is called several times in one package)
+    proto_targets = ["_%s_%s" % (name, _sanitize_label(proto)) for proto in protos]
+
     # grab the transitive .proto files needed to compile the given one
-    _proto_sources(
-        name = proto_target,
-        proto = proto,
-    )
+    for proto, proto_target in zip(protos, proto_targets):
+        _proto_sources(
+            name = proto_target,
+            proto = proto,
+        )
 
     # Transform .proto files to a single _pb.js file named after the macro
     pbjs(
         name = js_target,
-        data = [proto_target] + _PROTOBUFJS_CLI_DEPS,
+        data = proto_targets + _PROTOBUFJS_CLI_DEPS,
         # Arguments documented at
         # https://github.com/protobufjs/protobuf.js/tree/6.8.8#pbjs-for-javascript
         args = [
@@ -77,7 +83,7 @@ def protobufjs_library(name, proto, **kwargs):
             "--wrap=default",
             "--strict-long",  # Force usage of Long type with int64 fields
             "--out=$@",
-            "$(execpaths %s)" % proto_target,
+            " ".join(["$(execpaths %s)" % proto_target for proto_target in proto_targets]),
         ],
         outs = [js_out],
     )

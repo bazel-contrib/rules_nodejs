@@ -5,26 +5,40 @@ load(":defs.bzl", "protobufjs_library")
 
 proto_library(
     name = "car_proto",
-    srcs = [
-        "car.proto",
-        "tire.proto",
-    ],
+    srcs = ["car.proto"],
+    deps = [":tire_proto"],
+)
+
+proto_library(
+    name = "tire_proto",
+    srcs = ["tire.proto"],
+)
+
+proto_library(
+    name = "animal_proto",
+    srcs = ["animal.proto"],
 )
 
 protobufjs_library(
     # produces outputs named after this,
-    # car.d.ts and car.js
-    name = "car",
-    proto = "car_proto",
+    # "car_and_animal.d.ts" and "car_and_animal.js".
+    name = "car_and_animal",
+    protos = [
+        ":animal_proto",
+        ":car_proto",
+    ],
 )
 
 ts_project(
     name = "test_lib",
     testonly = True,
-    srcs = ["car.spec.ts"],
+    srcs = [
+        "animal.spec.ts",
+        "car.spec.ts",
+    ],
     tsconfig = "tsconfig.json",
     deps = [
-        ":car",
+        ":car_and_animal",
         "@npm//@types/jasmine",
         "@npm//protobufjs",
     ],
@@ -37,7 +51,7 @@ ts_project(
     ],
     tsconfig = "//:tsconfig.json",
     deps = [
-        ":car",
+        ":car_and_animal",
         "@npm//protobufjs",
     ],
 )
