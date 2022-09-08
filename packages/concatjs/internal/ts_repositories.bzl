@@ -45,7 +45,7 @@ def ts_setup_dev_workspace():
 
     go_repository(
         name = "com_github_google_go_cmp",
-        commit = "f144a35ed4ac538fae93fa3783175108738f71b9",  # v0.5.8
+        commit = "a97318bf6562f2ed2632c5f985db51b1bc5bdcd0",  # v0.5.9
         importpath = "github.com/google/go-cmp",
     )
 
