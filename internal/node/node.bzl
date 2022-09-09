@@ -195,7 +195,12 @@ def _nodejs_binary_impl(ctx, data = [], runfiles = [], expanded_args = []):
 
     # Provide the target name as an environment variable avaiable to all actions for the
     # runfiles helpers to use.
-    env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
+    target_label = str(ctx.label)
+    if target_label.startswith("@@//"):
+        target_label = target_label[2:]
+    elif target_label.startswith("@//"):
+        target_label = target_label[1:]
+    env_vars = "export BAZEL_TARGET=%s\n" % target_label
 
     # Add all env vars from the ctx attr
     for [key, value] in ctx.attr.env.items():
