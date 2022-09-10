@@ -2,30 +2,30 @@
 # yarn lockfile v1
 
 
-"@bazel/cypress@^5.5.3":
-  version "5.5.3"
-  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-5.5.3.tgz#c952a3c4f90dda79b2892cbc9d422a6f3687823b"
-  integrity sha512-ZP4b2UErUaniNHEaXr+rg/7ggz8cPRT+mBvZ8Ysf72fkpr2CoXXpSOyB0jWT3fB8sT1qcE6NxPC2cFQY19pggA==
+"@bazel/cypress@^5.5.4":
+  version "5.5.4"
+  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-5.5.4.tgz#c8a44b5f76da2d35c98a763d1ada752f294981a1"
+  integrity sha512-3mDgJfgaU+vWW0EDDoxlSbXKBTDfo49T/LjMuTmHIcJh4KDSOKd5LntSmmHWTk4mNjSBajy6WciGTHda5dRNQQ==
 
 "@bazel/ibazel@^0.16.2":
   version "0.16.2"
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.16.2.tgz#05dd7f06659759fda30f87b15534f1e42f1201bb"
   integrity sha512-KgqAWMH0emL6f3xH6nqyTryoBMqlJ627LBIe9PT1PRRQPz2FtHib3FIHJPukp1slzF3hJYZvdiVwgPnHbaSOOA==
 
-"@bazel/typescript@^5.5.3":
-  version "5.5.3"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.5.3.tgz#3505f92c0bb9598e7ef090dec75f52a1eceab26b"
-  integrity sha512-DGlzz2RmzRrNWhoL1ynr62qsTk5cUzjIJj2MreeQVoYHQZfB3FCCu/TGtDS5xyEbfWhsn7Zwo5qpOxvdYiPWng==
+"@bazel/typescript@^5.5.4":
+  version "5.5.4"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.5.4.tgz#0e1ed2b930a98e88e471235fb90acd82121e0520"
+  integrity sha512-UyLcon6kiUMcr1PE/Sdyk9D9QEE5WaHPWI6cmaC8kQH0D64fWUWl9BiVwuox9N3DklfaNn9hlK/7SJ6p00gPQw==
   dependencies:
-    "@bazel/worker" "5.5.3"
+    "@bazel/worker" "5.5.4"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@5.5.3":
-  version "5.5.3"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.5.3.tgz#3c23135a4e9d6c8ef05f1de85bc3c0c30df2ad38"
-  integrity sha512-Wm0istBBko5w2ddDwCK4rvDQrWfeFGaWdG3iTNkYAHKfQrkgYeMucMoAbFB6LZ87KZKuBEN9KSDq+fi8MXtGlw==
+"@bazel/worker@5.5.4":
+  version "5.5.4"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.5.4.tgz#2949361a44ac20eb6571525bdbf2ecd099cc1394"
+  integrity sha512-d6jOWaR44c1WEDpgGdB0qJyaacwm7HF5yrM+15iirqxnSi2Uuk9FBGJ+O3TniSKZsRzgaA/4if2tkRikFnO9Ng==
   dependencies:
     google-protobuf "^3.6.1"
 

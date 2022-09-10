@@ -1,8 +1,8 @@
 {
   "private": true,
   "devDependencies": {
-    "@bazel/jasmine": "^5.5.3",
-    "@bazel/typescript": "^5.5.3",
+    "@bazel/jasmine": "^5.5.4",
+    "@bazel/typescript": "^5.5.4",
     "@types/jasmine": "2.8.2",
     "@types/long": "^4.0.0",
     "@types/node": "11.11.1",
