@@ -1,3 +1,13 @@
+## [5.5.4](https://github.com/bazelbuild/rules_nodejs/compare/5.5.3...5.5.4) (2022-09-10)
+
+
+### Bug Fixes
+
+* `ts_project` fail if `root_dir` used deep in source tree ([#3535](https://github.com/bazelbuild/rules_nodejs/issues/3535)) ([dccbb63](https://github.com/bazelbuild/rules_nodejs/commit/dccbb63))
+* make catch-all node_modules target name configurable in yarn_install and npm_install ([#3538](https://github.com/bazelbuild/rules_nodejs/issues/3538)) ([6c462c4](https://github.com/bazelbuild/rules_nodejs/commit/6c462c4))
+
+
+
 ## [5.5.3](https://github.com/bazelbuild/rules_nodejs/compare/5.5.2...5.5.3) (2022-08-01)
 
 
