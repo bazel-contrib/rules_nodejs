@@ -294,14 +294,16 @@ if [[ -n "${BAZEL_NODE_MODULES_ROOTS:-}" ]]; then
   OLDIFS="${IFS}"
   IFS=","
   roots=(${BAZEL_NODE_MODULES_ROOTS})
-  IFS="${OLDIFS}"
   for root_path in "${roots[@]}"; do
     if [[ "${root_path}" ]]; then
       # Guard non-root execroot & bazel-out node_modules as well.
       # For example,
       #   .../execroot/build_bazel_rules_nodejs/internal/linker/test/node_modules
       #   .../execroot/build_bazel_rules_nodejs/bazel-out/*/bin/internal/linker/test/node_modules
-      export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/${root_path}/node_modules,${EXECROOT}/bazel-out/*/bin/${root_path}/node_modules"
+
+      # Expand this separately to ensure we pick up the `*` of each bazel configuration directory
+      BAZEL_ARCH_ROOTS=("${EXECROOT}"/bazel-out/*/bin/"${root_path}"/node_modules)
+      export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/${root_path}/node_modules,${BAZEL_ARCH_ROOTS[*]}"
       if [[ "${RUNFILES_ROOT}" ]]; then
         # If in runfiles guard the node_modules location in runfiles as well.
         # For example,
@@ -314,6 +316,7 @@ if [[ -n "${BAZEL_NODE_MODULES_ROOTS:-}" ]]; then
       fi
     fi
   done
+  IFS="${OLDIFS}"
 fi
 if [[ -n "${VERBOSE_LOGS:-}" ]]; then
   echo "BAZEL_PATCH_ROOTS=${BAZEL_PATCH_ROOTS}" >&2
