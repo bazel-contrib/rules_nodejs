@@ -83,11 +83,27 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+filegroup(
+    name = "devserver_darwin_arm64",
+    srcs = ["devserver-darwin_arm64"],
+    # Don't build on CI
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
 config_setting(
     name = "darwin_x64",
     constraint_values = [
         "@platforms//os:osx",
         "@platforms//cpu:x86_64",
+    ],
+)
+
+config_setting(
+    name = "darwin_arm64",
+    constraint_values = [
+        "@platforms//os:osx",
+        "@platforms//cpu:arm64",
     ],
 )
 
@@ -134,6 +150,7 @@ config_setting(
 filegroup(
     name = "devserver",
     srcs = select({
+        ":darwin_arm64": [":devserver_darwin_arm64"],
         ":darwin_x64": [":devserver_darwin_amd64"],
         ":linux_arm64": [":devserver_linux_arm64"],
         ":linux_s390x": [":devserver_linux_s390x"],
@@ -200,6 +217,16 @@ go_binary(
     embed = [":go_default_library"],
     goarch = "amd64",
     goos = "windows",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-darwin_arm64",
+    out = "devserver-darwin_arm64",
+    embed = [":go_default_library"],
+    goarch = "arm64",
+    goos = "darwin",
     pure = "on",
     visibility = ["//visibility:public"],
 )
