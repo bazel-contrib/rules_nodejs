@@ -27,7 +27,7 @@ PLATFORMS = {
     "linux_arm64": struct(
         compatible_with = [
             "@platforms//os:linux",
-            "@platforms//cpu:aarch64",
+            "@platforms//cpu:arm64",
         ],
     ),
     "linux_s390x": struct(
@@ -51,7 +51,7 @@ PLATFORMS = {
     "darwin_arm64": struct(
         compatible_with = [
             "@platforms//os:macos",
-            "@platforms//cpu:aarch64",
+            "@platforms//cpu:arm64",
         ],
     ),
     "windows_amd64": struct(

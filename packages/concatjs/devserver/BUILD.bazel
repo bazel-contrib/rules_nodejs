@@ -103,7 +103,7 @@ config_setting(
     name = "linux_arm64",
     constraint_values = [
         "@platforms//os:linux",
-        "@platforms//cpu:aarch64",
+        "@platforms//cpu:arm64",
     ],
 )
 
