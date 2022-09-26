@@ -172,8 +172,9 @@ def _impl(ctx):
             (
                 file.path.endswith(".d.ts") or
                 file.path.endswith(".d.ts.map") or
+                # Any .json can produce types: https://www.typescriptlang.org/tsconfig/#resolveJsonModule
                 # package.json may be required to resolve "typings" key
-                file.path.endswith("/package.json")
+                file.path.endswith(".json")
             ) and
             # exclude eg. external/npm/node_modules/protobufjs/node_modules/@types/node/index.d.ts
             # these would be duplicates of the typings provided directly in another dependency.
