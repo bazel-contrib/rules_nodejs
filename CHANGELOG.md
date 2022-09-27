@@ -1,3 +1,20 @@
+# [5.6.0](https://github.com/bazelbuild/rules_nodejs/compare/5.5.4...5.6.0) (2022-09-27)
+
+
+### Bug Fixes
+
+* **builtin:** properly quote env vars passed to nodejs_binary ([#3553](https://github.com/bazelbuild/rules_nodejs/issues/3553)) ([ffa3ffb](https://github.com/bazelbuild/rules_nodejs/commit/ffa3ffb))
+* **typescript:** include all .json in js_library DeclarationInfo ([#3556](https://github.com/bazelbuild/rules_nodejs/issues/3556)) ([f297e81](https://github.com/bazelbuild/rules_nodejs/commit/f297e81)), closes [#3551](https://github.com/bazelbuild/rules_nodejs/issues/3551)
+* canonicalize @platforms//cpu:aarch64 ([#3555](https://github.com/bazelbuild/rules_nodejs/issues/3555)) ([b341421](https://github.com/bazelbuild/rules_nodejs/commit/b341421)), closes [/github.com/bazelbuild/platforms/blob/212a486d66569b29c95b00364e2584e80fd08614/cpu/BUILD#L16-L20](https://github.com//github.com/bazelbuild/platforms/blob/212a486d66569b29c95b00364e2584e80fd08614/cpu/BUILD/issues/L16-L20)
+
+
+### Features
+
+* **create:** introduce `--workspaceDir` flag ([3a28a02](https://github.com/bazelbuild/rules_nodejs/commit/3a28a02))
+* add support for darwin arm for concatjs ([#3554](https://github.com/bazelbuild/rules_nodejs/issues/3554)) ([acf88a1](https://github.com/bazelbuild/rules_nodejs/commit/acf88a1))
+
+
+
 ## [5.5.4](https://github.com/bazelbuild/rules_nodejs/compare/5.5.3...5.5.4) (2022-09-10)
 
 
