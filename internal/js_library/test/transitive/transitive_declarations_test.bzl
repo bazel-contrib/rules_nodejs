@@ -19,9 +19,9 @@ def _impl(ctx):
     return unittest.end(env)
 
 transitive_declarations_test = unittest.make(_impl, attrs = {
-    "expected_declarations": attr.string_list(default = ["a.d.ts"]),
+    "expected_declarations": attr.string_list(default = ["a.d.ts", "e.json"]),
     "lib": attr.label(default = ":terminal"),
-    "expected_runfiles": attr.string_list(default = ["a.d.ts", "b.js", "c.d.ts", "c.txt"]),
+    "expected_runfiles": attr.string_list(default = ["a.d.ts", "b.js", "c.d.ts", "c.txt", "e.json"]),
 })
 
 def transitive_declarations_test_suite():

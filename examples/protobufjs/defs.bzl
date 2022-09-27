@@ -1,33 +1,8 @@
 "Illustrate how to wrap pbjs and pbts from protobufjs"
 
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-
-# TODO switch to protobufjs-cli when its published
-# https://github.com/protobufjs/protobuf.js/commit/da34f43ccd51ad97017e139f137521782f5ef119
-load("@npm//protobufjs:index.bzl", "pbjs", "pbts")
+load("@npm//protobufjs-cli:index.bzl", "pbjs", "pbts")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
-
-# protobuf.js relies on these packages, but does not list them as dependencies
-# in its package.json.
-# Instead they are listed under "cliDependencies"
-# (see https://unpkg.com/protobufjs@6.10.2/package.json)
-# When run, the CLI attempts to run `npm install` at runtime to get them.
-# This fails under Bazel as it tries to access the npm cache outside of the sandbox.
-# Per Bazel semantics, all dependencies should be pre-declared.
-# Note, you'll also need to install all of these in your package.json!
-# (This should be fixed when we switch to protobufjs-cli)
-_PROTOBUFJS_CLI_DEPS = ["@npm//%s" % s for s in [
-    "chalk",
-    "escodegen",
-    "espree",
-    "estraverse",
-    "glob",
-    "jsdoc",
-    "minimist",
-    "semver",
-    "tmp",
-    "uglify-js",
-]]
 
 def _proto_sources_impl(ctx):
     return DefaultInfo(files = ctx.attr.proto[ProtoInfo].transitive_sources)
@@ -75,7 +50,7 @@ def protobufjs_library(name, protos, **kwargs):
     # Transform .proto files to a single _pb.js file named after the macro
     pbjs(
         name = js_target,
-        data = proto_targets + _PROTOBUFJS_CLI_DEPS,
+        data = proto_targets,
         # Arguments documented at
         # https://github.com/protobufjs/protobuf.js/tree/6.8.8#pbjs-for-javascript
         args = [
@@ -91,7 +66,7 @@ def protobufjs_library(name, protos, **kwargs):
     # Transform the _pb.js file to a .d.ts file with TypeScript types
     pbts(
         name = ts_target,
-        data = [js_target] + _PROTOBUFJS_CLI_DEPS,
+        data = [js_target],
         # Arguments documented at
         # https://github.com/protobufjs/protobuf.js/tree/6.8.8#pbts-for-typescript
         args = [

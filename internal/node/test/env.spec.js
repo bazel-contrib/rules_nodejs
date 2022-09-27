@@ -123,4 +123,9 @@ describe('launcher.sh environment', function() {
       const env = require(runfiles.resolvePackageRelative('dump_build_env_attr.json'));
       expect(env['SOME_TEST_ENV']).toBe('some_value')
   });
+
+  it('should correctly pass environment variables with backslashes', function() {
+    const env = require(runfiles.resolvePackageRelative('dump_build_env_attr.json'));
+    expect(env['BACKSLASHES']).toBe('C:\\some path\\on\\windows.exe');
+  });
 });

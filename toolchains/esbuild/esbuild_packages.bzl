@@ -30,7 +30,7 @@ ESBUILD_PACKAGES = struct(
             binary_path = "bin/esbuild",
             exec_compatible_with = [
                 "@platforms//os:macos",
-                "@platforms//cpu:aarch64",
+                "@platforms//cpu:arm64",
             ],
         ),
         "linux_amd64": struct(
@@ -52,7 +52,7 @@ ESBUILD_PACKAGES = struct(
             binary_path = "bin/esbuild",
             exec_compatible_with = [
                 "@platforms//os:linux",
-                "@platforms//cpu:aarch64",
+                "@platforms//cpu:arm64",
             ],
         ),
         "windows_amd64": struct(
