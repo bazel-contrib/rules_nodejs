@@ -52,11 +52,11 @@ def build_bazel_rules_nodejs_dev_dependencies():
     maybe(
         http_archive,
         name = "io_bazel_rules_sass",
-        sha256 = "c6249cf64dffbc81312191800b0984b5197d77864c13d0dc4d469937cc3f8108",
-        strip_prefix = "rules_sass-1.32.11",
+        sha256 = "1ea0103fa6adcb7d43ff26373b5082efe1d4b2e09c4f34f8a8f8b351e9a8a9b0",
+        strip_prefix = "rules_sass-1.55.0",
         urls = [
-            "https://github.com/bazelbuild/rules_sass/archive/1.32.11.zip",
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.32.11.zip",
+            "https://github.com/bazelbuild/rules_sass/archive/1.55.0.zip",
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.55.0.zip",
         ],
     )
 
