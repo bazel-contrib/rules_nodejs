@@ -410,6 +410,7 @@ nodejs_binary(
     env = {
         "LOC": "$(location :dump_build_env.js)",
         "SOME_TEST_ENV": "$(SOME_TEST_ENV)",
+        "BACKSLASHES": "C:\\some path\\on\\windows.exe",
     },
 )
 
