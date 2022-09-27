@@ -1095,10 +1095,10 @@
   resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-5.1.0.tgz#ae0b93c5d14b2b080d5a492a8bfee231101b5385"
   integrity sha512-gO0+//hkH+iE3AQ02mYttJAcWiE+rapP8IxmstDhwSqs+CmZJJI8Q1vAaIvMyJUT3NIf7lGljRNpzclkCPk89w==
 
-"@bazel/esbuild@^5.5.4":
-  version "5.5.4"
-  resolved "https://registry.yarnpkg.com/@bazel/esbuild/-/esbuild-5.5.4.tgz#d08b3f8127d3efb1085dce2f7039969fcb61b113"
-  integrity sha512-C9R5hTgYmP/GU7yNzgOus6SaS7tyS5J5ptWruM3ERKaw5CIEPTi0hlBLmPpM9Wo8xIDNlF0BhGvM59T7bKs2iQ==
+"@bazel/esbuild@^5.6.0":
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/@bazel/esbuild/-/esbuild-5.6.0.tgz#72a60d258bed49b5e4a75f16fd3614ff2377c946"
+  integrity sha512-gywDGjn60dr5+1Mz2lh4hITGm/2HuB7ku9zv3CUDcHivgyDnYQ7zBMJj5EFvs5oHeiVevV+lxYGfX+5t6CZclA==
 
 "@bazel/ibazel@0.3.1":
   version "0.3.1"
@@ -1115,37 +1115,37 @@
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.16.2.tgz#05dd7f06659759fda30f87b15534f1e42f1201bb"
   integrity sha512-KgqAWMH0emL6f3xH6nqyTryoBMqlJ627LBIe9PT1PRRQPz2FtHib3FIHJPukp1slzF3hJYZvdiVwgPnHbaSOOA==
 
-"@bazel/protractor@^5.5.4":
-  version "5.5.4"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-5.5.4.tgz#f4acd761aa94cecb5799e4eb933570796d9c6773"
-  integrity sha512-U0j43bxLXSXl0FFyCxT6hGPAfMg9fN9gSkRQnZZiEX2cEoqeJOBP4/6A6qYcl9esAQ4zIiNEzHhmDLpAWImVsA==
+"@bazel/protractor@^5.6.0":
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-5.6.0.tgz#1f7a3bcf4a50ed38322908bf5961030f154bf6bc"
+  integrity sha512-4bbRbic9ODQvx8b200qexItTcJlonGCNe6DrKkprobAqdr9tRxNSdTgmPFo9/zGjYZirsJKJ8134zpJFJwtlDg==
 
-"@bazel/rollup@^5.5.4":
-  version "5.5.4"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-5.5.4.tgz#8792fcbf4d911db644f343e6a00f33b90bacbb3e"
-  integrity sha512-8YhMcm7lkO2OGUatnxhSaqoYgkHJNoC9i0r6EBUuB94Bq6K7QdplWmTUtfpS15O2ObouLEPpnrt4CiE0vo1EzQ==
+"@bazel/rollup@^5.6.0":
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-5.6.0.tgz#b698c9fb697654d74fca634e5888d1c8c7747352"
+  integrity sha512-n0w19Wmgfx1kSIX3a6v8Bgg5ak3/FSWWrR2cTw/kdN1LXPuym2sFSHxVagpfSW+5rlVX60Likk16zmB3ftyyJw==
   dependencies:
-    "@bazel/worker" "5.5.4"
+    "@bazel/worker" "5.6.0"
 
-"@bazel/terser@^5.5.4":
-  version "5.5.4"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-5.5.4.tgz#4304ca003a6606a22d3d2c0e28e4aa982a4ceb6b"
-  integrity sha512-M+UncSFXmPo+c2uqFfXUrfpsx0mSb1PaMYWaXi1U484SIbAr135QLRShuPmuQGaAWr6Ec3VrFTJKbDHHgTFpwQ==
+"@bazel/terser@^5.6.0":
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-5.6.0.tgz#9861b7cfe1037d70ca27e5a50b3e800034a04d3c"
+  integrity sha512-fPbZfVNcLAwldtQYbLrItQdR+K//Fg/7cMOwQCtsmE4VZoIZZv/RlSWJxSh1B58kmffTnIzB/cq9+qT6Lkbaog==
 
-"@bazel/typescript@^5.5.4":
-  version "5.5.4"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.5.4.tgz#0e1ed2b930a98e88e471235fb90acd82121e0520"
-  integrity sha512-UyLcon6kiUMcr1PE/Sdyk9D9QEE5WaHPWI6cmaC8kQH0D64fWUWl9BiVwuox9N3DklfaNn9hlK/7SJ6p00gPQw==
+"@bazel/typescript@^5.6.0":
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-5.6.0.tgz#4fa0fce58ff23391a93819a329e5513978830df7"
+  integrity sha512-XIi9whWnG3ky3aWz2+w1GLbjKjVdMttsEHi7kqlE2H6KL6Ujq+bvYPUQyNtDVmJOwY4vUJ2TtdebDzfP7H+r2w==
   dependencies:
-    "@bazel/worker" "5.5.4"
+    "@bazel/worker" "5.6.0"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@5.5.4":
-  version "5.5.4"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.5.4.tgz#2949361a44ac20eb6571525bdbf2ecd099cc1394"
-  integrity sha512-d6jOWaR44c1WEDpgGdB0qJyaacwm7HF5yrM+15iirqxnSi2Uuk9FBGJ+O3TniSKZsRzgaA/4if2tkRikFnO9Ng==
+"@bazel/worker@5.6.0":
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-5.6.0.tgz#9ad631a0c7429baeaeb800f03ef1e79630e4f8d9"
+  integrity sha512-3U//HQSeTu6kp6e1k/ncPodTj2IZfJCTNH7dL5VzBzXOodyWivudDMCss3X+LRL8KfjiPqPukysRvwzK/INxhg==
   dependencies:
     google-protobuf "^3.6.1"
 
