@@ -74,7 +74,12 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
 # Case 6a is handled like case 3.
 if [ "${TEST_SRCDIR:-}" ]; then
     # Case 4, bazel has identified runfiles for us.
-    RUNFILES="$TEST_SRCDIR"
+    if [ "$(is_windows)" -eq "1" ]; then
+        # If Windows, normalize the path
+        RUNFILES=$(normalize_windows_path "$TEST_SRCDIR")
+    else
+        RUNFILES="$TEST_SRCDIR"
+    fi
 elif [ "${RUNFILES_MANIFEST_FILE:-}" ]; then
     if [ "$(is_windows)" -eq "1" ]; then
         # If Windows, normalize the path
