@@ -58,12 +58,6 @@ describe('launcher.sh environment', function() {
       `${runfilesRoot}`,
       `${runfilesRoot}/build_bazel_rules_nodejs/node_modules`,
     ];
-    if (isWindows) {
-      expectedRoots.push(
-        process.env['RUNFILES'],
-        `${process.env['RUNFILES']}/build_bazel_rules_nodejs/node_modules`
-      );
-    }
     expectPathsToMatch(process.env['BAZEL_PATCH_ROOTS'].split(','), expectedRoots);
   });
 
