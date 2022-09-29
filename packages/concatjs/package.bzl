@@ -69,7 +69,7 @@ def rules_typescript_dev_dependencies():
     maybe(
         http_archive,
         name = "com_google_protobuf",
-        sha256 = "98e615d592d237f94db8bf033fba78cd404d979b0b70351a9e5aaff725398357",
-        strip_prefix = "protobuf-3.9.1",
-        urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.9.1.tar.gz"],
+        sha256 = "ce2fbea3c78147a41b2a922485d283137845303e5e1b6cbd7ece94b96ade7031",
+        strip_prefix = "protobuf-3.21.7",
+        urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.21.7.tar.gz"],
     )
