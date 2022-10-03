@@ -84,6 +84,15 @@ $(rootpath @npm///:node_modules/prettier)/bin-prettier.js
 ```
 """,
     ),
+    "exports_source_directories": attr.bool(
+        default = False,
+        doc = """If exports_directories_only is True, export source directories instead of output directories (TreeArtifacts).
+
+This flag can be used to improve performance of fetching npm dependencies by removing the copy directory action
+which creates the output directory (TreeArtifact).
+
+NB: source directory inputs are not compatible with remote execution.""",
+    ),
     "generate_local_modules_build_files": attr.bool(
         default = True,
         doc = """Enables the BUILD files auto generation for local modules installed with `file:` (npm) or `link:` (yarn)
@@ -483,6 +492,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
     generate_config_json = json.encode(
         struct(
             exports_directories_only = repository_ctx.attr.exports_directories_only,
+            exports_source_directories = repository_ctx.attr.exports_source_directories,
             generate_build_files_concurrency_limit = repository_ctx.attr.generate_build_files_concurrency_limit,
             generate_local_modules_build_files = generate_local_modules_build_files,
             included_files = repository_ctx.attr.included_files,

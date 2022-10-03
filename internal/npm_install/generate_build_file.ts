@@ -54,6 +54,7 @@ let LEGACY_NODE_MODULES_PACKAGE_NAME = '$node_modules$';
 // Default values for unit testing; overridden in main()
 let config: any = {
   exports_directories_only: false,
+  exports_source_directories: false,
   generate_local_modules_build_files: false,
   generate_build_files_concurrency_limit: 64,
   included_files: [],
@@ -230,8 +231,28 @@ async function generateRootBuildFile(pkgs: Dep[]) {
 
 function printRootExportsDirectories(pkgs: Dep[]) {
   let filegroupsStarlark = '';
-  pkgs.forEach(pkg => {
-    filegroupsStarlark += `
+  if (config.exports_source_directories) {
+    pkgs.forEach(pkg => {
+      filegroupsStarlark += `
+alias(
+    name = "node_modules/${pkg._dir}",
+    actual = "${config.workspace_rerooted_package_json_dir}/node_modules/${pkg._dir}",
+    visibility = ["//visibility:public"],
+)
+js_library(
+    name = "${pkg._dir.replace("/", "_")}__contents",
+    package_name = "${pkg._dir}",
+    package_path = "${config.package_path}",
+    strip_prefix = "${config.workspace_rerooted_package_json_dir}/node_modules/${pkg._dir}",
+    srcs = ["${config.workspace_rerooted_package_json_dir}/node_modules/${pkg._dir}"],
+    source_directory = True,
+    visibility = ["//:__subpackages__"],
+)
+`
+      });
+  } else {
+    pkgs.forEach(pkg => {
+      filegroupsStarlark += `
 copy_file(
   name = "node_modules/${pkg._dir}",
   src = "${config.workspace_rerooted_package_json_dir}/node_modules/${pkg._dir}",
@@ -247,7 +268,9 @@ js_library(
     srcs = [":node_modules/${pkg._dir}"],
     visibility = ["//:__subpackages__"],
 )
-`});
+`
+    });
+  }
 
 let depsStarlark = '';
 if (pkgs.length) {

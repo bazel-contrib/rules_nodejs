@@ -153,7 +153,15 @@ sh_test(
         {"DIRECTORY_ARTIFACTS": "1"},
     ],
     [
+        "yarn_source_directory_artifacts",
+        {"DIRECTORY_ARTIFACTS": "1"},
+    ],
+    [
         "npm_directory_artifacts",
+        {"DIRECTORY_ARTIFACTS": "1"},
+    ],
+    [
+        "npm_source_directory_artifacts",
         {"DIRECTORY_ARTIFACTS": "1"},
     ],
 ]]
@@ -204,7 +212,15 @@ sh_test(
         {"DIRECTORY_ARTIFACTS": "1"},
     ],
     [
+        "yarn_source_directory_artifacts",
+        {"DIRECTORY_ARTIFACTS": "1"},
+    ],
+    [
         "npm_directory_artifacts",
+        {"DIRECTORY_ARTIFACTS": "1"},
+    ],
+    [
+        "npm_source_directory_artifacts",
         {"DIRECTORY_ARTIFACTS": "1"},
     ],
 ]]

@@ -312,6 +312,20 @@ js_library(
         yarn_lock = "//:tools/fine_grained_deps_yarn_directory_artifacts/yarn.lock",
     )
 
+    yarn_install(
+        name = "fine_grained_deps_yarn_source_directory_artifacts",
+        data = [
+            "//internal/npm_install/test:postinstall.js",
+        ],
+        environment = {
+            "SOME_USER_ENV": "yarn is great!",
+        },
+        package_json = "//:tools/fine_grained_deps_yarn_source_directory_artifacts/package.json",
+        package_path = "/",
+        yarn_lock = "//:tools/fine_grained_deps_yarn_source_directory_artifacts/yarn.lock",
+        exports_source_directories = True,
+    )
+
     npm_install(
         name = "fine_grained_deps_npm_directory_artifacts",
         data = [
@@ -324,6 +338,21 @@ js_library(
         package_json = "//:tools/fine_grained_deps_npm_directory_artifacts/package.json",
         package_path = "/",
         package_lock_json = "//:tools/fine_grained_deps_npm_directory_artifacts/package-lock.json",
+    )
+
+    npm_install(
+        name = "fine_grained_deps_npm_source_directory_artifacts",
+        data = [
+            "//internal/npm_install/test:postinstall.js",
+        ],
+        environment = {
+            "SOME_USER_ENV": "npm is cool!",
+        },
+        npm_command = "install",
+        package_json = "//:tools/fine_grained_deps_npm_source_directory_artifacts/package.json",
+        package_path = "/",
+        package_lock_json = "//:tools/fine_grained_deps_npm_source_directory_artifacts/package-lock.json",
+        exports_source_directories = True,
     )
 
     yarn_install(

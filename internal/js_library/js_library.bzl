@@ -73,6 +73,11 @@ If package_path is set, the linker will link this package under <package_path>/n
 If package_path is not set the this will be the root node_modules of the workspace.""",
     ),
     "srcs": attr.label_list(allow_files = True),
+    "source_directory": attr.bool(
+        doc = """Set to True when passing a single file that is a source directory to srcs.
+
+NB: source directories are not compatible with remote execution.""",
+    ),
     "strip_prefix": attr.string(
         doc = "Path components to strip from the start of the package import path",
         default = "",
@@ -143,14 +148,19 @@ def _impl(ctx):
     named_module_files = []
     has_directories = False
 
+    if ctx.attr.source_directory and len(input_files) != 1:
+        fail("Expected a single source directory when source_directory is True")
+
     for idx, f in enumerate(input_files):
         file = f
 
-        if file.is_directory:
+        is_directory = file.is_directory or ctx.attr.source_directory
+
+        if is_directory:
             has_directories = True
 
         # copy files into bin if needed
-        if file.is_source and not file.path.startswith("external/"):
+        if file.is_source and not is_directory and not file.path.startswith("external/"):
             dst = ctx.actions.declare_file(file.basename, sibling = file)
             if ctx.attr.is_windows:
                 copy_cmd(ctx, file, dst)
@@ -165,7 +175,7 @@ def _impl(ctx):
             js_files.append(file)
 
         # register typings
-        if file.is_directory:
+        if is_directory:
             # assume a directory contains typings since we can't know that it doesn't
             typings.append(file)
         elif (

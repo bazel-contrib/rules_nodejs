@@ -513,11 +513,12 @@ Defaults to `None`
 
 <pre>
 npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-all_node_modules_target_name">all_node_modules_target_name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-exports_directories_only">exports_directories_only</a>,
-            <a href="#npm_install-generate_build_files_concurrency_limit">generate_build_files_concurrency_limit</a>, <a href="#npm_install-generate_local_modules_build_files">generate_local_modules_build_files</a>,
-            <a href="#npm_install-included_files">included_files</a>, <a href="#npm_install-links">links</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install-node_repository">node_repository</a>, <a href="#npm_install-npm_command">npm_command</a>,
-            <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_json_remove">package_json_remove</a>, <a href="#npm_install-package_json_replace">package_json_replace</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>,
-            <a href="#npm_install-patch_args">patch_args</a>, <a href="#npm_install-patch_tool">patch_tool</a>, <a href="#npm_install-post_install_patches">post_install_patches</a>, <a href="#npm_install-pre_install_patches">pre_install_patches</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>,
-            <a href="#npm_install-strict_visibility">strict_visibility</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
+            <a href="#npm_install-exports_source_directories">exports_source_directories</a>, <a href="#npm_install-generate_build_files_concurrency_limit">generate_build_files_concurrency_limit</a>,
+            <a href="#npm_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#npm_install-included_files">included_files</a>, <a href="#npm_install-links">links</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>,
+            <a href="#npm_install-node_repository">node_repository</a>, <a href="#npm_install-npm_command">npm_command</a>, <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_json_remove">package_json_remove</a>, <a href="#npm_install-package_json_replace">package_json_replace</a>,
+            <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>, <a href="#npm_install-patch_args">patch_args</a>, <a href="#npm_install-patch_tool">patch_tool</a>, <a href="#npm_install-post_install_patches">post_install_patches</a>,
+            <a href="#npm_install-pre_install_patches">pre_install_patches</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>,
+            <a href="#npm_install-timeout">timeout</a>)
 </pre>
 
 Runs npm install during workspace setup.
@@ -612,6 +613,17 @@ $(rootpath @npm///:node_modules/prettier)/bin-prettier.js
 ```
 
 Defaults to `True`
+
+<h4 id="npm_install-exports_source_directories">exports_source_directories</h4>
+
+(*Boolean*): If exports_directories_only is True, export source directories instead of output directories (TreeArtifacts).
+
+This flag can be used to improve performance of fetching npm dependencies by removing the copy directory action
+which creates the output directory (TreeArtifact).
+
+NB: source directory inputs are not compatible with remote execution.
+
+Defaults to `False`
 
 <h4 id="npm_install-generate_build_files_concurrency_limit">generate_build_files_concurrency_limit</h4>
 
@@ -1196,7 +1208,7 @@ Defaults to `{}`
 
 <pre>
 yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-all_node_modules_target_name">all_node_modules_target_name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-exports_directories_only">exports_directories_only</a>,
-             <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>, <a href="#yarn_install-generate_build_files_concurrency_limit">generate_build_files_concurrency_limit</a>,
+             <a href="#yarn_install-exports_source_directories">exports_source_directories</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>, <a href="#yarn_install-generate_build_files_concurrency_limit">generate_build_files_concurrency_limit</a>,
              <a href="#yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-links">links</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>,
              <a href="#yarn_install-node_repository">node_repository</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_json_remove">package_json_remove</a>, <a href="#yarn_install-package_json_replace">package_json_replace</a>, <a href="#yarn_install-package_path">package_path</a>,
              <a href="#yarn_install-patch_args">patch_args</a>, <a href="#yarn_install-patch_tool">patch_tool</a>, <a href="#yarn_install-post_install_patches">post_install_patches</a>, <a href="#yarn_install-pre_install_patches">pre_install_patches</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>,
@@ -1300,6 +1312,17 @@ $(rootpath @npm///:node_modules/prettier)/bin-prettier.js
 ```
 
 Defaults to `True`
+
+<h4 id="yarn_install-exports_source_directories">exports_source_directories</h4>
+
+(*Boolean*): If exports_directories_only is True, export source directories instead of output directories (TreeArtifacts).
+
+This flag can be used to improve performance of fetching npm dependencies by removing the copy directory action
+which creates the output directory (TreeArtifact).
+
+NB: source directory inputs are not compatible with remote execution.
+
+Defaults to `False`
 
 <h4 id="yarn_install-frozen_lockfile">frozen_lockfile</h4>
 
