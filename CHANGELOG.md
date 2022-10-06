@@ -1,3 +1,18 @@
+# [5.7.0](https://github.com/bazelbuild/rules_nodejs/compare/5.6.0...5.7.0) (2022-10-06)
+
+
+### Bug Fixes
+
+* **builtin:** fix a bug where the launcher produces incorrect runfiles path on windows ([#3562](https://github.com/bazelbuild/rules_nodejs/issues/3562)) ([b02128b](https://github.com/bazelbuild/rules_nodejs/commit/b02128b))
+* **builtin:** use updated rules_js launcher logic to source RUNFILES ([#3557](https://github.com/bazelbuild/rules_nodejs/issues/3557)) ([c725169](https://github.com/bazelbuild/rules_nodejs/commit/c725169))
+
+
+### Features
+
+* add npm binary & files to toolchain provider ([#3570](https://github.com/bazelbuild/rules_nodejs/issues/3570)) ([7ca0688](https://github.com/bazelbuild/rules_nodejs/commit/7ca0688))
+
+
+
 # [5.6.0](https://github.com/bazelbuild/rules_nodejs/compare/5.5.4...5.6.0) (2022-09-27)
 
 
