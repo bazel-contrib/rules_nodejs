@@ -185,10 +185,10 @@ Defaults to `None`
 **USAGE**
 
 <pre>
-node_toolchain(<a href="#node_toolchain-name">name</a>, <a href="#node_toolchain-run_npm">run_npm</a>, <a href="#node_toolchain-target_tool">target_tool</a>, <a href="#node_toolchain-target_tool_path">target_tool_path</a>)
+node_toolchain(<a href="#node_toolchain-name">name</a>, <a href="#node_toolchain-npm">npm</a>, <a href="#node_toolchain-npm_files">npm_files</a>, <a href="#node_toolchain-npm_path">npm_path</a>, <a href="#node_toolchain-run_npm">run_npm</a>, <a href="#node_toolchain-target_tool">target_tool</a>, <a href="#node_toolchain-target_tool_path">target_tool_path</a>)
 </pre>
 
-Defines a node toolchain.
+Defines a node toolchain for a platform.
 
 You can use this to refer to a vendored nodejs binary in your repository,
 or even to compile nodejs from sources using rules_foreign_cc or other rules.
@@ -204,7 +204,9 @@ node_toolchain(
 )
 ```
 
-Next, declare which execution platforms or target platforms the toolchain should be selected for:
+Next, declare which execution platforms or target platforms the toolchain should be selected for
+based on constraints.
+
 ```starlark
 toolchain(
     name = "my_nodejs",
@@ -216,6 +218,9 @@ toolchain(
     toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
 )
 ```
+
+See https://bazel.build/extending/toolchains#toolchain-resolution for more information on toolchain
+resolution.
 
 Finally in your `WORKSPACE`, register it with `register_toolchains("//:my_nodejs")`
 
@@ -231,6 +236,24 @@ You can use the `--toolchain_resolution_debug` flag to `bazel` to help diagnose 
 (*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
 
 
+<h4 id="node_toolchain-npm">npm</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A hermetically downloaded npm executable target for this target's platform.
+
+Defaults to `None`
+
+<h4 id="node_toolchain-npm_files">npm_files</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Files required in runfiles to run npm.
+
+Defaults to `[]`
+
+<h4 id="node_toolchain-npm_path">npm_path</h4>
+
+(*String*): Path to an existing npm executable for this target's platform.
+
+Defaults to `""`
+
 <h4 id="node_toolchain-run_npm">run_npm</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A template file that allows us to execute npm
@@ -239,13 +262,13 @@ Defaults to `None`
 
 <h4 id="node_toolchain-target_tool">target_tool</h4>
 
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A hermetically downloaded nodejs executable target for the target platform.
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A hermetically downloaded nodejs executable target for this target's platform.
 
 Defaults to `None`
 
 <h4 id="node_toolchain-target_tool_path">target_tool_path</h4>
 
-(*String*): Path to an existing nodejs executable for the target platform.
+(*String*): Path to an existing nodejs executable for this target's platform.
 
 Defaults to `""`
 

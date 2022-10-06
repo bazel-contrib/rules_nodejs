@@ -341,6 +341,8 @@ load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
 node_toolchain(
     name = "node_toolchain",
     target_tool = ":node_bin",
+    npm = ":npm",
+    npm_files = [":npm_files"],
     run_npm = ":run_npm.template",
 )
 """
