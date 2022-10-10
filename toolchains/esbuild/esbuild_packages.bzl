@@ -7,6 +7,8 @@ _DARWIN_ARM64_SHA = "6182ba67f1295e1d6e388048d0c892e8279d475e381f0e2ca22539a904d
 _LINUX_AMD64_SHA = "b8eec10627d3789b312abd2295d52a9979d7d4addf132c328c69977605fb4293"
 _LINUX_ARM64_SHA = "ea58f83ae0a0283dc479afc66a1380f63204105d1571a3b605b058672538bba0"
 _WINDOWS_AMD64_SHA = "681c011044aa813cabdc4f6996967f33f6e27c58417b3fcada95291ebbf60a2f"
+_LINUX_PPC64LE_SHA = "ae12b532da6a331a13ea2cd57be564eff6cf4e8c324763db232dcf328ad9b9a5"
+_LINUX_S390X_SHA = "985b93498ed8e70a4bee7ccbdb68b4da652167299dd081b7e3ea433d4d1869e9"
 
 ESBUILD_PACKAGES = struct(
     version = _VERSION,
@@ -64,6 +66,28 @@ ESBUILD_PACKAGES = struct(
             exec_compatible_with = [
                 "@platforms//os:windows",
                 "@platforms//cpu:x86_64",
+            ],
+        ),
+        "linux_ppc64le": struct(
+            sha = _LINUX_PPC64LE_SHA,
+            urls = [
+                "https://registry.npmjs.org/esbuild-linux-ppc64le/-/esbuild-linux-ppc64le-%s.tgz" % _VERSION,
+            ],
+            binary_path = "bin/esbuild",
+            exec_compatible_with = [
+                "@platforms//os:linux",
+                "@platforms//cpu:ppc",
+            ],
+        ),
+        "linux_s390x": struct(
+            sha = _LINUX_S390X_SHA,
+            urls = [
+                "https://registry.npmjs.org/esbuild-linux-s390x/-/esbuild-linux-s390x-%s.tgz" % _VERSION,
+            ],
+            binary_path = "bin/esbuild",
+            exec_compatible_with = [
+                "@platforms//os:linux",
+                "@platforms//cpu:s390x",
             ],
         ),
     }),
