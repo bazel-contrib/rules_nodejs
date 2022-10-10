@@ -9,7 +9,9 @@ const PLATFORMS = {
   "_DARWIN_ARM64": "esbuild-darwin-arm64",
   "_LINUX_AMD64": "esbuild-linux-64",
   "_LINUX_ARM64": "esbuild-linux-arm64",
-  "_WINDOWS_AMD64": "esbuild-windows-64"
+  "_WINDOWS_AMD64": "esbuild-windows-64",
+  "_LINUX_PPC64LE": "esbuild-linux-ppc64le",
+  "_LINUX_S390X": "esbuild-linux-s390x"
 }
 
 function replaceFileContent(filepath, replacements) {
