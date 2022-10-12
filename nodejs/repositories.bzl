@@ -245,7 +245,6 @@ exec "$SCRIPT_DIR/{node}" "$@"
         repository_ctx.file("bin/node.cmd", content = """
 @echo off
 SET SCRIPT_DIR=%~dp0
-SET PATH=%SCRIPT_DIR%;%PATH%
 CALL "%SCRIPT_DIR%\\{node}" %*
 """.format(node = node_bin_relative))
 
