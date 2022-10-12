@@ -20,7 +20,7 @@ Users should not load files under "/internal"
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
-load("//nodejs/private:ts_config.bzl", "write_tsconfig", _ts_config = "ts_config")
+load("//nodejs/private:ts_config.bzl", "write_tsconfig", _TsConfigInfo = "TsConfigInfo", _ts_config = "ts_config")
 load("//nodejs/private:ts_project.bzl", _ts_project_lib = "ts_project")
 load("//nodejs/private:ts_lib.bzl", "DEPS_PROVIDERS", _lib = "lib")
 load("//nodejs/private:ts_validate_options.bzl", validate_lib = "lib")
@@ -31,6 +31,7 @@ load("@bazel_skylib//rules:build_test.bzl", "build_test")
 # If adding rules here also add to index.docs.bzl
 
 ts_config = _ts_config
+TsConfigInfo = _TsConfigInfo
 
 def _validate_options_impl(ctx):
     return validate_lib.implementation(ctx, run_node)
