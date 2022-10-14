@@ -102,6 +102,7 @@ pkg_npm(
         ":bazel_concatjs_lib",
         ":npm_version_check",
         "//packages/concatjs/devserver:devserver-darwin",
+        "//packages/concatjs/devserver:devserver-darwin_arm64",
         "//packages/concatjs/devserver:devserver-linux",
         "//packages/concatjs/devserver:devserver-windows",
         "//packages/concatjs/internal:BUILD",
