@@ -836,7 +836,10 @@ check if yarn is being run by the `npm_install` repository rule.""",
 )
 
 def _detect_yarn_version(rctx, yarn):
-    result = rctx.execute(yarn + ["--version"])
+    result = rctx.execute(
+        yarn + ["--version"],
+        working_directory = str(rctx.path(rctx.attr.package_json).dirname),
+    )
     if result.return_code:
         fail("yarn --version failed: %s (%s)" % (result.stdout, result.stderr))
     if result.stdout.startswith("1."):
