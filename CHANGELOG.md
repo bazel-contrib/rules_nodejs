@@ -1,3 +1,7 @@
+## [5.7.1](https://github.com/bazelbuild/rules_nodejs/compare/5.7.0...5.7.1) (2022-10-26)
+
+
+
 # [5.7.0](https://github.com/bazelbuild/rules_nodejs/compare/5.6.0...5.7.0) (2022-10-06)
 
 
