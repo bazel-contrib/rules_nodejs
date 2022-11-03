@@ -20,9 +20,9 @@ load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_test_kwargs")
 ATTRS = dict(
     nodejs_test_kwargs["attrs"],
     config_file = attr.label(
-        allow_single_file = [".json"],
+        allow_single_file = [".ts", ".js", ".json"],
         mandatory = True,
-        doc = "cypress.json configuration file. See https://docs.cypress.io/guides/references/configuration",
+        doc = "cypress.json or cypress.config.{js,ts} configuration file. See https://docs.cypress.io/guides/references/configuration.",
     ),
     cypress_npm_package = attr.label(
         doc = "The cypress npm package. If you installed cypress as a peer dependency, this should not need to be set.",
