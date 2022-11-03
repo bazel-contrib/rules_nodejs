@@ -1,0 +1,17 @@
+load("@build_bazel_rules_nodejs//packages/cypress:index.bzl", "cypress_web_test")
+
+cypress_web_test(
+    name = "test",
+    config_file = "cypress.config.ts",
+    cypress_npm_package = "@yarn//cypress",
+    entry_point = "cypress_entry.js",
+    data = [
+        "tsconfig.json",
+        "@yarn//rxjs",
+        "@yarn//@types/node",
+        "@yarn//express",
+        "@yarn//cypress",
+        "@yarn//typescript",
+    ],
+    srcs = glob(["cypress/**/*.cy.ts"]),
+)
