@@ -1313,8 +1313,8 @@ This flag enables an exact install of the version that is specified in the `yarn
 file. This helps to have reproducible builds across builds.
 
 To update a dependency or install a new one run the `yarn install` command with the
-vendored yarn binary. `bazel run @nodejs_host//:yarn install`. You can pass the options like
-`bazel run @nodejs_host//:yarn install -- -D <dep-name>`.
+vendored yarn binary. `bazel run @yarn//:yarn install`. You can pass the options like
+`bazel run @yarn//:yarn install -- -D <dep-name>`.
 
 Defaults to `True`
 
