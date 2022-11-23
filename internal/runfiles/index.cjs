@@ -50,8 +50,11 @@ class Runfiles {
         else if (!!_env['RUNFILES_DIR']) {
             this.runfilesDir = path__default['default'].resolve(_env['RUNFILES_DIR']);
         }
+        else if (!!_env['RUNFILES']) {
+            this.runfilesDir = path__default['default'].resolve(_env['RUNFILES']);
+        }
         else {
-            throw new Error('Every node program run under Bazel must have a $RUNFILES_DIR or $RUNFILES_MANIFEST_FILE environment variable');
+            throw new Error('Every node program run under Bazel must have a $RUNFILES_DIR, $RUNFILES or $RUNFILES_MANIFEST_FILE environment variable');
         }
         // Under --noenable_runfiles (in particular on Windows)
         // Bazel sets RUNFILES_MANIFEST_ONLY=1.
