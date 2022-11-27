@@ -1,3 +1,13 @@
+## [5.7.2](https://github.com/bazelbuild/rules_nodejs/compare/5.7.1...5.7.2) (2022-11-27)
+
+
+### Bug Fixes
+
+* check RUNFILES env variable in @bazel/runfiles helper ([#3602](https://github.com/bazelbuild/rules_nodejs/issues/3602)) ([11395ea](https://github.com/bazelbuild/rules_nodejs/commit/11395ea))
+* yarn binary is now run from separate [@yarn](https://github.com/yarn) repo ([dafc2db](https://github.com/bazelbuild/rules_nodejs/commit/dafc2db)), closes [#3530](https://github.com/bazelbuild/rules_nodejs/issues/3530)
+
+
+
 ## [5.7.1](https://github.com/bazelbuild/rules_nodejs/compare/5.7.0...5.7.1) (2022-10-26)
 
 
