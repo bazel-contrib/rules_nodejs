@@ -1,3 +1,12 @@
+## [5.7.3](https://github.com/bazelbuild/rules_nodejs/compare/5.7.2...5.7.3) (2022-12-09)
+
+
+### Bug Fixes
+
+* **builtin:** entry point from sources used when used as tool ([#3605](https://github.com/bazelbuild/rules_nodejs/issues/3605)) ([417711d](https://github.com/bazelbuild/rules_nodejs/commit/417711d))
+
+
+
 ## [5.7.2](https://github.com/bazelbuild/rules_nodejs/compare/5.7.1...5.7.2) (2022-11-27)
 
 
