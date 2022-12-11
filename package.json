@@ -126,7 +126,6 @@
         "bazel:update-deleted-packages": "node ./scripts/update-deleted-packages.js",
         "update-codeowners": "./scripts/update_codeowners.sh",
         "update-nodejs-versions": "node ./scripts/update-nodejs-versions.js > nodejs/private/node_versions.bzl",
-        "update-esbuild-versions": "node ./scripts/update-esbuild-versions.js",
         "update-yarn-versions": "node ./scripts/update-yarn-versions.js > nodejs/private/yarn_versions.bzl",
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",

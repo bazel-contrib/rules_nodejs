@@ -1,6 +1,5 @@
 """Info for the esbuild packages used"""
 
-### These values are updated automaticly via `yarn update-esbuild-versions`
 _VERSION = "0.15.17"
 _DARWIN_AMD64_SHA = "bdb4b1b6d57469f8f6f11b5df85b29524842b24c185b501995a1522f0497d26c"
 _DARWIN_ARM64_SHA = "4a12abe17bc6d0438f8353862173d65570c70967f804ff383d6828b53befd4cc"
