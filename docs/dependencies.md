@@ -232,13 +232,13 @@ To run the version of node fetched by Bazel which defined in your WORKSPACE you
 can use:
 
 ```sh
-$ bazel run @nodejs_host//:node -- <arguments passed to node>
+$ bazel run @nodejs//:node -- <arguments passed to node>
 ```
 
 For example,
 
 ```
-$ bazel run @nodejs_host//:node -- --version
+$ bazel run @nodejs//:node -- --version
 v16.12.0
 ```
 
@@ -248,7 +248,7 @@ To run the Bazel fetched npm and/or yarn you can use:
 
 ```sh
 $ bazel run @yarn//:yarn -- <arguments passed to yarn>
-$ bazel run @nodejs_host//:npm -- <arguments passed to npm>
+$ bazel run @nodejs//:npm -- <arguments passed to npm>
 ```
 
 This will run yarn/npm in the current working directory.
