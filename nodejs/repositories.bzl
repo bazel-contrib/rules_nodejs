@@ -405,6 +405,12 @@ def nodejs_register_toolchains(name, register = True, **kwargs):
             )
 
     nodejs_repo_host_os_alias(
+        name = name,
+        user_node_repository_name = name,
+    )
+
+    # For backwards compatibility, also provide it under the name with _host suffix.
+    nodejs_repo_host_os_alias(
         name = name + "_host",
         user_node_repository_name = name,
     )
