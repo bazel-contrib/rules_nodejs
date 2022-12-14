@@ -1,3 +1,12 @@
+# [5.8.0](https://github.com/bazelbuild/rules_nodejs/compare/5.7.3...5.8.0) (2022-12-14)
+
+
+### Features
+
+* provide [@nodejs](https://github.com/nodejs) repository ([a5755eb](https://github.com/bazelbuild/rules_nodejs/commit/a5755eb)), closes [#3375](https://github.com/bazelbuild/rules_nodejs/issues/3375)
+
+
+
 ## [5.7.3](https://github.com/bazelbuild/rules_nodejs/compare/5.7.2...5.7.3) (2022-12-09)
 
 
