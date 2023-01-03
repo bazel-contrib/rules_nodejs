@@ -6,6 +6,10 @@ toc: true
 
 # Installation
 
+> 🚨 rules_nodejs is now mostly unmaintained! 🚨
+>
+> See the Maintenance Update in the [root README](https://github.com/bazelbuild/rules_nodejs#maintenance-update)
+
 First, you need Bazel.
 We recommend using Bazelisk, which is a version-selection wrapper, similar to
 the `nvm` tool managing your version of Node.
