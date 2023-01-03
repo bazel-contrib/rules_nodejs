@@ -8,6 +8,10 @@ toc: true
 
 Bazel rules to build and test code that targets a JavaScript runtime, including NodeJS and browsers.
 
+> 🚨 rules_nodejs is now mostly unmaintained! 🚨
+>
+> See the Maintenance Update in the [root README](https://github.com/bazelbuild/rules_nodejs#maintenance-update)
+
 ## Scope of the project
 
 This repository contains three layers:

@@ -5,6 +5,10 @@ toc: true
 ---
 # Examples
 
+> 🚨 rules_nodejs is now mostly unmaintained! 🚨
+>
+> See the Maintenance Update in the [root README](https://github.com/bazelbuild/rules_nodejs#maintenance-update)
+
 ## Frameworks
 
 ### Angular
