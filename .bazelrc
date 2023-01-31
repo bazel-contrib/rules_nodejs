@@ -33,6 +33,8 @@ build:docker-sandbox --experimental_docker_image=gcr.io/cloud-marketplace/google
 
 # Incompatible flags to run with
 build --incompatible_no_implicit_file_export
+# Fail if a glob doesn't match anything (https://github.com/bazelbuild/bazel/issues/8195)
+build --incompatible_disallow_empty_glob
 # TODO(mattem): flip this when dependencies allow
 # build --incompatible_struct_has_no_methods
 # TODO(alexeagle): turn on this flag when dependencies allow
