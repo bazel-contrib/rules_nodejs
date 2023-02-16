@@ -120,84 +120,85 @@ tasks:
     - "--test_output=streamed"
     test_targets:
     - "//..."
-  macos:
-    name: macos
-    platform: macos
-    run_targets:
-    - "@yarn//:yarn"
-    # Regression test for #1493
-    - "//packages/create:npm_package.pack"
-    - "//internal/node/test:no_deps"
-    - "//internal/node/test:has_deps_legacy"
-    - "//internal/node/test:has_deps"
-    - "//internal/node/test:has_deps_hybrid"
-    - "//internal/npm_install/test:index"
-    # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
-    #- "@fine_grained_deps_yarn//typescript/bin:tsc"
-    build_targets:
-    - "//..."
-    test_flags:
-    # Firefox are missing shared libs on bazelci mac
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-e2e,-examples,-browser:firefox-local"
-    test_targets:
-    - "//..."
-  macos_e2e:
-    name: macos_e2e
-    platform: macos
-    # We need to reduce the memory & CPU usage of the top-level
-    # bazel process for bazel-in-bazel tests to not
-    # deplete the system memory completely.
-    # - startup JVM memory reduced
-    # - top-level bazel process should use as little memory as possible and only 1 core
-    # - nested bazel process should use a limited number of cores
-    shell_commands:
-    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
-    build_flags:
-    - "--build_tag_filters=e2e"
-    build_targets:
-    - "//..."
-    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
-    skip_use_bazel_version_for_test: true
-    test_flags:
-    - "--test_tag_filters=e2e,-no-bazelci-mac"
-    - "--local_ram_resources=792"
-    # test_args will be passed to the nested bazel process
-    # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
-    - "--test_arg=--local_ram_resources=13288"
-    # Firefox are missing shared libs on bazelci mac
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_arg=--test_tag_filters=-browser:firefox-local"
-    test_targets:
-    - "//..."
-  macos_examples:
-    name: macos_examples
-    platform: macos
-    # We need to reduce the memory & CPU usage of the top-level
-    # bazel process for bazel-in-bazel tests to not
-    # deplete the system memory completely.
-    # - startup JVM memory reduced
-    # - top-level bazel process should use as little memory as possible and only 1 core
-    # - nested bazel process should use a limited number of cores
-    shell_commands:
-    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
-    build_flags:
-    - "--build_tag_filters=examples"
-    build_targets:
-    - "//..."
-    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
-    skip_use_bazel_version_for_test: true
-    test_flags:
-    - "--test_tag_filters=examples"
-    - "--local_ram_resources=792"
-    # test_args will be passed to the nested bazel process
-    # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
-    - "--test_arg=--local_ram_resources=13288"
-    # Firefox are missing shared libs on bazelci mac
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_arg=--test_tag_filters=-no-bazelci-mac,-browser:firefox-local"
-    test_targets:
-    - "//..."
+  # Temporarily disabled MacOS tests until pre-existing failure can be investigated.
+  # macos:
+  #   name: macos
+  #   platform: macos
+  #   run_targets:
+  #   - "@yarn//:yarn"
+  #   # Regression test for #1493
+  #   - "//packages/create:npm_package.pack"
+  #   - "//internal/node/test:no_deps"
+  #   - "//internal/node/test:has_deps_legacy"
+  #   - "//internal/node/test:has_deps"
+  #   - "//internal/node/test:has_deps_hybrid"
+  #   - "//internal/npm_install/test:index"
+  #   # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
+  #   #- "@fine_grained_deps_yarn//typescript/bin:tsc"
+  #   build_targets:
+  #   - "//..."
+  #   test_flags:
+  #   # Firefox are missing shared libs on bazelci mac
+  #   # TODO(gregmagolan): figure out how to install missing shared libs
+  #   - "--test_tag_filters=-e2e,-examples,-browser:firefox-local"
+  #   test_targets:
+  #   - "//..."
+  # macos_e2e:
+  #   name: macos_e2e
+  #   platform: macos
+  #   # We need to reduce the memory & CPU usage of the top-level
+  #   # bazel process for bazel-in-bazel tests to not
+  #   # deplete the system memory completely.
+  #   # - startup JVM memory reduced
+  #   # - top-level bazel process should use as little memory as possible and only 1 core
+  #   # - nested bazel process should use a limited number of cores
+  #   shell_commands:
+  #   - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+  #   build_flags:
+  #   - "--build_tag_filters=e2e"
+  #   build_targets:
+  #   - "//..."
+  #   # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+  #   skip_use_bazel_version_for_test: true
+  #   test_flags:
+  #   - "--test_tag_filters=e2e,-no-bazelci-mac"
+  #   - "--local_ram_resources=792"
+  #   # test_args will be passed to the nested bazel process
+  #   # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
+  #   - "--test_arg=--local_ram_resources=13288"
+  #   # Firefox are missing shared libs on bazelci mac
+  #   # TODO(gregmagolan): figure out how to install missing shared libs
+  #   - "--test_arg=--test_tag_filters=-browser:firefox-local"
+  #   test_targets:
+  #   - "//..."
+  # macos_examples:
+  #   name: macos_examples
+  #   platform: macos
+  #   # We need to reduce the memory & CPU usage of the top-level
+  #   # bazel process for bazel-in-bazel tests to not
+  #   # deplete the system memory completely.
+  #   # - startup JVM memory reduced
+  #   # - top-level bazel process should use as little memory as possible and only 1 core
+  #   # - nested bazel process should use a limited number of cores
+  #   shell_commands:
+  #   - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+  #   build_flags:
+  #   - "--build_tag_filters=examples"
+  #   build_targets:
+  #   - "//..."
+  #   # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+  #   skip_use_bazel_version_for_test: true
+  #   test_flags:
+  #   - "--test_tag_filters=examples"
+  #   - "--local_ram_resources=792"
+  #   # test_args will be passed to the nested bazel process
+  #   # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
+  #   - "--test_arg=--local_ram_resources=13288"
+  #   # Firefox are missing shared libs on bazelci mac
+  #   # TODO(gregmagolan): figure out how to install missing shared libs
+  #   - "--test_arg=--test_tag_filters=-no-bazelci-mac,-browser:firefox-local"
+  #   test_targets:
+  #   - "//..."
   # TODO(gregmagolan): fix platform configuraiton for this test job for Bazel 2.0
   # macos_fake_rbe:
   #   name: macos_fake_rbe

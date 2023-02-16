@@ -68,6 +68,8 @@ function validateBazelOptions(bazelOpts: BazelOptions) {
 
 const SOURCE_EXT = /((\.d)?\.tsx?|\.js)$/;
 
+const MAJOR_TS_VERSION = parseInt(ts.versionMajorMinor.split('.')[0], 10);
+
 /**
  * CompilerHost that knows how to cache parsed files to improve compile times.
  */
@@ -84,7 +86,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
 
   getCancelationToken?: () => ts.CancellationToken;
   directoryExists?: (dir: string) => boolean;
-    
+
   generateExtraSuppressions: boolean;
 
   googmodule: boolean;
@@ -130,7 +132,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     if (this.allowActionInputReads && delegate && delegate.directoryExists) {
       this.directoryExists = delegate.directoryExists.bind(delegate);
     }
-          
+
     this.generateExtraSuppressions = true;
 
     validateBazelOptions(bazelOpts);
@@ -405,9 +407,9 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
    * typescript secondary search behavior needs to be overridden to support
    * looking under `bazelOpts.nodeModulesPrefix`
    */
-  resolveTypeReferenceDirectives(names: string[] | ts.FileReference[], containingFile: string): ts.ResolvedTypeReferenceDirective[] {
+  resolveTypeReferenceDirectives(names: string[] | ts.FileReference[]): (ts.ResolvedTypeReferenceDirective|undefined)[] {
     if (!this.allowActionInputReads) return [];
-    const result: ts.ResolvedTypeReferenceDirective[] = [];
+    const result: (ts.ResolvedTypeReferenceDirective|undefined)[] = [];
     names.forEach(name => {
       const fileName = typeof name === 'string' ? name : name.fileName;
       let resolved: ts.ResolvedTypeReferenceDirective | undefined;
@@ -429,11 +431,8 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       // Types not resolved should be silently ignored. Leave it to Typescript
       // to either error out with "TS2688: Cannot find type definition file for
       // 'foo'" or for the build to fail due to a missing type that is used.
-      if (!resolved) {
-        if (DEBUG) {
-          debug(`Failed to resolve type reference directive '${fileName}'`);
-        }
-        return;
+      if (!resolved && DEBUG) {
+        debug(`Failed to resolve type reference directive '${fileName}'`);
       }
       // In typescript 2.x the return type for this function
       // is `(ts.ResolvedTypeReferenceDirective | undefined)[]` thus we actually
@@ -444,7 +443,11 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       // It looks like the return type change was a mistake because
       // it was changed back to include `| undefined` recently:
       // https://github.com/Microsoft/TypeScript/pull/28059.
-      result.push(resolved as ts.ResolvedTypeReferenceDirective);
+      // As of version 5, it appears that the `undefined` values are expected
+      // to be in the results, or the compiler will throw an error.
+      if (resolved || MAJOR_TS_VERSION >= 5) {
+        result.push(resolved);
+      }
     });
     return result;
   }
