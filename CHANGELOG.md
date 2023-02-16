@@ -1,3 +1,18 @@
+## [5.7.4](https://github.com/bazelbuild/rules_nodejs/compare/5.7.3...5.7.4) (2023-02-16)
+
+
+### Bug Fixes
+
+* **builtin:** convert pkg_web to use cjs instead of js ([#3500](https://github.com/bazelbuild/rules_nodejs/issues/3500)) ([d36a73a](https://github.com/bazelbuild/rules_nodejs/commit/d36a73a))
+* **concatjs:** resolve error with TypeScript 5.0 ([e073e18](https://github.com/bazelbuild/rules_nodejs/commit/e073e18))
+
+
+### Features
+
+* provide [@nodejs](https://github.com/nodejs) repository ([a5755eb](https://github.com/bazelbuild/rules_nodejs/commit/a5755eb)), closes [#3375](https://github.com/bazelbuild/rules_nodejs/issues/3375)
+
+
+
 ## [5.7.3](https://github.com/bazelbuild/rules_nodejs/compare/5.7.2...5.7.3) (2022-12-09)
 
 

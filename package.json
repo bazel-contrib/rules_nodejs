@@ -1,7 +1,7 @@
 {
     "name": "@bazel/javascript",
     "description": "Build JavaScript with Bazel",
-    "version": "5.7.3",
+    "version": "5.7.4",
     "keywords": [
         "javascript",
         "bazel"
