@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/jasmine@^5.7.3":
-  version "5.7.3"
-  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-5.7.3.tgz#1ff86f5391e4a0509f94befaf6ef0f354b9be7cf"
-  integrity sha512-5U01yBW1vL7hBpkAZt1ZouzszL2QIw8yfkEfnprfnKlYAGqK48hpxmYV7bZy1UV5PCKlLRfwtY0bADY1ah7I1Q==
+"@bazel/jasmine@^5.8.1":
+  version "5.8.1"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-5.8.1.tgz#c549f10806474ff742f37544733fbfdccf78ba66"
+  integrity sha512-052veW5EbJRH+5hL4l9Sf99bTmdKQ5WXXMF0QiBOZcA3ZHYMAaKfYNO+brutiWoX6FrBloiskLrMzF8OiHBqyw==
   dependencies:
     c8 "~7.5.0"
     jasmine-reporters "~2.5.0"
