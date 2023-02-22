@@ -8,6 +8,10 @@ load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
+# Default base name for node toolchain repositories
+# created by the module extension
+DEFAULT_NODE_REPOSITORY = "nodejs"
+
 # Currently v16 is the default.
 # We can only change that in a major release of rules_nodejs,
 # as it's a semver-breaking change for our users who rely on it.
