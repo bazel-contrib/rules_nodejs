@@ -1,3 +1,12 @@
+## [5.8.2](https://github.com/bazelbuild/rules_nodejs/compare/5.8.1...5.8.2) (2023-02-24)
+
+
+### Bug Fixes
+
+* allow root repositories to override node toolchain version under ([ce13837](https://github.com/bazelbuild/rules_nodejs/commit/ce13837))
+
+
+
 ## [5.8.1](https://github.com/bazelbuild/rules_nodejs/compare/5.7.3...5.8.1) (2023-02-16)
 
 
