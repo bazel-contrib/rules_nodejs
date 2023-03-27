@@ -104,8 +104,10 @@ Check if there are any breaking changes since the last tag - if so, this will be
 1. Build npm packages and publish them: `./scripts/publish_release.sh` (for a release candidate, add arguments `publish next`)
 1. Run `./scripts/update_nested_lock_files.sh` to update the lock files in all nested workspaces to new release
 1. `git commit -a -m 'chore: update lock files for release'`
-1. `git push upstream && git push upstream --tags`
+1. `git push && git push --tags`
 1. (Manual for now): go to the [releases] page, edit the release with rough changelog (especially note any breaking changes!) and upload the release artifact from `rules_nodejs-[version].tar.gz`. Also copy the release notes from CHANGELOG.md
+1. Re-deprecate npm packages, since publishing causes them to become un-deprecated:
+  - `npm --otp=123456 deprecate @bazel/typescript 'No longer maintained, https://github.com/aspect-build/rules_ts is the recommended replacement'`
 1. Announce the release on Bazel slack in `#javascript
 
 [releases]: https://github.com/bazelbuild/rules_nodejs/releases
