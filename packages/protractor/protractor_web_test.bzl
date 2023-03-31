@@ -200,7 +200,7 @@ _protractor_web_test = rule(
             allow_files = True,
         ),
         "deps": attr.label_list(
-            doc = "Other targets which produce JavaScript such as `ts_library`",
+            doc = "Other targets which produce JavaScript such as `ts_project`",
             allow_files = True,
             aspects = [node_modules_aspect],
         ),
@@ -254,7 +254,7 @@ def protractor_web_test(
           If the script exports a function which returns a promise, protractor
           will wait for the promise to resolve before beginning tests.
       srcs: JavaScript source files
-      deps: Other targets which produce JavaScript such as `ts_library`
+      deps: Other targets which produce JavaScript such as `ts_project`
       data: Runtime dependencies
       server: Optional server executable target
       tags: Standard Bazel tags, this macro adds one for ibazel

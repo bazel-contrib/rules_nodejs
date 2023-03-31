@@ -126,9 +126,9 @@ function main(argv, error = console.error, log = console.log) {
     // Bazel's external folder which contains third-party Bazel dependencies.
     "exclude": ["external/*"]
 }`);
-    rootBuildContent += '# Allow any ts_library rules in this workspace to reference the config\n' +
+    rootBuildContent += '# Allow any ts_project rules in this workspace to reference the config\n' +
         '# Note: if you move the tsconfig.json file to a subdirectory, you can add an alias() here instead\n' +
-        '#   so that ts_library rules still use it by default.\n' +
+        '#   so that ts_project rules still use it by default.\n' +
         '#   See https://www.npmjs.com/package/@bazel/typescript#installation\n' +
         'exports_files(["tsconfig.json"], visibility = ["//:__subpackages__"])\n';
   }

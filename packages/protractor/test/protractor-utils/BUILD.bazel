@@ -1,8 +1,8 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
-load("//packages/concatjs:index.bzl", "ts_library")
+load("//packages/typescript:index.bzl", "ts_project")
 
-ts_library(
+ts_project(
     name = "protractor_utils_tests_lib",
     testonly = True,
     srcs = ["index_test.ts"],

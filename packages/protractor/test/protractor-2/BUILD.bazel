@@ -1,5 +1,5 @@
 load("@npm//http-server:index.bzl", "http_server")
-load("//packages/concatjs:index.bzl", "concatjs_devserver", "ts_config", "ts_library")
+load("//packages/typescript:index.bzl", "ts_config", "ts_project")
 load("//packages/protractor:index.bzl", "protractor_web_test_suite")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 load("//packages/terser:index.bzl", "terser_minified")
@@ -10,7 +10,7 @@ ts_config(
     deps = [":tsconfig.json"],
 )
 
-ts_library(
+ts_project(
     name = "app",
     srcs = ["app.ts"],
     tsconfig = ":tsconfig.json",
@@ -27,15 +27,6 @@ terser_minified(
     src = ":bundle",
 )
 
-concatjs_devserver(
-    name = "devserver",
-    devserver = "//packages/concatjs/devserver:devserver_bin",
-    devserver_host = "//packages/concatjs/devserver:devserver_bin",
-    serving_path = "/bundle.min.js",
-    static_files = ["index.html"],
-    deps = [":app"],
-)
-
 http_server(
     name = "prodserver",
     data = [
@@ -48,7 +39,7 @@ http_server(
     templated_args = [package_name()],
 )
 
-ts_library(
+ts_project(
     name = "ts_spec",
     testonly = True,
     srcs = ["test.spec.ts"],

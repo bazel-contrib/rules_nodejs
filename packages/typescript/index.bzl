@@ -148,7 +148,7 @@ def ts_project(
     the Bazel interop mechanism (Providers) so that this rule works with others that produce or consume
     TypeScript typings (`.d.ts` files).
 
-    Unlike `ts_library`, this rule is the thinnest possible layer of Bazel interoperability on top
+    This rule is the thinnest possible layer of Bazel interoperability on top
     of the TypeScript compiler. It shifts the burden of configuring TypeScript into the tsconfig.json file.
     See https://github.com/bazelbuild/rules_nodejs/blob/master/docs/TypeScript.md#alternatives
     for more details about the trade-offs between the two rules.

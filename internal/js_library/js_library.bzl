@@ -56,7 +56,7 @@ _ATTRS = {
     "named_module_srcs": attr.label_list(
         doc = """Non-public legacy API, not recommended to make new usages.
         A subset of srcs that are javascript named-UMD or
-        named-AMD for use in rules such as concatjs_devserver.
+        named-AMD.
         They will be copied into the package bin folder if needed.""",
         allow_files = True,
     ),
@@ -349,10 +349,6 @@ def js_library(
         deps = [":compile_ts"],
     )
     ```
-
-    > To help work with "named AMD" modules as required by `concatjs_devserver` and other Google-style "concatjs" rules,
-    > `js_library` has some undocumented advanced features you can find in the source code or in our examples.
-    > These should not be considered a public API and aren't subject to our usual support and semver guarantees.
 
     ### Outputs
 

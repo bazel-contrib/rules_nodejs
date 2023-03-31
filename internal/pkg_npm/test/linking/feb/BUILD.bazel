@@ -1,11 +1,9 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
-load("//packages/concatjs:index.bzl", "ts_library")
+load("//packages/typescript:index.bzl", "ts_project")
 
-ts_library(
+ts_project(
     name = "feb_lib",
     srcs = ["main.ts"],
-    module_name = "feb",
-    module_root = "main",
     visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
 )
 

@@ -1,7 +1,7 @@
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
-load("//packages/concatjs:index.bzl", "ts_library")
+load("//packages/typescript:index.bzl", "ts_project")
 
-ts_library(
+ts_project(
     name = "test_lib",
     srcs = glob(["*.ts"]),
     deps = [

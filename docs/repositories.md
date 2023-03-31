@@ -50,7 +50,6 @@ Commonly used ones are:
 - Every file that was installed from npm: `@npm//:node_modules`. This target can have a very large number of files and slow down your build, however it's a simple way to skip having to declare more fine-grained inputs to your BUILD targets.
 - If you had a dependency on the `foo` package, you can reference `@npm//foo` to get all the files. We mirror the npm dependency graph, so if `foo` declares a dependency on another package `dep`, Bazel will include that dependency when `foo` is used.
 - If the `foo` package has an executable program `bar`, then `@npm//foo/bin:bar` is a `nodejs_binary` that you can call with `bazel run` or can pass as the `executable` to your own rules.
-- Sometimes you need a UMD bundle, but a package doesn't ship one. For example, the `concatjs_devserver` rule depends on third-party libraries having a named UMD entry point. The `@npm//foo:foo__umd` target will automatically run Browserify to convert the package's `main` entry into UMD.
 
 > One convenient (maybe also confusing) way to understand what BUILD files are generated is to look at our integration test at https://github.com/bazelbuild/rules_nodejs/tree/stable/internal/npm_install/test/golden - this directory looks similar to the content of an `@npm` repository.
 

@@ -92,25 +92,6 @@ And there are also many uses of it in our [examples](https://github.com/bazelbui
 
 [DeclarationInfo]: Built-ins#declarationinfo
 
-### Option 4: ts_library
-
-`ts_library` should not be used for new code, and may be deprecated in the future.
-
-`ts_library` is an open-sourced version of the rule used to compile TS code at Google.
-However there is no support from the team that maintains that internal version.
-It is very complex, involving code generation of the `tsconfig.json` file, a custom compiler binary, and a lot of extra features.
-
-It is also opinionated, and may not work with existing TypeScript code. For example:
-
-- Your TS code must compile under the `--declaration` flag so that downstream libraries depend only on types, not implementation. This makes Bazel faster by avoiding cascading rebuilds in cases where the types aren't changed.
-- We control the output format and module syntax so that downstream rules can rely on them.
-- Some other options are incompatible. For example you cannot use the `--noEmit` compiler option in `tsconfig.json`.
-
-The only reason to use `ts_library` for new code is if you are bought-in to using a [concatjs] bundler, which requires the named AMD module format. This may be faster than other tooling, and this format can be consumed by the Closure Compiler (via integration with [tsickle](https://github.com/angular/tsickle)).
-However it is very challenging to configure and there is little available support for problems you'll run into.
-
-[concatjs]: https://www.npmjs.com/package/@bazel/concatjs
-
 ## Installation
 
 Add a `devDependency` on `@bazel/typescript`
@@ -164,7 +145,7 @@ ts_project(
 You can also use the `@npm//@types` grouping target which will include all
 packages in the `@types` scope as dependencies.
 
-To build a `ts_library` target run:
+To build a `ts_project` target run:
 
 `bazel build //path/to/package:target`
 

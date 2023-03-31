@@ -61,7 +61,6 @@ stardoc(
 
 _READMES = {
     "Built-ins": "//docs:builtins.md_",
-    "Concatjs": "//packages/concatjs:README.md",
     "Core": "//docs:core.md_",
     "Cypress": "//packages/cypress:README.md",
     "Jasmine": "//packages/jasmine:README.md",

@@ -67,7 +67,6 @@ example_integration_test(
 example_integration_test(
     name = "examples_app",
     npm_packages = {
-        "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
@@ -151,7 +150,6 @@ example_integration_test(
 example_integration_test(
     name = "examples_web_testing",
     npm_packages = {
-        "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
 )

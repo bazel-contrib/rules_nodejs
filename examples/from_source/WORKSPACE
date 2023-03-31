@@ -17,10 +17,6 @@ load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_d
 
 build_bazel_rules_nodejs_dev_dependencies()
 
-load("@build_bazel_rules_nodejs//packages/concatjs:package.bzl", "rules_typescript_dev_dependencies")
-
-rules_typescript_dev_dependencies()
-
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
 go_rules_dependencies()

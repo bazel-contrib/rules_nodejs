@@ -73,8 +73,6 @@ JSNamedModuleInfo(<a href="#JSNamedModuleInfo-direct_sources">direct_sources</a>
 
 JavaScript files whose module name is self-contained.
 
-For example named AMD/UMD or goog.module format.
-These files can be efficiently served with the concatjs bundler.
 These outputs should be named "foo.umd.js"
 (note that renaming it from "foo.js" doesn't affect the module id)
 

@@ -32,7 +32,6 @@ e2e_integration_test(
     ],
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
-        "//packages/concatjs:npm_package": "@bazel/concatjs",
     },
     # Coverage not working on Windows. Looks like a bazel issue.
     # ==================== Test output for //:coverage_test:
@@ -141,22 +140,12 @@ e2e_integration_test(
     },
 )
 
-e2e_integration_test(
-    name = "e2e_concatjs_devserver",
-    npm_packages = {
-        "//packages/concatjs:npm_package": "@bazel/concatjs",
-        "//packages/protractor:npm_package": "@bazel/protractor",
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-)
-
 # tsc_wrapped uses unstable APIs in typescript, so it's wise
 # to test it against all the versions we might need to support
 [e2e_integration_test(
     name = "e2e_typescript_%s" % tsc_version.replace(".", "_"),
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
-        "//packages/concatjs:npm_package": "@bazel/concatjs",
     },
     # use these package.json packages instead
     package_json_substitutions = {
