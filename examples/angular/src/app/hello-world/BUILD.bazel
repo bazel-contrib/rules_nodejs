@@ -1,6 +1,5 @@
 load("@io_bazel_rules_sass//:defs.bzl", "multi_sass_binary")
 load("//tools:angular_ts_project.bzl", "ng_ts_project")
-load("//tools:karma.bzl", "karma_web_test_suite")
 load("//tools:typescript.bzl", "ts_test_project")
 
 package(default_visibility = ["//:__subpackages__"])
@@ -42,26 +41,5 @@ ts_test_project(
         "//src/shared/material",
         "@npm//@angular/core",
         "@npm//@angular/platform-browser",
-    ],
-)
-
-karma_web_test_suite(
-    name = "test",
-    # do not sort
-    bootstrap = [
-        "@npm//:node_modules/zone.js/dist/zone-testing-bundle.js",
-        "@npm//:node_modules/reflect-metadata/Reflect.js",
-    ],
-    browsers = [
-        "@io_bazel_rules_webtesting//browsers:chromium-local",
-        "@io_bazel_rules_webtesting//browsers:firefox-local",
-    ],
-    specs = [
-        "//src:initialize_testbed.js",
-        ":test_lib",
-    ],
-    deps = [
-        ":test_lib",
-        "//src:initialize_testbed",
     ],
 )

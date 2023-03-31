@@ -45,7 +45,6 @@ It also supports running Node.js programs and has a number of useful rules.
     since the node resolution algorithm requires the callsite of `require` to be in the node_modules tree.
     
     - [Cypress](Cypress.md)
-    - [esbuild](esbuild.md)
     - [Jasmine](Jasmine.md)
     - [Labs](Labs.md)
     - [Rollup](Rollup.md)

@@ -1,6 +1,0 @@
-//hello
-(() => {
-  // packages/esbuild/test/banner/main.js
-  console.log("a script");
-})();
-//# sourceMappingURL=banner.js.map

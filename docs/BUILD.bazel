@@ -69,7 +69,6 @@ _READMES = {
     "Terser": "//packages/terser:README.md",
     "Toolchains": "//toolchains:README.md",
     "TypeScript": "//packages/typescript:README.md",
-    "esbuild": "//packages/esbuild:README.md",
 }
 
 [
