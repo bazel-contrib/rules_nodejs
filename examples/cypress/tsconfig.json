@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "lib": ["ES2015", "DOM"],
-    "types": [
-      "cypress",
-      "node"
-    ]
-  }
-}

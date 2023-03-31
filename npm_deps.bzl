@@ -547,14 +547,6 @@ filegroup(
     )
 
     yarn_install(
-        name = "cypress_deps",
-        package_json = "//packages/cypress/test:package.json",
-        yarn_lock = "//packages/cypress/test:yarn.lock",
-        # TODO: get cypress rule working with exports_directories_only = True
-        exports_directories_only = False,
-    )
-
-    yarn_install(
         name = "rollup_test_multi_linker_deps",
         package_json = "//packages/rollup/test/multi_linker:package.json",
         yarn_lock = "//packages/rollup/test/multi_linker:yarn.lock",
