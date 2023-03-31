@@ -140,25 +140,6 @@ e2e_integration_test(
     },
 )
 
-# tsc_wrapped uses unstable APIs in typescript, so it's wise
-# to test it against all the versions we might need to support
-[e2e_integration_test(
-    name = "e2e_typescript_%s" % tsc_version.replace(".", "_"),
-    npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
-    },
-    # use these package.json packages instead
-    package_json_substitutions = {
-        "typescript": tsc_version,
-    },
-    workspace_root = "typescript",
-) for tsc_version in [
-    "4.0.x",
-    "4.1.x",
-    "4.2.x",
-    "4.3.x",
-]]
-
 e2e_integration_test(
     name = "e2e_bazel_run_chdir",
     bazel_commands = [

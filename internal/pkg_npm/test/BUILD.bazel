@@ -14,6 +14,7 @@ ts_project(
     name = "ts_project",
     srcs = ["foo.ts"],
     data = ["data.json"],
+    tsconfig = {},
 )
 
 rollup_bundle(

@@ -6,6 +6,7 @@ ts_project(
     testonly = True,
     srcs = ["test.spec.ts"],
     tsconfig = ":tsconfig.json",
+    validate = False,
     deps = [
         "@npm//@types/jasmine",
         "@npm//protractor",
@@ -17,6 +18,7 @@ ts_project(
     testonly = True,
     srcs = ["conf.ts"],
     tsconfig = ":tsconfig.json",
+    validate = False,
     deps = [
         "//packages/protractor",
         "@npm//protractor",

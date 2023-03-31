@@ -1,0 +1,13 @@
+load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_project")
+
+package(default_visibility = ["//visibility:public"])
+
+# Exported file to be consumed by test
+exports_files(["vendored_external_file"])
+
+ts_project(
+    name = "ts_project",
+    srcs = [
+        "external.ts",
+    ],
+)

@@ -6,6 +6,7 @@ ts_project(
     name = "protractor_utils_tests_lib",
     testonly = True,
     srcs = ["index_test.ts"],
+    tsconfig = {},
     deps = [
         "//packages/protractor",
         "@npm//@types/jasmine",

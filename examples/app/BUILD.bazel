@@ -1,5 +1,4 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
-load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver", "ts_library")
 load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//@bazel/terser:index.bzl", "terser_minified")
@@ -9,15 +8,9 @@ load("@npm//http-server:index.bzl", "http_server")
 
 package(default_visibility = ["//visibility:public"])
 
-ts_library(
+ts_project(
     name = "app",
     srcs = ["app.ts"],
-)
-
-concatjs_devserver(
-    name = "devserver",
-    # We'll collect all the devmode JS sources from these TypeScript libraries
-    deps = [":app"],
 )
 
 rollup_bundle(
@@ -61,7 +54,7 @@ http_server(
     templated_args = ["package"],
 )
 
-# This could also be `ts_library` but we mix them here to illustrate
+# This could also be `ts_project` but we mix them here to illustrate
 ts_project(
     name = "tsconfig-test",
     testonly = 1,
