@@ -590,8 +590,6 @@ NB: This feature requires runfiles be enabled due to an issue in Bazel which we 
 
 NB: `ts_project` does not support directory npm deps due to internal dependency on having all input sources files explicitly specified.
 
-NB: `protractor_web_test` and `protractor_web_test_suite` do not support directory npm deps.
-
 For the `nodejs_binary` & `nodejs_test` `entry_point` attribute (which often needs to reference a file within
 an npm package) you can set the entry_point to a dict with a single entry, where the key corresponds to the directory
 label and the value corresponds to the path within that directory to the entry point, e.g.
@@ -1277,8 +1275,6 @@ NB: This feature requires runfiles be enabled due to an issue in Bazel which we 
     using this feature.
 
 NB: `ts_project` does not support directory npm deps due to internal dependency on having all input sources files explicitly specified.
-
-NB: `protractor_web_test` and `protractor_web_test_suite` do not support directory npm deps.
 
 For the `nodejs_binary` & `nodejs_test` `entry_point` attribute (which often needs to reference a file within
 an npm package) you can set the entry_point to a dict with a single entry, where the key corresponds to the directory

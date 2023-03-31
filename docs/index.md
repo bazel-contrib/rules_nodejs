@@ -48,7 +48,6 @@ It also supports running Node.js programs and has a number of useful rules.
     - [esbuild](esbuild.md)
     - [Jasmine](Jasmine.md)
     - [Labs](Labs.md)
-    - [Protractor](Protractor.md)
     - [Rollup](Rollup.md)
     - [Terser](Terser.md)
     - [TypeScript](TypeScript.md)

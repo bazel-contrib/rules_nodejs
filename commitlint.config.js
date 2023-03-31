@@ -12,7 +12,6 @@ module.exports = {
         'esbuild',
         'examples',
         'jasmine',
-        'protractor',
         'rollup',
         'runfiles',
         'terser',
