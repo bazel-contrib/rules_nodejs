@@ -65,7 +65,7 @@ _READMES = {
     "Jasmine": "//packages/jasmine:README.md",
     "Providers": "//docs:providers.md_",
     "Rollup": "//packages/rollup:README.md",
-    "Terser": "//packages/terser:README.md",
+    "TypeScript": "//packages/typescript:README.md",
 }
 
 [

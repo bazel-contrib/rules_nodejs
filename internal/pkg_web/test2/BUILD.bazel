@@ -2,7 +2,6 @@ load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
-load("//packages/terser:index.bzl", "terser_minified")
 
 rollup_bundle(
     name = "local_bundle",
@@ -31,27 +30,6 @@ babel(
     ],
 )
 
-terser_minified(
-    name = "local_bundle.min",
-    src = ":local_bundle",
-)
-
-terser_minified(
-    name = "local_bundle.min_debug",
-    src = ":local_bundle",
-    debug = True,
-)
-
-terser_minified(
-    name = "local_bundle.min.es2015",
-    src = ":local_bundle.es2015.js",
-)
-
-terser_minified(
-    name = "local_bundle.min_debug.es2015",
-    src = ":local_bundle.es2015.js",
-    debug = True,
-)
 
 # Same exts as //internal/pkg_web/test-exports, //internal/pkg_web/test2/rel-exports
 EXTS = [
@@ -65,18 +43,10 @@ pkg_web(
                "index.html",
                # bundles from a different directory
                "//internal/pkg_web/test:bundle.es2015",
-               "//internal/pkg_web/test:bundle.min.es2015",
-               "//internal/pkg_web/test:bundle.min_debug.es2015",
                "//internal/pkg_web/test:bundle",
-               "//internal/pkg_web/test:bundle.min",
-               "//internal/pkg_web/test:bundle.min_debug",
                # bundles in the current path
                ":local_bundle.es2015",
-               ":local_bundle.min.es2015",
-               ":local_bundle.min_debug.es2015",
                ":local_bundle",
-               ":local_bundle.min",
-               ":local_bundle.min_debug",
            ] +
            # bin + gen + exported files from a different directory
            ["//internal/pkg_web/test-exports:bin-" + e for e in EXTS] +

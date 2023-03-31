@@ -4,7 +4,6 @@ load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
-load("@npm//@bazel/terser:index.bzl", "terser_minified")
 load("@npm//@bazel/typescript:index.bzl", "ts_config")
 load("@npm//history-server:index.bzl", "history_server")
 load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
@@ -150,16 +149,6 @@ history_server(
     templated_args = ["-a $$(rlocation $(rootpath :devapp))"],
 )
 
-terser_minified(
-    name = "bundle-es2015.min",
-    src = ":bundle-es2015",
-)
-
-terser_minified(
-    name = "bundle-es5.min",
-    src = ":bundle-es5",
-)
-
 html_insert_assets(
     name = "inject_scripts_for_prod",
     # we can't output "src/example/index.html" since that collides with the devmode file.
@@ -173,21 +162,21 @@ html_insert_assets(
         "--roots=. $(RULEDIR)",
         "--assets",
     ] + ["$(execpath %s)" % s for s in _ASSETS] + [
-        "--scripts --module $(execpath :bundle-es2015.min)/index.prod.js",
-        "--scripts --nomodule $(execpath :bundle-es5.min)/index.prod.js",
+        "--scripts --module $(execpath :bundle-es2015)/index.prod.js",
+        "--scripts --nomodule $(execpath :bundle-es5)/index.prod.js",
     ],
     data = [
         "//src:example/index.html",
-        ":bundle-es2015.min",
-        ":bundle-es5.min",
+        ":bundle-es2015",
+        ":bundle-es5",
     ] + _ASSETS,
 )
 
 pkg_web(
     name = "prodapp",
     srcs = _ASSETS + [
-        ":bundle-es2015.min",
-        ":bundle-es5.min",
+        ":bundle-es2015",
+        ":bundle-es5",
         # each injected index file should be listed here
         ":inject_scripts_for_prod",
         "//src/assets",
