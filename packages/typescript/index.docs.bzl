@@ -106,11 +106,6 @@ It is also opinionated, and may not work with existing TypeScript code. For exam
 - We control the output format and module syntax so that downstream rules can rely on them.
 - Some other options are incompatible. For example you cannot use the `--noEmit` compiler option in `tsconfig.json`.
 
-The only reason to use `ts_library` for new code is if you are bought-in to using a [concatjs] bundler, which requires the named AMD module format. This may be faster than other tooling, and this format can be consumed by the Closure Compiler (via integration with [tsickle](https://github.com/angular/tsickle)).
-However it is very challenging to configure and there is little available support for problems you'll run into.
-
-[concatjs]: https://www.npmjs.com/package/@bazel/concatjs
-
 ## Installation
 
 Add a `devDependency` on `@bazel/typescript`
