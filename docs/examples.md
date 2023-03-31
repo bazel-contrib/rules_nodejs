@@ -79,10 +79,6 @@ None yet, please file an issue if you need this.
 
 There is a dedicated example for Jest: [examples/jest](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/jest)
 
-### Cypress
-
-We have done some early work to run Cypress under Bazel. Follow <https://github.com/bazelbuild/rules_nodejs/issues/1904> for an example.
-
 ### Mocha
 
 Example at [examples/webapp](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/webapp) has a simple `mocha_test`

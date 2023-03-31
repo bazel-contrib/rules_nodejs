@@ -75,20 +75,6 @@ load("@npm_node_patches_lock//:index.bzl", _npm_patches_repositories = "npm_repo
 # Declare an external repository for each npm package fetchable by the lock file
 _npm_patches_repositories()
 
-#
-# Install @bazel/cypress dependencies
-#
-load("//packages/cypress:index.bzl", "cypress_repositories")
-
-cypress_repositories(
-    name = "cypress",
-    darwin_arm64_sha256 = "101a0ced77fb74b356800cb3a3919f5288d23cc63fdd39a0c500673159e954fc",
-    darwin_sha256 = "101a0ced77fb74b356800cb3a3919f5288d23cc63fdd39a0c500673159e954fc",
-    linux_sha256 = "d8ea8d16fed33fdae8f17178bcae076aaf532fa7ccb48f377df1f143e60abd59",
-    version = "7.3.0",
-    windows_sha256 = "8a8809e4fd22fe7bfc3103c39df3f4fce9db0964450ce927558e9a09558cb26c",
-)
-
 # Setup the rules_webtesting toolchain
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
 
