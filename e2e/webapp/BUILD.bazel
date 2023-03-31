@@ -1,6 +1,5 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
-load("@npm//@bazel/terser:index.bzl", "terser_minified")
 
 rollup_bundle(
     name = "app",
@@ -12,13 +11,8 @@ rollup_bundle(
     # supports_workers = True,
 )
 
-terser_minified(
-    name = "out.min",
-    src = "app",
-)
-
 nodejs_test(
     name = "test",
-    data = ["out.min"],
+    data = ["app"],
     entry_point = ":test.js",
 )

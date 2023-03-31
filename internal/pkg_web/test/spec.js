@@ -11,14 +11,6 @@ describe('pkg_web', () => {
       'bundle.es2015.js.map',
       'bundle.js',
       'bundle.js.map',
-      'bundle.min.es2015.js',
-      'bundle.min.es2015.js.map',
-      'bundle.min.js',
-      'bundle.min.js.map',
-      'bundle.min_debug.es2015.js',
-      'bundle.min_debug.es2015.js.map',
-      'bundle.min_debug.js',
-      'bundle.min_debug.js.map',
       'index.html',
     ]);
   });

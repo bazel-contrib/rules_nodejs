@@ -2,7 +2,6 @@ load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
-load("//packages/terser:index.bzl", "terser_minified")
 load("//packages/typescript:index.bzl", "ts_project")
 
 package(default_visibility = ["//visibility:public"])
@@ -41,38 +40,12 @@ babel(
     ],
 )
 
-terser_minified(
-    name = "bundle.min",
-    src = ":bundle",
-)
-
-terser_minified(
-    name = "bundle.min_debug",
-    src = ":bundle",
-    debug = True,
-)
-
-terser_minified(
-    name = "bundle.min.es2015",
-    src = ":bundle.es2015.js",
-)
-
-terser_minified(
-    name = "bundle.min_debug.es2015",
-    src = ":bundle.es2015.js",
-    debug = True,
-)
-
 pkg_web(
     name = "pkg",
     srcs = [
         "index.html",
         ":bundle",
         ":bundle.es2015",
-        ":bundle.min",
-        ":bundle.min.es2015",
-        ":bundle.min_debug",
-        ":bundle.min_debug.es2015",
     ],
     stamp = "@rules_nodejs//nodejs/stamp:always",
     substitutions = {
