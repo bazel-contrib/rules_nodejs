@@ -60,8 +60,6 @@ NB: This feature requires runfiles be enabled due to an issue in Bazel which we 
     On Windows runfiles are off by default and must be enabled with the `--enable_runfiles` flag when
     using this feature.
 
-NB: `protractor_web_test` and `protractor_web_test_suite` do not support directory npm deps.
-
 For the `nodejs_binary` & `nodejs_test` `entry_point` attribute (which often needs to reference a file within
 an npm package) you can set the entry_point to a dict with a single entry, where the key corresponds to the directory
 label and the value corresponds to the path within that directory to the entry point, e.g.

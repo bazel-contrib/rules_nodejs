@@ -64,7 +64,6 @@ _READMES = {
     "Core": "//docs:core.md_",
     "Cypress": "//packages/cypress:README.md",
     "Jasmine": "//packages/jasmine:README.md",
-    "Protractor": "//packages/protractor:README.md",
     "Providers": "//docs:providers.md_",
     "Rollup": "//packages/rollup:README.md",
     "Terser": "//packages/terser:README.md",

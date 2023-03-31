@@ -19,7 +19,6 @@ example_integration_test(
     timeout = "long",
     npm_packages = {
         "//packages/esbuild:npm_package": "@bazel/esbuild",
-        "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
@@ -67,7 +66,6 @@ example_integration_test(
 example_integration_test(
     name = "examples_app",
     npm_packages = {
-        "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
@@ -163,7 +161,6 @@ example_integration_test(
         "test ... --enable_runfiles",
     ],
     npm_packages = {
-        "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",

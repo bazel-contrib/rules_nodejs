@@ -18,7 +18,6 @@
 NPM_PACKAGES = ["@bazel/%s" % pkg for pkg in [
     "create",
     "jasmine",
-    "protractor",
     "rollup",
     "runfiles",
     "terser",
