@@ -4,9 +4,7 @@
 
 * @mattem @gregmagolan @alexeagle
 /packages/rollup/** @jbedard @alexeagle @gregmagolan @mattem
-/packages/cypress/** @mrmeku @alexeagle @gregmagolan @mattem
 /examples/jest/** @mrmeku @alexeagle @gregmagolan @mattem
 /examples/nestjs/** @zachgrayio @zMotivat0r @rayman1104 @siberex @alexeagle @gregmagolan @mattem
-/examples/cypress/** @mrmeku @alexeagle @gregmagolan @mattem
 /examples/angular/** @alan-agius4 @jbedard @alexeagle @gregmagolan @mattem
 /examples/angular_bazel_architect/** @alan-agius4 @jbedard @alexeagle @gregmagolan @mattem

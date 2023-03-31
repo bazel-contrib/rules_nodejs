@@ -59,8 +59,6 @@ http_archive(
     urls = ["https://github.com/yarnpkg/yarn/releases/download/v1.10.0/yarn-v1.10.0.tar.gz"],
 )
 
-register_toolchains("//toolchains:all")
-
 load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 yarn_install(

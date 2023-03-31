@@ -95,19 +95,6 @@ example_integration_test(
 )
 
 example_integration_test(
-    name = "examples_cypress",
-    bazel_commands = ["test //..."],
-    npm_packages = {
-        "//packages/cypress:npm_package": "@bazel/cypress",
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    owners = ["@mrmeku"],
-    tags = [
-        "cypress",
-    ],
-)
-
-example_integration_test(
     name = "examples_jest",
     npm_packages = {
         "//packages/typescript:npm_package": "@bazel/typescript",

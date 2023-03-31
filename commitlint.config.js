@@ -8,7 +8,6 @@ module.exports = {
       [
         'builtin',
         'create',
-        'cypress',
         'examples',
         'jasmine',
         'rollup',

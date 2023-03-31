@@ -111,7 +111,6 @@ pkg_npm(
         "//third_party/npm/node_modules/browserify:package_contents",
         "//third_party/npm/node_modules/ieee754:package_contents",
         "//third_party/npm/node_modules/named-amd:package_contents",
-        "//toolchains/cypress:package_contents",
     ],
 )
 

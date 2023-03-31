@@ -106,8 +106,8 @@
     },
     "scripts": {
         "test": "bazel test --test_tag_filters=-e2e,-examples,-browser:firefox-local",
-        "test_windows": "bazel test --test_tag_filters=-e2e,-examples,-requires-runfiles,-fix-windows,-browser:firefox-local,-cypress",
-        "test_windows_with_runfiles": "bazel test --enable_runfiles --test_tag_filters=-e2e,-examples,-fix-windows,-browser:firefox-local,-cypress",
+        "test_windows": "bazel test --test_tag_filters=-e2e,-examples,-requires-runfiles,-fix-windows,-browser:firefox-local",
+        "test_windows_with_runfiles": "bazel test --enable_runfiles --test_tag_filters=-e2e,-examples,-fix-windows,-browser:firefox-local",
         "test_e2e": "bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test --test_tag_filters=e2e --local_ram_resources=792 --test_arg=--local_ram_resources=13288",
         "test_examples": "bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test --test_tag_filters=examples --local_ram_resources=792 --test_arg=--local_ram_resources=13288",
         "run_integration_test": "bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m run --local_ram_resources=792 --test_arg=--local_ram_resources=13288",

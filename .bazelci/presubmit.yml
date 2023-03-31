@@ -26,26 +26,18 @@ tasks:
     #- "@fine_grained_deps_yarn//typescript/bin:tsc"
     build_targets:
     - "//..."
-    build_flags:
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
-    - "--build_tag_filters=-cypress"
     test_flags:
     # Both chrome & firefox are missing shared libs on bazelci ubuntu.
     # On circleci we have the same issue but we can work around it using apt-get.
     # on bazelci apt-get fails with permission denied and there is no sudo
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-e2e,-examples,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
+    - "--test_tag_filters=-e2e,-examples,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome"
     test_targets:
     - "//..."
   ubuntu1804_debug:
     name: ubuntu1804_debug
     platform: ubuntu1804
-    build_flags:
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
-    - "--build_tag_filters=-cypress"
     test_flags:
     - "--compilation_mode=dbg"
     - "--define=VERBOSE_LOGS=1"
@@ -54,7 +46,7 @@ tasks:
     # on bazelci apt-get fails with permission denied and there is no sudo
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-e2e,-examples,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
+    - "--test_tag_filters=-e2e,-examples,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome"
     test_targets:
     - "//..."
   ubuntu1804_e2e:
@@ -68,8 +60,6 @@ tasks:
     # - nested bazel process should use a limited number of cores
     shell_commands:
     - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
-    build_flags:
-    - "--build_tag_filters=e2e,-cypress"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
@@ -80,12 +70,6 @@ tasks:
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"
     - "--test_arg=--local_cpu_resources=7"
-    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
-    # On circleci we have the same issue but we can work around it using apt-get.
-    # on bazelci apt-get fails with permission denied and there is no sudo
-    # command to switch to root.
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_arg=--test_tag_filters=-browser:chromium-local,-browser:firefox-local,-cypress"
     test_targets:
     - "//..."
   ubuntu1804_examples:
@@ -100,13 +84,13 @@ tasks:
     shell_commands:
     - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
     build_flags:
-    - "--build_tag_filters=examples,-cypress"
+    - "--build_tag_filters=examples"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
     skip_use_bazel_version_for_test: true
     test_flags:
-    - "--test_tag_filters=examples,-cypress"
+    - "--test_tag_filters=examples"
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"
@@ -116,7 +100,7 @@ tasks:
     # on bazelci apt-get fails with permission denied and there is no sudo
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_arg=--test_tag_filters=-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_arg=--test_tag_filters=-browser:chromium-local,-browser:firefox-local"
     - "--test_output=streamed"
     test_targets:
     - "//..."
@@ -230,7 +214,7 @@ tasks:
     test_flags:
     # Firefox not supported on Windows with rules_webtesting (if run it exit with success)
     # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
-    - "--test_tag_filters=-e2e,-examples,-fix-windows,-no-bazelci-windows,-requires-runfiles,-browser:firefox-local,-cypress"
+    - "--test_tag_filters=-e2e,-examples,-fix-windows,-no-bazelci-windows,-requires-runfiles,-browser:firefox-local"
     test_targets:
     - "//..."
   windows_runfiles_enabled:
@@ -272,7 +256,7 @@ tasks:
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
     skip_use_bazel_version_for_test: true
     test_flags:
-    - "--test_tag_filters=examples,-fix-windows,-no-bazelci-windows,-requires-runfiles,-cypress"
+    - "--test_tag_filters=examples,-fix-windows,-no-bazelci-windows,-requires-runfiles"
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"
@@ -280,7 +264,7 @@ tasks:
     # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
     # Chrome fails to launch on Windows inside bazel-in-bazel with: [17:12:04] E/launcher -
     # spawn D:\...\external\io_bazel_rules_webtesting\third_party\chromedriver\chromedriver.out\chromedriver_win32\chromedriver.exe ENOENT
-    - "--test_arg=--test_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_arg=--test_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
   rbe_ubuntu1604:
@@ -291,9 +275,9 @@ tasks:
     build_flags:
     # TODO(gregmagolan): figure out how to install missing shared libs
     # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
-    - "--build_tag_filters=-cypress,-examples,-e2e,-no-rbe,-browser:chromium-local,-browser:firefox-local"
+    - "--build_tag_filters=-examples,-e2e,-no-rbe,-browser:chromium-local,-browser:firefox-local"
     test_flags:
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-cypress,-examples,-e2e,-no-rbe,-browser:chromium-local,-browser:firefox-local"
+    - "--test_tag_filters=-examples,-e2e,-no-rbe,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
