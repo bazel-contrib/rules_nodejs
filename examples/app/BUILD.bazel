@@ -1,7 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
-load("@npm//@bazel/terser:index.bzl", "terser_minified")
 load("@npm//@bazel/typescript:index.bzl", "ts_project")
 load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("@npm//http-server:index.bzl", "http_server")
@@ -19,13 +18,8 @@ rollup_bundle(
     deps = [":app"],
 )
 
-terser_minified(
-    name = "bundle.min",
-    src = ":bundle",
-)
-
 _ASSETS = [
-    ":bundle.min",
+    ":bundle",
     "//styles:base.css",
     "//styles:test.css",
 ]

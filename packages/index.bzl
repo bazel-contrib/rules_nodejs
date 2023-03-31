@@ -20,7 +20,6 @@ NPM_PACKAGES = ["@bazel/%s" % pkg for pkg in [
     "jasmine",
     "rollup",
     "runfiles",
-    "terser",
     "typescript",
     "worker",
 ]]
