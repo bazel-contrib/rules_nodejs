@@ -9,7 +9,6 @@ module.exports = {
         'builtin',
         'create',
         'cypress',
-        'esbuild',
         'examples',
         'jasmine',
         'rollup',

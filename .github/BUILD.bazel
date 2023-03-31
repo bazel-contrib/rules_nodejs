@@ -9,11 +9,9 @@ generate_codeowners(
     owners = [
         "//:OWNERS",
         "//packages/rollup:OWNERS",
-        "//packages/esbuild:OWNERS",
         "//packages/cypress:OWNERS",
         "//examples:OWNERS.examples_jest",
         "//examples:OWNERS.examples_nestjs",
-        "//examples:OWNERS.examples_esbuild",
         "//examples:OWNERS.examples_cypress",
         "//examples:OWNERS.examples_angular",
         "//examples:OWNERS.examples_angular_bazel_architect",
