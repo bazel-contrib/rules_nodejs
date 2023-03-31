@@ -94,32 +94,6 @@ Defaults to `""`
 Defaults to `None`
 
 
-## configure_esbuild_toolchains
-
-**USAGE**
-
-<pre>
-configure_esbuild_toolchains(<a href="#configure_esbuild_toolchains-name">name</a>, <a href="#configure_esbuild_toolchains-platforms">platforms</a>)
-</pre>
-
-Configures esbuild toolchains for a list of supported platforms
-
-**PARAMETERS**
-
-
-<h4 id="configure_esbuild_toolchains-name">name</h4>
-
-unused
-
-Defaults to `""`
-
-<h4 id="configure_esbuild_toolchains-platforms">platforms</h4>
-
-dict of platforms to configure toolchains for
-
-Defaults to `{}`
-
-
 ## cypress_repositories
 
 **USAGE**
@@ -193,59 +167,3 @@ Defaults to `[]`
 (Optional) SHA-256 of the windows cypress binary
 
 Defaults to `""`
-
-
-## esbuild_repositories
-
-**USAGE**
-
-<pre>
-esbuild_repositories(<a href="#esbuild_repositories-npm_repository">npm_repository</a>, <a href="#esbuild_repositories-name">name</a>, <a href="#esbuild_repositories-npm_args">npm_args</a>, <a href="#esbuild_repositories-kwargs">kwargs</a>)
-</pre>
-
-Helper for fetching and setting up the esbuild versions and toolchains
-
-This uses Bazel's downloader (via `http_archive`) to fetch the esbuild package
-from npm, separately from any `npm_install`/`yarn_install` in your WORKSPACE.
-To configure where the download is from, you make a file containing a rewrite rule like
-
-    rewrite (registry.nodejs.org)/(.*) artifactory.build.internal.net/artifactory/$1/$2
-
-You can find some documentation on the rewrite patterns in the Bazel sources:
-[UrlRewriterConfig.java](https://github.com/bazelbuild/bazel/blob/4.2.1/src/main/java/com/google/devtools/build/lib/bazel/repository/downloader/UrlRewriterConfig.java#L66)
-
-Then use the `--experimental_downloader_config` Bazel option to point to your file.
-For example if you created `.bazel_downloader_config` you might add to your `.bazelrc` file:
-
-    common --experimental_downloader_config=.bazel_downloader_config
-
-
-**PARAMETERS**
-
-
-<h4 id="esbuild_repositories-npm_repository">npm_repository</h4>
-
-the name of the repository where the @bazel/esbuild package is installed
-by npm_install or yarn_install.
-
-
-
-<h4 id="esbuild_repositories-name">name</h4>
-
-currently unused
-
-Defaults to `""`
-
-<h4 id="esbuild_repositories-npm_args">npm_args</h4>
-
-additional args to pass to the npm install rule
-
-Defaults to `[]`
-
-<h4 id="esbuild_repositories-kwargs">kwargs</h4>
-
-additional named parameters to the npm_install rule
-
-
-
-

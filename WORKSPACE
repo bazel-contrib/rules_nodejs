@@ -25,11 +25,6 @@ local_repository(
     path = ".",
 )
 
-local_repository(
-    name = "internal_npm_package_test_vendored_external",
-    path = "internal/pkg_npm/test/vendored_external",
-)
-
 #
 # Install rules_nodejs dev dependencies
 #
@@ -104,14 +99,6 @@ load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.3.bzl", "browser_re
 browser_repositories(
     chromium = True,
     firefox = True,
-)
-
-# Setup esbuild dependencies
-load("//toolchains/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
-
-esbuild_repositories(
-    node_repository = "node16",
-    npm_repository = "npm",
 )
 
 #
