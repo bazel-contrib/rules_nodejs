@@ -60,8 +60,6 @@ NB: This feature requires runfiles be enabled due to an issue in Bazel which we 
     On Windows runfiles are off by default and must be enabled with the `--enable_runfiles` flag when
     using this feature.
 
-NB: `ts_library` does not support directory npm deps due to internal dependency on having all input sources files explicitly specified.
-
 NB: `protractor_web_test` and `protractor_web_test_suite` do not support directory npm deps.
 
 For the `nodejs_binary` & `nodejs_test` `entry_point` attribute (which often needs to reference a file within

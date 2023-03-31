@@ -65,7 +65,6 @@ ts_project(
     name = "protractor",
     srcs = ["protractor-utils.ts"],
     data = ["package.json"],
-    module_root = "protractor-utils",
     deps = ["@npm//@types/node"],
 )
 

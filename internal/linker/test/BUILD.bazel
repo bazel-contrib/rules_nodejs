@@ -4,6 +4,7 @@ load("//packages/typescript:index.bzl", "ts_project")
 ts_project(
     name = "test_lib",
     srcs = glob(["*.ts"]),
+    tsconfig = {},
     deps = [
         "//internal/linker:linker_lib",
         "//packages/runfiles:bazel_runfiles",

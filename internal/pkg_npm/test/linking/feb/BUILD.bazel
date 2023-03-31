@@ -4,6 +4,7 @@ load("//packages/typescript:index.bzl", "ts_project")
 ts_project(
     name = "feb_lib",
     srcs = ["main.ts"],
+    tsconfig = {},
     visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
 )
 
