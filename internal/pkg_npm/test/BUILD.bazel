@@ -37,7 +37,6 @@ pkg_npm(
     srcs = [
         "package.json",
         "some_file",
-        "@internal_npm_package_test_vendored_external//:vendored_external_file",
     ],
     nested_packages = [":dependent_pkg"],
     stamp = "@rules_nodejs//nodejs/stamp:always",
@@ -45,16 +44,12 @@ pkg_npm(
         "0.0.0-PLACEHOLDER": "{BUILD_SCM_VERSION}",
         "replace_me": "replaced",
     },
-    vendor_external = [
-        "internal_npm_package_test_vendored_external",
-    ],
     deps = [
         ":bundle.min.js",
         ":produces_files",
         ":rollup/bundle/subdirectory",
         ":ts_project",
         "//internal/pkg_npm/test/transition:test_lib",
-        "@internal_npm_package_test_vendored_external//:ts_project",
     ],
 )
 

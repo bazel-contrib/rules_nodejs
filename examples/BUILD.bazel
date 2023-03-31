@@ -18,7 +18,6 @@ example_integration_test(
     name = "examples_angular",
     timeout = "long",
     npm_packages = {
-        "//packages/esbuild:npm_package": "@bazel/esbuild",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
@@ -249,14 +248,4 @@ example_integration_test(
         # TODO(alexeagle): re-enable when it stops timing out on 4.x branch
         "manual",
     ],
-)
-
-example_integration_test(
-    name = "examples_esbuild",
-    timeout = "long",
-    npm_packages = {
-        "//packages/esbuild:npm_package": "@bazel/esbuild",
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    owners = ["@mattem"],
 )

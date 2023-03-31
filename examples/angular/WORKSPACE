@@ -85,13 +85,6 @@ browser_repositories(
     firefox = True,
 )
 
-# Setup esbuild repositories
-load("@build_bazel_rules_nodejs//toolchains/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
-
-esbuild_repositories(
-    npm_repository = "npm",
-)
-
 # Setup the rules_sass toolchain
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
 
