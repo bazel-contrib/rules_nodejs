@@ -3,13 +3,14 @@ load("@npm//@babel/cli:index.bzl", "babel")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 load("//packages/terser:index.bzl", "terser_minified")
-load("//packages/concatjs:index.bzl", "ts_library")
+load("//packages/typescript:index.bzl", "ts_project")
 
 package(default_visibility = ["//visibility:public"])
 
-ts_library(
+ts_project(
     name = "script",
     srcs = ["script.ts"],
+    tsconfig = {},
 )
 
 rollup_bundle(

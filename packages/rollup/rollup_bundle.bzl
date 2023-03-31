@@ -53,13 +53,13 @@ rollup_bundle(
 )
 ```
 
-If `rollup_bundle` is used on a `ts_library`, the `rollup_bundle` rule handles selecting the correct outputs from `ts_library`.
+If `rollup_bundle` is used on a `ts_project`, the `rollup_bundle` rule handles selecting the correct outputs from `ts_project`.
 In this case, `entry_point` can be specified as the `.ts` file and `rollup_bundle` will handle the mapping to the `.mjs` output file.
 
 For example:
 
 ```python
-ts_library(
+ts_project(
     name = "foo",
     srcs = [
         "foo.ts",

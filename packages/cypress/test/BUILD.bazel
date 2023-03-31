@@ -1,5 +1,5 @@
 load("@build_bazel_rules_nodejs//packages/cypress:index.bzl", "cypress_web_test")
-load("@build_bazel_rules_nodejs//packages/concatjs:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_project")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 js_library(
@@ -10,7 +10,7 @@ js_library(
     ],
 )
 
-ts_library(
+ts_project(
     name = "plugin_file",
     testonly = True,
     srcs = ["plugin.ts"],
@@ -21,7 +21,7 @@ ts_library(
     ],
 )
 
-ts_library(
+ts_project(
     name = "hello_spec",
     testonly = True,
     srcs = ["hello.spec.ts"],

@@ -7,7 +7,6 @@ module.exports = {
       'always',
       [
         'builtin',
-        'concatjs',
         'create',
         'cypress',
         'esbuild',

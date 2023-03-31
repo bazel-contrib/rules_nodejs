@@ -30,7 +30,7 @@ an npm package, and uploaded to npm as `@bazel/[name]`. End users then add the
 desired packages to their own package.json file to use them.
 
 If you run bazel build packages/..., you can then see the resulting npm package
-by looking in, eg, dist/bin/packages/concatjs/npm_package.
+by looking in, eg, dist/bin/packages/typescript/npm_package.
 
 This separate packaging means that package paths differ between usage inside
 this repo, and usage by end users. A //packages/something:foo.bzl path needs to be

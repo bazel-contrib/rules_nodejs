@@ -98,10 +98,10 @@ nodejs_binary(
 ```
 
 You can specify the entry point as a typescript file so long as you also include
-the ts_library target in data:
+the ts_project target in data:
 
 ```python
-ts_library(
+ts_project(
     name = "main",
     srcs = ["main.ts"],
 )
@@ -113,7 +113,7 @@ nodejs_binary(
 )
 ```
 
-The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
+The rule will use the corresponding `.js` output of the ts_project rule as the entry point.
 
 If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
 For example:
@@ -263,7 +263,7 @@ https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl
 
 If you just want to run a standard test using a test runner from npm, use the generated
 *_test target created by npm_install/yarn_install, such as `mocha_test`.
-Some test runners like Karma and Jasmine have custom rules with added features, e.g. `jasmine_node_test`.
+Some test runners like Jasmine have custom rules with added features, e.g. `jasmine_node_test`.
 
 By default, Bazel runs tests with a working directory set to your workspace root.
 Use the `chdir` attribute to change the working directory before the program starts.
@@ -356,10 +356,10 @@ nodejs_binary(
 ```
 
 You can specify the entry point as a typescript file so long as you also include
-the ts_library target in data:
+the ts_project target in data:
 
 ```python
-ts_library(
+ts_project(
     name = "main",
     srcs = ["main.ts"],
 )
@@ -371,7 +371,7 @@ nodejs_binary(
 )
 ```
 
-The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
+The rule will use the corresponding `.js` output of the ts_project rule as the entry point.
 
 If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
 For example:
@@ -588,7 +588,7 @@ NB: This feature requires runfiles be enabled due to an issue in Bazel which we 
     On Windows runfiles are off by default and must be enabled with the `--enable_runfiles` flag when
     using this feature.
 
-NB: `ts_library` does not support directory npm deps due to internal dependency on having all input sources files explicitly specified.
+NB: `ts_project` does not support directory npm deps due to internal dependency on having all input sources files explicitly specified.
 
 NB: `protractor_web_test` and `protractor_web_test_suite` do not support directory npm deps.
 
@@ -1276,7 +1276,7 @@ NB: This feature requires runfiles be enabled due to an issue in Bazel which we 
     On Windows runfiles are off by default and must be enabled with the `--enable_runfiles` flag when
     using this feature.
 
-NB: `ts_library` does not support directory npm deps due to internal dependency on having all input sources files explicitly specified.
+NB: `ts_project` does not support directory npm deps due to internal dependency on having all input sources files explicitly specified.
 
 NB: `protractor_web_test` and `protractor_web_test_suite` do not support directory npm deps.
 
@@ -1822,7 +1822,6 @@ js_library(
 )
 ```
 
-> To help work with "named AMD" modules as required by `concatjs_devserver` and other Google-style "concatjs" rules,
 > `js_library` has some undocumented advanced features you can find in the source code or in our examples.
 > These should not be considered a public API and aren't subject to our usual support and semver guarantees.
 

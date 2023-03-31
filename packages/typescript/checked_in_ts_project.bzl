@@ -6,7 +6,7 @@ load("//packages/typescript:index.bzl", "ts_project")
 def checked_in_ts_project(name, src, checked_in_js = None, tsconfig = None, **kwargs):
     """
     In rules_nodejs "builtin" package, we are creating the toolchain for building
-    tsc-wrapped and executing ts_library, so we cannot depend on them.
+    tsc-wrapped and executing ts_project, so we cannot depend on them.
     However, we still want to be able to write our tooling in TypeScript.
     This macro lets us check in the resulting .js files, and still ensure that they are
     compiled from the .ts by using a golden file test.

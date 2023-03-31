@@ -1,7 +1,7 @@
 load("//packages/protractor:index.bzl", "protractor_web_test_suite")
-load("//packages/concatjs:index.bzl", "ts_library")
+load("//packages/typescript:index.bzl", "ts_project")
 
-ts_library(
+ts_project(
     name = "ts_spec",
     testonly = True,
     srcs = ["test.spec.ts"],
@@ -12,7 +12,7 @@ ts_library(
     ],
 )
 
-ts_library(
+ts_project(
     name = "ts_conf",
     testonly = True,
     srcs = ["conf.ts"],

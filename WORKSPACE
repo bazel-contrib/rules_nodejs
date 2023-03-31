@@ -80,28 +80,6 @@ load("@npm_node_patches_lock//:index.bzl", _npm_patches_repositories = "npm_repo
 # Declare an external repository for each npm package fetchable by the lock file
 _npm_patches_repositories()
 
-load("//packages/concatjs:package.bzl", "rules_typescript_dev_dependencies")
-
-rules_typescript_dev_dependencies()
-
-local_repository(
-    name = "devserver_test_workspace",
-    path = "packages/concatjs/devserver/devserver/test/test-workspace",
-)
-
-load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-
-go_rules_dependencies()
-
-go_register_toolchains(version = "1.16")
-
-gazelle_dependencies()
-
-load("//packages/concatjs/internal:ts_repositories.bzl", "ts_setup_dev_workspace")
-
-ts_setup_dev_workspace()
-
 #
 # Install @bazel/cypress dependencies
 #

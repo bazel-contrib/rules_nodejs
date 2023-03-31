@@ -34,11 +34,11 @@ cypress_repositories(name = "cypress", version = "MATCH_VERSION_IN_PACKAGE_JSON"
 ## Example use of cypress_web_test
 This example assumes you've named your external repository for node_modules as `npm` and for cypress as `cypress`
 ```python
-load("@npm//@bazel/concatjs:index.bzl", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_project")
 load("@npm//@bazel/cypress:index.bzl", "cypress_web_test")
 
-# You must create a cypress plugin in order to boot a server to serve your application. It can be written as a javascript file or in typescript using ts_library or ts_project.
-ts_library(
+# You must create a cypress plugin in order to boot a server to serve your application. It can be written as a javascript file or in typescript using ts_project or ts_project.
+ts_project(
     name = "plugin_file",
     testonly = True,
     srcs = ["plugin.ts"],
@@ -49,8 +49,8 @@ ts_library(
     ],
 )
 
-# You can write your cypress tests a javascript files or in typescript using ts_library or ts_project.
-ts_library(
+# You can write your cypress tests a javascript files or in typescript using ts_project or ts_project.
+ts_project(
     name = "hello_spec",
     testonly = True,
     srcs = ["hello.spec.ts"],
@@ -66,7 +66,7 @@ cypress_web_test(
     srcs = [
         # Load javascript test files directly as sources
         "world.spec.js",
-        # Load ts_library tests as a target to srcs
+        # Load ts_project tests as a target to srcs
         ":hello_spec",
     ],
     # A cypress config file is required
@@ -140,7 +140,7 @@ https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl
 
 If you just want to run a standard test using a test runner from npm, use the generated
 *_test target created by npm_install/yarn_install, such as `mocha_test`.
-Some test runners like Karma and Jasmine have custom rules with added features, e.g. `jasmine_node_test`.
+Some test runners like Jasmine have custom rules with added features, e.g. `jasmine_node_test`.
 
 By default, Bazel runs tests with a working directory set to your workspace root.
 Use the `chdir` attribute to change the working directory before the program starts.
