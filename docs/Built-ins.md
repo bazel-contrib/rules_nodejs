@@ -97,23 +97,13 @@ nodejs_binary(
 )
 ```
 
-You can specify the entry point as a typescript file so long as you also include
-the ts_project target in data:
-
 ```python
-ts_project(
-    name = "main",
-    srcs = ["main.ts"],
-)
-
 nodejs_binary(
     name = "bin",
     data = [":main"]
-    entry_point = ":main.ts",
+    entry_point = ":main.js",
 )
 ```
-
-The rule will use the corresponding `.js` output of the ts_project rule as the entry point.
 
 If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
 For example:
@@ -354,23 +344,12 @@ nodejs_binary(
 )
 ```
 
-You can specify the entry point as a typescript file so long as you also include
-the ts_project target in data:
-
 ```python
-ts_project(
-    name = "main",
-    srcs = ["main.ts"],
-)
-
 nodejs_binary(
     name = "bin",
-    data = [":main"]
-    entry_point = ":main.ts",
+    entry_point = ":main.js",
 )
 ```
-
-The rule will use the corresponding `.js` output of the ts_project rule as the entry point.
 
 If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
 For example:
@@ -698,23 +677,13 @@ The above links will create the targets,
 @npm//target
 ```
 
-that can be referenced as `data` or `deps` by other rules such as `nodejs_binary` and `ts_project`
+that can be referenced as `data` or `deps` by other rules such as `nodejs_binary`
 and can be required as `@scope/target` and `target` with standard node_modules resolution at runtime,
 
 ```
 nodejs_binary(
     name = "bin",
     entry_point = "bin.js",
-    deps = [
-        "@npm//@scope/target",
-        "@npm//target"
-        "@npm//other/dep"
-    ],
-)
-
-ts_project(
-    name = "test",
-    srcs = [...],
     deps = [
         "@npm//@scope/target",
         "@npm//target"
@@ -1401,23 +1370,13 @@ The above links will create the targets,
 @npm//target
 ```
 
-that can be referenced as `data` or `deps` by other rules such as `nodejs_binary` and `ts_project`
+that can be referenced as `data` or `deps` by other rules such as `nodejs_binary`
 and can be required as `@scope/target` and `target` with standard node_modules resolution at runtime,
 
 ```
 nodejs_binary(
     name = "bin",
     entry_point = "bin.js",
-    deps = [
-        "@npm//@scope/target",
-        "@npm//target"
-        "@npm//other/dep"
-    ],
-)
-
-ts_project(
-    name = "test",
-    srcs = [...],
     deps = [
         "@npm//@scope/target",
         "@npm//target"
@@ -1735,19 +1694,13 @@ to resolve files between the logical union of the source tree and the output tre
 A typical example usage of `js_library` is to expose some sources with a package name:
 
 ```python
-ts_project(
-    name = "compile_ts",
-    srcs = glob(["*.ts"]),
-)
-
 js_library(
     name = "my_pkg",
     # Code that depends on this target can import from "@myco/mypkg"
     package_name = "@myco/mypkg",
     # Consumers might need fields like "main" or "typings"
     srcs = ["package.json"],
-    # The .js and .d.ts outputs from above will be part of the package
-    deps = [":compile_ts"],
+    data = glob(["*.js"]),
 )
 ```
 

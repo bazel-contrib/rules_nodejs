@@ -103,10 +103,6 @@ The example in [examples/parcel](https://github.com/bazelbuild/rules_nodejs/tree
 
 See styles directory inside the [examples/app](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/app/styles) example.
 
-### TypeScript
-
-Most of the examples show TypeScript usage. Also look in [packages/typescript/test](https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test) for lots of handling of edge cases.
-
 ### Kotlin
 
 The Kotlin language can compile to JS. The result has a very large stdlib JS payload, so we don't recommend this for most uses.

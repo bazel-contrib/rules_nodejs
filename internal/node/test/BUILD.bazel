@@ -81,7 +81,6 @@ nodejs_test(
     name = "mode_resolution_test",
     data = [
         "//internal/node/test/lib1",
-        "//internal/node/test/lib2",
         "@npm//node_resolve_index",
         "@npm//node_resolve_index_2",
         "@npm//node_resolve_index_3",
@@ -200,7 +199,6 @@ nodejs_test(
     name = "mode_resolution_built_test",
     data = [
         "//internal/node/test/lib1",
-        "//internal/node/test/lib2",
         "@npm//node_resolve_index",
         "@npm//node_resolve_index_2",
         "@npm//node_resolve_index_3",

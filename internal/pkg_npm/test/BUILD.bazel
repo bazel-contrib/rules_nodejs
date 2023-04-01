@@ -1,18 +1,10 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
-load("//packages/typescript:index.bzl", "ts_project")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 
 write_file(
     name = "produces_files",
     out = "a_dep",
     content = ["a_dep content"],
-)
-
-ts_project(
-    name = "ts_project",
-    srcs = ["foo.ts"],
-    data = ["data.json"],
-    tsconfig = {},
 )
 
 pkg_npm(
@@ -35,7 +27,6 @@ pkg_npm(
     },
     deps = [
         ":produces_files",
-        ":ts_project",
         "//internal/pkg_npm/test/transition:test_lib",
     ],
 )

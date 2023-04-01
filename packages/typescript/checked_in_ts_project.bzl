@@ -15,17 +15,7 @@ def checked_in_ts_project(name, src, checked_in_js = None, tsconfig = None, **kw
         checked_in_js = src[:-3] + ".js"
 
     if tsconfig == None:
-        tsconfig = {
-            "compilerOptions": {
-                "declaration": True,
-                "lib": ["es2017", "dom"],
-                "module": "commonjs",
-                "removeComments": True,
-                "skipLibCheck": True,
-                "strict": True,
-                "target": "es2015",
-            },
-        }
+        tsconfig = "//:tsconfig.json"
 
     ts_project(
         name = name,
@@ -39,7 +29,7 @@ def checked_in_ts_project(name, src, checked_in_js = None, tsconfig = None, **kw
     # break the sourcemap
     native.genrule(
         name = "_%s_skip_formatting" % name,
-        srcs = [name],
+        srcs = [src.replace(".ts", ".js")],
         outs = ["_%s_no_format.js" % name],
         cmd = """echo -n "/* THIS FILE GENERATED FROM .ts; see BUILD.bazel */ /* clang-format off */" > $@; cat $< >> $@""",
     )
