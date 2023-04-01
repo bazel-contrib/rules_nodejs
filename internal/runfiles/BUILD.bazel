@@ -1,34 +1,10 @@
 # BEGIN-INTERNAL
-load("//:index.bzl", "generated_file_test", "js_library")
-load("//packages/rollup:index.bzl", "rollup_bundle")
-
-rollup_bundle(
-    name = "runfiles_pkg_bundled",
-    config_file = "rollup.config.js",
-    entry_points = {
-        "//packages/runfiles:index.js": "index_bundled",
-    },
-    format = "cjs",
-    sourcemap = "false",
-    deps = [
-        "//packages/runfiles:runfiles_lib",
-        "@npm//@rollup/plugin-commonjs",
-        "@npm//@rollup/plugin-node-resolve",
-    ],
-)
+load("//:index.bzl", "js_library")
 
 js_library(
     name = "runfiles_js",
     srcs = ["index.cjs"],
     visibility = ["//internal/linker:__pkg__"],
-)
-
-# Assert that we keep the `index.js` file up-to-date when the
-# unfile helpers change.
-generated_file_test(
-    name = "runfiles_checked_in",
-    src = "index.cjs",
-    generated = "index_bundled.js",
 )
 
 # END-INTERNAL

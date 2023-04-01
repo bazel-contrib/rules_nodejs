@@ -18,7 +18,6 @@ example_integration_test(
     name = "examples_angular",
     timeout = "long",
     npm_packages = {
-        "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = [
@@ -64,7 +63,6 @@ example_integration_test(
 example_integration_test(
     name = "examples_app",
     npm_packages = {
-        "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
 )
@@ -108,7 +106,6 @@ example_integration_test(
 example_integration_test(
     name = "examples_kotlin",
     npm_packages = {
-        "//packages/rollup:npm_package": "@bazel/rollup",
     },
     tags = [
         # Bintray was removed from the internet, and the version of
@@ -143,7 +140,6 @@ example_integration_test(
         "test ... --enable_runfiles",
     ],
     npm_packages = {
-        "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
 )

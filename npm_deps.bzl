@@ -545,9 +545,3 @@ filegroup(
         # TODO: fix tests when this flag is flipped
         exports_directories_only = False,
     )
-
-    yarn_install(
-        name = "rollup_test_multi_linker_deps",
-        package_json = "//packages/rollup/test/multi_linker:package.json",
-        yarn_lock = "//packages/rollup/test/multi_linker:yarn.lock",
-    )

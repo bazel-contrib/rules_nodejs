@@ -1,5 +1,5 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("//packages/rollup:index.bzl", "rollup_bundle")
+load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 
 package(default_visibility = ["//visibility:public"])
@@ -29,14 +29,9 @@ filegroup(
     ],
 )
 
-rollup_bundle(
+copy_to_bin(
     name = "bundle",
-    config_file = "rollup.config.js",
-    entry_point = "bin.js",
-    sourcemap = "hidden",
-    deps = [
-        "@npm//@rollup/plugin-commonjs",
-        "@npm//@rollup/plugin-node-resolve",
-        "@npm//unidiff",
-    ],
+    srcs = ["bundle.js"],
 )
+
+exports_files(["bundle.js"])

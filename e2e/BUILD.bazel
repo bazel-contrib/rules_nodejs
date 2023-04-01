@@ -67,19 +67,6 @@ e2e_integration_test(
     tags = ["no-bazelci-windows"],
 )
 
-# rollup rules are tested in the e2e_webapp
-test_suite(
-    name = "e2e_rollup",
-    tests = ["e2e_webapp"],
-)
-
-e2e_integration_test(
-    name = "e2e_webapp",
-    npm_packages = {
-        "//packages/rollup:npm_package": "@bazel/rollup",
-    },
-)
-
 e2e_integration_test(
     name = "e2e_bazel_run_chdir",
     bazel_commands = [

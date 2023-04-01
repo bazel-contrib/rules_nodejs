@@ -93,10 +93,6 @@ See Protractor usage in [examples/app](https://github.com/bazelbuild/rules_nodej
 
 See [examples/react_webpack](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/react_webpack)
 
-### Rollup
-
-The example at [examples/webapp](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/webapp) uses Rollup, and produces an app with ES5 and ES2015 variants ("differential loading") that gives faster loading in modern browsers without dropping support for legacy ones.
-
 ### Parcel
 
 The example in [examples/parcel](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/parcel) shows how to write a custom rule, it happens to use the parcel binary to build. It's a very minimal example but might be enough to get you started. 

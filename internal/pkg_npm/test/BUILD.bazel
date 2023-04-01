@@ -1,5 +1,4 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
-load("//packages/rollup:index.bzl", "rollup_bundle")
 load("//packages/typescript:index.bzl", "ts_project")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 
@@ -14,15 +13,6 @@ ts_project(
     srcs = ["foo.ts"],
     data = ["data.json"],
     tsconfig = {},
-)
-
-rollup_bundle(
-    name = "rollup/bundle/subdirectory",
-    entry_points = {
-        "foo.ts": "index",
-    },
-    output_dir = True,
-    deps = [":ts_project"],
 )
 
 pkg_npm(
@@ -44,9 +34,7 @@ pkg_npm(
         "replace_me": "replaced",
     },
     deps = [
-        ":bundle.min.js",
         ":produces_files",
-        ":rollup/bundle/subdirectory",
         ":ts_project",
         "//internal/pkg_npm/test/transition:test_lib",
     ],
@@ -54,18 +42,10 @@ pkg_npm(
 
 pkg_npm(
     name = "test_noop_pkg",
-    # Special case where these is a single dep that is a directory artifact
-    # then we assume the package is contained within that single directory
-    # and the pkg_npm rules does not need to copy any files
-    deps = [":rollup/bundle/subdirectory"],
 )
 
 pkg_npm(
     name = "test_noop2_pkg",
-    # Special case where these is a single dep that is a directory artifact
-    # then we assume the package is contained within that single directory
-    # and the pkg_npm rules does not need to copy any files
-    srcs = [":rollup/bundle/subdirectory"],
 )
 
 sh_test(
