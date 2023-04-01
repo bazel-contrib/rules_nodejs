@@ -9,7 +9,6 @@ module.exports = {
         'builtin',
         'create',
         'examples',
-        'jasmine',
         'rollup',
         'runfiles',
         'terser',

@@ -1,6 +1,0 @@
-load("//packages/jasmine:index.bzl", "jasmine_node_test")
-
-jasmine_node_test(
-    name = "jasmine_import",
-    srcs = ["jasmine_import.spec.mjs"],
-)

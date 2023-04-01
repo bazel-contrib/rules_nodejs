@@ -1,4 +1,3 @@
-load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/typescript:index.bzl", "ts_project")
 
 ts_project(
@@ -10,13 +9,5 @@ ts_project(
         "//packages/runfiles:bazel_runfiles",
         "@npm//@types/jasmine",
         "@npm//@types/node",
-    ],
-)
-
-jasmine_node_test(
-    name = "unit_tests",
-    srcs = ["test_lib"],
-    data = [
-        "//internal/linker:linker_js",
     ],
 )

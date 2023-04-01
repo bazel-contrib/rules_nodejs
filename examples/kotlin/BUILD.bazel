@@ -3,7 +3,6 @@
 
 load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "pkg_web")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_js_import", "kt_js_library")
-load("@npm//@bazel/jasmine:index.bzl", "jasmine_node_test")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//http-server:index.bzl", "http_server")
 
@@ -58,18 +57,4 @@ http_server(
     name = "server",
     data = [":package"],
     templated_args = ["package"],
-)
-
-jasmine_node_test(
-    name = "test",
-    srcs = ["spec.js"],
-    data = [
-        ":bundle",
-        "@npm//domino",
-    ],
-    templated_args = [
-        # TODO: don't rely on patching require()
-        "--bazel_patch_module_resolver",
-        "--node_options=--experimental-modules",
-    ],
 )

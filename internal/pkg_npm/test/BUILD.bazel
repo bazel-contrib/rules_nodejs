@@ -1,5 +1,4 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
-load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 load("//packages/typescript:index.bzl", "ts_project")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
@@ -82,21 +81,6 @@ sh_test(
         "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
     ],
     tags = ["no-rbe"],
-)
-
-jasmine_node_test(
-    name = "test",
-    srcs = ["pkg_npm.spec.js"],
-    data = [
-        ":test_noop2_pkg",
-        ":test_noop_pkg",
-        ":test_pkg",
-    ],
-    templated_args = [
-        "$(rootpath :test_pkg)",
-        "$(rootpath :test_noop_pkg)",
-        "$(rootpath :test_noop2_pkg)",
-    ],
 )
 
 genrule(
