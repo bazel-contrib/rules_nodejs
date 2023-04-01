@@ -8,7 +8,6 @@ generate_codeowners(
     # do not sort
     owners = [
         "//:OWNERS",
-        "//packages/rollup:OWNERS",
         "//examples:OWNERS.examples_jest",
         "//examples:OWNERS.examples_nestjs",
         "//examples:OWNERS.examples_angular",

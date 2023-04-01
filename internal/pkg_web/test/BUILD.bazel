@@ -1,6 +1,3 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
-load("@npm//@babel/cli:index.bzl", "babel")
-load("//packages/rollup:index.bzl", "rollup_bundle")
 load("//packages/typescript:index.bzl", "ts_project")
 
 package(default_visibility = ["//visibility:public"])
@@ -9,45 +6,4 @@ ts_project(
     name = "script",
     srcs = ["script.ts"],
     tsconfig = {},
-)
-
-rollup_bundle(
-    name = "bundle",
-    entry_point = ":script.ts",
-    sourcemap = "true",
-    deps = [":script"],
-)
-
-babel(
-    name = "bundle.es2015",
-    outs = [
-        "bundle.es2015.js",
-        "bundle.es2015.js.map",
-    ],
-    args = [
-        "$(execpath :bundle.js)",
-        "--no-babelrc",
-        "--source-maps",
-        "--presets=@babel/preset-env",
-        "--out-file",
-        "$(execpath :bundle.es2015.js)",
-    ],
-    data = [
-        "bundle.js",
-        "bundle.js.map",
-        "@npm//@babel/preset-env",
-    ],
-)
-
-pkg_web(
-    name = "pkg",
-    srcs = [
-        "index.html",
-        ":bundle",
-        ":bundle.es2015",
-    ],
-    stamp = "@rules_nodejs//nodejs/stamp:always",
-    substitutions = {
-        "${version}": "{BUILD_SCM_VERSION}",
-    },
 )

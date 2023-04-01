@@ -1,3 +1,0 @@
-const json_key = "json_value";
-
-console.log(json_key);
