@@ -1,9 +1,0 @@
-load("//:index.bzl", "js_library")
-
-package(default_visibility = ["//packages/rollup:__subpackages__"])
-
-js_library(
-    name = "fumlib",
-    package_name = "fumlib",
-    srcs = ["index.js"],
-)

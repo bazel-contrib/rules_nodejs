@@ -96,7 +96,7 @@ my_rule(
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
 PKG_NPM_ATTRS = {
     "deps": attr.label_list(
-        doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
+        doc = """Other targets which produce files that should be included in the package`""",
         allow_files = True,
     ),
     "nested_packages": attr.label_list(

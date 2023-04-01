@@ -1,33 +1,4 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
-load("@npm//@babel/cli:index.bzl", "babel")
-load("//packages/rollup:index.bzl", "rollup_bundle")
-
-rollup_bundle(
-    name = "local_bundle",
-    entry_point = ":script.js",
-    sourcemap = "true",
-)
-
-babel(
-    name = "local_bundle.es2015",
-    outs = [
-        "local_bundle.es2015.js",
-        "local_bundle.es2015.js.map",
-    ],
-    args = [
-        "$(execpath :local_bundle.js)",
-        "--no-babelrc",
-        "--source-maps",
-        "--presets=@babel/preset-env",
-        "--out-file",
-        "$(execpath :local_bundle.es2015.js)",
-    ],
-    data = [
-        "local_bundle.js",
-        "local_bundle.js.map",
-        "@npm//@babel/preset-env",
-    ],
-)
 
 
 # Same exts as //internal/pkg_web/test-exports, //internal/pkg_web/test2/rel-exports
@@ -40,12 +11,6 @@ pkg_web(
     name = "pkg",
     srcs = [
                "index.html",
-               # bundles from a different directory
-               "//internal/pkg_web/test:bundle.es2015",
-               "//internal/pkg_web/test:bundle",
-               # bundles in the current path
-               ":local_bundle.es2015",
-               ":local_bundle",
            ] +
            # bin + gen + exported files from a different directory
            ["//internal/pkg_web/test-exports:bin-" + e for e in EXTS] +

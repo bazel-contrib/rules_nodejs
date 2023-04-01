@@ -14,7 +14,7 @@
 
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@npm_node_patches//typescript:index.bzl", "tsc")
-load("//packages/rollup:index.bzl", "rollup_bundle")
+load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -68,13 +68,7 @@ nodejs_test(
     ],
 )
 
-rollup_bundle(
+copy_to_bin(
     name = "bundle",
-    srcs = js,
-    config_file = "rollup.config.js",
-    entry_point = "register.js",
-    format = "cjs",
-    sourcemap = "false",
-    tags = ["fix-windows"],
-    deps = ["@npm//@rollup/plugin-commonjs"],
+    srcs = ["bundle.cjs"],
 )
