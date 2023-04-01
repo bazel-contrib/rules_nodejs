@@ -334,11 +334,6 @@ def js_library(
     A typical example usage of `js_library` is to expose some sources with a package name:
 
     ```python
-    ts_project(
-        name = "compile_ts",
-        srcs = glob(["*.ts"]),
-    )
-
     js_library(
         name = "my_pkg",
         # Code that depends on this target can import from "@myco/mypkg"
@@ -346,7 +341,7 @@ def js_library(
         # Consumers might need fields like "main" or "typings"
         srcs = ["package.json"],
         # The .js and .d.ts outputs from above will be part of the package
-        deps = [":compile_ts"],
+        data = glob(["*.js"]),
     )
     ```
 

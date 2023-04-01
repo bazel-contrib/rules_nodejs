@@ -1,6 +1,5 @@
 load("//:index.bzl", "js_library")
 load(":transitive_declarations_test.bzl", "transitive_declarations_test_suite")
-load("//packages/typescript:index.bzl", "ts_project")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 
 js_library(
@@ -11,20 +10,12 @@ js_library(
     ],
 )
 
-ts_project(
-    name = "b",
-    srcs = ["b.ts"],
-    tsconfig = {},
-    deps = ["c"],
-)
-
 js_library(
     name = "a",
     srcs = [
         "a.d.ts",
         "e.json",
     ],
-    deps = ["b"],
 )
 
 js_library(
@@ -38,7 +29,6 @@ build_test(
     name = "json_import",
     targets = [
         "c",
-        "b",
         "a",
     ],
 )

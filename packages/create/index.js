@@ -118,7 +118,6 @@ function main(argv, error = console.error, log = console.log) {
       '# See https://docs.bazel.build/versions/main/build-ref.html#BUILD_files\n\n';
 
   if (args['typescript']) {
-    devDependencies['@bazel/typescript'] = 'latest';
     devDependencies['typescript'] = 'latest';
     write('tsconfig.json', `\
 {

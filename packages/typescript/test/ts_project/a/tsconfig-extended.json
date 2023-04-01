@@ -1,4 +1,0 @@
-// This file is an extra hop of indirection, regression test for #1754
-{
-    "extends": "../tsconfig-base"
-}
