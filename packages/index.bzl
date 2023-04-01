@@ -17,7 +17,6 @@
 
 NPM_PACKAGES = ["@bazel/%s" % pkg for pkg in [
     "create",
-    "jasmine",
     "rollup",
     "runfiles",
     "typescript",

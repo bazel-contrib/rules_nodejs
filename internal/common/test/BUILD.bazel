@@ -1,7 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
 load("//internal/common:params_file.bzl", "params_file")
-load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load(":expand_into_runfiles_test.bzl", "expand_into_runfiles_test_suite")
 load(":preserve_legacy_templated_args_test.bzl", "preserve_legacy_templated_args_test_suite")
 
@@ -48,16 +47,6 @@ params_file(
     data = [
         ":locations_in",
         "//:package.json",
-    ],
-)
-
-jasmine_node_test(
-    name = "params_file_test",
-    srcs = [":params_file.spec.js"],
-    data = [":params_file.out"],
-    templated_args = [
-        "$(TARGET_CPU)",
-        "$(COMPILATION_MODE)",
     ],
 )
 

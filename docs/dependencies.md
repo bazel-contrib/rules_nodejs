@@ -135,11 +135,11 @@ nodejs_binary(
 In this case, the `bar` nodejs_binary depends only the `foo` and `baz` npm packages
 and all of their transitive deps.
 
-For other rules such as `jasmine_node_test`, fine grained
+For other rules fine grained
 npm dependencies are specified in the `deps` attribute:
 
 ```python
-jasmine_node_test(
+nodejs_test(
     name = "test",
     ...
     deps = [
