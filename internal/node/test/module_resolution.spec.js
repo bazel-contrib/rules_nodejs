@@ -43,14 +43,3 @@ if (require('lib1/src/some').a !== 'lib1 content') {
   console.error('should be able to deep-import from a nested src dir');
   process.exitCode = 1;
 }
-
-if (require('lib2').a !== 'lib2 content') {
-  console.error('should resolve a nested index from a mixed source & generated js_library');
-  process.exitCode = 1;
-}
-
-if (require('lib2/src/some').a !== 'lib2 content') {
-  console.error(
-      'should be able to deep-import from a nested src dir in a a mixed source & generated js_library');
-  process.exitCode = 1;
-}

@@ -85,9 +85,6 @@ if (exitCode != 1) fail('should exit 1 when selecting neither \'yarn\' nor \'npm
 exitCode = main(['--typescript', 'with_ts'], captureError);
 if (exitCode != 0) fail('should be success');
 let pkgContent = read('with_ts/package.json');
-if (pkgContent.indexOf('"@bazel/typescript": "latest"') < 0) {
-  fail('should install @bazel/typescript dependency', pkgContent);
-}
 
 exitCode = main(['different_workspace_dir', '--workspaceDir=some-other-dir'])
 if (exitCode != 0) fail('should be success');

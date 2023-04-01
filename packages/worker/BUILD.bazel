@@ -14,7 +14,7 @@
 
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "js_library")
-load("//packages/typescript:index.bzl", "ts_config", "ts_project")
+load("@npm//typescript:index.bzl", "tsc")
 
 # to update run: bazel run //packages/worker:copy_worker_protocol.update
 generated_file_test(
@@ -26,30 +26,38 @@ generated_file_test(
     ],
 )
 
-ts_config(
-    name = "tsconfig",
-    src = ":tsconfig.json",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//:tsconfig.json",
-    ],
-)
-
-ts_project(
+tsc(
     name = "src",
-    srcs = [
+    args = [
+        "-p",
+        "$(execpath tsconfig.json)",
+        "--outDir",
+        # $(RULEDIR) is a shorthand for the dist/bin directory where Bazel requires we write outputs
+        "$(RULEDIR)",
+    ],
+    data = [
         "index.ts",
         "src/gc.ts",
         "src/size.ts",
         "src/worker.ts",
         "src/worker_protocol.ts",
-    ],
-    declaration = True,
-    tsconfig = ":tsconfig",
-    deps = [
+        "tsconfig.json",
+        "//:tsconfig.json",
         "@npm//@types/google-protobuf",
         "@npm//@types/node",
         "@npm//google-protobuf",
+    ],
+    outs = [
+        "index.js",
+        "src/gc.js",
+        "src/size.js",
+        "src/worker.js",
+        "src/worker_protocol.js",
+        "index.d.ts",
+        "src/gc.d.ts",
+        "src/size.d.ts",
+        "src/worker.d.ts",
+        "src/worker_protocol.d.ts",
     ],
 )
 

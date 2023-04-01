@@ -457,23 +457,12 @@ nodejs_binary(
 )
 ```
 
-You can specify the entry point as a typescript file so long as you also include
-the ts_project target in data:
-
 ```python
-ts_project(
-    name = "main",
-    srcs = ["main.ts"],
-)
-
 nodejs_binary(
     name = "bin",
-    data = [":main"]
-    entry_point = ":main.ts",
+    entry_point = ":main.js",
 )
 ```
-
-The rule will use the corresponding `.js` output of the ts_project rule as the entry point.
 
 If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
 For example:

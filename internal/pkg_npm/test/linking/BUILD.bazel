@@ -23,14 +23,6 @@ tsc(
         # baz: pkg_npm with js, d.ts srcs & no package.json
         "//internal/pkg_npm/test/linking/baz",
         "//internal/pkg_npm/test/linking/baz:scoped_baz",
-        # feb: pkg_npm with ts_project dep & package.json main & typings
-        # "//internal/pkg_npm/test/linking/feb:feb_lib",
-        "//internal/pkg_npm/test/linking/feb",
-        "//internal/pkg_npm/test/linking/feb:scoped_feb",
-        # fez: pkg_npm with ts_project dep & no package.json
-        # "//internal/pkg_npm/test/linking/fez:fez_lib",
-        "//internal/pkg_npm/test/linking/fez",
-        "//internal/pkg_npm/test/linking/fez:scoped_fez",
         # foo: pkg_npm with js_library dep & package.json main & typings
         "//internal/pkg_npm/test/linking/foo:foo_lib",
         "//internal/pkg_npm/test/linking/foo:scoped_foo_lib",
@@ -60,14 +52,6 @@ nodejs_test(
         # baz: pkg_npm with js, d.ts srcs & no package.json
         "//internal/pkg_npm/test/linking/baz",
         "//internal/pkg_npm/test/linking/baz:scoped_baz",
-        # feb: pkg_npm with ts_project dep & package.json main & typings
-        # "//internal/pkg_npm/test/linking/feb:feb_lib",
-        "//internal/pkg_npm/test/linking/feb",
-        "//internal/pkg_npm/test/linking/feb:scoped_feb",
-        # fez: pkg_npm with ts_project dep & no package.json
-        "//internal/pkg_npm/test/linking/fez:fez_lib",
-        "//internal/pkg_npm/test/linking/fez",
-        "//internal/pkg_npm/test/linking/fez:scoped_fez",
         # foo: pkg_npm with js_library dep & package.json main & typings
         "//internal/pkg_npm/test/linking/foo:foo_lib",
         "//internal/pkg_npm/test/linking/foo:scoped_foo_lib",

@@ -15,30 +15,6 @@
 load(":test.bzl", "example_integration_test")
 
 example_integration_test(
-    name = "examples_angular",
-    timeout = "long",
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    owners = [
-        "@alan-agius4",
-        "@jbedard",
-    ],
-
-    # bazel-in-bazel examples_angular fails on Windows on bazelci cloning a git repo:
-    # ```
-    # ERROR: no such package '@io_bazel_rules_k8s//k8s': Traceback (most recent call last):
-    # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 163
-    # 		_clone_or_update(ctx)
-    # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 36, in _clone_or_update
-    # 		git_repo(ctx, directory)
-    # ```
-    # This is most likely due to a memory issue with this large bazel-in-bazel test.
-    # TODO(gregmagolan): figure out what is broken with the above
-    tags = ["no-bazelci-windows"],
-)
-
-example_integration_test(
     name = "examples_create-react-app",
     npm_packages = {
         "//packages/runfiles:npm_package": "@bazel/runfiles",
@@ -46,25 +22,6 @@ example_integration_test(
     # TODO: figure out why this fails on Windows since setting
     # symlink_node_modules to False in the test WORKSPACE
     tags = ["no-bazelci-windows"],
-)
-
-example_integration_test(
-    name = "examples_react_webpack",
-    # TODO: add some tests in the example
-    bazel_commands = ["build ..."],
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    # TODO(alexeagle): somehow this is broken by the new node-patches based node_patches script
-    # ERROR: D:/temp/tmp-6900sejcsrcttpdb/BUILD.bazel:37:1: output 'app.bundle.js' was not created
-    tags = ["no-bazelci-windows"],
-)
-
-example_integration_test(
-    name = "examples_app",
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
 )
 
 example_integration_test(
@@ -91,19 +48,6 @@ example_integration_test(
 )
 
 example_integration_test(
-    name = "examples_jest",
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    owners = ["@mrmeku"],
-    tags = [
-        # ERROR: C:/users/b/_bazel_b/sbb5tpjc/external/npm/BUILD.bazel:5053:10: Copying directory external/npm/_/node_modules/jest-snapshot failed: (Exit 4): cmd.exe failed: error executing command cmd.exe /C bazel-out\x64_windows-fastbuild\bin\external\npm\node_modules\jest-snapshot--603629912-cmd.bat
-        # Insufficient memory
-        "no-bazelci-windows",
-    ],
-)
-
-example_integration_test(
     name = "examples_kotlin",
     npm_packages = {
     },
@@ -123,64 +67,6 @@ example_integration_test(
         "no-bazelci-windows",
     ],
 )
-
-example_integration_test(
-    name = "examples_web_testing",
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-)
-
-example_integration_test(
-    name = "examples_webapp",
-    bazel_commands = [
-        "info",
-        # enable runfiles explicitly so it is on for Windows since directory
-        # artifacts requires runfiles
-        "test ... --enable_runfiles",
-    ],
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-)
-
-example_integration_test(
-    name = "examples_nestjs",
-    bazel_commands = [
-        "test ...",
-        # Test cross-platform build
-        "build --platforms=@rules_nodejs//nodejs:linux_amd64 //src:docker",
-    ],
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    owners = [
-        "@zachgrayio",
-        "@zMotivat0r",
-        "@rayman1104",
-        "@siberex",
-    ],
-    # Fails on transitive dep of rules_docker
-    # error running 'git init C:/users/b/_bazel_b/3oe2yqkh/external/rules_cc' while working with @rules_cc:
-    # java.io.IOException: ERROR: src/main/native/windows/process.cc(199): CreateProcessW("git" init C:/users/b/_bazel_b/3oe2yqkh/external/rules_cc): The system cannot find the file specified
-    #
-    # NB: even after working around that by fetching rules_cc with an http_archive we get a follow-on failure
-    # ERROR: Analysis of target '//src:docker' failed; build aborted: no such package '@nodejs_image_base//image': Pull command failed: java.io.IOException: ERROR: src/main/native/windows/process.cc(199): CreateProcessW("C:\users\b\_bazel_b\vanuqgg3\external\go_puller_linux\file\downloaded" -directory C:/users/b/_bazel_b/vanuqgg3/external/nodejs_image_base/image -os linux -os-version "" -os-features "" -architecture amd64 -variant "" -features "" -name gcr.io/google-appengine/debian9@sha256:c05b781371f75d1bd7a199bc83de177173cc80c98dbfb6c1ef7075757addece4): %1 is not a valid Win32 application.
-    # (error: 193) (C:/users/b/_bazel_b/vanuqgg3/external/go_puller_linux/file/downloaded -directory
-    # C:/users/b/_bazel_b/vanuqgg3/external/nodejs_image_base/image -os linux -os-version  -os-features  -architecture amd64 -variant  -features  -name gcr.io/google-appengine/debian9@sha256:c05b781371f75d1bd7a199bc83de177173cc80c98dbfb6c1ef7075757addece4)
-    tags = ["no-bazelci-windows"],
-)
-
-example_integration_test(
-    name = "examples_protobufjs",
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    # Flakes on windows
-    # TODO: understand flake fail mode and re-enable
-    tags = ["no-bazelci-windows"],
-)
-
 
 example_integration_test(
     name = "examples_vue",

@@ -5,7 +5,6 @@ load("//packages/typescript:index.bzl", "ts_project")
 ts_project(
     name = "runfiles_lib",
     srcs = glob(["*.ts"]),
-    declaration = True,
     tsconfig = "tsconfig.json",
     visibility = ["//internal/runfiles:__pkg__"],
     deps = ["@npm//@types/node"],
