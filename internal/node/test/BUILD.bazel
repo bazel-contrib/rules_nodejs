@@ -1,7 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("@npm//typescript:index.bzl", "tsc")
 load("//:index.bzl", "js_library")
-load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load(":npm_package_bin_test.bzl", "npm_package_bin_test_suite")
@@ -67,16 +66,6 @@ nodejs_binary(
     name = "module_name_test",
     data = [":module_name_lib"],
     entry_point = ":module-name.js",
-)
-
-jasmine_node_test(
-    name = "env_test",
-    srcs = [":env.spec.js"],
-    data = [
-        ":dump_build_env.json",
-        ":dump_build_env_alt.json",
-        ":dump_build_env_attr_json",
-    ],
 )
 
 nodejs_test(
@@ -348,15 +337,6 @@ npm_package_bin(
     tool = ":copy_to_directory",
 )
 
-jasmine_node_test(
-    name = "npm_package_bin_test",
-    srcs = ["npm_package_bin.spec.js"],
-    data = [
-        "dir_output",
-        "minified.js",
-    ],
-)
-
 nodejs_binary(
     name = "expand_variables",
     entry_point = "expand_variables.js",
@@ -384,23 +364,6 @@ npm_package_bin(
         "SOME0ARG": "some0arg",
     },
     tool = ":expand_variables",
-)
-
-jasmine_node_test(
-    name = "expand_variables_test",
-    srcs = [":expand_variables.spec.js"],
-    data = [":expand_variables.out"],
-    templated_args = [
-        "$(rootpath :expand_variables.out)",
-        "$(execpath :expand_variables.out)",
-        "$(COMPILATION_MODE)",
-        "$(TARGET_CPU)",
-        "$(BINDIR)",
-        "$(SOME_TEST_ENV)",
-        # Should preserve lone $ in templated_args
-        "somearg$",
-        "some$#arg",
-    ],
 )
 
 nodejs_binary(

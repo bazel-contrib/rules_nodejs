@@ -15,64 +15,11 @@
 load(":test.bzl", "e2e_integration_test")
 
 e2e_integration_test(
-    name = "e2e_bazel_managed_deps",
-    npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
-    },
-    # TODO: figure out why this fails on Windows since setting
-    # symlink_node_modules to False in the test WORKSPACE
-    tags = ["no-bazelci-windows"],
-)
-
-e2e_integration_test(
-    name = "e2e_coverage",
-    bazel_commands = [
-        "info",
-        "coverage ...",
-    ],
-    npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
-    },
-    # Coverage not working on Windows. Looks like a bazel issue.
-    # ==================== Test output for //:coverage_test:
-    # ERROR(tools/test/windows/tw.cc:1262) ERROR: src/main/native/windows/process.cc(199): CreateProcessW("C:\users\b\_bazel_b\tpt6yasm\execroot\e2e_coverage\bazel-out\x64_windows-fastbuild\bin\coverage_test.bat.runfiles\bazel_tools\tools\test\collect_coverage.sh"  ./coverage_test.bat): The system cannot find the file specified.
-    #  (error: 2)
-    # ERROR(tools/test/windows/tw.cc:1419) Failed to start test process (arg: C:\users\b\_bazel_b\tpt6yasm\execroot\e2e_coverage\bazel-out\x64_windows-fastbuild\bin\coverage_test.bat.runfiles\bazel_tools\tools\test\collect_coverage.sh)
-    tags = [
-        "no-bazelci-windows",
-    ],
-)
-
-e2e_integration_test(
     name = "e2e_fine_grained_symlinks",
     # TODO: figure out why this fails on Windows since setting
     # symlink_node_modules to False in the test WORKSPACE
     tags = ["no-bazelci-windows"],
 )
-
-[e2e_integration_test(
-    name = "e2e_jasmine_%s" % jasmine_version.replace(".", "_"),
-    npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
-    },
-    # use these package.json packages instead
-    package_json_substitutions = {
-        "jasmine": jasmine_version,
-        "jasmine-core": jasmine_version,
-    },
-    # TODO: figure out why this fails on Windows since setting
-    # symlink_node_modules to False in the test WORKSPACE
-    tags = ["no-bazelci-windows"],
-    workspace_root = "jasmine",
-) for jasmine_version in [
-    # TODO(6.0): remove old API tests
-    # Old API
-    "2.99.x",
-    "3.9.x",
-    "3.10.x",
-    # New API
-    "4.0.x",
-]]
 
 e2e_integration_test(
     name = "e2e_node_loader_preserve_symlinks",

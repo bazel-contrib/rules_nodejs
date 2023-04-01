@@ -108,7 +108,6 @@ example_integration_test(
 example_integration_test(
     name = "examples_kotlin",
     npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/rollup:npm_package": "@bazel/rollup",
     },
     tags = [
@@ -157,7 +156,6 @@ example_integration_test(
         "build --platforms=@rules_nodejs//nodejs:linux_amd64 //src:docker",
     ],
     npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     owners = [
@@ -180,7 +178,6 @@ example_integration_test(
 example_integration_test(
     name = "examples_protobufjs",
     npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     # Flakes on windows
@@ -188,14 +185,6 @@ example_integration_test(
     tags = ["no-bazelci-windows"],
 )
 
-example_integration_test(
-    name = "examples_vendored_node_and_yarn",
-    npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
-    },
-    # TODO: make it find node.exe rather than rely on us writing a .cmd wrapper
-    tags = ["no-bazelci-windows"],
-)
 
 example_integration_test(
     name = "examples_vue",

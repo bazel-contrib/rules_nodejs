@@ -1,6 +1,5 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//@babel/cli:index.bzl", "babel")
-load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 
 rollup_bundle(
@@ -56,16 +55,4 @@ pkg_web(
            ["//internal/pkg_web/test2/rel-exports:rel-bin-" + e for e in EXTS] +
            ["//internal/pkg_web/test2/rel-exports:rel-gen-" + e for e in EXTS] +
            ["//internal/pkg_web/test2/rel-exports:rel-file." + e for e in EXTS],
-)
-
-jasmine_node_test(
-    name = "test",
-    srcs = ["spec.js"],
-    data = [
-        "index_golden.html_",
-        ":pkg",
-    ],
-    tags = [
-        "fix-windows",
-    ],
 )

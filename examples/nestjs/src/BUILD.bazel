@@ -14,7 +14,6 @@
 
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
-load("@npm//@bazel/jasmine:index.bzl", "jasmine_node_test")
 load("@npm//@bazel/typescript:index.bzl", "ts_project")
 
 package(default_visibility = ["//visibility:public"])
@@ -64,13 +63,6 @@ nodejs_binary(
         "@npm//minimist",
     ],
     entry_point = ":main.ts",
-)
-
-jasmine_node_test(
-    name = "test",
-    deps = [
-        ":test_lib",
-    ],
 )
 
 # bazel build --platforms=@rules_nodejs//nodejs:linux_amd64 //src:docker

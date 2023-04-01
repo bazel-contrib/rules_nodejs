@@ -1,4 +1,3 @@
-load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/typescript:index.bzl", "ts_project")
 
 package(default_visibility = ["//packages/typescript/test:__subpackages__"])
@@ -25,10 +24,4 @@ ts_project(
         "@npm//@types/jasmine",
         "@npm//@types/node",
     ],
-)
-
-jasmine_node_test(
-    name = "test",
-    srcs = ["b.spec.js"],
-    data = [":b"],
 )

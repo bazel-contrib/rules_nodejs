@@ -1,8 +1,0 @@
-load("//packages/jasmine:index.bzl", "jasmine_node_test")
-
-jasmine_node_test(
-    name = "test",
-    srcs = ["test.js"],
-    tags = ["local"],
-    deps = ["//internal/linker/test/local/fit"],
-)

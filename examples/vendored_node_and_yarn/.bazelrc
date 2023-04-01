@@ -1,5 +1,0 @@
-import %workspace%/../../common.bazelrc
-
-# ensure that the globs that are used in node_repositories are removed when
-# using vendored node or yarn
-build --incompatible_disallow_empty_glob

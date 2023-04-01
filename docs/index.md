@@ -44,7 +44,6 @@ It also supports running Node.js programs and has a number of useful rules.
     This is required when rules have JavaScript code which wants to `require` from peerDependency packages,
     since the node resolution algorithm requires the callsite of `require` to be in the node_modules tree.
     
-    - [Jasmine](Jasmine.md)
     - [Labs](Labs.md)
     - [Rollup](Rollup.md)
     - [Terser](Terser.md)

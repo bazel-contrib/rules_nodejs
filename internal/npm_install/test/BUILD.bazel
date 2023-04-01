@@ -1,6 +1,5 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
-load("//packages/jasmine:index.bzl", "jasmine_node_test")
 
 filegroup(
     name = "goldens",
@@ -15,26 +14,6 @@ filegroup(
 filegroup(
     name = "goldens_multi_linked",
     srcs = glob(["golden_multi_linked/**"]),
-)
-
-jasmine_node_test(
-    name = "test",
-    srcs = ["generate_build_file.spec.js"],
-    data = [
-        "package.spec.json",
-        ":check.js",
-        ":goldens",
-        ":goldens_directory_artifacts",
-        ":goldens_multi_linked",
-        "//internal/npm_install:compile_generate_build_file",
-        "@fine_grained_directory_artifacts_goldens//:golden_files",
-        "@fine_grained_goldens//:golden_files",
-        "@fine_grained_goldens_multi_linked//:golden_files",
-        "@npm//unidiff",
-    ],
-    # Depends on having the .js file in source tree but resolve relative paths
-    # to .js files in the output tree
-    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 nodejs_binary(
@@ -90,20 +69,6 @@ npm_umd_bundle(
     package = "@npm//typeorm",
 )
 
-jasmine_node_test(
-    name = "browserify_test",
-    srcs = ["browserify.spec.js"],
-    data = [
-        ":core-util-is.umd.js",
-        ":minimist.umd.js",
-        ":rxjs.umd.js",
-        ":sinon.umd.js",
-        ":typeorm.umd.js",
-        "//internal/npm_install:browserify-wrapped",
-        "@npm//date-fns:date-fns.umd.js",
-    ],
-)
-
 sh_test(
     name = "bazel_bin_test",
     srcs = ["bazel_bin_test.sh"],
@@ -112,102 +77,6 @@ sh_test(
         "@npm//testy/bin:testy",
     ],
 )
-
-# Test what happens when we depend on the catch-all "node_modules" target rather
-# than declare our dependencies on individual npm packages.
-[jasmine_node_test(
-    name = "test_%s" % pkgmgr,
-    srcs = [
-        "coarse.spec.js",
-        "common.spec.js",
-        "@fine_grained_deps_%s//:node_modules" % pkgmgr,
-    ],
-    env = env,
-    tags = [
-        "no-local-jasmine-deps",
-        # On Windows this test must be exclusive as it runs outside of the sandbox
-        # TODO: fix the yarn_install paths on these tests so they occupy different
-        #       directories and can run in parallel outside of the sandbox
-        "exclusive",
-    ],
-    templated_args = select({
-        # TODO: make this test work on Windows without patch module resolver
-        "@bazel_tools//src/conditions:host_windows": ["--bazel_patch_module_resolver"],
-        "//conditions:default": [],
-    }),
-    deps = [
-        "@fine_grained_deps_%s//jasmine" % pkgmgr,
-        "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
-    ],
-) for (pkgmgr, env) in [
-    [
-        "yarn",
-        {},
-    ],
-    [
-        "npm",
-        {},
-    ],
-    [
-        "yarn_directory_artifacts",
-        {"DIRECTORY_ARTIFACTS": "1"},
-    ],
-    [
-        "npm_directory_artifacts",
-        {"DIRECTORY_ARTIFACTS": "1"},
-    ],
-]]
-
-# Test what happens when only certain NPM packages are in our dependencies.
-# These packages and their dependencies are copied to the execroot, but
-# the rest are not.
-[jasmine_node_test(
-    name = "fine_grained_test_%s" % pkgmgr,
-    srcs = [
-        "common.spec.js",
-        "fine.spec.js",
-    ],
-    env = env,
-    tags = [
-        "no-local-jasmine-deps",
-        # On Windows this test must be exclusive as it runs outside of the sandbox
-        # TODO: fix the yarn_install paths on these tests so they occupy different
-        #       directories and can run in parallel outside of the sandbox
-        "exclusive",
-    ],
-    templated_args = select({
-        # TODO: make this test work on Windows without patch module resolver
-        "@bazel_tools//src/conditions:host_windows": ["--bazel_patch_module_resolver"],
-        "//conditions:default": [],
-    }),
-    deps = [
-        "@fine_grained_deps_%s//jasmine" % pkgmgr,
-        "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
-        "@fine_grained_deps_%s//ajv" % pkgmgr,
-        "@fine_grained_deps_%s//typescript" % pkgmgr,
-        "@fine_grained_deps_%s//rxjs" % pkgmgr,
-        # Note, test-b depends on test-a@0.0.1 which should be
-        # layed out at node_modules/test-b/node_modules/test-a
-        "@fine_grained_deps_%s//@gregmagolan/test-b" % pkgmgr,
-    ] + (["@fine_grained_deps_%s//local-module" % pkgmgr] if not "DIRECTORY_ARTIFACTS" in env else []),
-) for (pkgmgr, env) in [
-    [
-        "yarn",
-        {},
-    ],
-    [
-        "npm",
-        {},
-    ],
-    [
-        "yarn_directory_artifacts",
-        {"DIRECTORY_ARTIFACTS": "1"},
-    ],
-    [
-        "npm_directory_artifacts",
-        {"DIRECTORY_ARTIFACTS": "1"},
-    ],
-]]
 
 # A target to run that ensures yarn_install works for the case that there is
 # no node_modules/.bin folder since @fine_grained_no_bin does not contain

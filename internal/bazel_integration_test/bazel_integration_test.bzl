@@ -165,7 +165,6 @@ This can be used to verify that all npm package artifacts that need to be tested
 replaced in all integration tests. For example,
 ```
 check_npm_packages = [
-    "@bazel/jasmine",
     "@bazel/typescript",
 ],
 ```
@@ -182,7 +181,6 @@ package.json with generated npm package targets. The targets should be pkg_npm r
 For example,
 ```
 npm_packages = {
-    "//packages/jasmine:npm_package": "@bazel/jasmine",
     "//packages/typescript:npm_package": "@bazel/typescript",
 }
 ```""",

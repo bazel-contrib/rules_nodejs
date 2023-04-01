@@ -1,6 +1,5 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//@babel/cli:index.bzl", "babel")
-load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 load("//packages/typescript:index.bzl", "ts_project")
 
@@ -51,10 +50,4 @@ pkg_web(
     substitutions = {
         "${version}": "{BUILD_SCM_VERSION}",
     },
-)
-
-jasmine_node_test(
-    name = "test",
-    srcs = ["spec.js"],
-    data = [":pkg"],
 )

@@ -1,4 +1,3 @@
-load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
 
 checked_in_ts_project(
@@ -8,31 +7,5 @@ checked_in_ts_project(
     deps = [
         "@npm//@types/jasmine",
         "@npm//@types/node",
-    ],
-)
-
-# Test with a .js file in the output-tree to ensure that we can
-# resolve multi-linked node_modules from that context
-jasmine_node_test(
-    name = "test",
-    srcs = ["test.js"],
-    deps = [
-        "//internal/linker/test/multi_linker/onep_a",
-        "//internal/linker/test/multi_linker/onep_b",
-        "@internal_test_multi_linker_deps//semver",
-        "@npm//semver",
-    ],
-)
-
-# Test with a .js file from the source tree to ensure that we can
-# resolve multi-linked node_modules from that context
-jasmine_node_test(
-    name = "from_sources_test",
-    srcs = ["checked_in_test.js"],
-    deps = [
-        "//internal/linker/test/multi_linker/onep_a",
-        "//internal/linker/test/multi_linker/onep_b",
-        "@internal_test_multi_linker_deps//semver",
-        "@npm//semver",
     ],
 )

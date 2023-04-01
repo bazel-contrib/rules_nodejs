@@ -62,7 +62,6 @@ stardoc(
 _READMES = {
     "Built-ins": "//docs:builtins.md_",
     "Core": "//docs:core.md_",
-    "Jasmine": "//packages/jasmine:README.md",
     "Providers": "//docs:providers.md_",
     "Rollup": "//packages/rollup:README.md",
     "TypeScript": "//packages/typescript:README.md",

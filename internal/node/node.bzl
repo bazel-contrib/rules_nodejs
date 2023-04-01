@@ -690,7 +690,6 @@ https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl
 
 If you just want to run a standard test using a test runner from npm, use the generated
 *_test target created by npm_install/yarn_install, such as `mocha_test`.
-Some test runners like Karma and Jasmine have custom rules with added features, e.g. `jasmine_node_test`.
 
 By default, Bazel runs tests with a working directory set to your workspace root.
 Use the `chdir` attribute to change the working directory before the program starts.
