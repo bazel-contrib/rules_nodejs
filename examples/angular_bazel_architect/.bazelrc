@@ -1,5 +1,0 @@
-import %workspace%/../../common.bazelrc
-
-# The Angular CLI will by default try to write to a cache, but under Bazel it's a read only fs
-# so we need to disable it with this env var
-build --define=NG_BUILD_CACHE=false
