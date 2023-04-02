@@ -3,17 +3,6 @@ description: Suggest an idea for the rules_nodejs toolchain
 title: "[FR]: "
 labels: ["enhancement"]
 body:
-
-  - type: markdown
-    attributes:
-      value: |
-        **rules_nodejs is mostly unmaintained!**
-        
-        Only the "core" module (code under the /nodejs folder) is maintained by volunteers from Aspect.dev.
-        This includes only the nodejs toolchain and a few Provider types.
-
-        Features outside that module are probably never going to be built or accepted.
-
   - type: textarea
     id: current
     attributes:

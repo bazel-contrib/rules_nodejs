@@ -3,18 +3,6 @@ description: File a bug report to help us improve
 title: "[Bug]: "
 labels: ["bug"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        **rules_nodejs is mostly unmaintained!**
-        
-        Only the "core" module (code under the /nodejs folder) is maintained by volunteers from Aspect.dev.
-        This includes only the nodejs toolchain and a few Provider types.
-
-        If you're having an issue with anything else, you can still file it but you shouldn't expect any help.
-
-        If you're looking for support, try the `#javascript` channel on [Bazel slack](https://slack.bazel.build).
-
   - type: textarea
     id: what-happened
     attributes:
