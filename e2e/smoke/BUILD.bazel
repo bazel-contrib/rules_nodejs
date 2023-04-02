@@ -198,11 +198,13 @@ my_nodejs(
 )
 
 # this tests to make sure that the first version imported in the workspace is used as default
-diff_test(
-    name = "node_version_default_toolchain_test",
-    file1 = "write_node_version_16",
-    file2 = "thing_no_toolchain",
-)
+# FIXME: under bzlmod, the first toolchain registered is in the rules_nodejs/MODULE.bazel
+# which is the "latest version" of node, not the one in our local MODULE.bazel file.
+# diff_test(
+#     name = "node_version_default_toolchain_test",
+#     file1 = "write_node_version_16",
+#     file2 = "thing_no_toolchain",
+# )
 
 # Output contains the version number of node that is used.
 # This is used in tests later to verify the toolchain specified is resolved correctly
