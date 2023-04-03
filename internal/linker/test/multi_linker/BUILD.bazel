@@ -1,6 +1,6 @@
-load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
+load("//internal:checked_in_tsc.bzl", "checked_in_tsc")
 
-checked_in_ts_project(
+checked_in_tsc(
     name = "checked_in_test",
     src = "test.ts",
     checked_in_js = "checked_in_test.js",

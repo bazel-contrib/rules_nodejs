@@ -1,23 +1,17 @@
-"checked_in_ts_project rule"
+"checked_in_tsc rule"
 
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
-load("//packages/typescript:index.bzl", "ts_project")
+load("//internal:tsc.bzl", "tsc")
 
-def checked_in_ts_project(name, src, checked_in_js = None, tsconfig = None, **kwargs):
-    """
-    In rules_nodejs "builtin" package, we are creating the toolchain for building
-    tsc-wrapped and executing ts_project, so we cannot depend on them.
-    However, we still want to be able to write our tooling in TypeScript.
-    This macro lets us check in the resulting .js files, and still ensure that they are
-    compiled from the .ts by using a golden file test.
-    """
+def checked_in_tsc(name, src, checked_in_js = None, tsconfig = None, **kwargs):
+    """A tsc rule that also asserts that the generated JS is up-to-date."""
     if not checked_in_js:
         checked_in_js = src[:-3] + ".js"
 
     if tsconfig == None:
         tsconfig = "//:tsconfig.json"
 
-    ts_project(
+    tsc(
         name = name,
         srcs = [src],
         tsconfig = tsconfig,

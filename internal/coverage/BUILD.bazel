@@ -1,9 +1,9 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 # BEGIN-INTERNAL
-load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
+load("//internal:checked_in_tsc.bzl", "checked_in_tsc")
 
-checked_in_ts_project(
+checked_in_tsc(
     name = "lcov_merger_js_lib",
     src = "lcov_merger.ts",
     checked_in_js = "lcov_merger-js.js",

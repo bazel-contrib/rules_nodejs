@@ -155,23 +155,13 @@ The above links will create the targets,
 @npm//target
 ```
 
-that can be referenced as `data` or `deps` by other rules such as `nodejs_binary` and `ts_project`
+that can be referenced as `data` or `deps` by other rules such as `nodejs_binary`
 and can be required as `@scope/target` and `target` with standard node_modules resolution at runtime,
 
 ```
 nodejs_binary(
     name = "bin",
     entry_point = "bin.js",
-    deps = [
-        "@npm//@scope/target",
-        "@npm//target"
-        "@npm//other/dep"
-    ],
-)
-
-ts_project(
-    name = "test",
-    srcs = [...],
     deps = [
         "@npm//@scope/target",
         "@npm//target"
