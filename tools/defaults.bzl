@@ -76,6 +76,7 @@ _GLOBAL_OWNERS = [
     "@alexeagle",
     "@gregmagolan",
     "@mattem",
+    "@jbedard",
 ]
 
 def codeowners(name = "OWNERS", no_parent = False, **kwargs):

@@ -1,8 +1,8 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
-load("//packages/typescript:index.bzl", "ts_project")
+load("//internal:tsc.bzl", "tsc")
 
-ts_project(
+tsc(
     name = "runfiles_lib",
     srcs = glob(["*.ts"]),
     tsconfig = "tsconfig.json",

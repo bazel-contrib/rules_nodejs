@@ -33,7 +33,7 @@ describe('pkg_npm', () => {
   it('copies files from other packages', () => {
     expect(readFromPkg('dependent_file')).toEqual('dependent_file content');
   });
-  it('copies js files from ts_project', () => {
+  it('copies js files from tsc', () => {
     expect(readFromPkg('foo.js')).toContain('exports.a = \'\';');
   });
   it('copies data dependencies', () => {
