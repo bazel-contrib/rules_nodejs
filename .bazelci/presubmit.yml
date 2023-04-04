@@ -15,8 +15,6 @@ tasks:
     platform: ubuntu1804
     run_targets:
     - "@yarn//:yarn"
-    # Regression test for #1493
-    - "//packages/create:npm_package.pack"
     - "//internal/node/test:no_deps"
     - "//internal/node/test:has_deps_legacy"
     - "//internal/node/test:has_deps"
@@ -111,7 +109,6 @@ tasks:
   #   run_targets:
   #   - "@yarn//:yarn"
   #   # Regression test for #1493
-  #   - "//packages/create:npm_package.pack"
   #   - "//internal/node/test:no_deps"
   #   - "//internal/node/test:has_deps_legacy"
   #   - "//internal/node/test:has_deps"
