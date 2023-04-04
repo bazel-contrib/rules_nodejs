@@ -23,7 +23,7 @@ function computeSha256(path) {
 const sha256 = computeSha256(artifact);
 
 if (starlarkModule == 'build_bazel_rules_nodejs') {
-  for (const f of ['docs/install.md', 'packages/create/index.js']) {
+  for (const f of ['docs/install.md']) {
     shell.sed(
         '-i', 'download/[0-9\.]*(-(beta|rc).[0-9]+)?/rules_nodejs-[0-9\.]*(-(beta|rc).[0-9]+)?.tar.gz',
         `download/${version}/rules_nodejs-${version}.tar.gz`, f);

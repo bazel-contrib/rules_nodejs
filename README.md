@@ -38,20 +38,6 @@ If you use code from an `/internal` path, these are not subject to our support p
 Comprehensive documentation for installing and using the rules, including generated API docs:
 https://bazelbuild.github.io/rules_nodejs/
 
-## Quickstart
-
-This is the fastest way to get started.
-See the [installation documentation](https://bazelbuild.github.io/rules_nodejs/install.html) for details and alternative methods, or if you already have a Bazel project and you're adding Node/JavaScript support to it.
-
-```sh
-$ npx @bazel/create my_workspace
-$ cd my_workspace
-```
-
-> The `npx` tool is distributed with node. If you prefer, you can run equivalent commands `npm init @bazel` or `yarn create @bazel`.
-> If you've used `@bazel/create` before, you may want to use `npx @bazel/create@latest` to get the most recent version.
-> Run without any arguments to see available command-line flags.
-
 ## Adopters
 
 Thanks to the following active users!
