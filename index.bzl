@@ -34,14 +34,12 @@ load("//internal/node:node_repositories.bzl", _node_repositories = "node_reposit
 load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/pkg_npm:pkg_npm.bzl", _pkg_npm = "pkg_npm_macro")
-load("//internal/pkg_web:pkg_web.bzl", _pkg_web = "pkg_web")
 
 nodejs_binary = _nodejs_binary
 nodejs_test = _nodejs_test
 node_repositories = _node_repositories
 pkg_npm = _pkg_npm
 npm_package_bin = _npm_bin
-pkg_web = _pkg_web
 copy_to_bin = _copy_to_bin
 params_file = _params_file
 generated_file_test = _generated_file_test
