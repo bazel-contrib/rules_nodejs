@@ -1095,64 +1095,6 @@ Defaults to `True`
 Defaults to `[]`
 
 
-## pkg_web
-
-**USAGE**
-
-<pre>
-pkg_web(<a href="#pkg_web-name">name</a>, <a href="#pkg_web-additional_root_paths">additional_root_paths</a>, <a href="#pkg_web-srcs">srcs</a>, <a href="#pkg_web-stamp">stamp</a>, <a href="#pkg_web-substitutions">substitutions</a>)
-</pre>
-
-Assembles a web application from source files.
-
-**ATTRIBUTES**
-
-
-<h4 id="pkg_web-name">name</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
-
-
-<h4 id="pkg_web-additional_root_paths">additional_root_paths</h4>
-
-(*List of strings*): Path prefixes to strip off all srcs relative to the root of the repo, in addition to the current package. Longest wins.
-
-Defaults to `[]`
-
-<h4 id="pkg_web-srcs">srcs</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Files which should be copied into the package
-
-Defaults to `[]`
-
-<h4 id="pkg_web-stamp">stamp</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Whether to encode build information into the output. Possible values:
-    - `@rules_nodejs//nodejs/stamp:always`:
-        Always stamp the build information into the output, even in [--nostamp][stamp] builds.
-        This setting should be avoided, since it potentially causes cache misses remote caching for
-        any downstream actions that depend on it.
-    - `@rules_nodejs//nodejs/stamp:never`:
-        Always replace build information by constant values. This gives good build result caching.
-    - `@rules_nodejs//nodejs/stamp:use_stamp_flag`:
-        Embedding of build information is controlled by the [--[no]stamp][stamp] flag.
-        Stamped binaries are not rebuilt unless their dependencies change.
-    [stamp]: https://docs.bazel.build/versions/main/user-manual.html#flag--stamp  The dependencies of this attribute must provide: StampSettingInfo
-
-
-Defaults to `@rules_nodejs//nodejs/stamp:use_stamp_flag`
-
-<h4 id="pkg_web-substitutions">substitutions</h4>
-
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Key-value pairs which are replaced in all the files while building the package.
-
-You can use values from the workspace status command using curly braces, for example
-`{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
-See the section on stamping in the README.
-
-Defaults to `{}`
-
-
 ## yarn_install
 
 **USAGE**

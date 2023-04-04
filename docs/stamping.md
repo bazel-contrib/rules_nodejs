@@ -17,7 +17,7 @@ Some rules accept an attribute that uses the status variables.
 
 ## Substitutions attribute
 
-In a `pkg_npm` or `pkg_web` you can use the `substitutions` attribute like:
+In a `pkg_npm` you can use the `substitutions` attribute like:
 
 ```python
 pkg_npm(
