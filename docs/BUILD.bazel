@@ -49,7 +49,6 @@ stardoc(
         "node_modules_aspect",
         "NodeRuntimeDepsInfo",
         "run_node",
-        "NpmPackageInfo",
     ],
     tags = ["fix-windows"],
     deps = [

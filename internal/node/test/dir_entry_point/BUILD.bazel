@@ -1,5 +1,5 @@
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
-load("@rules_nodejs//nodejs:directory_file_path.bzl", "directory_file_path")
+load("//internal/providers:directory_file_path.bzl", "directory_file_path")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "pkg_npm")
 load("@npm//typescript:index.bzl", "tsc")
 load("//internal/common:assert.bzl", "assert_program_produces_stdout")

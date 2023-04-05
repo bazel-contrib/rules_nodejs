@@ -15,21 +15,35 @@
 """
 Public providers, aspects and helpers that are shipped in the built-in build_bazel_rules_nodejs repository.
 
-Note that many providers have moved to the rules_nodejs "core" package. See [Core API doc](./Core.md)
-
 Users should not load files under "/internal"
 """
 
+load(
+    "//internal/providers:declaration_info.bzl",
+    _DeclarationInfo = "DeclarationInfo",
+    _declaration_info = "declaration_info",
+)
+load(
+    "//internal/providers:directory_file_path.bzl",
+    _DirectoryFilePathInfo = "DirectoryFilePathInfo",
+    _directory_file_path = "directory_file_path",
+)
 load(
     "//internal/providers:external_npm_package_info.bzl",
     _ExternalNpmPackageInfo = "ExternalNpmPackageInfo",
     _node_modules_aspect = "node_modules_aspect",
 )
 load(
+    "//internal/providers:linkable_package_info.bzl",
+    _LinkablePackageInfo = "LinkablePackageInfo",
+)
+load(
     "//internal/providers:js_providers.bzl",
     _JSEcmaScriptModuleInfo = "JSEcmaScriptModuleInfo",
+    _JSModuleInfo = "JSModuleInfo",
     _JSNamedModuleInfo = "JSNamedModuleInfo",
     _js_ecma_script_module_info = "js_ecma_script_module_info",
+    _js_module_info = "js_module_info",
     _js_named_module_info = "js_named_module_info",
 )
 load(
@@ -38,35 +52,18 @@ load(
     _run_node = "run_node",
 )
 
-# TODO(6.0): remove these re-exports, they are just for easier migration to 5.0.0
-# This includes everything from
-# https://github.com/bazelbuild/rules_nodejs/blob/4.x/providers.bzl
-# which wasn't removed in 5.0 (NodeContextInfo, NODE_CONTEXT_ATTRS)
-load(
-    "@rules_nodejs//nodejs:providers.bzl",
-    _DeclarationInfo = "DeclarationInfo",
-    _DirectoryFilePathInfo = "DirectoryFilePathInfo",
-    _JSModuleInfo = "JSModuleInfo",
-    _LinkablePackageInfo = "LinkablePackageInfo",
-    _declaration_info = "declaration_info",
-)
-
 DeclarationInfo = _DeclarationInfo
 declaration_info = _declaration_info
-JSModuleInfo = _JSModuleInfo
-LinkablePackageInfo = _LinkablePackageInfo
 DirectoryFilePathInfo = _DirectoryFilePathInfo
-
+directory_file_path = _directory_file_path
 ExternalNpmPackageInfo = _ExternalNpmPackageInfo
-js_ecma_script_module_info = _js_ecma_script_module_info
-js_named_module_info = _js_named_module_info
 JSEcmaScriptModuleInfo = _JSEcmaScriptModuleInfo
+js_ecma_script_module_info = _js_ecma_script_module_info
+JSModuleInfo = _JSModuleInfo
+js_module_info = _js_module_info
 JSNamedModuleInfo = _JSNamedModuleInfo
+js_named_module_info = _js_named_module_info
+LinkablePackageInfo = _LinkablePackageInfo
 node_modules_aspect = _node_modules_aspect
 NodeRuntimeDepsInfo = _NodeRuntimeDepsInfo
 run_node = _run_node
-
-# Export NpmPackageInfo for pre-3.0 legacy support in downstream rule sets
-# such as rules_docker
-# TODO(6.0): remove NpmPackageInfo from rules_docker & then remove it here
-NpmPackageInfo = _ExternalNpmPackageInfo

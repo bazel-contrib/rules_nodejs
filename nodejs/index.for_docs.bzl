@@ -17,26 +17,12 @@ We plan to clean these up and port into `rules_nodejs` in a future major release
 
 load(
     ":providers.bzl",
-    _DeclarationInfo = "DeclarationInfo",
-    _DirectoryFilePathInfo = "DirectoryFilePathInfo",
-    _JSModuleInfo = "JSModuleInfo",
-    _LinkablePackageInfo = "LinkablePackageInfo",
     _UserBuildSettingInfo = "UserBuildSettingInfo",
-    _declaration_info = "declaration_info",
-    _js_module_info = "js_module_info",
 )
-load(":directory_file_path.bzl", _directory_file_path = "directory_file_path")
 load(":repositories.bzl", _node_repositories = "node_repositories")
 load(":yarn_repositories.bzl", _yarn_repositories = "yarn_repositories")
 load(":toolchain.bzl", _node_toolchain = "node_toolchain")
 
-DeclarationInfo = _DeclarationInfo
-declaration_info = _declaration_info
-directory_file_path = _directory_file_path
-JSModuleInfo = _JSModuleInfo
-js_module_info = _js_module_info
-LinkablePackageInfo = _LinkablePackageInfo
-DirectoryFilePathInfo = _DirectoryFilePathInfo
 UserBuildSettingInfo = _UserBuildSettingInfo
 node_repositories = _node_repositories
 node_toolchain = _node_toolchain

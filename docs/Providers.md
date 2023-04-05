@@ -7,8 +7,6 @@
 
 Public providers, aspects and helpers that are shipped in the built-in build_bazel_rules_nodejs repository.
 
-Note that many providers have moved to the rules_nodejs "core" package. See [Core API doc](./Core.md)
-
 Users should not load files under "/internal"
 
 
@@ -122,32 +120,6 @@ do the same.
 <h4 id="NodeRuntimeDepsInfo-pkgs">pkgs</h4>
 
  list of labels of packages that provide ExternalNpmPackageInfo 
-
-
-## NpmPackageInfo
-
-**USAGE**
-
-<pre>
-NpmPackageInfo(<a href="#NpmPackageInfo-direct_sources">direct_sources</a>, <a href="#NpmPackageInfo-path">path</a>, <a href="#NpmPackageInfo-sources">sources</a>, <a href="#NpmPackageInfo-workspace">workspace</a>)
-</pre>
-
-Provides information about one or more external npm packages
-
-**FIELDS**
-
-<h4 id="NpmPackageInfo-direct_sources">direct_sources</h4>
-
- Depset of direct source files in these external npm package(s) 
-<h4 id="NpmPackageInfo-path">path</h4>
-
- The local workspace path that these external npm deps should be linked at. If empty, they will be linked at the root. 
-<h4 id="NpmPackageInfo-sources">sources</h4>
-
- Depset of direct & transitive source files in these external npm package(s) and transitive dependencies 
-<h4 id="NpmPackageInfo-workspace">workspace</h4>
-
- The workspace name that these external npm package(s) are provided from 
 
 
 ## js_ecma_script_module_info
