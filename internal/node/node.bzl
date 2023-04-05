@@ -20,8 +20,8 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("@rules_nodejs//nodejs:providers.bzl", "DirectoryFilePathInfo", "JSModuleInfo", "UserBuildSettingInfo")
-load("//:providers.bzl", "ExternalNpmPackageInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "node_modules_aspect")
+load("@rules_nodejs//nodejs:providers.bzl", "UserBuildSettingInfo")
+load("//:providers.bzl", "DirectoryFilePathInfo", "ExternalNpmPackageInfo", "JSModuleInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:is_js_file.bzl", "is_javascript_file")
 load("//internal/common:maybe_directory_file_path.bzl", "maybe_directory_file_path")
