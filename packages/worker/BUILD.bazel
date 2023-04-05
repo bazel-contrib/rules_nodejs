@@ -28,6 +28,18 @@ generated_file_test(
 
 tsc(
     name = "src",
+    outs = [
+        "index.d.ts",
+        "index.js",
+        "src/gc.d.ts",
+        "src/gc.js",
+        "src/size.d.ts",
+        "src/size.js",
+        "src/worker.d.ts",
+        "src/worker.js",
+        "src/worker_protocol.d.ts",
+        "src/worker_protocol.js",
+    ],
     args = [
         "-p",
         "$(execpath tsconfig.json)",
@@ -46,18 +58,6 @@ tsc(
         "@npm//@types/google-protobuf",
         "@npm//@types/node",
         "@npm//google-protobuf",
-    ],
-    outs = [
-        "index.js",
-        "src/gc.js",
-        "src/size.js",
-        "src/worker.js",
-        "src/worker_protocol.js",
-        "index.d.ts",
-        "src/gc.d.ts",
-        "src/size.d.ts",
-        "src/worker.d.ts",
-        "src/worker_protocol.d.ts",
     ],
 )
 

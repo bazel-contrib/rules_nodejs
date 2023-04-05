@@ -48,18 +48,6 @@ def build_bazel_rules_nodejs_dev_dependencies():
 
     build_bazel_rules_nodejs_dependencies()
 
-    # Dependencies for generating documentation
-    maybe(
-        http_archive,
-        name = "io_bazel_rules_sass",
-        sha256 = "c6249cf64dffbc81312191800b0984b5197d77864c13d0dc4d469937cc3f8108",
-        strip_prefix = "rules_sass-1.32.11",
-        urls = [
-            "https://github.com/bazelbuild/rules_sass/archive/1.32.11.zip",
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.32.11.zip",
-        ],
-    )
-
     maybe(
         http_archive,
         name = "com_google_protobuf",
@@ -103,16 +91,6 @@ def build_bazel_rules_nodejs_dev_dependencies():
 
     maybe(
         http_archive,
-        name = "build_bazel_integration_testing",
-        urls = [
-            "https://github.com/bazelbuild/bazel-integration-testing/archive/165440b2dbda885f8d1ccb8d0f417e6cf8c54f17.zip",
-        ],
-        strip_prefix = "bazel-integration-testing-165440b2dbda885f8d1ccb8d0f417e6cf8c54f17",
-        sha256 = "2401b1369ef44cc42f91dc94443ef491208dbd06da1e1e10b702d8c189f098e3",
-    )
-
-    maybe(
-        http_archive,
         name = "rules_codeowners",
         strip_prefix = "rules_codeowners-27fe3bbe6e5b0df196e360fc9e081835f22a10be",
         sha256 = "0aada1d5df72cb13161a78dff965e02575930f3ea9550e778f6fa45f3f4e2537",
@@ -129,11 +107,4 @@ def build_bazel_rules_nodejs_dev_dependencies():
             "https://github.com/bazelbuild/rules_pkg/releases/download/0.3.0/rules_pkg-0.3.0.tar.gz",
         ],
         sha256 = "6b5969a7acd7b60c02f816773b06fcf32fbe8ba0c7919ccdc2df4f8fb923804a",
-    )
-
-    maybe(
-        http_archive,
-        name = "io_bazel_rules_webtesting",
-        sha256 = "e9abb7658b6a129740c0b3ef6f5a2370864e102a5ba5ffca2cea565829ed825a",
-        urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.5/rules_webtesting.tar.gz"],
     )

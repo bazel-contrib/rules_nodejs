@@ -75,25 +75,9 @@ load("@npm_node_patches_lock//:index.bzl", _npm_patches_repositories = "npm_repo
 # Declare an external repository for each npm package fetchable by the lock file
 _npm_patches_repositories()
 
-# Setup the rules_webtesting toolchain
-load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
-
-web_test_repositories()
-
-load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.3.bzl", "browser_repositories")
-
-browser_repositories(
-    chromium = True,
-    firefox = True,
-)
-
 #
 # Dependencies to run stardoc & generating documentation
 #
-
-load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
-
-sass_repositories()
 
 load("@io_bazel_stardoc//:setup.bzl", "stardoc_repositories")
 
@@ -116,7 +100,6 @@ bazel_skylib_workspace()
 # RBE configuration
 #
 
-load("//:index.bzl", "SUPPORTED_BAZEL_VERSIONS")
 load("@bazelci_rules//:rbe_repo.bzl", "rbe_preconfig")
 
 # Creates toolchain configuration for remote execution with BuildKite CI
@@ -130,8 +113,3 @@ rbe_preconfig(
     name = "rbe_default",
     toolchain = "ubuntu1804-bazel-java11",
 )
-
-load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
-
-# Depend on the Bazel binaries
-bazel_binaries(versions = SUPPORTED_BAZEL_VERSIONS)

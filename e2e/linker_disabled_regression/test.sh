@@ -1,0 +1,1 @@
+bazel run //subdir:binary && bazel run //:binary

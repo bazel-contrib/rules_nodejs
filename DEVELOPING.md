@@ -51,14 +51,9 @@ or
 
 ## Integration tests
 
-In order to test that the rules work outside of this repo, this repo uses bazel-in-bazel with the
-bazel_integration_test rule to set up an environment with the package paths matching what end users
-will see. The end-to-end tests in e2e, and examples are built this way.
-
-The integration tests must be run in series, as they use up too many resources when run in parallel.
-
-`bazel test ...` includes all these integration tests. If you wish to exclude some of them, see the output of
-`yarn test` in the previous section.
+In order to test that the rules work outside of this repo, this repo has full bazel WORKSPACEs for e2e tests
+and examples to set up an environment with the package paths matching what end users will see.
+The end-to-end tests in e2e, and examples are built this way.
 
 When running the e2e tests, it is recommended to tune the memory usage of Bazel locally. This can be done with `bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test ... --test_tag_filters=e2e --local_ram_resources=792 --test_arg=--local_ram_resources=13288`. A shortcut for this is `yarn test_e2e //...`.
 

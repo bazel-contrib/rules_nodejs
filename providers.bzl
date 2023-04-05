@@ -67,3 +67,8 @@ LinkablePackageInfo = _LinkablePackageInfo
 node_modules_aspect = _node_modules_aspect
 NodeRuntimeDepsInfo = _NodeRuntimeDepsInfo
 run_node = _run_node
+
+# Export NpmPackageInfo for pre-3.0 legacy support in downstream rule sets
+# such as rules_docker
+# TODO(6.0): remove NpmPackageInfo from rules_docker & then remove it here
+NpmPackageInfo = _ExternalNpmPackageInfo

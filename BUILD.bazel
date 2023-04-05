@@ -82,7 +82,6 @@ pkg_npm(
     substitutions = COMMON_REPLACEMENTS,
     deps = [
         "//internal:package_contents",
-        "//internal/bazel_integration_test:package_contents",
         "//internal/common:package_contents",
         "//internal/copy_repository:package_contents",
         "//internal/coverage:package_contents",

@@ -18,6 +18,5 @@
 NPM_PACKAGES = ["@bazel/%s" % pkg for pkg in [
     "create",
     "runfiles",
-    "typescript",
     "worker",
 ]]

@@ -84,7 +84,7 @@ def yarn_install(**kwargs):
 # against.
 # This version should be updated together with the version of the Bazel
 # in .bazelversion. This is asserted in //internal:bazel_version_test.
-BAZEL_VERSION = "5.0.0"
+BAZEL_VERSION = "6.1.1"
 
 # Versions of Bazel which users should be able to use.
 # Ensures we don't break backwards-compatibility,
