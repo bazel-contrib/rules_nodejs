@@ -4,9 +4,6 @@ load("//nodejs/private:os_name.bzl", "assert_node_exists_for_host", "node_exists
 load("//nodejs/private:node_versions.bzl", "NODE_VERSIONS")
 load("//nodejs/private:nodejs_repo_host_os_alias.bzl", "nodejs_repo_host_os_alias")
 load("//nodejs/private:toolchains_repo.bzl", "PLATFORMS", "toolchains_repo")
-load("@bazel_skylib//lib:paths.bzl", "paths")
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 # Default base name for node toolchain repositories
 # created by the module extension
@@ -236,8 +233,9 @@ def _prepare_node(repository_ctx):
     node_entry = "bin/node%s" % entry_ext
     npm_entry = "bin/npm%s" % entry_ext
 
-    node_bin_relative = paths.relativize(node_bin, "bin")
-    npm_script_relative = paths.relativize(npm_script, "bin")
+    node_bin_relative = _strip_bin(node_bin)
+    npm_script_relative = _strip_bin(npm_script)
+    node_entry_relative = _strip_bin(node_entry)
 
     # The entry points for node for osx/linux and windows
     if not is_windows:
@@ -279,7 +277,7 @@ set -e
 "$SCRIPT_DIR/{node}" "$SCRIPT_DIR/{script}" --scripts-prepend-node-path=false "$@"
 """.format(
                 get_script_dir = GET_SCRIPT_DIR,
-                node = paths.relativize(node_entry, "bin"),
+                node = node_entry_relative,
                 script = npm_script_relative,
             ),
             executable = True,
@@ -292,7 +290,7 @@ set -e
 SET SCRIPT_DIR=%~dp0
 "%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" --scripts-prepend-node-path=false %*
 """.format(
-                node = paths.relativize(node_entry, "bin"),
+                node = node_entry_relative,
                 script = npm_script_relative,
             ),
             executable = True,
@@ -361,6 +359,12 @@ node_toolchain(
 """
     repository_ctx.file("BUILD.bazel", content = build_content)
 
+def _strip_bin(path):
+    if not path.startswith("bin/"):
+        fail("Expected path to start with 'bin/' but was %s" % path)
+
+    return path[len("bin/"):]
+
 def _verify_version_is_valid(version):
     major, minor, patch = (version.split(".") + [None, None, None])[:3]
     if not major.isdigit() or not minor.isdigit() or not patch.isdigit():
@@ -424,12 +428,5 @@ def nodejs_register_toolchains(name, register = True, **kwargs):
     )
 
 def rules_nodejs_dependencies():
-    maybe(
-        http_archive,
-        name = "bazel_skylib",
-        sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
-        urls = [
-            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
-        ],
-    )
+    # This is a no-op, but we keep it around for backwards compatibility.
+    return True

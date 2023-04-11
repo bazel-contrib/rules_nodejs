@@ -21,6 +21,14 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def build_bazel_rules_nodejs_dependencies():
+    core_sha = "764a3b3757bb8c3c6a02ba3344731a3d71e558220adcb0cf7e43c9bba2c37ba8"
+    maybe(
+        http_archive,
+        name = "rules_nodejs",
+        sha256 = core_sha,
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.8.2/rules_nodejs-core-5.8.2.tar.gz"],
+    )
+
     maybe(
         http_archive,
         name = "bazel_skylib",
@@ -29,13 +37,6 @@ def build_bazel_rules_nodejs_dependencies():
             "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
             "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
         ],
-    )
-    core_sha = "764a3b3757bb8c3c6a02ba3344731a3d71e558220adcb0cf7e43c9bba2c37ba8"
-    maybe(
-        http_archive,
-        name = "rules_nodejs",
-        sha256 = core_sha,
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.8.2/rules_nodejs-core-5.8.2.tar.gz"],
     )
 
 def build_bazel_rules_nodejs_dev_dependencies():
