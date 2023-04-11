@@ -12,15 +12,15 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 # created by the module extension
 DEFAULT_NODE_REPOSITORY = "nodejs"
 
-# Currently v16 is the default.
+# Currently v18 is the "active" LTS release:
+# https://nodejs.dev/en/about/releases/
 # We can only change that in a major release of rules_nodejs,
 # as it's a semver-breaking change for our users who rely on it.
-# We use the most recent v16 release.
 DEFAULT_NODE_VERSION = [
     # 16.18.1-windows_amd64 -> 16.18.1
     v.split("-")[0]
     for v in NODE_VERSIONS.keys()
-    if v.startswith("16.")
+    if v.startswith("18.")
 ][-1]  # Versions are sorted increasing, so last one is the latest version
 
 BUILT_IN_NODE_PLATFORMS = PLATFORMS.keys()
