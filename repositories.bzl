@@ -19,27 +19,9 @@ Fulfills similar role as the package.json file.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+load("//nodejs:repositories.bzl", "rules_nodejs_dependencies")
 
-def build_bazel_rules_nodejs_dependencies():
-    core_sha = "764a3b3757bb8c3c6a02ba3344731a3d71e558220adcb0cf7e43c9bba2c37ba8"
-    maybe(
-        http_archive,
-        name = "rules_nodejs",
-        sha256 = core_sha,
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.8.2/rules_nodejs-core-5.8.2.tar.gz"],
-    )
-
-    maybe(
-        http_archive,
-        name = "bazel_skylib",
-        sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
-        urls = [
-            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
-        ],
-    )
-
-def build_bazel_rules_nodejs_dev_dependencies():
+def rules_nodejs_dev_dependencies():
     """
     Fetch dependencies needed for local development, but not needed by users.
 
@@ -47,38 +29,15 @@ def build_bazel_rules_nodejs_dev_dependencies():
     shorter.
     """
 
-    build_bazel_rules_nodejs_dependencies()
+    rules_nodejs_dependencies()
 
-    # Dependencies for generating documentation
     maybe(
         http_archive,
-        name = "io_bazel_rules_sass",
-        sha256 = "c6249cf64dffbc81312191800b0984b5197d77864c13d0dc4d469937cc3f8108",
-        strip_prefix = "rules_sass-1.32.11",
+        name = "bazel_skylib",
+        sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
         urls = [
-            "https://github.com/bazelbuild/rules_sass/archive/1.32.11.zip",
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.32.11.zip",
-        ],
-    )
-
-    maybe(
-        http_archive,
-        name = "com_google_protobuf",
-        sha256 = "98e615d592d237f94db8bf033fba78cd404d979b0b70351a9e5aaff725398357",
-        strip_prefix = "protobuf-3.9.1",
-        urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.9.1.tar.gz"],
-    )
-
-    # Needed for com_google_protobuf
-    maybe(
-        http_archive,
-        name = "zlib",
-        build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
-        sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
-        strip_prefix = "zlib-1.2.11",
-        urls = [
-            "https://mirror.bazel.build/zlib.net/zlib-1.2.11.tar.gz",
-            "https://zlib.net/zlib-1.2.11.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
+            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
         ],
     )
 
@@ -90,26 +49,6 @@ def build_bazel_rules_nodejs_dev_dependencies():
         urls = [
             "https://github.com/bazelbuild/stardoc/archive/8f6d22452d088b49b13ba2c224af69ccc8ccbc90.tar.gz",
         ],
-    )
-
-    # Needed for Remote Build Execution
-    # See https://github.com/bazelbuild/continuous-integration/releases/tag/rules-1.0.0
-    maybe(
-        http_archive,
-        name = "bazelci_rules",
-        sha256 = "eca21884e6f66a88c358e580fd67a6b148d30ab57b1680f62a96c00f9bc6a07e",
-        strip_prefix = "bazelci_rules-1.0.0",
-        url = "https://github.com/bazelbuild/continuous-integration/releases/download/rules-1.0.0/bazelci_rules-1.0.0.tar.gz",
-    )
-
-    maybe(
-        http_archive,
-        name = "build_bazel_integration_testing",
-        urls = [
-            "https://github.com/bazelbuild/bazel-integration-testing/archive/165440b2dbda885f8d1ccb8d0f417e6cf8c54f17.zip",
-        ],
-        strip_prefix = "bazel-integration-testing-165440b2dbda885f8d1ccb8d0f417e6cf8c54f17",
-        sha256 = "2401b1369ef44cc42f91dc94443ef491208dbd06da1e1e10b702d8c189f098e3",
     )
 
     maybe(
@@ -124,17 +63,8 @@ def build_bazel_rules_nodejs_dev_dependencies():
 
     maybe(
         http_archive,
-        name = "rules_pkg",
-        urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_pkg/releases/download/0.3.0/rules_pkg-0.3.0.tar.gz",
-            "https://github.com/bazelbuild/rules_pkg/releases/download/0.3.0/rules_pkg-0.3.0.tar.gz",
-        ],
-        sha256 = "6b5969a7acd7b60c02f816773b06fcf32fbe8ba0c7919ccdc2df4f8fb923804a",
-    )
-
-    maybe(
-        http_archive,
-        name = "io_bazel_rules_webtesting",
-        sha256 = "e9abb7658b6a129740c0b3ef6f5a2370864e102a5ba5ffca2cea565829ed825a",
-        urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.5/rules_webtesting.tar.gz"],
+        name = "aspect_bazel_lib",
+        sha256 = "97fa63d95cc9af006c4c7b2123ddd2a91fb8d273012f17648e6423bae2c69470",
+        strip_prefix = "bazel-lib-1.30.2",
+        url = "https://github.com/aspect-build/bazel-lib/releases/download/v1.30.2/bazel-lib-v1.30.2.tar.gz",
     )

@@ -13,25 +13,18 @@
 # limitations under the License.
 
 workspace(
-    name = "build_bazel_rules_nodejs",
-)
-
-#
-# Setup local respositories
-#
-
-local_repository(
     name = "rules_nodejs",
-    path = ".",
 )
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 #
 # Install rules_nodejs dev dependencies
 #
 
-load("//:repositories.bzl", "build_bazel_rules_nodejs_dev_dependencies")
+load("//:repositories.bzl", "rules_nodejs_dev_dependencies")
 
-build_bazel_rules_nodejs_dev_dependencies()
+rules_nodejs_dev_dependencies()
 
 #
 # Setup rules_nodejs npm dependencies
@@ -51,87 +44,29 @@ nodejs_register_toolchains(
     node_version = "15.14.0",
 )
 
-load("@rules_nodejs//nodejs:yarn_repositories.bzl", "yarn_repositories")
-
-yarn_repositories(
-    name = "yarn",
-    node_repository = "node16",
+http_archive(
+    name = "npm_typescript",
+    build_file = "typescript.BUILD",
+    sha256 = "6e2faae079c9047aa921e8a307f0cec0da4dc4853e20bb31d18acc678f5bf505",
+    urls = ["https://registry.npmjs.org/typescript/-/typescript-4.9.5.tgz"],
 )
 
-load("@build_bazel_rules_nodejs//:npm_deps.bzl", "npm_deps")
-
-npm_deps()
-
-load("@build_bazel_rules_nodejs//internal/npm_tarballs:translate_package_lock.bzl", "translate_package_lock")
-
-# Translate our package.lock file from JSON to Starlark
-translate_package_lock(
-    name = "npm_node_patches_lock",
-    package_lock = "//packages/node-patches:package-lock.json",
-)
-
-load("@npm_node_patches_lock//:index.bzl", _npm_patches_repositories = "npm_repositories")
-
-# Declare an external repository for each npm package fetchable by the lock file
-_npm_patches_repositories()
-
-# Setup the rules_webtesting toolchain
-load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
-
-web_test_repositories()
-
-load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.3.bzl", "browser_repositories")
-
-browser_repositories(
-    chromium = True,
-    firefox = True,
+http_archive(
+    name = "npm_types_node",
+    build_file = "types_node.BUILD",
+    sha256 = "6ef16adadc11a80601c023e1271887425c5c5c1867266d35493c7e92d7cc00fa",
+    urls = ["https://registry.npmjs.org/@types/node/-/node-16.18.23.tgz"],
 )
 
 #
 # Dependencies to run stardoc & generating documentation
 #
 
-load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
+load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies")
 
-sass_repositories()
-
-load("@io_bazel_stardoc//:setup.bzl", "stardoc_repositories")
-
-stardoc_repositories()
-
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-
-protobuf_deps()
-
-load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
-
-rules_pkg_dependencies()
+aspect_bazel_lib_dependencies()
 
 # Needed for starlark unit testing
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
-
-#
-# RBE configuration
-#
-
-load("//:index.bzl", "SUPPORTED_BAZEL_VERSIONS")
-load("@bazelci_rules//:rbe_repo.bzl", "rbe_preconfig")
-
-# Creates toolchain configuration for remote execution with BuildKite CI
-# for rbe_ubuntu1604
-rbe_preconfig(
-    name = "buildkite_config",
-    toolchain = "ubuntu1804-bazel-java11",
-)
-
-rbe_preconfig(
-    name = "rbe_default",
-    toolchain = "ubuntu1804-bazel-java11",
-)
-
-load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
-
-# Depend on the Bazel binaries
-bazel_binaries(versions = SUPPORTED_BAZEL_VERSIONS)

@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "webpack": "5.38.1"
-  },
-  "scripts": {
-    "test": "bazel test ..."
-  }
-}

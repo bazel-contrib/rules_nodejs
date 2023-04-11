@@ -30,8 +30,6 @@ This rule sets up node, npm, and npx. The versions of these tools can be specifi
 
 Specify no explicit versions. This will download and use the latest NodeJS that was available when the
 version of rules_nodejs you're using was released.
-Note that you can skip calling `node_repositories` in your WORKSPACE file - if you later try to `yarn_install` or `npm_install`,
-we'll automatically select this simple usage for you.
 
 ### Forced version(s)
 
@@ -74,8 +72,7 @@ See the [the repositories documentation](repositories.html) for how to use the r
 ### Using a custom node.js.
 
 To avoid downloads, you can check in a vendored node.js binary or can build one from source.
-See [toolchains](./toolchains.md) and `examples/vendored_node_and_yarn`.
-
+See [toolchains](./toolchains.md).
 """
 
 _ATTRS = {
@@ -345,7 +342,6 @@ filegroup(
         npm_entry = npm_entry,
     )
 
-    # the platform attribute is only set when used from this file, not from build_bazel_rules_nodejs
     if repository_ctx.attr.platform:
         build_content += """
 load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
@@ -382,7 +378,7 @@ node_repositories = repository_rule(
 )
 
 # Wrapper macro around everything above, this is the primary API
-def nodejs_register_toolchains(name, register = True, **kwargs):
+def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, **kwargs):
     """Convenience macro for users which does typical setup.
 
     - create a repository for each built-in platform like "node16_linux_amd64" -

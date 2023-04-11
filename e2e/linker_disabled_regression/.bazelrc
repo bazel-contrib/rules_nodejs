@@ -1,3 +1,0 @@
-import %workspace%/../../common.bazelrc
-
-build --enable_runfiles

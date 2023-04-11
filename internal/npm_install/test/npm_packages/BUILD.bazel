@@ -1,3 +1,0 @@
-load("@npm//bazel_workspaces_consistent:index.bzl", "some_rule")
-
-some_rule(name = "test_data")

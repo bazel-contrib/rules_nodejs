@@ -1,7 +1,0 @@
-{
-  "compilerOptions": {
-    "declaration": true,
-    "types": []
-  },
-  "include": ["*.ts"]
-}

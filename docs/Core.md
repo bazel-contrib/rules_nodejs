@@ -6,19 +6,10 @@
  ********************* -->
 # rules_nodejs Bazel module
 
-This is the "core" module, and is used internally by `build_bazel_rules_nodejs`.
-Most users should continue to use only the latter, and ignore this "core" module.
-
-The dependency graph is:
-`build_bazel_rules_nodejs -> rules_nodejs -> bazel_skylib`
-
 Features:
 - A [Toolchain](https://docs.bazel.build/versions/main/toolchains.html) 
-  that fetches a hermetic copy of node, npm, and yarn - independent of what's on the developer's machine.
+  that fetches a hermetic copy of node and npm - independent of what's on the developer's machine.
 - Core [Providers](https://docs.bazel.build/versions/main/skylark/rules.html#providers) to allow interop between JS rules.
-
-Most features, such as `npm_install` and `nodejs_binary` are still in the `build_bazel_rules_nodejs` module.
-We plan to clean these up and port into `rules_nodejs` in a future major release.
 
 
 ## node_repositories
@@ -38,8 +29,6 @@ This rule sets up node, npm, and npx. The versions of these tools can be specifi
 
 Specify no explicit versions. This will download and use the latest NodeJS that was available when the
 version of rules_nodejs you're using was released.
-Note that you can skip calling `node_repositories` in your WORKSPACE file - if you later try to `yarn_install` or `npm_install`,
-we'll automatically select this simple usage for you.
 
 ### Forced version(s)
 
@@ -82,8 +71,7 @@ See the [the repositories documentation](repositories.html) for how to use the r
 ### Using a custom node.js.
 
 To avoid downloads, you can check in a vendored node.js binary or can build one from source.
-See [toolchains](./toolchains.md) and `examples/vendored_node_and_yarn`.
-
+See [toolchains](./toolchains.md).
 
 
 **ATTRIBUTES**
@@ -127,7 +115,7 @@ Defaults to `["https://nodejs.org/dist/v{version}/{filename}"]`
 
 (*String*): the specific version of NodeJS to install
 
-Defaults to `"16.19.1"`
+Defaults to `"18.15.0"`
 
 <h4 id="node_repositories-platform">platform</h4>
 
@@ -240,112 +228,6 @@ Defaults to `None`
 (*String*): Path to an existing nodejs executable for this target's platform.
 
 Defaults to `""`
-
-
-## yarn_repositories
-
-**USAGE**
-
-<pre>
-yarn_repositories(<a href="#yarn_repositories-name">name</a>, <a href="#yarn_repositories-node_repository">node_repository</a>, <a href="#yarn_repositories-repo_mapping">repo_mapping</a>, <a href="#yarn_repositories-yarn_download_auth">yarn_download_auth</a>, <a href="#yarn_repositories-yarn_releases">yarn_releases</a>, <a href="#yarn_repositories-yarn_urls">yarn_urls</a>,
-                  <a href="#yarn_repositories-yarn_version">yarn_version</a>)
-</pre>
-
-Repository rule to fetch the yarnpkg.com package manager.
-
-Note, the recommended name is "yarn". If you choose a different name, you'll have to override the
-`yarn` attribute in your `yarn_install` rule to point to your `yarn.js` file.
-
-## Custom Yarn versions
-
-To specify custom Yarn versions, use the `yarn_releases` attribute
-
-```python
-yarn_repositories(
-    yarn_releases = {
-        "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"),
-    },
-)
-```
-
-Like `node_urls`, the `yarn_urls` attribute can be used to provide a list of custom URLs to use to download yarn
-
-```python
-yarn_repositories(
-    yarn_releases = {
-        "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"),
-    },
-    yarn_version = "1.12.1",
-    yarn_urls = [
-        "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}",
-    ],
-)
-```
-
-Will download yarn from https://github.com/yarnpkg/yarn/releases/download/v1.2.1/yarn-v1.12.1.tar.gz
-and expect the file to have sha256sum `09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d`.
-
-If you don't use Yarn at all, you can skip downloading it by setting `yarn_urls = []`.
-
-## Vendored yarn
-
-You can vendor the `yarn.js` file into your repo. In this case, don't call `yarn_repositories` at all.
-Just pass the label of your vendored file to the `yarn` attribute of `yarn_install`.
-
-
-**ATTRIBUTES**
-
-
-<h4 id="yarn_repositories-name">name</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this repository.
-
-
-<h4 id="yarn_repositories-node_repository">node_repository</h4>
-
-(*String*): The basename for a nodejs toolchain to use for running yarn.
-            Usually this is the value of the `name` attribute given to a nodejs_register_toolchains call in WORKSPACE
-
-Defaults to `"nodejs"`
-
-<h4 id="yarn_repositories-repo_mapping">repo_mapping</h4>
-
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
-
-
-<h4 id="yarn_repositories-yarn_download_auth">yarn_download_auth</h4>
-
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): auth to use for all url requests
-    Example: {"type": "basic", "login": "<UserName>", "password": "<Password>" }
-
-Defaults to `{}`
-
-<h4 id="yarn_repositories-yarn_releases">yarn_releases</h4>
-
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> List of strings</a>*): Custom list of yarn releases to use.
-
-    Dictionary mapping Yarn versions to their corresponding (filename, strip_prefix, sha256) tuples.
-
-    By default, if this attribute has no items, we'll use a list of all public releases which
-    is periodically mirrored to rules_nodejs.
-
-Defaults to `{}`
-
-<h4 id="yarn_repositories-yarn_urls">yarn_urls</h4>
-
-(*List of strings*): custom list of URLs to use to download Yarn
-
-    Each entry is a template using `yarn_version` and `yarn_releases` in the substitutions.
-
-    If this list is empty, we won't download yarn at all.
-
-Defaults to `["https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]`
-
-<h4 id="yarn_repositories-yarn_version">yarn_version</h4>
-
-(*String*): the specific version of Yarn to install
-
-Defaults to `"1.22.11"`
 
 
 ## UserBuildSettingInfo

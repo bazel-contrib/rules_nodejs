@@ -13,8 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS", "pkg_npm")
-load("//:tools/defaults.bzl", "codeowners", "pkg_tar")
+load("//:tools/defaults.bzl", "codeowners")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -28,34 +27,14 @@ exports_files([
     "LICENSE",
 ])
 
-exports_files(
-    [
-        "providers.bzl",
-        "index.for_docs.bzl",
-    ],
-    visibility = ["//docs:__subpackages__"],
-)
-
 bzl_library(
     name = "bzl",
     srcs = [
         "index.bzl",
-        "providers.bzl",
         "version.bzl",
-        # BEGIN-INTERNAL
-    ] + [
-        "index.for_docs.bzl",
-        # END-INTERNAL
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//internal/common:bzl",
-        "//internal/generated_file_test:bzl",
-        "//internal/js_library:bzl",
-        "//internal/linker:bzl",
-        "//internal/node:bzl",
-        "//internal/pkg_npm:bzl",
-        "//internal/providers:bzl",
         "@rules_nodejs//nodejs/private/providers:bzl",
     ],
 )
@@ -67,71 +46,5 @@ codeowners(
         "@mattem",
         "@gregmagolan",
     ],
-)
-
-pkg_npm(
-    name = "rules_nodejs_package",
-    srcs = [
-        "BUILD.bazel",
-        "LICENSE",
-        "index.bzl",
-        "providers.bzl",
-        "repositories.bzl",
-        "version.bzl",
-    ],
-    substitutions = COMMON_REPLACEMENTS,
-    deps = [
-        "//internal:package_contents",
-        "//internal/bazel_integration_test:package_contents",
-        "//internal/common:package_contents",
-        "//internal/copy_repository:package_contents",
-        "//internal/coverage:package_contents",
-        "//internal/generated_file_test:package_contents",
-        "//internal/js_library:package_contents",
-        "//internal/linker:package_contents",
-        "//internal/node:package_contents",
-        "//internal/npm_install:package_contents",
-        "//internal/pkg_npm:package_contents",
-        "//internal/providers:package_contents",
-        "//internal/runfiles:package_contents",
-        "//third_party/github.com/bazelbuild/bazel:package_contents",
-        "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
-        "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles:package_contents",
-        "//third_party/github.com/buffer-from:package_contents",
-        "//third_party/github.com/gjtorikian/isBinaryFile:package_contents",
-        "//third_party/github.com/juanjoDiaz/removeNPMAbsolutePaths:package_contents",
-        "//third_party/github.com/source-map:package_contents",
-        "//third_party/github.com/source-map-support:package_contents",
-        "//third_party/npm/node_modules/@babel/core:package_contents",
-        "//third_party/npm/node_modules/@babel/plugin-transform-modules-commonjs:package_contents",
-        "//third_party/npm/node_modules/babelify:package_contents",
-        "//third_party/npm/node_modules/base64-js:package_contents",
-        "//third_party/npm/node_modules/browserify:package_contents",
-        "//third_party/npm/node_modules/ieee754:package_contents",
-        "//third_party/npm/node_modules/named-amd:package_contents",
-    ],
-)
-
-# This artifact is published to GitHub along with each release
-pkg_tar(
-    name = "release",
-    srcs = [":rules_nodejs_package"],
-    extension = "tar.gz",
-    strip_prefix = "./rules_nodejs_package",
-    tags = ["manual"],
-)
-
-pkg_tar(
-    name = "release-core",
-    srcs = [
-        "LICENSE",
-        "README.md",
-        "version.bzl",
-        "//nodejs:package_contents",
-        # TODO(5.0) remove this and depend on real skylib
-        "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
-    ],
-    extension = "tar.gz",
-    strip_prefix = ".",
 )
 # END-INTERNAL

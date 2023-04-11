@@ -1,5 +1,6 @@
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
+
 import {BAZEL_OUT_REGEX} from './paths';
 
 /**
@@ -32,7 +33,7 @@ export class Runfiles {
       this.runfilesDir = path.resolve(_env['RUNFILES']!);
     } else {
       throw new Error(
-        'Every node program run under Bazel must have a $RUNFILES_DIR, $RUNFILES or $RUNFILES_MANIFEST_FILE environment variable');
+          'Every node program run under Bazel must have a $RUNFILES_DIR, $RUNFILES or $RUNFILES_MANIFEST_FILE environment variable');
     }
     // Under --noenable_runfiles (in particular on Windows)
     // Bazel sets RUNFILES_MANIFEST_ONLY=1.
@@ -74,10 +75,11 @@ export class Runfiles {
       }
 
       // Consider a case where `npm/node_modules` is resolved, and we have the following
-      // manifest: `npm/node_modules/semver/LICENSE /path/to/external/npm/node_modules/semver/LICENSE`
-      // To resolve the directory, we look for entries that either fully match, or refer to contents
-      // within the directory we are looking for. We can then subtract the child path to resolve the
-      // directory. e.g. in the case above we subtract `length(`/semver/LICENSE`)` from the entry value.
+      // manifest: `npm/node_modules/semver/LICENSE
+      // /path/to/external/npm/node_modules/semver/LICENSE` To resolve the directory, we look for
+      // entries that either fully match, or refer to contents within the directory we are looking
+      // for. We can then subtract the child path to resolve the directory. e.g. in the case above
+      // we subtract `length(`/semver/LICENSE`)` from the entry value.
       if (k.startsWith(`${searchPath}/`)) {
         const l = k.length - searchPath.length;
         const maybe = v.substring(0, v.length - l);
@@ -138,7 +140,7 @@ export class Runfiles {
     modulePath = modulePath.replace(/\\/g, '/').replace(/\/+$/g, '')
     if (!this.workspace) {
       throw new Error(
-        'workspace could not be determined from the environment; make sure BAZEL_WORKSPACE is set');
+          'workspace could not be determined from the environment; make sure BAZEL_WORKSPACE is set');
     }
     return this.resolve(path.posix.join(this.workspace, modulePath));
   }
@@ -150,12 +152,12 @@ export class Runfiles {
     modulePath = modulePath.replace(/\\/g, '/').replace(/\/+$/g, '')
     if (!this.workspace) {
       throw new Error(
-        'workspace could not be determined from the environment; make sure BAZEL_WORKSPACE is set');
+          'workspace could not be determined from the environment; make sure BAZEL_WORKSPACE is set');
     }
     // NB: this.package may be '' if at the root of the workspace
     if (this.package === undefined) {
       throw new Error(
-        'package could not be determined from the environment; make sure BAZEL_TARGET is set');
+          'package could not be determined from the environment; make sure BAZEL_TARGET is set');
     }
     return this.resolve(path.posix.join(this.workspace, this.package, modulePath));
   }

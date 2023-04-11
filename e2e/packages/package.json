@@ -1,6 +1,0 @@
-{
-  "scripts": {
-    "postinstall": "node ./postinstall.js",
-    "test": "bazel test ..."
-  }
-}

@@ -1,0 +1,5 @@
+import %workspace%/../../common.bazelrc
+
+# Remote instance, borrow the one used by Angular devs
+build:remote --remote_instance_name=projects/internal-200822/instances/default_instance
+build:remote --project_id=internal-200822

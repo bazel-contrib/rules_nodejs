@@ -1,9 +1,0 @@
-{
-    "private": true,
-    "devDependencies": {
-        "sharp": "^0.30.3"
-    },
-    "scripts": {
-        "test": "bazel test ... && bazel run --platforms=@rules_nodejs//nodejs:linux_amd64 //:nodejs_image"
-    }
-}

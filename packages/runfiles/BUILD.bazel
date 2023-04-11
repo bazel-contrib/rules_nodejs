@@ -1,33 +1,23 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("//internal:tsc.bzl", "tsc")
 
 tsc(
     name = "runfiles_lib",
     srcs = glob(["*.ts"]),
     tsconfig = "tsconfig.json",
-    visibility = ["//internal/runfiles:__pkg__"],
-    deps = ["@npm//@types/node"],
 )
 
-js_library(
-    name = "bazel_runfiles",
-    package_name = "@bazel/runfiles",
-    visibility = [
-        "//internal/linker:__subpackages__",
-        "//packages/runfiles/test:__pkg__",
-    ],
-    deps = [":runfiles_lib"],
-)
-
-pkg_npm(
+copy_to_directory(
     name = "npm_package",
-    package_name = "@bazel/runfiles",
     srcs = [
         "README.md",
         "package.json",
-    ],
-    deps = [
         ":runfiles_lib",
     ],
+)
+
+build_test(
+    name = "test",
+    targets = [":npm_package"],
 )

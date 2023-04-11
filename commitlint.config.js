@@ -7,10 +7,7 @@ module.exports = {
       'always',
       [
         'builtin',
-        'create',
-        'examples',
         'runfiles',
-        'typescript',
         'worker',
         'docs',
       ],

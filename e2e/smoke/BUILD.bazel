@@ -1,5 +1,6 @@
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load(":defs.bzl", "my_nodejs")
 
 # Trivial test fixture: a nodejs program that writes to a file
@@ -40,6 +41,16 @@ write_file(
 #     tools = [":node_bin"],
 # )
 
+# Ensure genrule()s at least build due to diff_test()s being disabled on windows.
+build_test(
+    name = "test_build",
+    targets = [
+        ":call_acorn",
+        ":require_acorn",
+        ":use_node_toolchain",
+    ],
+)
+
 # You can use the node toolchain together with a genrule().
 # This gives you complete control over starting the interpreter, but you also have to
 # manually handle module resolution.
@@ -56,6 +67,12 @@ diff_test(
     name = "test_genrule",
     file1 = "expected",
     file2 = "actual1",
+    tags = [
+        # no need to run on more than one platform
+        "no-bazelci-windows",
+        # diff_test has line endings issues on Windows
+        "fix-windows",
+    ],
 )
 
 # Here, my_nodejs is a fake for something like nodejs_binary or
@@ -114,6 +131,12 @@ diff_test(
     name = "test_acorn",
     file1 = "actual2",
     file2 = "expected_ast.json",
+    tags = [
+        # no need to run on more than one platform
+        "no-bazelci-windows",
+        # diff_test has line endings issues on Windows
+        "fix-windows",
+    ],
 )
 
 ################################################
@@ -125,7 +148,8 @@ write_file(
     content = [
         "const fs = require('fs')",
         "const acorn = require('acorn')",
-        "fs.writeFileSync(process.argv[2], JSON.stringify(acorn.parse('1', {ecmaVersion: 2020})) + '\\n')",
+        "const parsed = JSON.stringify(acorn.parse('1', {ecmaVersion: 2020}))",
+        "fs.writeFileSync(process.argv[2], parsed + '\\n')",
     ],
 )
 
@@ -157,6 +181,12 @@ diff_test(
     name = "test_require_acorn",
     file1 = "actual3",
     file2 = "expected_ast.json",
+    tags = [
+        # no need to run on more than one platform
+        "no-bazelci-windows",
+        # diff_test has line endings issues on Windows
+        "fix-windows",
+    ],
 )
 
 ################################################

@@ -53,7 +53,5 @@ nodejs_repo_host_os_alias = repository_rule(
             default = "nodejs",
             doc = "User-provided name from the workspace file, eg. node16",
         ),
-        # FIXME: this seems unused, but not the time to make that edit right now
-        "node_version": attr.string(),
     },
 )

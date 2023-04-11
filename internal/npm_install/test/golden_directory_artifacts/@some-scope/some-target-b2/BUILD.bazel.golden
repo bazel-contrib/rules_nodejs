@@ -1,9 +1,0 @@
-
-package(default_visibility = ["//visibility:public"])
-load("@build_bazel_rules_nodejs//internal/linker:npm_link.bzl", "npm_link")
-npm_link(
-    name = "some-target-b2",
-    target = "@//some/target/b",
-    package_name = "@some-scope/some-target-b2",
-    package_path = "",
-)
