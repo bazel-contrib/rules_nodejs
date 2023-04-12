@@ -16,4 +16,10 @@ diff_test(
     failure_message = "Please run:  bazel run //.github:gen_codeowners",
     file1 = ":gen_codeowners",
     file2 = "CODEOWNERS",
+    target_compatible_with = select({
+        # produces different line endings on Windows
+        # which makes the diff_test fail
+        "@platforms//os:windows": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
 )
