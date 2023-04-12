@@ -17,6 +17,6 @@ concurrency:
 
 jobs:
   test:
-    uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v1
+    uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v2
     with:
-      folders: '["e2e/smoke"]'
+      folders: '[".", "e2e/smoke", "e2e/nodejs_host"]'

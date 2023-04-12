@@ -2,7 +2,7 @@
 # scenario where the runfile resolution would accidentally resolve the path to
 # `test_fixture.md` through a runfile manifest entry that starts similarly.
 genrule(
-    name = "test_fixture.md.generated_file_suffix",
+    name = "_test_fixture.md.generated_file_suffix",
     outs = ["test_fixture.md.generated_file_suffix"],
     cmd = """echo "Generated" > $@""",
 )

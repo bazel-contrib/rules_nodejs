@@ -4,10 +4,7 @@ rules_nodejs-*.tar.gz
 dist
 bazel-out
 /e2e/*/bazel-*
-/examples/*/bazel-*
 /packages/*/bazel-*
 node_modules
-!/third_party/npm/node_modules
 yarn-error.log
-internal/node/_node_bin
 .DS_Store

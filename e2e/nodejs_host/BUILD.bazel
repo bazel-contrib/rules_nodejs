@@ -1,34 +1,25 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
-
 # Dummy test target that imports various targets from the
 # "@nodejs" repository. If a target of the repository is
 # misconfigured, Bazel will complain about missing input files.
-nodejs_test(
+sh_test(
     name = "test_default",
+    srcs = ["test.sh"],
     data = [
-        "index.spec.js",
         "@nodejs//:node",
         "@nodejs//:node_bin",
         "@nodejs//:node_files",
         "@nodejs//:npm",
         "@nodejs//:npm_bin",
         "@nodejs//:npm_files",
-        # Use the old name for one of the labels, as a test that it still works
-        "@nodejs_host//:npx_bin",
-        "@npm//:node_modules",
-        "@yarn",
-        "@yarn//:yarn_bin",
-        "@yarn//:yarn_files",
     ],
-    entry_point = ":index.spec.js",
 )
 
 # Additional targets to test the use of parallel node toolchains
 [
-    nodejs_test(
+    sh_test(
         name = "test_" + id,
+        srcs = ["test.sh"],
         data = [
-            "index.spec.js",
             "@%s_host//:node" % id,
             "@%s_host//:node_bin" % id,
             "@%s_host//:node_files" % id,
@@ -36,17 +27,7 @@ nodejs_test(
             "@%s_host//:npm_bin" % id,
             "@%s_host//:npm_files" % id,
             "@%s_host//:npx_bin" % id,
-            "@npm_%s//:node_modules" % id,
-            "@yarn_%s//:yarn" % id,
-            "@yarn_%s//:yarn_bin" % id,
-            "@yarn_%s//:yarn_files" % id,
         ],
-        entry_point = ":index.spec.js",
-        toolchain = select({
-            "@bazel_tools//src/conditions:linux_x86_64": "@%s_linux_amd64//:node_toolchain" % id,
-            "@bazel_tools//src/conditions:darwin": "@%s_darwin_amd64//:node_toolchain" % id,
-            "@bazel_tools//src/conditions:windows": "@%s_windows_amd64//:node_toolchain" % id,
-        }),
     )
     for id in [
         "node14",

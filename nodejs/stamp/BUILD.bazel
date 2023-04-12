@@ -28,9 +28,3 @@ stamp_setting(
     stamp = False,
     visibility = ["//visibility:public"],
 )
-
-filegroup(
-    name = "package_contents",
-    srcs = glob(["*"]),
-    visibility = ["//nodejs:__pkg__"],
-)

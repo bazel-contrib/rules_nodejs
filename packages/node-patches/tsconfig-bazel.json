@@ -1,7 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    // workaround issue 1373
-    "typeRoots":["../../node_modules/@types"]
-  }
-}

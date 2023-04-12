@@ -1,5 +1,5 @@
 ---
-bazel: 5.0.0
+bazel: 6.1.1
 # Note, this will tell the user to do the wrong thing (manually run buildifer)
 # See https://github.com/bazelbuild/continuous-integration/issues/1161
 buildifier:
@@ -13,268 +13,60 @@ tasks:
   ubuntu1804:
     name: ubuntu1804
     platform: ubuntu1804
-    run_targets:
-    - "@yarn//:yarn"
-    - "//internal/node/test:no_deps"
-    - "//internal/node/test:has_deps_legacy"
-    - "//internal/node/test:has_deps"
-    - "//internal/node/test:has_deps_hybrid"
-    - "//internal/npm_install/test:index"
-    # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
-    #- "@fine_grained_deps_yarn//typescript/bin:tsc"
     build_targets:
     - "//..."
-    test_flags:
-    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
-    # On circleci we have the same issue but we can work around it using apt-get.
-    # on bazelci apt-get fails with permission denied and there is no sudo
-    # command to switch to root.
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-e2e,-examples,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome"
     test_targets:
     - "//..."
-  ubuntu1804_debug:
-    name: ubuntu1804_debug
+  ubuntu1804-smoke:
+    name: ubuntu1804-smoke
     platform: ubuntu1804
-    test_flags:
-    - "--compilation_mode=dbg"
-    - "--define=VERBOSE_LOGS=1"
-    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
-    # On circleci we have the same issue but we can work around it using apt-get.
-    # on bazelci apt-get fails with permission denied and there is no sudo
-    # command to switch to root.
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-e2e,-examples,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome"
-    test_targets:
-    - "//..."
-  ubuntu1804_e2e:
-    name: ubuntu1804_e2e
-    platform: ubuntu1804
-    # We need to reduce the memory & CPU usage of the top-level
-    # bazel process for bazel-in-bazel tests to not
-    # deplete the system memory completely.
-    # - startup JVM memory reduced
-    # - top-level bazel process should use as little memory as possible and only 1 core
-    # - nested bazel process should use a limited number of cores
-    shell_commands:
-    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    working_directory: "e2e/smoke"
     build_targets:
     - "//..."
-    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
-    skip_use_bazel_version_for_test: true
-    test_flags:
-    - "--test_tag_filters=e2e"
-    - "--local_ram_resources=792"
-    # test_args will be passed to the nested bazel process
-    - "--test_arg=--local_ram_resources=13288"
-    - "--test_arg=--local_cpu_resources=7"
     test_targets:
     - "//..."
-  ubuntu1804_examples:
-    name: ubuntu1804_examples
+  ubuntu1804-nodejs_host:
+    name: ubuntu1804-nodejs_host
     platform: ubuntu1804
-    # We need to reduce the memory & CPU usage of the top-level
-    # bazel process for bazel-in-bazel tests to not
-    # deplete the system memory completely.
-    # - startup JVM memory reduced
-    # - top-level bazel process should use as little memory as possible and only 1 core
-    # - nested bazel process should use a limited number of cores
-    shell_commands:
-    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
-    build_flags:
-    - "--build_tag_filters=examples"
+    working_directory: "e2e/nodejs_host"
     build_targets:
     - "//..."
-    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
-    skip_use_bazel_version_for_test: true
-    test_flags:
-    - "--test_tag_filters=examples"
-    - "--local_ram_resources=792"
-    # test_args will be passed to the nested bazel process
-    - "--test_arg=--local_ram_resources=13288"
-    - "--test_arg=--local_cpu_resources=7"
-    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
-    # On circleci we have the same issue but we can work around it using apt-get.
-    # on bazelci apt-get fails with permission denied and there is no sudo
-    # command to switch to root.
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_arg=--test_tag_filters=-browser:chromium-local,-browser:firefox-local"
-    - "--test_output=streamed"
     test_targets:
     - "//..."
   # Temporarily disabled MacOS tests until pre-existing failure can be investigated.
-  # macos:
+  # macos-smoke:
   #   name: macos
   #   platform: macos
-  #   run_targets:
-  #   - "@yarn//:yarn"
-  #   # Regression test for #1493
-  #   - "//internal/node/test:no_deps"
-  #   - "//internal/node/test:has_deps_legacy"
-  #   - "//internal/node/test:has_deps"
-  #   - "//internal/node/test:has_deps_hybrid"
-  #   - "//internal/npm_install/test:index"
-  #   # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
-  #   #- "@fine_grained_deps_yarn//typescript/bin:tsc"
+  #   working_directory: "e2e/smoke"
   #   build_targets:
   #   - "//..."
-  #   test_flags:
-  #   # Firefox are missing shared libs on bazelci mac
-  #   # TODO(gregmagolan): figure out how to install missing shared libs
-  #   - "--test_tag_filters=-e2e,-examples,-browser:firefox-local"
   #   test_targets:
   #   - "//..."
-  # macos_e2e:
-  #   name: macos_e2e
-  #   platform: macos
-  #   # We need to reduce the memory & CPU usage of the top-level
-  #   # bazel process for bazel-in-bazel tests to not
-  #   # deplete the system memory completely.
-  #   # - startup JVM memory reduced
-  #   # - top-level bazel process should use as little memory as possible and only 1 core
-  #   # - nested bazel process should use a limited number of cores
-  #   shell_commands:
-  #   - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
-  #   build_flags:
-  #   - "--build_tag_filters=e2e"
-  #   build_targets:
-  #   - "//..."
-  #   # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
-  #   skip_use_bazel_version_for_test: true
-  #   test_flags:
-  #   - "--test_tag_filters=e2e,-no-bazelci-mac"
-  #   - "--local_ram_resources=792"
-  #   # test_args will be passed to the nested bazel process
-  #   # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
-  #   - "--test_arg=--local_ram_resources=13288"
-  #   # Firefox are missing shared libs on bazelci mac
-  #   # TODO(gregmagolan): figure out how to install missing shared libs
-  #   - "--test_arg=--test_tag_filters=-browser:firefox-local"
-  #   test_targets:
-  #   - "//..."
-  # macos_examples:
-  #   name: macos_examples
-  #   platform: macos
-  #   # We need to reduce the memory & CPU usage of the top-level
-  #   # bazel process for bazel-in-bazel tests to not
-  #   # deplete the system memory completely.
-  #   # - startup JVM memory reduced
-  #   # - top-level bazel process should use as little memory as possible and only 1 core
-  #   # - nested bazel process should use a limited number of cores
-  #   shell_commands:
-  #   - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
-  #   build_flags:
-  #   - "--build_tag_filters=examples"
-  #   build_targets:
-  #   - "//..."
-  #   # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
-  #   skip_use_bazel_version_for_test: true
-  #   test_flags:
-  #   - "--test_tag_filters=examples"
-  #   - "--local_ram_resources=792"
-  #   # test_args will be passed to the nested bazel process
-  #   # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
-  #   - "--test_arg=--local_ram_resources=13288"
-  #   # Firefox are missing shared libs on bazelci mac
-  #   # TODO(gregmagolan): figure out how to install missing shared libs
-  #   - "--test_arg=--test_tag_filters=-no-bazelci-mac,-browser:firefox-local"
-  #   test_targets:
-  #   - "//..."
-  # TODO(gregmagolan): fix platform configuraiton for this test job for Bazel 2.0
-  # macos_fake_rbe:
-  #   name: macos_fake_rbe
-  #   platform: macos
-  #   shell_commands:
-  #   # Reproduce https://github.com/bazelbuild/rules_nodejs/issues/1305
-  #   # TODO: switch to use real mac cross-platform RBE on CI when
-  #   #       https://github.com/bazelbuild/continuous-integration/pull/749
-  #   #       lands on bazelci master.
-  #   - echo 'build --platforms=@rbe_default//config:platform' >> .bazelrc
-  #   run_targets:
-  #   - "//internal/node/test:no_deps"
-  windows:
-    name: windows
+  windows-smoke:
+    name: windows-smoke
     platform: windows
-    run_targets:
-    - "@yarn//:yarn"
-    - "//internal/node/test:no_deps"
-    - "//internal/node/test:has_deps_legacy"
-    - "//internal/node/test:has_deps"
-    - "//internal/node/test:has_deps_hybrid"
-    - "//internal/npm_install/test:index"
-    # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
-    #- "@fine_grained_deps_yarn//typescript/bin:tsc"
-    build_flags:
-    - "--build_tag_filters=-e2e,-examples,-fix-windows,-no-bazelci-windows,-requires-runfiles"
+    working_directory: "e2e/smoke"
     build_targets:
     - "//..."
     test_flags:
-    # Firefox not supported on Windows with rules_webtesting (if run it exit with success)
-    # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
-    - "--test_tag_filters=-e2e,-examples,-fix-windows,-no-bazelci-windows,-requires-runfiles,-browser:firefox-local"
+    - "--test_tag_filters=-fix-windows,-no-bazelci-windows"
     test_targets:
     - "//..."
-  windows_runfiles_enabled:
-    name: windows_runfiles_enabled
+  windows-nodejs_host:
+    name: windows-nodejs_host
     platform: windows
-    test_flags:
-    - "--test_tag_filters=requires-runfiles,-fix-windows,-no-bazelci-windows"
-    - "--enable_runfiles"
-    test_targets:
-    - "//..."
-  windows_e2e:
-    name: windows_e2e
-    platform: windows
-    build_flags:
-    - "--build_tag_filters=e2e,-fix-windows,-no-bazelci-windows,-requires-runfiles"
+    working_directory: "e2e/nodejs_host"
     build_targets:
     - "//..."
-    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
-    skip_use_bazel_version_for_test: true
     test_flags:
-    - "--test_tag_filters=e2e,-fix-windows,-no-bazelci-windows,-requires-runfiles"
-    - "--local_ram_resources=792"
-    # test_args will be passed to the nested bazel process
-    - "--test_arg=--local_ram_resources=13288"
-    # Firefox not supported on Windows with rules_webtesting (if run it exit with success)
-    # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
-    # Chrome fails to launch on Windows inside bazel-in-bazel with: [17:12:04] E/launcher -
-    # spawn D:\...\external\io_bazel_rules_webtesting\third_party\chromedriver\chromedriver.out\chromedriver_win32\chromedriver.exe ENOENT
-    - "--test_arg=--test_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles,-browser:chromium-local,-browser:firefox-local"
+    - "--test_tag_filters=-fix-windows,-no-bazelci-windows"
     test_targets:
     - "//..."
-  windows_examples:
-    name: windows_examples
-    platform: windows
-    build_flags:
-    - "--build_tag_filters=examples,-fix-windows,-no-bazelci-windows,-requires-runfiles"
-    build_targets:
-    - "//..."
-    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
-    skip_use_bazel_version_for_test: true
-    test_flags:
-    - "--test_tag_filters=examples,-fix-windows,-no-bazelci-windows,-requires-runfiles"
-    - "--local_ram_resources=792"
-    # test_args will be passed to the nested bazel process
-    - "--test_arg=--local_ram_resources=13288"
-    # Firefox not supported on Windows with rules_webtesting (if run it exit with success)
-    # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
-    # Chrome fails to launch on Windows inside bazel-in-bazel with: [17:12:04] E/launcher -
-    # spawn D:\...\external\io_bazel_rules_webtesting\third_party\chromedriver\chromedriver.out\chromedriver_win32\chromedriver.exe ENOENT
-    - "--test_arg=--test_tag_filters=-fix-windows,-no-bazelci-windows,-requires-runfiles,-browser:chromium-local,-browser:firefox-local"
-    test_targets:
-    - "//..."
-  rbe_ubuntu1604:
-    name: rbe_ubuntu1604
+  rbe_ubuntu1604-smoke:
+    name: rbe_ubuntu1604-smoke
     platform: rbe_ubuntu1604
+    working_directory: "e2e/smoke"
     build_targets:
     - "//..."
-    build_flags:
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
-    - "--build_tag_filters=-examples,-e2e,-no-rbe,-browser:chromium-local,-browser:firefox-local"
-    test_flags:
-    # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-examples,-e2e,-no-rbe,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."

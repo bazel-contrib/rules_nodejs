@@ -1,4 +1,4 @@
-// This script creates output that is copy/pasted into /internal/node/node_versions.bzl to
+// This script creates output that is copy/pasted into /nodejs/private/node_versions.bzl to
 // add all published NodeJS versions >= 8.0.0.
 // See the update-nodejs-versions script in package.json
 

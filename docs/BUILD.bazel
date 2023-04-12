@@ -18,50 +18,11 @@ load("//tools/stardoc:index.bzl", "stardoc")
 
 stardoc(
     name = "core",
-    out = "core.md_",
-    input = "//nodejs:index.for_docs.bzl",
-    deps = ["//nodejs:bzl"],
-)
-
-stardoc(
-    name = "builtins",
-    out = "builtins.md_",
-    input = "//:index.for_docs.bzl",
-    tags = ["fix-windows"],
-    deps = [
-        "//:bzl",
-        "//internal/node:bzl",
-        "@bazel_skylib//lib:types",
-        "@rules_nodejs//nodejs:bzl",
-    ],
-)
-
-stardoc(
-    name = "providers",
-    out = "providers.md_",
-    input = "//:providers.bzl",
-    symbol_names = [
-        "ExternalNpmPackageInfo",
-        "js_ecma_script_module_info",
-        "js_named_module_info",
-        "JSEcmaScriptModuleInfo",
-        "JSNamedModuleInfo",
-        "node_modules_aspect",
-        "NodeRuntimeDepsInfo",
-        "run_node",
-    ],
-    tags = ["fix-windows"],
-    deps = [
-        "//:bzl",
-        "@bazel_skylib//lib:types",
-        "@rules_nodejs//nodejs:bzl",
-    ],
+    bzl_library_target = "//nodejs:index.for_docs",
 )
 
 _READMES = {
-    "Built-ins": "//docs:builtins.md_",
-    "Core": "//docs:core.md_",
-    "Providers": "//docs:providers.md_",
+    "Core": "//docs:core-docgen.md",
 }
 
 [
@@ -70,12 +31,6 @@ _READMES = {
         failure_message = "Please run:  bazel run //docs:update",
         file1 = k + ".md",
         file2 = v,
-        tags = [
-            # no need to run on more than one platform
-            "no-bazelci-windows",
-            # diff_test has line endings issues on Windows
-            "fix-windows",
-        ],
     )
     for [
         k,

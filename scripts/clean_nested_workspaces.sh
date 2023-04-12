@@ -7,7 +7,7 @@ set -eu -o pipefail
 
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
-readonly workspaceRoots=("e2e" "examples" "packages")
+readonly workspaceRoots=("e2e" "packages")
 for workspaceRoot in ${workspaceRoots[@]} ; do
   (
     readonly workspaceFiles=($(find ./${workspaceRoot} -type f -name WORKSPACE -prune -maxdepth 3))

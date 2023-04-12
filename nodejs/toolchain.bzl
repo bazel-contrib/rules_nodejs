@@ -13,8 +13,6 @@
 # limitations under the License.
 
 """This module implements the node toolchain rule.
-
-See /examples/toolchain for usage example.
 """
 
 NodeInfo = provider(

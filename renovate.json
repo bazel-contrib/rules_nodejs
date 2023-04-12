@@ -10,7 +10,6 @@
   ],
   "ignorePaths": [
     "e2e",
-    "examples",
     "tools",
     "third_party"
   ],

@@ -1,1 +1,0 @@
-module.exports = 'node_resolve_main_2';
