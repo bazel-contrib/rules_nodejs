@@ -15,7 +15,7 @@ For example, in place of
 http_archive(
     name = "rules_nodejs",
     sha256 = "...",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.0.0/rules_nodejs-5.0.0.tar.gz"],
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/6.0.0/rules_nodejs-6.0.0.tar.gz"],
 )
 ```
 
@@ -31,8 +31,6 @@ http_archive(
 ```
 
 ## Patching the rules_nodejs release
-
-`rules_nodejs` has a distribution format which is a tgz published to GitHub, and this can make it tricky to make casual changes without forking the project and building your own release artifacts.
 
 Bazel has a handy patching mechanism that lets you easily apply a local patch to the release artifact for built-in rules: [the `patches` attribute to `http_archive`](https://docs.bazel.build/versions/master/repo/http.html#attributes).
 
@@ -50,6 +48,6 @@ http_archive(
     patch_args = ["-p1"],
     patches = ["//path/to/my.patch"],
     sha256 = "...",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.0.0/rules_nodejs-5.0.0.tar.gz"],
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/6.0.0/rules_nodejs-6.0.0.tar.gz"],
 )
 ```
