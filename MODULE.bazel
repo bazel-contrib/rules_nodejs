@@ -12,7 +12,7 @@ bazel_dep(name = "platforms", version = "0.0.5")
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 
 # Note, this gets the default version of Node.js from
-# https://github.com/bazelbuild/rules_nodejs/blob/5.8.0/nodejs/repositories.bzl#L11
+# https://github.com/bazelbuild/rules_nodejs/blob/main/nodejs/repositories.bzl#L11
 node.toolchain(name = "nodejs")
 use_repo(node, "nodejs_toolchains")
 
