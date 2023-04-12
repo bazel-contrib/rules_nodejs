@@ -31,7 +31,6 @@ bzl_library(
     name = "bzl",
     srcs = [
         "index.bzl",
-        "version.bzl",
     ],
     visibility = ["//visibility:public"],
     deps = [
