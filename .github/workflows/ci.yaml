@@ -1,0 +1,15 @@
+name: CI
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow only for the main branch (no need to duplicate Buildkite)
+  push:
+    branches: [main]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v2
+    with:
+      folders: '["."]'
