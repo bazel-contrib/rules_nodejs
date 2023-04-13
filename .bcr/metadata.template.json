@@ -1,6 +1,12 @@
 {
     "homepage": "https://github.com/bazelbuild/rules_nodejs",
-    "maintainers": [],
+    "maintainers": [
+        {
+            "email": "hello@aspect.dev",
+            "github": "aspect-build",
+            "name": "Aspect team"
+        }
+    ],
     "repository": ["github:bazelbuild/rules_nodejs"],
     "versions": [],
     "yanked_versions": {}
