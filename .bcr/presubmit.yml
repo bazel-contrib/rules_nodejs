@@ -8,3 +8,5 @@ bcr_test_module:
       platform: ${{ platform }}
       test_targets:
         - '//...'
+      test_flags:
+        - '--test_tag_filters=-no-bazelci-windows'
