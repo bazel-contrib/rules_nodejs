@@ -202,8 +202,7 @@ def _prepare_node(repository_ctx):
     the BUILD file here.
     In addition, we create a bash script wrapper around NPM that passes a given NPM command to all package.json labels
     passed into here.
-    Finally, we create a reusable template bash script around NPM that is used by rules like pkg_npm to access
-    NPM.
+    Finally, we create a reusable template bash script around NPM that can be used rules to access NPM.
 
     Args:
       repository_ctx: The repository rule context
@@ -293,7 +292,7 @@ SET SCRIPT_DIR=%~dp0
             executable = True,
         )
 
-    # This template file is used by the packager tool and the pkg_npm rule.
+    # This template file is used by the packager tool
     # `yarn publish` is not ready for use under Bazel, see https://github.com/yarnpkg/yarn/issues/610
     if repository_ctx.attr.platform.startswith("windows"):
         run_npm = """

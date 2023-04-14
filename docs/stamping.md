@@ -15,20 +15,6 @@ argument, as well as `BUILD_HOST` and `BUILD_USER`. You can supply more with the
 
 Some rules accept an attribute that uses the status variables.
 
-## Substitutions attribute
-
-In a `pkg_npm` you can use the `substitutions` attribute like:
-
-```python
-pkg_npm(
-    name = "npm_package",
-    substitutions = {"0.0.0-PLACEHOLDER": "{STABLE_GIT_COMMIT}"},
-)
-```
-
-In a `--stamp` build, this will replace the string "0.0.0-PLACEHOLDER" in any file included in the package with the current value of the `STABLE_GIT_COMMIT` variable.
-However without stamping the placeholder will be left as-is.
-
 ## Stamping with a Workspace status script
 
 To define additional statuses, pass the `--workspace_status_command` argument to `bazel`.
@@ -38,7 +24,6 @@ The value of this flag is a path to a script that prints space-separated key/val
 #!/usr/bin/env bash
 echo STABLE_GIT_COMMIT $(git rev-parse HEAD)
 ```
-> For a more full-featured script, take a look at the [bazel_stamp_vars in Angular]
 
 Make sure you set the executable bit, eg. `chmod 755 tools/bazel_stamp_vars.sh`.
 
@@ -66,21 +51,19 @@ Here is a template to get you started:
 set -u -e -o pipefail
 
 # Call the script with argument "pack" or "publish"
-readonly NPM_COMMAND=${1:-publish}
+readonly PKG_COMMAND=${1:-publish}
 # Don't rely on $PATH to have the right version
 readonly BAZEL=./node_modules/.bin/bazel
 # Find all the npm packages in the repo
-readonly PKG_NPM_LABELS=`$BAZEL query --output=label 'kind("pkg_npm", //...)'`
+readonly PKG_LABELS=`$BAZEL query --output=label 'kind("pkg_tar", //...)'`
 # Build them in one command to maximize parallelism
-$BAZEL build --config=release $PKG_NPM_LABELS
+$BAZEL build --config=release $PKG_LABELS
 # publish one package at a time to make it easier to spot any errors or warnings
-for pkg in $PKG_NPM_LABELS ; do
-  $BAZEL run --config=release -- ${pkg}.${NPM_COMMAND} --access public --tag latest
+for pkg in $PKG_LABELS ; do
+  $BAZEL run --config=release -- ${pkg}.${PKG_COMMAND} --access public --tag latest
 done
 ```
 
 See https://www.kchodorow.com/blog/2017/03/27/stamping-your-builds/ for more background.
 Make sure you use a "STABLE_" status key, or else Bazel may use a cached npm artifact rather than
 building a new one with your current version info.
-
-[bazel_stamp_vars in Angular]: https://github.com/angular/angular/blob/master/tools/bazel_stamp_vars.sh
