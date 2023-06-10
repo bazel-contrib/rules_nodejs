@@ -1,6 +1,6 @@
 # @bazel/runfiles
 
-This package provides a basic set of utilities for resovling runfiles within NodeJS scripts
+This package provides a basic set of utilities for resolving runfiles within NodeJS scripts
 executed through `nodejs_binary` or `nodejs_test`.
 
 Runfile resolution is desirable if your workspace intends to support users that cannot rely
