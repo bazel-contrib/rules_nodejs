@@ -1,3 +1,7 @@
+## [5.8.3](https://github.com/bazelbuild/rules_nodejs/compare/5.8.2...5.8.3) (2023-06-12)
+
+
+
 ## [5.8.2](https://github.com/bazelbuild/rules_nodejs/compare/5.8.1...5.8.2) (2023-02-24)
 
 
