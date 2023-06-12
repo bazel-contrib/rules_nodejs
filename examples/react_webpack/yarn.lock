@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/buildifier@^6.0.1":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-6.0.1.tgz#3ef5ce4f807db2ec0838ac889775a081fe9208f8"
-  integrity sha512-PKOx5srLU7K1x0BQhiqu78lrxwvgimx+JRe5JXgiPfyA2/iMB1aNn41BozVMmWnEF/DUKbls6DOaNk83kgraag==
+"@bazel/buildifier@^6.1.2":
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-6.1.2.tgz#c151df52d2537937911f8f7802f96611d63a90b7"
+  integrity sha512-psKePmRkP6acwyePOhXP67R/wdwN7BGJxHqp1j5myaO24feMsaXyyiO+oW49x8YAwOpKVSCujVzkTwX2auAc0A==
 
 "@bazel/ibazel@^0.16.2":
   version "0.16.2"
