@@ -23,7 +23,7 @@ jobs:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
 
         # The number of days old an issue can be before marking it stale.
-        days-before-stale: 183
+        days-before-stale: 60
         # Number of days of inactivity before a stale issue is closed
         days-before-close: 30
 
@@ -38,15 +38,16 @@ jobs:
         stale-pr-label: 'Can Close?'
 
         stale-issue-message: >
-          This issue has been automatically marked as stale because it has not had
-          any activity for 6 months.
+          This issue has been automatically marked as stale because it has had no recent activity.
           It will be closed if no further activity occurs in 30 days.
+          Note as of rules_nodejs v6 the rules_nodejs repository contains only the core nodejs toolchain
+          and `@bazel/runfiles` package. All rulesets are removed and unmaintained.
+          For alternate rulesets suggestions include https://github.com/aspect-build/rules_js, https://github.com/aspect-build/rules_ts
           Collaborators can add a "cleanup" or "need: discussion" label to keep it open indefinitely.
           Thanks for your contributions to rules_nodejs!
 
         stale-pr-message: >
-          This Pull Request has been automatically marked as stale because it has not had
-          any activity for 6 months.
+          This Pull Request has been automatically marked as stale because it has had no recent activity.
           It will be closed if no further activity occurs in 30 days.
           Collaborators can add a "cleanup" or "need: discussion" label to keep it open indefinitely.
           Thanks for your contributions to rules_nodejs!
