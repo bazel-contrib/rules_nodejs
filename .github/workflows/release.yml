@@ -12,4 +12,5 @@ jobs:
   release:
     uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v2
     with:
+      prerelease: false
       release_files: rules_nodejs-*.tar.gz
