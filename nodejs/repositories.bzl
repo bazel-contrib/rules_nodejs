@@ -329,6 +329,11 @@ filegroup(
   name = "npm_files",
   srcs = {npm_files_glob}[":node_files"],
 )
+cc_library(
+  name = "headers",
+  hdrs = glob(["bin/nodejs/include/node/**"]),
+  includes = ["bin/nodejs/include/node"],
+)
 """.format(
         node_bin_export = "\n  \"%s\"," % node_bin,
         npm_bin_export = "\n  \"%s\"," % npm_bin,
