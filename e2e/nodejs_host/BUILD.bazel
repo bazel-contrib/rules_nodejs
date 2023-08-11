@@ -51,20 +51,19 @@ sh_test(
             "@bazel_tools//src/conditions:windows": [
                 "%s_windows_amd64/bin" % id,
                 bin,
+                ".cmd",
             ],
         }),
         data = [
             "@%s_host//:%s" % (id, bin),
             "@%s_host//:node" % id,
-            "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
+            "@bazel_tools//tools/bash/runfiles",
         ],
     )
-    for id in [
-        "node14",
-        "node16_nvmrc",
-    ]
-    for bin in [
-        "npx",
-        "npm",
+    for (id, bin) in [
+        # Node 14 doesn't include the node version in npx --help --verbose so we only test npm
+        ("node14", "npm"),
+        ("node16_nvmrc", "npm"),
+        ("node16_nvmrc", "npx"),
     ]
 ]

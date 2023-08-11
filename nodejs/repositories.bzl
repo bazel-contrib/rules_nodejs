@@ -235,7 +235,7 @@ def _prepare_node(repository_ctx):
     node_bin_relative = _strip_bin(node_bin)
     npm_script_relative = _strip_bin(npm_script)
     node_entry_relative = _strip_bin(node_entry)
-    npx_script_relative = _strip_bin(npx_script, "bin")
+    npx_script_relative = _strip_bin(npx_script)
 
     # The entry points for node for osx/linux and windows
     if not is_windows:
@@ -267,7 +267,7 @@ CALL "%SCRIPT_DIR%\\{node}" %*
     # entry point
     for kind in [
         {"name": "npm", "script": npm_script_relative},
-        {"name": "npx", "script": npx_script_relative}
+        {"name": "npx", "script": npx_script_relative},
     ]:
         if not is_windows:
             # entry point
@@ -281,7 +281,7 @@ CALL "%SCRIPT_DIR%\\{node}" %*
     "$SCRIPT_DIR/{node}" "$SCRIPT_DIR/{script}" --scripts-prepend-node-path=false "$@"
     """.format(
                     get_script_dir = GET_SCRIPT_DIR,
-                    node = paths.relativize(node_entry, "bin"),
+                    node = node_bin_relative,
                     script = kind["script"],
                 ),
                 executable = True,
@@ -294,7 +294,7 @@ CALL "%SCRIPT_DIR%\\{node}" %*
     SET SCRIPT_DIR=%~dp0
     "%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" --scripts-prepend-node-path=false %*
     """.format(
-                    node = paths.relativize(node_entry, "bin"),
+                    node = node_bin_relative,
                     script = kind["script"],
                 ),
                 executable = True,
