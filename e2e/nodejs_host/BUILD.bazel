@@ -34,3 +34,36 @@ sh_test(
         "node16_nvmrc",
     ]
 ]
+
+[
+    sh_test(
+        name = "test_node_version_%s_%s" % (bin, id),
+        srcs = ["version_test.sh"],
+        args = select({
+            "@bazel_tools//src/conditions:linux_x86_64": [
+                "%s_linux_amd64/bin" % id,
+                bin,
+            ],
+            "@bazel_tools//src/conditions:darwin": [
+                "%s_darwin_arm64/bin" % id,
+                bin,
+            ],
+            "@bazel_tools//src/conditions:windows": [
+                "%s_windows_amd64/bin" % id,
+                bin,
+                ".cmd",
+            ],
+        }),
+        data = [
+            "@%s_host//:%s" % (id, bin),
+            "@%s_host//:node" % id,
+            "@bazel_tools//tools/bash/runfiles",
+        ],
+    )
+    for (id, bin) in [
+        # Node 14 doesn't include the node version in npx --help --verbose so we only test npm
+        ("node14", "npm"),
+        ("node16_nvmrc", "npm"),
+        ("node16_nvmrc", "npx"),
+    ]
+]
