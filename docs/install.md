@@ -27,7 +27,7 @@ If you'd like to use a version of NodeJS that is not currently supported here,
 for example one that you host within your org, you can manually specify those in your `WORKSPACE`:
 
 ```python
-load("@rules_nodejs//:index.bzl", "node_repositories")
+load("@rules_nodejs//nodejs:repositories.bzl", "node_repositories")
 
 node_repositories(
   node_version = "8.10.0",
