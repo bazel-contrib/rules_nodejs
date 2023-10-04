@@ -28,6 +28,27 @@ May be empty if the target_tool_path points to a locally installed node binary."
 May be empty if the npm_path points to a locally installed npm binary.""",
         "run_npm": """A template for a script that wraps npm.
         On Windows, this is a Batch script, otherwise it uses Bash.""",
+        "headers": """\
+(struct) Information about the header files, with fields:
+  * providers_map: a dict of string to provider instances. The key should be
+    a fully qualified name (e.g. `@rules_foo//bar:baz.bzl#MyInfo`) of the
+    provider to uniquely identify its type.
+
+    The following keys are always present:
+      * CcInfo: the CcInfo provider instance for the headers.
+      * DefaultInfo: the DefaultInfo provider instance for the headers.
+
+    A map is used to allow additional providers from the originating headers
+    target (typically a `cc_library`) to be propagated to consumers (directly
+    exposing a Target object can cause memory issues and is an anti-pattern).
+
+    When consuming this map, it's suggested to use `providers_map.values()` to
+    return all providers; or copy the map and filter out or replace keys as
+    appropriate. Note that any keys begining with `_` (underscore) are
+    considered private and should be forward along as-is (this better allows
+    e.g. `:current_node_cc_headers` to act as the underlying headers target it
+    represents).
+""",
     },
 )
 
@@ -76,6 +97,12 @@ def _node_toolchain_impl(ctx):
         npm_path = npm_path,
         npm_files = npm_files,
         run_npm = ctx.file.run_npm,
+        headers = struct(
+            providers_map = {
+                "CcInfo": ctx.attr.headers[CcInfo],
+                "DefaultInfo": ctx.attr.headers[DefaultInfo],
+            },
+        ),
     )
 
     # Export all the providers inside our ToolchainInfo
@@ -119,6 +146,9 @@ node_toolchain = rule(
         "run_npm": attr.label(
             doc = "A template file that allows us to execute npm",
             allow_single_file = True,
+        ),
+        "headers": attr.label(
+            doc = "A cc_library that contains the Node/v8 header files for this target platform.",
         ),
     },
     doc = """Defines a node toolchain for a platform.

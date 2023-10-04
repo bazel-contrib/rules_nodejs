@@ -376,6 +376,7 @@ node_toolchain(
     npm = ":npm",
     npm_files = [":npm_files"],
     run_npm = ":run_npm.template",
+    headers = ":headers",
 )
 """
     repository_ctx.file("BUILD.bazel", content = build_content)
