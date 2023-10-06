@@ -42,3 +42,7 @@ build --incompatible_disallow_empty_glob
 
 # Allow exclusive tests to run in a sandbox
 test --incompatible_exclusive_test_sandboxed
+
+# TODO: migrate all dependencies from WORKSPACE to MODULE.bazel
+# https://github.com/bazelbuild/stardoc/issues/189
+common --noenable_bzlmod
