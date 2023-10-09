@@ -28,8 +28,6 @@ OS_ARCH_NAMES = [
     ("freebsd", "amd64"),
 ]
 
-OS_NAMES = ["_".join(os_arch_name) for os_arch_name in OS_ARCH_NAMES]
-
 def os_name(rctx):
     """Get the os name for a repository rule
 
@@ -39,42 +37,29 @@ def os_name(rctx):
     Returns:
       A string describing the os for a repository rule
     """
-    os_name = rctx.os.name.lower()
-    if os_name.find("windows") != -1:
-        return OS_NAMES[0]
+    if is_windows_os(rctx):
+        return "windows_amd64"
 
-    # This is not ideal, but bazel doesn't directly expose arch.
-    arch = rctx.execute(["uname", "-m"]).stdout.strip()
+    arch = rctx.os.arch
+    if arch == "aarch64":
+        arch = "arm64"
+
+    os_name = rctx.os.name
     if os_name.startswith("mac os"):
-        if arch == "x86_64":
-            return OS_NAMES[1]
-        elif arch == "arm64":
-            return OS_NAMES[2]
+        os_name = "darwin"
     elif os_name.startswith("linux"):
-        if arch == "x86_64":
-            return OS_NAMES[3]
-        elif arch == "aarch64":
-            return OS_NAMES[4]
-        elif arch == "s390x":
-            return OS_NAMES[5]
-        elif arch == "ppc64le":
-            return OS_NAMES[6]
+        os_name = "linux"
     elif os_name.startswith("freebsd"):
-        if arch == "amd64":
-            return OS_NAMES[7]
+        os_name = "freebsd"
 
-    fail("Unsupported operating system {} architecture {}".format(os_name, arch))
+    os_and_arch = (os_name, arch)
+    if os_and_arch not in OS_ARCH_NAMES:
+        fail("Unsupported operating system {} architecture {}".format(os_name, arch))
+
+    return "_".join(os_and_arch)
 
 def is_windows_os(rctx):
-    return os_name(rctx) == OS_NAMES[0]
-
-def is_darwin_os(rctx):
-    name = os_name(rctx)
-    return name == OS_NAMES[1] or name == OS_NAMES[2]
-
-def is_linux_os(rctx):
-    name = os_name(rctx)
-    return name == OS_NAMES[3] or name == OS_NAMES[4] or name == OS_NAMES[5] or name == OS_NAMES[6]
+    return rctx.os.name.find("windows") != -1
 
 def node_exists_for_os(node_version, os_name, node_repositories):
     if not node_repositories:
