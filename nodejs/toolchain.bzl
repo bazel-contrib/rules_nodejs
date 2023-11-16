@@ -102,7 +102,7 @@ def _node_toolchain_impl(ctx):
                 "CcInfo": ctx.attr.headers[CcInfo],
                 "DefaultInfo": ctx.attr.headers[DefaultInfo],
             },
-        ),
+        ) if ctx.attr.headers else None,
     )
 
     # Export all the providers inside our ToolchainInfo
