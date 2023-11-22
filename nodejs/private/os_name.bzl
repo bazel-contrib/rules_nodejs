@@ -43,6 +43,8 @@ def os_name(rctx):
     arch = rctx.os.arch
     if arch == "aarch64":
         arch = "arm64"
+    if arch == "x86_64":
+        arch = "amd64"
 
     os_name = rctx.os.name
     if os_name.startswith("mac os"):
