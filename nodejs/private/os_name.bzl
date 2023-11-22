@@ -43,6 +43,9 @@ def os_name(rctx):
     arch = rctx.os.arch
     if arch == "aarch64":
         arch = "arm64"
+
+    # Java os macos is reporting x86_64.
+    # See: https://mail.openjdk.org/pipermail/macosx-port-dev/2012-February/002860.html .
     if arch == "x86_64":
         arch = "amd64"
 
