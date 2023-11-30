@@ -1,6 +1,8 @@
 name: Update NodeJS Versions
 
 on:
+  # Trigger manually in the UI
+  workflow_dispatch:
   schedule:
     # run at 01:30 UTC daily
     - cron: '30 1 * * *'
@@ -27,7 +29,9 @@ jobs:
           node-version: '14.x'
 
       - name: Run yarn update-nodejs-versions
-        run: yarn run update-nodejs-versions
+        run: |
+          yarn run update-nodejs-versions
+          bazel run docs:update
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
