@@ -29,11 +29,13 @@ export class Runfiles {
       this.manifest = this.loadRunfilesManifest(_env['RUNFILES_MANIFEST_FILE']!);
     } else if (!!_env['RUNFILES_DIR']) {
       this.runfilesDir = path.resolve(_env['RUNFILES_DIR']!);
+    } else if (!!_env['JS_BINARY__RUNFILES']) {
+      this.runfilesDir = path.resolve(_env['JS_BINARY__RUNFILES']!);
     } else if (!!_env['RUNFILES']) {
       this.runfilesDir = path.resolve(_env['RUNFILES']!);
     } else {
       throw new Error(
-          'Every node program run under Bazel must have a $RUNFILES_DIR, $RUNFILES or $RUNFILES_MANIFEST_FILE environment variable');
+          'Every node program run under Bazel must have a $RUNFILES_MANIFEST_FILE, $RUNFILES_DIR, $JS_BINARY__RUNFILES or $RUNFILES environment variable');
     }
     // Under --noenable_runfiles (in particular on Windows)
     // Bazel sets RUNFILES_MANIFEST_ONLY=1.
