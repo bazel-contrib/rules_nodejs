@@ -62,11 +62,12 @@ tasks:
     - "--test_tag_filters=-fix-windows,-no-bazelci-windows"
     test_targets:
     - "//..."
-  rbe_ubuntu1604-smoke:
-    name: rbe_ubuntu1604-smoke
-    platform: rbe_ubuntu1604
-    working_directory: "e2e/smoke"
-    build_targets:
-    - "//..."
-    test_targets:
-    - "//..."
+  # Temporarily disabled RBE CI until cc toolchain failures are resolved
+  # rbe_ubuntu1604-smoke:
+  #   name: rbe_ubuntu1604-smoke
+  #   platform: rbe_ubuntu1604
+  #   working_directory: "e2e/smoke"
+  #   build_targets:
+  #   - "//..."
+  #   test_targets:
+  #   - "//..."
