@@ -142,7 +142,7 @@ Defaults to `None`
 **USAGE**
 
 <pre>
-node_toolchain(<a href="#node_toolchain-name">name</a>, <a href="#node_toolchain-headers">headers</a>, <a href="#node_toolchain-npm">npm</a>, <a href="#node_toolchain-npm_files">npm_files</a>, <a href="#node_toolchain-npm_path">npm_path</a>, <a href="#node_toolchain-run_npm">run_npm</a>, <a href="#node_toolchain-target_tool">target_tool</a>, <a href="#node_toolchain-target_tool_path">target_tool_path</a>)
+node_toolchain(<a href="#node_toolchain-name">name</a>, <a href="#node_toolchain-headers">headers</a>, <a href="#node_toolchain-npm">npm</a>, <a href="#node_toolchain-npm_files">npm_files</a>, <a href="#node_toolchain-npm_path">npm_path</a>, <a href="#node_toolchain-target_tool">target_tool</a>, <a href="#node_toolchain-target_tool_path">target_tool_path</a>)
 </pre>
 
 Defines a node toolchain for a platform.
@@ -216,12 +216,6 @@ Defaults to `[]`
 (*String*): Path to an existing npm executable for this target's platform.
 
 Defaults to `""`
-
-<h4 id="node_toolchain-run_npm">run_npm</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A template file that allows us to execute npm
-
-Defaults to `None`
 
 <h4 id="node_toolchain-target_tool">target_tool</h4>
 

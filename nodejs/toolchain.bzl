@@ -26,8 +26,6 @@ May be empty if the target_tool_path points to a locally installed node binary."
         "npm_files": """Files required in runfiles to make the npm executable available.
 
 May be empty if the npm_path points to a locally installed npm binary.""",
-        "run_npm": """A template for a script that wraps npm.
-        On Windows, this is a Batch script, otherwise it uses Bash.""",
         "headers": """\
 (struct) Information about the header files, with fields:
   * providers_map: a dict of string to provider instances. The key should be
@@ -96,7 +94,6 @@ def _node_toolchain_impl(ctx):
         tool_files = tool_files,
         npm_path = npm_path,
         npm_files = npm_files,
-        run_npm = ctx.file.run_npm,
         headers = struct(
             providers_map = {
                 "CcInfo": ctx.attr.headers[CcInfo],
@@ -142,10 +139,6 @@ node_toolchain = rule(
         "npm_files": attr.label_list(
             doc = "Files required in runfiles to run npm.",
             mandatory = False,
-        ),
-        "run_npm": attr.label(
-            doc = "A template file that allows us to execute npm",
-            allow_single_file = True,
         ),
         "headers": attr.label(
             doc = "A cc_library that contains the Node/v8 header files for this target platform.",
