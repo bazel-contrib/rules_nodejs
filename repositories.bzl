@@ -19,7 +19,6 @@ Fulfills similar role as the package.json file.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-load("//nodejs:repositories.bzl", "rules_nodejs_dependencies")
 
 def rules_nodejs_dev_dependencies():
     """
@@ -28,8 +27,6 @@ def rules_nodejs_dev_dependencies():
     These are in this file to keep version information in one place, and make the WORKSPACE
     shorter.
     """
-
-    rules_nodejs_dependencies()
 
     maybe(
         http_archive,

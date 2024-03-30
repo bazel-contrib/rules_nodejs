@@ -17,8 +17,8 @@ Features:
 **USAGE**
 
 <pre>
-node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>, <a href="#node_repositories-platform">platform</a>,
-                  <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-use_nvmrc">use_nvmrc</a>)
+node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>,
+                  <a href="#node_repositories-node_version_from_nvmrc">node_version_from_nvmrc</a>, <a href="#node_repositories-platform">platform</a>, <a href="#node_repositories-repo_mapping">repo_mapping</a>)
 </pre>
 
 To be run in user's WORKSPACE to install rules_nodejs dependencies.
@@ -84,7 +84,7 @@ See [toolchains](./toolchains.md).
 
 <h4 id="node_repositories-node_download_auth">node_download_auth</h4>
 
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): auth to use for all url requests
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Auth to use for all url requests
 Example: {"type": "basic", "login": "<UserName>", "password": "<Password>" }
 
 Defaults to `{}`
@@ -102,20 +102,30 @@ Defaults to `{}`
 
 <h4 id="node_repositories-node_urls">node_urls</h4>
 
-(*List of strings*): custom list of URLs to use to download NodeJS
+(*List of strings*): Custom list of URLs to use to download NodeJS.
 
 Each entry is a template for downloading a node distribution.
 
 The `{version}` parameter is substituted with the `node_version` attribute,
 and `{filename}` with the matching entry from the `node_repositories` attribute.
 
-Defaults to `["https://nodejs.org/dist/v{version}/{filename}"]`
+If not set then `https://nodejs.org/dist/v{version}/{filename}` is used
+
+Defaults to `[]`
 
 <h4 id="node_repositories-node_version">node_version</h4>
 
-(*String*): the specific version of NodeJS to install
+(*String*): The specific version of NodeJS to install
 
 Defaults to `"18.20.0"`
+
+<h4 id="node_repositories-node_version_from_nvmrc">node_version_from_nvmrc</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): The local path of the .nvmrc file containing the version of node
+
+If set then also set node_version to the version found in the .nvmrc file.
+
+Defaults to `None`
 
 <h4 id="node_repositories-platform">platform</h4>
 
@@ -128,21 +138,13 @@ Defaults to `""`
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
 
 
-<h4 id="node_repositories-use_nvmrc">use_nvmrc</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): the local path of the .nvmrc file containing the version of node
-
-If set then also set node_version to the version found in the .nvmrc file.
-
-Defaults to `None`
-
 
 ## node_toolchain
 
 **USAGE**
 
 <pre>
-node_toolchain(<a href="#node_toolchain-name">name</a>, <a href="#node_toolchain-headers">headers</a>, <a href="#node_toolchain-npm">npm</a>, <a href="#node_toolchain-npm_files">npm_files</a>, <a href="#node_toolchain-npm_path">npm_path</a>, <a href="#node_toolchain-target_tool">target_tool</a>, <a href="#node_toolchain-target_tool_path">target_tool_path</a>)
+node_toolchain(<a href="#node_toolchain-name">name</a>, <a href="#node_toolchain-headers">headers</a>, <a href="#node_toolchain-node">node</a>, <a href="#node_toolchain-node_path">node_path</a>, <a href="#node_toolchain-npm">npm</a>, <a href="#node_toolchain-npm_files">npm_files</a>, <a href="#node_toolchain-npm_path">npm_path</a>)
 </pre>
 
 Defines a node toolchain for a platform.
@@ -157,7 +159,7 @@ load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
 
 node_toolchain(
     name = "node_toolchain",
-    target_tool = "//some/path/bin/node",
+    node = "//some/path/bin/node",
 )
 ```
 
@@ -195,37 +197,37 @@ You can use the `--toolchain_resolution_debug` flag to `bazel` to help diagnose 
 
 <h4 id="node_toolchain-headers">headers</h4>
 
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A cc_library that contains the Node/v8 header files for this target platform.
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): cc_library that contains the Node/v8 header files
 
 Defaults to `None`
 
+<h4 id="node_toolchain-node">node</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Node.js executable
+
+Defaults to `None`
+
+<h4 id="node_toolchain-node_path">node_path</h4>
+
+(*String*): Path to Node.js executable file
+
+Defaults to `""`
+
 <h4 id="node_toolchain-npm">npm</h4>
 
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A hermetically downloaded npm executable target for this target's platform.
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Npm JavaScript entry point
 
 Defaults to `None`
 
 <h4 id="node_toolchain-npm_files">npm_files</h4>
 
-(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Files required in runfiles to run npm.
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Additional files required to run npm
 
 Defaults to `[]`
 
 <h4 id="node_toolchain-npm_path">npm_path</h4>
 
-(*String*): Path to an existing npm executable for this target's platform.
-
-Defaults to `""`
-
-<h4 id="node_toolchain-target_tool">target_tool</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A hermetically downloaded nodejs executable target for this target's platform.
-
-Defaults to `None`
-
-<h4 id="node_toolchain-target_tool_path">target_tool_path</h4>
-
-(*String*): Path to an existing nodejs executable for this target's platform.
+(*String*): Path to npm JavaScript entry point
 
 Defaults to `""`
 

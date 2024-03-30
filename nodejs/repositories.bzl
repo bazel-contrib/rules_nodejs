@@ -77,8 +77,7 @@ See [toolchains](./toolchains.md).
 
 _ATTRS = {
     "node_download_auth": attr.string_dict(
-        default = {},
-        doc = """auth to use for all url requests
+        doc = """Auth to use for all url requests
 Example: {\"type\": \"basic\", \"login\": \"<UserName>\", \"password\": \"<Password>\" }
 """,
     ),
@@ -92,25 +91,23 @@ By default, if this attribute has no items, we'll use a list of all public NodeJ
 """,
     ),
     "node_urls": attr.string_list(
-        default = [
-            "https://nodejs.org/dist/v{version}/{filename}",
-        ],
-        doc = """custom list of URLs to use to download NodeJS
+        doc = """Custom list of URLs to use to download NodeJS.
 
 Each entry is a template for downloading a node distribution.
 
 The `{version}` parameter is substituted with the `node_version` attribute,
 and `{filename}` with the matching entry from the `node_repositories` attribute.
+
+If not set then `https://nodejs.org/dist/v{version}/{filename}` is used
 """,
     ),
     "node_version": attr.string(
         default = DEFAULT_NODE_VERSION,
-        doc = "the specific version of NodeJS to install",
+        doc = "The specific version of NodeJS to install",
     ),
-    "use_nvmrc": attr.label(
+    "node_version_from_nvmrc": attr.label(
         allow_single_file = True,
-        default = None,
-        doc = """the local path of the .nvmrc file containing the version of node
+        doc = """The local path of the .nvmrc file containing the version of node
 
 If set then also set node_version to the version found in the .nvmrc file.""",
     ),
@@ -149,8 +146,8 @@ def _download_node(repository_ctx):
 
     node_version = repository_ctx.attr.node_version
 
-    if repository_ctx.attr.use_nvmrc:
-        node_version = str(repository_ctx.read(repository_ctx.attr.use_nvmrc)).strip()
+    if repository_ctx.attr.node_version_from_nvmrc:
+        node_version = str(repository_ctx.read(repository_ctx.attr.node_version_from_nvmrc)).strip()
 
     _verify_version_is_valid(node_version)
 
@@ -166,6 +163,8 @@ def _download_node(repository_ctx):
         return
 
     node_urls = repository_ctx.attr.node_urls
+    if not node_urls:
+        node_urls = ["https://nodejs.org/dist/v{version}/{filename}"]
 
     # Download node & npm
     version_host_os = "%s-%s" % (node_version, host_os)
@@ -355,7 +354,7 @@ cc_library(
 load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
 node_toolchain(
     name = "node_toolchain",
-    target_tool = ":node_bin",
+    node = ":node_bin",
     npm = ":npm",
     npm_files = [":npm_files"],
     headers = ":headers",
@@ -430,7 +429,3 @@ def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, 
         name = name + "_toolchains",
         user_node_repository_name = name,
     )
-
-def rules_nodejs_dependencies():
-    # This is a no-op, but we keep it around for backwards compatibility.
-    return True

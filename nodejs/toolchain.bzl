@@ -18,14 +18,11 @@
 NodeInfo = provider(
     doc = "Information about how to invoke the node executable.",
     fields = {
-        "target_tool_path": "Path to the nodejs executable for this target's platform.",
-        "tool_files": """Files required in runfiles to make the nodejs executable available.
-
-May be empty if the target_tool_path points to a locally installed node binary.""",
-        "npm_path": "Path to the npm executable for this target's platform.",
-        "npm_files": """Files required in runfiles to make the npm executable available.
-
-May be empty if the npm_path points to a locally installed npm binary.""",
+        "node": "Node.js executable File",
+        "node_path": "Path to Node.js executable; if set then 'node' is ignored",
+        "npm": "Npm JavaScript entry point File",
+        "npm_path": "Path to npm JavaScript entry point",
+        "npm_files": """Additional files required to run npm""",
         "headers": """\
 (struct) Information about the header files, with fields:
   * providers_map: a dict of string to provider instances. The key should be
@@ -50,50 +47,30 @@ May be empty if the npm_path points to a locally installed npm binary.""",
     },
 )
 
-# Avoid using non-normalized paths (workspace/../other_workspace/path)
-def _to_manifest_path(ctx, file):
-    if file.short_path.startswith("../"):
-        return "external/" + file.short_path[3:]
-    else:
-        return ctx.workspace_name + "/" + file.short_path
-
 def _node_toolchain_impl(ctx):
-    if ctx.attr.target_tool and ctx.attr.target_tool_path:
-        fail("Can only set one of target_tool or target_tool_path but both were set.")
-    if not ctx.attr.target_tool and not ctx.attr.target_tool_path:
-        fail("Must set one of target_tool or target_tool_path.")
+    if ctx.attr.node and ctx.attr.node_path:
+        fail("Can only set one of node or node_path but both were set.")
+    if not ctx.attr.node and not ctx.attr.node_path:
+        fail("Must set one of node or node_path.")
     if ctx.attr.npm and ctx.attr.npm_path:
         fail("Can only set one of npm or npm_path but both were set.")
-
-    tool_files = []
-    target_tool_path = ctx.attr.target_tool_path
-
-    if ctx.attr.target_tool:
-        tool_files = [ctx.file.target_tool]
-        target_tool_path = _to_manifest_path(ctx, ctx.file.target_tool)
-
-    npm_files = []
-    npm_path = ctx.attr.npm_path
-
-    if ctx.attr.npm:
-        npm_files = depset([ctx.file.npm] + ctx.files.npm_files).to_list()
-        npm_path = _to_manifest_path(ctx, ctx.file.npm)
 
     # Make the $(NODE_PATH) variable available in places like genrules.
     # See https://docs.bazel.build/versions/main/be/make-variables.html#custom_variables
     template_variables = platform_common.TemplateVariableInfo({
-        "NODE_PATH": target_tool_path,
-        "NPM_PATH": npm_path,
+        "NODE_PATH": ctx.file.node.path if ctx.attr.node else ctx.attr.node_path,
+        "NPM_PATH": ctx.file.npm.path if ctx.attr.npm else ctx.attr.npm_path,
     })
     default = DefaultInfo(
-        files = depset(tool_files),
-        runfiles = ctx.runfiles(files = tool_files),
+        files = depset([ctx.file.node]) if ctx.attr.node else depset(),
+        runfiles = ctx.runfiles(files = [ctx.file.node] if ctx.attr.node else []),
     )
     nodeinfo = NodeInfo(
-        target_tool_path = target_tool_path,
-        tool_files = tool_files,
-        npm_path = npm_path,
-        npm_files = npm_files,
+        node = ctx.file.node,
+        node_path = ctx.attr.node_path,
+        npm = ctx.file.npm,
+        npm_path = ctx.attr.npm_path,
+        npm_files = depset([ctx.file.npm] + ctx.files.npm_files) if ctx.attr.npm else depset(),
         headers = struct(
             providers_map = {
                 "CcInfo": ctx.attr.headers[CcInfo],
@@ -118,30 +95,27 @@ def _node_toolchain_impl(ctx):
 node_toolchain = rule(
     implementation = _node_toolchain_impl,
     attrs = {
-        "target_tool": attr.label(
-            doc = "A hermetically downloaded nodejs executable target for this target's platform.",
-            mandatory = False,
+        "node": attr.label(
+            doc = "Node.js executable",
+            executable = True,
+            cfg = "exec",
             allow_single_file = True,
         ),
-        "target_tool_path": attr.string(
-            doc = "Path to an existing nodejs executable for this target's platform.",
-            mandatory = False,
+        "node_path": attr.string(
+            doc = "Path to Node.js executable file",
         ),
         "npm": attr.label(
-            doc = "A hermetically downloaded npm executable target for this target's platform.",
-            mandatory = False,
+            doc = "Npm JavaScript entry point",
             allow_single_file = True,
         ),
         "npm_path": attr.string(
-            doc = "Path to an existing npm executable for this target's platform.",
-            mandatory = False,
+            doc = "Path to npm JavaScript entry point",
         ),
         "npm_files": attr.label_list(
-            doc = "Files required in runfiles to run npm.",
-            mandatory = False,
+            doc = "Additional files required to run npm",
         ),
         "headers": attr.label(
-            doc = "A cc_library that contains the Node/v8 header files for this target platform.",
+            doc = "cc_library that contains the Node/v8 header files",
         ),
     },
     doc = """Defines a node toolchain for a platform.
@@ -156,7 +130,7 @@ load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
 
 node_toolchain(
     name = "node_toolchain",
-    target_tool = "//some/path/bin/node",
+    node = "//some/path/bin/node",
 )
 ```
 

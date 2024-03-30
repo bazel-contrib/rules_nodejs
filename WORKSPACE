@@ -35,13 +35,13 @@ load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 # The order matters because Bazel will provide the first registered toolchain when a rule asks Bazel to select it
 # This applies to the resolved_toolchain
 nodejs_register_toolchains(
-    name = "node16",
-    node_version = "16.5.0",
+    name = "node17",
+    node_version = "17.9.1",
 )
 
 nodejs_register_toolchains(
-    name = "node15",
-    node_version = "15.14.0",
+    name = "node16",
+    node_version = "16.20.2",
 )
 
 http_archive(
