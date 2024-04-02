@@ -23,14 +23,14 @@ write_file(
 # alias(
 #     name = "node_bin",
 #     actual = select({
-#         "@bazel_tools//src/conditions:darwin_arm64": "@node16_darwin_arm64//:node_bin",
-#         "@bazel_tools//src/conditions:darwin_x86_64": "@node16_darwin_amd64//:node_bin",
-#         "@bazel_tools//src/conditions:linux_aarch64": "@node16_linux_arm64//:node_bin",
-#         "@bazel_tools//src/conditions:linux_s390x": "@node16_linux_s390x//:node_bin",
-#         "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_bin",
-#         "@bazel_tools//src/conditions:linux_ppc64le": "@node16_linux_ppc64le//:node_bin",
-#         "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_bin",
-#         "//conditions:default": "@node16_linux_amd64//:node_bin",
+#         "@bazel_tools//src/conditions:darwin_arm64": "@nodejs_darwin_arm64//:node_bin",
+#         "@bazel_tools//src/conditions:darwin_x86_64": "@nodejs_darwin_amd64//:node_bin",
+#         "@bazel_tools//src/conditions:linux_aarch64": "@nodejs_linux_arm64//:node_bin",
+#         "@bazel_tools//src/conditions:linux_s390x": "@nodejs_linux_s390x//:node_bin",
+#         "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64//:node_bin",
+#         "@bazel_tools//src/conditions:linux_ppc64le": "@nodejs_linux_ppc64le//:node_bin",
+#         "@bazel_tools//src/conditions:windows": "@nodejs_windows_amd64//:node_bin",
+#         "//conditions:default": "@nodejs_linux_amd64//:node_bin",
 #     }),
 # )
 # genrule(
@@ -59,8 +59,8 @@ genrule(
     srcs = ["some.js"],
     outs = ["actual1"],
     cmd = "$(NODE_PATH) $(execpath some.js) $@",
-    toolchains = ["@node16_toolchains//:resolved_toolchain"],
-    tools = ["@node16_toolchains//:resolved_toolchain"],
+    toolchains = ["@nodejs_toolchains//:resolved_toolchain"],
+    tools = ["@nodejs_toolchains//:resolved_toolchain"],
 )
 
 diff_test(
@@ -120,9 +120,9 @@ genrule(
         --compact \\
         $(execpath one.js) \\
         > $@""",
-    toolchains = ["@node16_toolchains//:resolved_toolchain"],
+    toolchains = ["@nodejs_toolchains//:resolved_toolchain"],
     tools = [
-        "@node16_toolchains//:resolved_toolchain",
+        "@nodejs_toolchains//:resolved_toolchain",
         "@npm_acorn-8.5.0",
     ],
 )
@@ -170,9 +170,9 @@ genrule(
         $(NODE_PATH) \\
         ./$(execpath require_acorn.js) \\
         $@""",
-    toolchains = ["@node16_toolchains//:resolved_toolchain"],
+    toolchains = ["@nodejs_toolchains//:resolved_toolchain"],
     tools = [
-        "@node16_toolchains//:resolved_toolchain",
+        "@nodejs_toolchains//:resolved_toolchain",
         "@npm_acorn-8.5.0",
     ],
 )
@@ -228,13 +228,11 @@ my_nodejs(
 )
 
 # this tests to make sure that the first version imported in the workspace is used as default
-# FIXME: under bzlmod, the first toolchain registered is in the rules_nodejs/MODULE.bazel
-# which is the "latest version" of node, not the one in our local MODULE.bazel file.
-# diff_test(
-#     name = "node_version_default_toolchain_test",
-#     file1 = "write_node_version_16",
-#     file2 = "thing_no_toolchain",
-# )
+diff_test(
+    name = "node_version_default_toolchain_test",
+    file1 = "write_node_version_16",
+    file2 = "thing_no_toolchain",
+)
 
 # Output contains the version number of node that is used.
 # This is used in tests later to verify the toolchain specified is resolved correctly
@@ -265,9 +263,9 @@ my_nodejs(
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
     toolchain = select({
-        "@bazel_tools//src/conditions:linux_x86_64": "@node16_linux_amd64//:node_toolchain",
-        "@bazel_tools//src/conditions:darwin": "@node16_darwin_amd64//:node_toolchain",
-        "@bazel_tools//src/conditions:windows": "@node16_windows_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:darwin": "@nodejs_darwin_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:windows": "@nodejs_windows_amd64//:node_toolchain",
     }),
 )
 

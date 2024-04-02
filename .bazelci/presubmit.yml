@@ -1,5 +1,5 @@
 ---
-bazel: 6.1.1
+bazel: 7.1.1
 # Note, this will tell the user to do the wrong thing (manually run buildifer)
 # See https://github.com/bazelbuild/continuous-integration/issues/1161
 buildifier:
