@@ -209,9 +209,9 @@ write_file(
 # Files used in test cases later that contain the correct nodejs version
 # that is imported into the workspace.
 write_file(
-    name = "write_node_version_15",
-    out = "expected_node_15",
-    content = ["v15.14.0"],
+    name = "write_node_version_17",
+    out = "expected_node_17",
+    content = ["v17.9.1"],
 )
 
 write_file(
@@ -237,23 +237,23 @@ diff_test(
 # Output contains the version number of node that is used.
 # This is used in tests later to verify the toolchain specified is resolved correctly
 my_nodejs(
-    name = "run_15",
-    out = "thing_toolchain_15",
+    name = "run_17",
+    out = "thing_toolchain_17",
     entry_point = "version.js",
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
     toolchain = select({
-        "@bazel_tools//src/conditions:linux_x86_64": "@node15_linux_amd64//:node_toolchain",
-        "@bazel_tools//src/conditions:darwin": "@node15_darwin_amd64//:node_toolchain",
-        "@bazel_tools//src/conditions:windows": "@node15_windows_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:linux_x86_64": "@node17_linux_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:darwin": "@node17_darwin_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:windows": "@node17_windows_amd64//:node_toolchain",
     }),
 )
 
 # Section of test the verify the toolchain work as expected matching node version used with expected
 diff_test(
-    name = "test_node_version_15",
-    file1 = "write_node_version_15",
-    file2 = "thing_toolchain_15",
+    name = "test_node_version_17",
+    file1 = "write_node_version_17",
+    file2 = "thing_toolchain_17",
 )
 
 my_nodejs(

@@ -30,7 +30,7 @@ sh_test(
         ],
     )
     for id in [
-        "node14",
+        "node16",
         "node16_nvmrc",
     ]
 ]
@@ -61,8 +61,8 @@ sh_test(
         ],
     )
     for (id, bin) in [
-        # Node 14 doesn't include the node version in npx --help --verbose so we only test npm
-        ("node14", "npm"),
+        ("node16", "npm"),
+        ("node16", "npx"),
         ("node16_nvmrc", "npm"),
         ("node16_nvmrc", "npx"),
     ]
