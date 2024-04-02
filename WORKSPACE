@@ -40,8 +40,8 @@ nodejs_register_toolchains(
 )
 
 nodejs_register_toolchains(
-    name = "node15",
-    node_version = "15.14.0",
+    name = "node17",
+    node_version = "17.9.1",
 )
 
 http_archive(

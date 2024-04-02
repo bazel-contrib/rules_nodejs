@@ -20,16 +20,16 @@ node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 
 node.toolchain(node_version = "16.5.0")
 node.toolchain(
-    name = "node15",
-    node_version = "15.14.0",
+    name = "node17",
+    node_version = "17.9.1",
 )
 
 # FIXME(6.0): a repo rule with name=foo should create a repo named @foo, not @foo_toolchains
 use_repo(
     node,
-    "node15_darwin_amd64",
-    "node15_linux_amd64",
-    "node15_windows_amd64",
+    "node17_darwin_amd64",
+    "node17_linux_amd64",
+    "node17_windows_amd64",
     "nodejs_darwin_amd64",
     "nodejs_linux_amd64",
     "nodejs_toolchains",
