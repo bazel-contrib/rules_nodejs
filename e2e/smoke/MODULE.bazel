@@ -18,12 +18,7 @@ local_path_override(
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 
-# Note, this gets the default version of Node.js from
-# https://github.com/bazelbuild/rules_nodejs/blob/5.8.0/nodejs/repositories.bzl#L11
-node.toolchain(
-    name = "node16",
-    node_version = "16.5.0",
-)
+node.toolchain(node_version = "16.5.0")
 node.toolchain(
     name = "node15",
     node_version = "15.14.0",
@@ -35,8 +30,8 @@ use_repo(
     "node15_darwin_amd64",
     "node15_linux_amd64",
     "node15_windows_amd64",
-    "node16_darwin_amd64",
-    "node16_linux_amd64",
-    "node16_toolchains",
-    "node16_windows_amd64",
+    "nodejs_darwin_amd64",
+    "nodejs_linux_amd64",
+    "nodejs_toolchains",
+    "nodejs_windows_amd64",
 )
