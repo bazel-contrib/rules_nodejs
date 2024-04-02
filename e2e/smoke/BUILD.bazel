@@ -47,7 +47,7 @@ build_test(
     targets = [
         ":call_acorn",
         ":require_acorn",
-        ":use_node_toolchain",
+        ":use_nodejs_toolchain",
     ],
 )
 
@@ -55,7 +55,7 @@ build_test(
 # This gives you complete control over starting the interpreter, but you also have to
 # manually handle module resolution.
 genrule(
-    name = "use_node_toolchain",
+    name = "use_nodejs_toolchain",
     srcs = ["some.js"],
     outs = ["actual1"],
     cmd = "$(NODE_PATH) $(execpath some.js) $@",
