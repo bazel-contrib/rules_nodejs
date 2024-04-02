@@ -33,15 +33,14 @@ tasks:
     - "//..."
     test_targets:
     - "//..."
-  # Temporarily disabled MacOS tests until pre-existing failure can be investigated.
-  # macos-smoke:
-  #   name: macos
-  #   platform: macos
-  #   working_directory: "e2e/smoke"
-  #   build_targets:
-  #   - "//..."
-  #   test_targets:
-  #   - "//..."
+  macos-smoke:
+    name: macos
+    platform: macos
+    working_directory: "e2e/smoke"
+    build_targets:
+    - "//..."
+    test_targets:
+    - "//..."
   windows-smoke:
     name: windows-smoke
     platform: windows
