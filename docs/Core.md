@@ -12,131 +12,6 @@ Features:
 - Core [Providers](https://docs.bazel.build/versions/main/skylark/rules.html#providers) to allow interop between JS rules.
 
 
-## node_repositories
-
-**USAGE**
-
-<pre>
-node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>, <a href="#node_repositories-platform">platform</a>,
-                  <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-use_nvmrc">use_nvmrc</a>)
-</pre>
-
-To be run in user's WORKSPACE to install rules_nodejs dependencies.
-
-This rule sets up node, npm, and npx. The versions of these tools can be specified in one of three ways
-
-### Simplest Usage
-
-Specify no explicit versions. This will download and use the latest NodeJS that was available when the
-version of rules_nodejs you're using was released.
-
-### Forced version(s)
-
-You can select the version of NodeJS to download & use by specifying it when you call node_repositories,
-using a value that matches a known version (see the default values)
-
-### Using a custom version
-
-You can pass in a custom list of NodeJS repositories and URLs for node_repositories to use.
-
-#### Custom NodeJS versions
-
-To specify custom NodeJS versions, use the `node_repositories` attribute
-
-```python
-node_repositories(
-    node_repositories = {
-        "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"),
-        "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"),
-        "10.10.0-windows_amd64": ("node-v10.10.0-win-x64.zip", "node-v10.10.0-win-x64", "70c46e6451798be9d052b700ce5dadccb75cf917f6bf0d6ed54344c856830cfb"),
-    },
-)
-```
-
-These can be mapped to a custom download URL, using `node_urls`
-
-```python
-node_repositories(
-    node_version = "10.10.0",
-    node_repositories = {"10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e")},
-    node_urls = ["https://mycorpproxy/mirror/node/v{version}/{filename}"],
-)
-```
-
-A Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
-and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e`
-
-See the [the repositories documentation](repositories.html) for how to use the resulting repositories.
-
-### Using a custom node.js.
-
-To avoid downloads, you can check in a vendored node.js binary or can build one from source.
-See [toolchains](./toolchains.md).
-
-
-**ATTRIBUTES**
-
-
-<h4 id="node_repositories-name">name</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this repository.
-
-
-<h4 id="node_repositories-node_download_auth">node_download_auth</h4>
-
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): auth to use for all url requests
-Example: {"type": "basic", "login": "<UserName>", "password": "<Password>" }
-
-Defaults to `{}`
-
-<h4 id="node_repositories-node_repositories">node_repositories</h4>
-
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> List of strings</a>*): Custom list of node repositories to use
-
-A dictionary mapping NodeJS versions to sets of hosts and their corresponding (filename, strip_prefix, sha256) tuples.
-You should list a node binary for every platform users have, likely Mac, Windows, and Linux.
-
-By default, if this attribute has no items, we'll use a list of all public NodeJS releases.
-
-Defaults to `{}`
-
-<h4 id="node_repositories-node_urls">node_urls</h4>
-
-(*List of strings*): custom list of URLs to use to download NodeJS
-
-Each entry is a template for downloading a node distribution.
-
-The `{version}` parameter is substituted with the `node_version` attribute,
-and `{filename}` with the matching entry from the `node_repositories` attribute.
-
-Defaults to `["https://nodejs.org/dist/v{version}/{filename}"]`
-
-<h4 id="node_repositories-node_version">node_version</h4>
-
-(*String*): the specific version of NodeJS to install
-
-Defaults to `"18.20.0"`
-
-<h4 id="node_repositories-platform">platform</h4>
-
-(*String*): Internal use only. Which platform to install as a toolchain. If unset, we assume the repository is named nodejs_[platform]
-
-Defaults to `""`
-
-<h4 id="node_repositories-repo_mapping">repo_mapping</h4>
-
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
-
-
-<h4 id="node_repositories-use_nvmrc">use_nvmrc</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): the local path of the .nvmrc file containing the version of node
-
-If set then also set node_version to the version found in the .nvmrc file.
-
-Defaults to `None`
-
-
 ## node_toolchain
 
 **USAGE**
@@ -245,5 +120,127 @@ UserBuildSettingInfo(<a href="#UserBuildSettingInfo-value">value</a>)
 <h4 id="UserBuildSettingInfo-value">value</h4>
 
  (Undocumented) 
+
+
+## node_repositories
+
+**USAGE**
+
+<pre>
+node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>,
+                  <a href="#node_repositories-node_version_from_nvmrc">node_version_from_nvmrc</a>, <a href="#node_repositories-kwargs">kwargs</a>)
+</pre>
+
+To be run in user's WORKSPACE to install rules_nodejs dependencies.
+
+This rule sets up node, npm, and npx. The versions of these tools can be specified in one of three ways
+
+### Simplest Usage
+
+Specify no explicit versions. This will download and use the latest Node.js that was available when the
+version of rules_nodejs you're using was released.
+
+### Forced version(s)
+
+You can select the version of Node.js to download & use by specifying it when you call node_repositories,
+using a value that matches a known version (see the default values)
+
+### Using a custom version
+
+You can pass in a custom list of Node.js repositories and URLs for node_repositories to use.
+
+#### Custom Node.js versions
+
+To specify custom Node.js versions, use the `node_repositories` attribute
+
+```python
+node_repositories(
+    node_repositories = {
+        "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"),
+        "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"),
+        "10.10.0-windows_amd64": ("node-v10.10.0-win-x64.zip", "node-v10.10.0-win-x64", "70c46e6451798be9d052b700ce5dadccb75cf917f6bf0d6ed54344c856830cfb"),
+    },
+)
+```
+
+These can be mapped to a custom download URL, using `node_urls`
+
+```python
+node_repositories(
+    node_version = "10.10.0",
+    node_repositories = {"10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e")},
+    node_urls = ["https://mycorpproxy/mirror/node/v{version}/{filename}"],
+)
+```
+
+A Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
+and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e`
+
+See the [the repositories documentation](repositories.html) for how to use the resulting repositories.
+
+### Using a custom node.js.
+
+To avoid downloads, you can check in a vendored node.js binary or can build one from source.
+See [toolchains](./toolchains.md).
+
+
+**PARAMETERS**
+
+
+<h4 id="node_repositories-name">name</h4>
+
+Unique name for the repository rule
+
+
+
+<h4 id="node_repositories-node_download_auth">node_download_auth</h4>
+
+Auth to use for all url requests.
+
+Example: { "type": "basic", "login": "&lt;UserName&gt;", "password": "&lt;Password&gt;" }
+
+Defaults to `{}`
+
+<h4 id="node_repositories-node_repositories">node_repositories</h4>
+
+Custom list of node repositories to use
+
+A dictionary mapping Node.js versions to sets of hosts and their corresponding (filename, strip_prefix, sha256) tuples.
+You should list a node binary for every platform users have, likely Mac, Windows, and Linux.
+
+By default, if this attribute has no items, we'll use a list of all public Node.js releases.
+
+Defaults to `{}`
+
+<h4 id="node_repositories-node_urls">node_urls</h4>
+
+List of URLs to use to download Node.js.
+
+Each entry is a template for downloading a node distribution.
+
+The `{version}` parameter is substituted with the `node_version` attribute,
+and `{filename}` with the matching entry from the `node_repositories` attribute.
+
+Defaults to `["https://nodejs.org/dist/v{version}/{filename}"]`
+
+<h4 id="node_repositories-node_version">node_version</h4>
+
+The specific version of Node.js to install
+
+Defaults to `"18.20.0"`
+
+<h4 id="node_repositories-node_version_from_nvmrc">node_version_from_nvmrc</h4>
+
+The .nvmrc file containing the version of Node.js to use.
+
+If set then the version found in the .nvmrc file is used instead of the one specified by node_version.
+
+Defaults to `None`
+
+<h4 id="node_repositories-kwargs">kwargs</h4>
+
+Additional parameters
+
+
 
 

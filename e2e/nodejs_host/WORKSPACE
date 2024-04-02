@@ -29,5 +29,5 @@ nodejs_register_toolchains(
 
 nodejs_register_toolchains(
     name = "node16_nvmrc",
-    use_nvmrc = "//:.nvmrc",
+    node_version_from_nvmrc = "//:.nvmrc",
 )

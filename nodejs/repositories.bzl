@@ -22,98 +22,12 @@ DEFAULT_NODE_VERSION = [
 
 BUILT_IN_NODE_PLATFORMS = PLATFORMS.keys()
 
-_DOC = """To be run in user's WORKSPACE to install rules_nodejs dependencies.
-
-This rule sets up node, npm, and npx. The versions of these tools can be specified in one of three ways
-
-### Simplest Usage
-
-Specify no explicit versions. This will download and use the latest NodeJS that was available when the
-version of rules_nodejs you're using was released.
-
-### Forced version(s)
-
-You can select the version of NodeJS to download & use by specifying it when you call node_repositories,
-using a value that matches a known version (see the default values)
-
-### Using a custom version
-
-You can pass in a custom list of NodeJS repositories and URLs for node_repositories to use.
-
-#### Custom NodeJS versions
-
-To specify custom NodeJS versions, use the `node_repositories` attribute
-
-```python
-node_repositories(
-    node_repositories = {
-        "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"),
-        "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"),
-        "10.10.0-windows_amd64": ("node-v10.10.0-win-x64.zip", "node-v10.10.0-win-x64", "70c46e6451798be9d052b700ce5dadccb75cf917f6bf0d6ed54344c856830cfb"),
-    },
-)
-```
-
-These can be mapped to a custom download URL, using `node_urls`
-
-```python
-node_repositories(
-    node_version = "10.10.0",
-    node_repositories = {"10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e")},
-    node_urls = ["https://mycorpproxy/mirror/node/v{version}/{filename}"],
-)
-```
-
-A Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
-and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e`
-
-See the [the repositories documentation](repositories.html) for how to use the resulting repositories.
-
-### Using a custom node.js.
-
-To avoid downloads, you can check in a vendored node.js binary or can build one from source.
-See [toolchains](./toolchains.md).
-"""
-
 _ATTRS = {
-    "node_download_auth": attr.string_dict(
-        default = {},
-        doc = """auth to use for all url requests
-Example: {\"type\": \"basic\", \"login\": \"<UserName>\", \"password\": \"<Password>\" }
-""",
-    ),
-    "node_repositories": attr.string_list_dict(
-        doc = """Custom list of node repositories to use
-
-A dictionary mapping NodeJS versions to sets of hosts and their corresponding (filename, strip_prefix, sha256) tuples.
-You should list a node binary for every platform users have, likely Mac, Windows, and Linux.
-
-By default, if this attribute has no items, we'll use a list of all public NodeJS releases.
-""",
-    ),
-    "node_urls": attr.string_list(
-        default = [
-            "https://nodejs.org/dist/v{version}/{filename}",
-        ],
-        doc = """custom list of URLs to use to download NodeJS
-
-Each entry is a template for downloading a node distribution.
-
-The `{version}` parameter is substituted with the `node_version` attribute,
-and `{filename}` with the matching entry from the `node_repositories` attribute.
-""",
-    ),
-    "node_version": attr.string(
-        default = DEFAULT_NODE_VERSION,
-        doc = "the specific version of NodeJS to install",
-    ),
-    "use_nvmrc": attr.label(
-        allow_single_file = True,
-        default = None,
-        doc = """the local path of the .nvmrc file containing the version of node
-
-If set then also set node_version to the version found in the .nvmrc file.""",
-    ),
+    "node_download_auth": attr.string_dict(),
+    "node_repositories": attr.string_list_dict(),
+    "node_urls": attr.string_list(),
+    "node_version": attr.string(),
+    "node_version_from_nvmrc": attr.label(allow_single_file = True),
     "platform": attr.string(
         doc = "Internal use only. Which platform to install as a toolchain. If unset, we assume the repository is named nodejs_[platform]",
         values = BUILT_IN_NODE_PLATFORMS,
@@ -149,8 +63,8 @@ def _download_node(repository_ctx):
 
     node_version = repository_ctx.attr.node_version
 
-    if repository_ctx.attr.use_nvmrc:
-        node_version = str(repository_ctx.read(repository_ctx.attr.use_nvmrc)).strip()
+    if repository_ctx.attr.node_version_from_nvmrc:
+        node_version = str(repository_ctx.read(repository_ctx.attr.node_version_from_nvmrc)).strip()
 
     _verify_version_is_valid(node_version)
 
@@ -379,11 +293,117 @@ def _nodejs_repo_impl(repository_ctx):
     _download_node(repository_ctx)
     _prepare_node(repository_ctx)
 
-node_repositories = repository_rule(
+_node_repositories = repository_rule(
     _nodejs_repo_impl,
-    doc = _DOC,
     attrs = _ATTRS,
 )
+
+def node_repositories(
+        name,
+        node_download_auth = {},
+        node_repositories = {},
+        node_urls = ["https://nodejs.org/dist/v{version}/{filename}"],
+        node_version = DEFAULT_NODE_VERSION,
+        node_version_from_nvmrc = None,
+        **kwargs):
+    """To be run in user's WORKSPACE to install rules_nodejs dependencies.
+
+    This rule sets up node, npm, and npx. The versions of these tools can be specified in one of three ways
+
+    ### Simplest Usage
+
+    Specify no explicit versions. This will download and use the latest Node.js that was available when the
+    version of rules_nodejs you're using was released.
+
+    ### Forced version(s)
+
+    You can select the version of Node.js to download & use by specifying it when you call node_repositories,
+    using a value that matches a known version (see the default values)
+
+    ### Using a custom version
+
+    You can pass in a custom list of Node.js repositories and URLs for node_repositories to use.
+
+    #### Custom Node.js versions
+
+    To specify custom Node.js versions, use the `node_repositories` attribute
+
+    ```python
+    node_repositories(
+        node_repositories = {
+            "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"),
+            "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"),
+            "10.10.0-windows_amd64": ("node-v10.10.0-win-x64.zip", "node-v10.10.0-win-x64", "70c46e6451798be9d052b700ce5dadccb75cf917f6bf0d6ed54344c856830cfb"),
+        },
+    )
+    ```
+
+    These can be mapped to a custom download URL, using `node_urls`
+
+    ```python
+    node_repositories(
+        node_version = "10.10.0",
+        node_repositories = {"10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e")},
+        node_urls = ["https://mycorpproxy/mirror/node/v{version}/{filename}"],
+    )
+    ```
+
+    A Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
+    and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e`
+
+    See the [the repositories documentation](repositories.html) for how to use the resulting repositories.
+
+    ### Using a custom node.js.
+
+    To avoid downloads, you can check in a vendored node.js binary or can build one from source.
+    See [toolchains](./toolchains.md).
+
+    Args:
+        name: Unique name for the repository rule
+
+        node_download_auth: Auth to use for all url requests.
+
+            Example: { "type": "basic", "login": "<UserName>", "password": "<Password>" }
+
+        node_repositories: Custom list of node repositories to use
+
+            A dictionary mapping Node.js versions to sets of hosts and their corresponding (filename, strip_prefix, sha256) tuples.
+            You should list a node binary for every platform users have, likely Mac, Windows, and Linux.
+
+            By default, if this attribute has no items, we'll use a list of all public Node.js releases.
+
+        node_urls: List of URLs to use to download Node.js.
+
+            Each entry is a template for downloading a node distribution.
+
+            The `{version}` parameter is substituted with the `node_version` attribute,
+            and `{filename}` with the matching entry from the `node_repositories` attribute.
+
+        node_version: The specific version of Node.js to install
+
+        node_version_from_nvmrc: The .nvmrc file containing the version of Node.js to use.
+
+            If set then the version found in the .nvmrc file is used instead of the one specified by node_version.
+
+        **kwargs: Additional parameters
+    """
+    use_nvmrc = kwargs.pop("use_nvmrc", None)
+    if use_nvmrc:
+        # buildifier: disable=print
+        print("""\
+WARNING: use_nvmrc attribute of node_repositories is deprecated; use node_version_from_nvmrc instead of use_nvmrc
+""")
+        node_version_from_nvmrc = use_nvmrc
+
+    _node_repositories(
+        name = name,
+        node_download_auth = node_download_auth,
+        node_repositories = node_repositories,
+        node_urls = node_urls,
+        node_version = node_version,
+        node_version_from_nvmrc = node_version_from_nvmrc,
+        **kwargs
+    )
 
 # Wrapper macro around everything above, this is the primary API
 def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, **kwargs):
