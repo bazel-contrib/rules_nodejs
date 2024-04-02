@@ -9,6 +9,9 @@ load("//nodejs/private:toolchains_repo.bzl", "PLATFORMS", "toolchains_repo")
 # created by the module extension
 DEFAULT_NODE_REPOSITORY = "nodejs"
 
+# Default Node.js URL used as the default for node_urls
+DEFAULT_NODE_URL = "https://nodejs.org/dist/v{version}/{filename}"
+
 # Currently v18 is the "active" LTS release:
 # https://nodejs.dev/en/about/releases/
 # We can only change that in a major release of rules_nodejs,
@@ -79,7 +82,10 @@ def _download_node(repository_ctx):
     if not node_exists_for_os(node_version, host_os, node_repositories):
         return
 
-    node_urls = repository_ctx.attr.node_urls
+    node_urls = repository_ctx.attr.node_urls[:]
+    if not node_urls:
+        # Go back the default if the user explicitly specifies []
+        node_urls = [DEFAULT_NODE_URL]
 
     # Download node & npm
     version_host_os = "%s-%s" % (node_version, host_os)
@@ -302,7 +308,7 @@ def node_repositories(
         name,
         node_download_auth = {},
         node_repositories = {},
-        node_urls = ["https://nodejs.org/dist/v{version}/{filename}"],
+        node_urls = [DEFAULT_NODE_URL],
         node_version = DEFAULT_NODE_VERSION,
         node_version_from_nvmrc = None,
         **kwargs):
