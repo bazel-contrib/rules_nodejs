@@ -30,7 +30,7 @@ C headers for the consuming target's currently active Node toolchain.
 Note, "node.h" is only usable from C++, and you'll need to
 ensure you are compiling with c++14 or later.
 
-Also, on Windows, NodeJS releases do not ship headers, so this rule is currently
+Also, on Windows, Node.js releases do not ship headers, so this rule is currently
 not usable with the built-in toolchains. If you define your own toolchain on Windows,
 you can include the headers and then this rule will work.
 

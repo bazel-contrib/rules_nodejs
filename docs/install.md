@@ -21,9 +21,9 @@ node_repositories(
 )
 ```
 
-## Installation with a manually specified version of NodeJS
+## Installation with a manually specified version of Node.js
 
-If you'd like to use a version of NodeJS that is not currently supported here,
+If you'd like to use a version of Node.js that is not currently supported here,
 for example one that you host within your org, you can manually specify those in your `WORKSPACE`:
 
 ```python
@@ -41,7 +41,7 @@ node_repositories(
 
 Specifying `node_urls` is optional. If omitted, the default values will be used.
 
-## Installation with local vendored versions of NodeJS
+## Installation with local vendored versions of Node.js
 
 You can use your own Node.js binary rather than fetching from the internet.
 You could check in a binary file, or build Node.js from sources.

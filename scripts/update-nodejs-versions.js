@@ -1,5 +1,5 @@
 // This script creates output that is copy/pasted into /nodejs/private/node_versions.bzl to
-// add all published NodeJS versions >= 8.0.0.
+// add all published Node.js versions >= 8.0.0.
 // See the update-nodejs-versions script in package.json
 
 const https = require("https");
