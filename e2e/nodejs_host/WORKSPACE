@@ -16,9 +16,7 @@ local_repository(
     path = "../..",
 )
 
-load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "rules_nodejs_dependencies")
-
-rules_nodejs_dependencies()
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
 # Create the default node toolchain
 nodejs_register_toolchains()

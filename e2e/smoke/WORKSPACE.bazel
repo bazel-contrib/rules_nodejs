@@ -18,9 +18,7 @@ load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies")
 
 aspect_bazel_lib_dependencies()
 
-load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "rules_nodejs_dependencies")
-
-rules_nodejs_dependencies()
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
 # The order matters because Bazel will provide the first registered toolchain when a rule asks Bazel to select it
 # This applies to the resolved_toolchain
