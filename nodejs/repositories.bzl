@@ -54,7 +54,7 @@ SCRIPT_DIR="$(cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd)"
 """
 
 def _download_node(repository_ctx):
-    """Used to download a NodeJS runtime package.
+    """Used to download a Node.js runtime package.
 
     Args:
       repository_ctx: The repository rule context
@@ -90,7 +90,7 @@ def _download_node(repository_ctx):
     # Download node & npm
     version_host_os = "%s-%s" % (node_version, host_os)
     if not version_host_os in node_repositories:
-        fail("Unknown NodeJS version-host %s" % version_host_os)
+        fail("Unknown Node.js version-host %s" % version_host_os)
     filename, strip_prefix, sha256 = node_repositories[version_host_os]
 
     urls = [url.format(version = node_version, filename = filename) for url in node_urls]
@@ -116,7 +116,7 @@ def _download_node(repository_ctx):
     ))
 
 def _prepare_node(repository_ctx):
-    """Sets up BUILD files and shell wrappers for the versions of NodeJS, npm & yarn just set up.
+    """Sets up BUILD files and shell wrappers for the versions of Node.js, npm & yarn just set up.
 
     Windows and other OSes set up the node runtime with different names and paths, which we hide away via
     the BUILD file here.

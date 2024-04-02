@@ -6,9 +6,9 @@ toc: true
 
 # Debugging
 
-Add the options in the `Support for debugging NodeJS tests` section from https://github.com/bazelbuild/rules_nodejs/blob/master/common.bazelrc to your project's `.bazelrc` file to add support for debugging NodeJS programs.
+Add the options in the `Support for debugging Node.js tests` section from https://github.com/bazelbuild/rules_nodejs/blob/master/common.bazelrc to your project's `.bazelrc` file to add support for debugging Node.js programs.
 
-Using the `--config=debug` command line option with bazel will set a number of flags that are specified there are useful for debugging. See the comments under `Support for debugging NodeJS tests` for details on the flags that are set.
+Using the `--config=debug` command line option with bazel will set a number of flags that are specified there are useful for debugging. See the comments under `Support for debugging Node.js tests` for details on the flags that are set.
 
 Use  `--config=debug` with `bazel test` as follow,
 
@@ -22,7 +22,7 @@ or with `bazel run`,
 bazel run --config=debug //test:test1
 ```
 
-to also turn on the NodeJS inspector agent which will break before any user code starts. You should then see,
+to also turn on the Node.js inspector agent which will break before any user code starts. You should then see,
 
 ```
 Executing tests from //test:test1

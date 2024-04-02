@@ -1,4 +1,4 @@
-# Common Bazel settings for JavaScript/NodeJS workspaces
+# Common Bazel settings for JavaScript/Node.js workspaces
 # This rc file is automatically discovered when Bazel is run in this workspace,
 # see https://docs.bazel.build/versions/master/guide.html#bazelrc
 #
@@ -30,7 +30,7 @@ build --symlink_prefix=dist/
 #     (this will force tests to be executed locally one at a time regardless of --test_strategy value).
 test --test_output=errors
 
-# Support for debugging NodeJS tests
+# Support for debugging Node.js tests
 # Add the Bazel option `--config=debug` to enable this
 # --test_output=streamed
 #     Stream stdout/stderr output from each test in real-time.
@@ -54,7 +54,7 @@ test --test_output=errors
 #     to `nodejs_binary` executables via the actions.run env attribute.
 #     See https://docs.bazel.build/versions/master/user-manual.html#flag--compilation_mode for more details.
 test:debug --test_output=streamed --test_strategy=exclusive --test_timeout=9999 --nocache_test_results --define=VERBOSE_LOGS=1
-# Use bazel run with `--config=debug` to turn on the NodeJS inspector agent.
+# Use bazel run with `--config=debug` to turn on the Node.js inspector agent.
 # The node process will break before user code starts and wait for the debugger to connect.
 run:debug --define=VERBOSE_LOGS=1 -- --node_options=--inspect-brk
 # The following option will change the build output of certain rules such as terser and may not be desirable in all cases

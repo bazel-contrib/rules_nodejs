@@ -1,6 +1,6 @@
 {
     "name": "@bazel/runfiles",
-    "description": "NodeJS Runfile helpers for Bazel",
+    "description": "Node.js runfiles helpers for Bazel",
     "license": "Apache-2.0",
     "version": "0.0.0-PLACEHOLDER",
     "repository": {

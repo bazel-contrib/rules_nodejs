@@ -163,7 +163,7 @@ export class Runfiles {
   }
 
   /**
-   * Patches the default NodeJS resolution to support runfile resolution.
+   * Patches the default Node.js resolution to support runfile resolution.
    * @deprecated Use the runfile helpers directly instead.
    **/
   patchRequire() {
