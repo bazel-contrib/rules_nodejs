@@ -32,7 +32,7 @@ For backward compability, if set then npm_path will be set to the runfiles path 
 
 For backward compability, npm_path is set to the runfiles path of npm if npm is set.
 """,
-        "npm_srcs": """Additional source files required to run npm""",
+        "npm_sources": """Additional source files required to run npm""",
         "headers": """\
 (struct) Information about the header files, with fields:
   * providers_map: a dict of string to provider instances. The key should be
@@ -57,7 +57,7 @@ For backward compability, npm_path is set to the runfiles path of npm if npm is 
         # DEPRECATED
         "target_tool_path": "(DEPRECATED) Path to Node.js executable for backward compatibility",
         "tool_files": """(DEPRECATED) Alias for [node] for backward compatibility""",
-        "npm_files": """(DEPRECATED) Alias for npm_srcs.to_list()""",
+        "npm_files": """(DEPRECATED) Alias for npm_sources.to_list()""",
     },
 )
 
@@ -86,13 +86,13 @@ def _nodejs_toolchain_impl(ctx):
         files = depset([ctx.file.node]) if ctx.attr.node else depset(),
         runfiles = ctx.runfiles(files = [ctx.file.node] if ctx.attr.node else []),
     )
-    npm_srcs = depset([ctx.file.npm] + ctx.files.npm_srcs)
+    npm_sources = depset([ctx.file.npm] + ctx.files.npm_srcs)
     nodeinfo = NodeInfo(
         node = ctx.file.node,
         node_path = ctx.attr.node_path,
         npm = ctx.file.npm,
         npm_path = ctx.attr.npm_path if ctx.attr.npm_path else _to_manifest_path(ctx, ctx.file.npm),  # _to_manifest_path for backward compat
-        npm_srcs = npm_srcs,
+        npm_sources = npm_sources,
         headers = struct(
             providers_map = {
                 "CcInfo": ctx.attr.headers[CcInfo],
@@ -102,7 +102,7 @@ def _nodejs_toolchain_impl(ctx):
         # For backward compat
         target_tool_path = _to_manifest_path(ctx, ctx.file.node) if ctx.attr.node else ctx.attr.node_path,
         tool_files = [ctx.file.node] if ctx.attr.node else [],
-        npm_files = npm_srcs.to_list(),
+        npm_files = npm_sources.to_list(),
     )
 
     # Export all the providers inside our ToolchainInfo
