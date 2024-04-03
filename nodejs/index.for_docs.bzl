@@ -11,8 +11,8 @@ load(
     _UserBuildSettingInfo = "UserBuildSettingInfo",
 )
 load(":repositories.bzl", _node_repositories = "node_repositories")
-load(":toolchain.bzl", _node_toolchain = "node_toolchain")
+load(":toolchain.bzl", _nodejs_toolchain = "node_toolchain")
 
 UserBuildSettingInfo = _UserBuildSettingInfo
 node_repositories = _node_repositories
-node_toolchain = _node_toolchain
+node_toolchain = _nodejs_toolchain

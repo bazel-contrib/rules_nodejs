@@ -12,99 +12,6 @@ Features:
 - Core [Providers](https://docs.bazel.build/versions/main/skylark/rules.html#providers) to allow interop between JS rules.
 
 
-## node_toolchain
-
-**USAGE**
-
-<pre>
-node_toolchain(<a href="#node_toolchain-name">name</a>, <a href="#node_toolchain-headers">headers</a>, <a href="#node_toolchain-npm">npm</a>, <a href="#node_toolchain-npm_files">npm_files</a>, <a href="#node_toolchain-npm_path">npm_path</a>, <a href="#node_toolchain-target_tool">target_tool</a>, <a href="#node_toolchain-target_tool_path">target_tool_path</a>)
-</pre>
-
-Defines a node toolchain for a platform.
-
-You can use this to refer to a vendored nodejs binary in your repository,
-or even to compile nodejs from sources using rules_foreign_cc or other rules.
-
-First, in a BUILD.bazel file, create a node_toolchain definition:
-
-```starlark
-load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
-
-node_toolchain(
-    name = "node_toolchain",
-    target_tool = "//some/path/bin/node",
-)
-```
-
-Next, declare which execution platforms or target platforms the toolchain should be selected for
-based on constraints.
-
-```starlark
-toolchain(
-    name = "my_nodejs",
-    exec_compatible_with = [
-        "@platforms//os:linux",
-        "@platforms//cpu:x86_64",
-    ],
-    toolchain = ":node_toolchain",
-    toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
-)
-```
-
-See https://bazel.build/extending/toolchains#toolchain-resolution for more information on toolchain
-resolution.
-
-Finally in your `WORKSPACE`, register it with `register_toolchains("//:my_nodejs")`
-
-For usage see https://docs.bazel.build/versions/main/toolchains.html#defining-toolchains.
-You can use the `--toolchain_resolution_debug` flag to `bazel` to help diagnose which toolchain is selected.
-
-
-**ATTRIBUTES**
-
-
-<h4 id="node_toolchain-name">name</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
-
-
-<h4 id="node_toolchain-headers">headers</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A cc_library that contains the Node/v8 header files for this target platform.
-
-Defaults to `None`
-
-<h4 id="node_toolchain-npm">npm</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A hermetically downloaded npm executable target for this target's platform.
-
-Defaults to `None`
-
-<h4 id="node_toolchain-npm_files">npm_files</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Files required in runfiles to run npm.
-
-Defaults to `[]`
-
-<h4 id="node_toolchain-npm_path">npm_path</h4>
-
-(*String*): Path to an existing npm executable for this target's platform.
-
-Defaults to `""`
-
-<h4 id="node_toolchain-target_tool">target_tool</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A hermetically downloaded nodejs executable target for this target's platform.
-
-Defaults to `None`
-
-<h4 id="node_toolchain-target_tool_path">target_tool_path</h4>
-
-(*String*): Path to an existing nodejs executable for this target's platform.
-
-Defaults to `""`
-
-
 ## UserBuildSettingInfo
 
 **USAGE**
@@ -238,6 +145,116 @@ If set then the version found in the .nvmrc file is used instead of the one spec
 Defaults to `None`
 
 <h4 id="node_repositories-kwargs">kwargs</h4>
+
+Additional parameters
+
+
+
+
+## node_toolchain
+
+**USAGE**
+
+<pre>
+node_toolchain(<a href="#node_toolchain-name">name</a>, <a href="#node_toolchain-node">node</a>, <a href="#node_toolchain-node_path">node_path</a>, <a href="#node_toolchain-npm">npm</a>, <a href="#node_toolchain-npm_path">npm_path</a>, <a href="#node_toolchain-npm_files">npm_files</a>, <a href="#node_toolchain-headers">headers</a>, <a href="#node_toolchain-kwargs">kwargs</a>)
+</pre>
+
+Defines a node toolchain for a platform.
+
+You can use this to refer to a vendored nodejs binary in your repository,
+or even to compile nodejs from sources using rules_foreign_cc or other rules.
+
+First, in a BUILD.bazel file, create a node_toolchain definition:
+
+```starlark
+load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
+
+node_toolchain(
+    name = "node_toolchain",
+    node = "//some/path/bin/node",
+)
+```
+
+Next, declare which execution platforms or target platforms the toolchain should be selected for
+based on constraints.
+
+```starlark
+toolchain(
+    name = "my_nodejs",
+    exec_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    toolchain = ":node_toolchain",
+    toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
+)
+```
+
+See https://bazel.build/extending/toolchains#toolchain-resolution for more information on toolchain
+resolution.
+
+Finally in your `WORKSPACE`, register it with `register_toolchains("//:my_nodejs")`
+
+For usage see https://docs.bazel.build/versions/main/toolchains.html#defining-toolchains.
+You can use the `--toolchain_resolution_debug` flag to `bazel` to help diagnose which toolchain is selected.
+
+
+**PARAMETERS**
+
+
+<h4 id="node_toolchain-name">name</h4>
+
+Unique name for this target
+
+
+
+<h4 id="node_toolchain-node">node</h4>
+
+Node.js executable
+
+Defaults to `None`
+
+<h4 id="node_toolchain-node_path">node_path</h4>
+
+Path to Node.js executable file
+
+This is typically an absolute path to a non-hermetic Node.js executable.
+
+Only one of `node` and `node_path` may be set.
+
+Defaults to `""`
+
+<h4 id="node_toolchain-npm">npm</h4>
+
+Npm JavaScript entry point
+
+Defaults to `None`
+
+<h4 id="node_toolchain-npm_path">npm_path</h4>
+
+Path to npm JavaScript entry point
+
+This is typically an absolute path to a non-hermetic npm installation.
+
+Only one of `npm` and `npm_path` may be set.
+
+Defaults to `""`
+
+<h4 id="node_toolchain-npm_files">npm_files</h4>
+
+Additional files required to run npm
+
+Not necessary if specifying `npm_path` to a non-hermetic npm installation.
+
+Defaults to `[]`
+
+<h4 id="node_toolchain-headers">headers</h4>
+
+cc_library that contains the Node/v8 header files
+
+Defaults to `None`
+
+<h4 id="node_toolchain-kwargs">kwargs</h4>
 
 Additional parameters
 
