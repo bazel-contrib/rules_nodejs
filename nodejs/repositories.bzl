@@ -3,7 +3,7 @@
 load("//nodejs/private:os_name.bzl", "assert_node_exists_for_host", "node_exists_for_os")
 load("//nodejs/private:node_versions.bzl", "NODE_VERSIONS")
 load("//nodejs/private:nodejs_repo_host_os_alias.bzl", "nodejs_repo_host_os_alias")
-load("//nodejs/private:toolchains_repo.bzl", "PLATFORMS", "toolchains_repo")
+load("//nodejs/private:nodejs_toolchains_repo.bzl", "PLATFORMS", "nodejs_toolchains_repo")
 
 # Default base name for node toolchain repositories
 # created by the module extension
@@ -271,13 +271,18 @@ cc_library(
 
     if repository_ctx.attr.platform:
         build_content += """
-load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
-node_toolchain(
-    name = "node_toolchain",
+load("@rules_nodejs//nodejs:toolchain.bzl", "nodejs_toolchain")
+nodejs_toolchain(
+    name = "toolchain",
     node = ":node_bin",
     npm = ":npm",
     npm_srcs = [":npm_files"],
     headers = ":headers",
+)
+# alias for backward compat
+alias(
+    name = "node_toolchain",
+    actual = ":toolchain",
 )
 """
     repository_ctx.file("BUILD.bazel", content = build_content)
@@ -293,17 +298,17 @@ def _verify_version_is_valid(version):
     if not major.isdigit() or not minor.isdigit() or not patch.isdigit():
         fail("Invalid node version: %s" % version)
 
-def _nodejs_repo_impl(repository_ctx):
+def _nodejs_repositories_impl(repository_ctx):
     assert_node_exists_for_host(repository_ctx)
     _download_node(repository_ctx)
     _prepare_node(repository_ctx)
 
-_node_repositories = repository_rule(
-    _nodejs_repo_impl,
+_nodejs_repositories = repository_rule(
+    _nodejs_repositories_impl,
     attrs = _ATTRS,
 )
 
-def node_repositories(
+def nodejs_repositories(
         name,
         node_download_auth = {},
         node_repositories = {},
@@ -334,7 +339,7 @@ def node_repositories(
     To specify custom Node.js versions, use the `node_repositories` attribute
 
     ```python
-    node_repositories(
+    nodejs_repositories(
         node_repositories = {
             "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"),
             "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"),
@@ -346,7 +351,7 @@ def node_repositories(
     These can be mapped to a custom download URL, using `node_urls`
 
     ```python
-    node_repositories(
+    nodejs_repositories(
         node_version = "10.10.0",
         node_repositories = {"10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e")},
         node_urls = ["https://mycorpproxy/mirror/node/v{version}/{filename}"],
@@ -400,7 +405,7 @@ WARNING: use_nvmrc attribute of node_repositories is deprecated; use node_versio
 """)
         node_version_from_nvmrc = use_nvmrc
 
-    _node_repositories(
+    _nodejs_repositories(
         name = name,
         node_download_auth = node_download_auth,
         node_repositories = node_repositories,
@@ -409,6 +414,22 @@ WARNING: use_nvmrc attribute of node_repositories is deprecated; use node_versio
         node_version_from_nvmrc = node_version_from_nvmrc,
         **kwargs
     )
+
+def node_repositories(**kwargs):
+    """Deprecated. Use nodejs_repositories instead.
+
+    Args:
+        **kwargs: Parameters to forward to nodejs_repositories rule.
+    """
+
+    # buildifier: disable=print
+    print("""\
+WARNING: node_repositories is deprecated; use nodejs_repositories instead.
+
+If your are not calling node_repositories directly you may need to upgrade to rules_js 2.x to suppress this warning.
+""")
+
+    nodejs_repositories(**kwargs)
 
 # Wrapper macro around everything above, this is the primary API
 def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, **kwargs):
@@ -427,10 +448,10 @@ def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, 
         register: whether to call Bazel register_toolchains on the created toolchains.
             Should be True when used from a WORKSPACE file, and False used from bzlmod
             which has its own toolchain registration syntax.
-        **kwargs: passed to each node_repositories call
+        **kwargs: passed to each nodejs_repositories call
     """
     for platform in BUILT_IN_NODE_PLATFORMS:
-        node_repositories(
+        nodejs_repositories(
             name = name + "_" + platform,
             platform = platform,
             **kwargs
@@ -451,7 +472,7 @@ def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, 
         name = name + "_host",
         user_node_repository_name = name,
     )
-    toolchains_repo(
+    nodejs_toolchains_repo(
         name = name + "_toolchains",
         user_node_repository_name = name,
     )

@@ -29,13 +29,13 @@ UserBuildSettingInfo(<a href="#UserBuildSettingInfo-value">value</a>)
  (Undocumented) 
 
 
-## node_repositories
+## nodejs_repositories
 
 **USAGE**
 
 <pre>
-node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>,
-                  <a href="#node_repositories-node_version_from_nvmrc">node_version_from_nvmrc</a>, <a href="#node_repositories-kwargs">kwargs</a>)
+nodejs_repositories(<a href="#nodejs_repositories-name">name</a>, <a href="#nodejs_repositories-node_download_auth">node_download_auth</a>, <a href="#nodejs_repositories-node_repositories">node_repositories</a>, <a href="#nodejs_repositories-node_urls">node_urls</a>, <a href="#nodejs_repositories-node_version">node_version</a>,
+                    <a href="#nodejs_repositories-node_version_from_nvmrc">node_version_from_nvmrc</a>, <a href="#nodejs_repositories-kwargs">kwargs</a>)
 </pre>
 
 To be run in user's WORKSPACE to install rules_nodejs dependencies.
@@ -61,7 +61,7 @@ You can pass in a custom list of Node.js repositories and URLs for node_reposito
 To specify custom Node.js versions, use the `node_repositories` attribute
 
 ```python
-node_repositories(
+nodejs_repositories(
     node_repositories = {
         "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"),
         "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"),
@@ -73,7 +73,7 @@ node_repositories(
 These can be mapped to a custom download URL, using `node_urls`
 
 ```python
-node_repositories(
+nodejs_repositories(
     node_version = "10.10.0",
     node_repositories = {"10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e")},
     node_urls = ["https://mycorpproxy/mirror/node/v{version}/{filename}"],
@@ -94,13 +94,13 @@ See [toolchains](./toolchains.md).
 **PARAMETERS**
 
 
-<h4 id="node_repositories-name">name</h4>
+<h4 id="nodejs_repositories-name">name</h4>
 
 Unique name for the repository rule
 
 
 
-<h4 id="node_repositories-node_download_auth">node_download_auth</h4>
+<h4 id="nodejs_repositories-node_download_auth">node_download_auth</h4>
 
 Auth to use for all url requests.
 
@@ -108,7 +108,7 @@ Example: { "type": "basic", "login": "&lt;UserName&gt;", "password": "&lt;Passwo
 
 Defaults to `{}`
 
-<h4 id="node_repositories-node_repositories">node_repositories</h4>
+<h4 id="nodejs_repositories-node_repositories">node_repositories</h4>
 
 Custom list of node repositories to use
 
@@ -119,7 +119,7 @@ By default, if this attribute has no items, we'll use a list of all public Node.
 
 Defaults to `{}`
 
-<h4 id="node_repositories-node_urls">node_urls</h4>
+<h4 id="nodejs_repositories-node_urls">node_urls</h4>
 
 List of URLs to use to download Node.js.
 
@@ -130,13 +130,13 @@ and `{filename}` with the matching entry from the `node_repositories` attribute.
 
 Defaults to `["https://nodejs.org/dist/v{version}/{filename}"]`
 
-<h4 id="node_repositories-node_version">node_version</h4>
+<h4 id="nodejs_repositories-node_version">node_version</h4>
 
 The specific version of Node.js to install
 
 Defaults to `"18.20.0"`
 
-<h4 id="node_repositories-node_version_from_nvmrc">node_version_from_nvmrc</h4>
+<h4 id="nodejs_repositories-node_version_from_nvmrc">node_version_from_nvmrc</h4>
 
 The .nvmrc file containing the version of Node.js to use.
 
@@ -144,19 +144,19 @@ If set then the version found in the .nvmrc file is used instead of the one spec
 
 Defaults to `None`
 
-<h4 id="node_repositories-kwargs">kwargs</h4>
+<h4 id="nodejs_repositories-kwargs">kwargs</h4>
 
 Additional parameters
 
 
 
 
-## node_toolchain
+## nodejs_toolchain
 
 **USAGE**
 
 <pre>
-node_toolchain(<a href="#node_toolchain-name">name</a>, <a href="#node_toolchain-node">node</a>, <a href="#node_toolchain-node_path">node_path</a>, <a href="#node_toolchain-npm">npm</a>, <a href="#node_toolchain-npm_path">npm_path</a>, <a href="#node_toolchain-npm_srcs">npm_srcs</a>, <a href="#node_toolchain-headers">headers</a>, <a href="#node_toolchain-kwargs">kwargs</a>)
+nodejs_toolchain(<a href="#nodejs_toolchain-name">name</a>, <a href="#nodejs_toolchain-node">node</a>, <a href="#nodejs_toolchain-node_path">node_path</a>, <a href="#nodejs_toolchain-npm">npm</a>, <a href="#nodejs_toolchain-npm_path">npm_path</a>, <a href="#nodejs_toolchain-npm_srcs">npm_srcs</a>, <a href="#nodejs_toolchain-headers">headers</a>, <a href="#nodejs_toolchain-kwargs">kwargs</a>)
 </pre>
 
 Defines a node toolchain for a platform.
@@ -164,13 +164,13 @@ Defines a node toolchain for a platform.
 You can use this to refer to a vendored nodejs binary in your repository,
 or even to compile nodejs from sources using rules_foreign_cc or other rules.
 
-First, in a BUILD.bazel file, create a node_toolchain definition:
+First, in a BUILD.bazel file, create a nodejs_toolchain definition:
 
 ```starlark
-load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
+load("@rules_nodejs//nodejs:toolchain.bzl", "nodejs_toolchain")
 
-node_toolchain(
-    name = "node_toolchain",
+nodejs_toolchain(
+    name = "toolchain",
     node = "//some/path/bin/node",
 )
 ```
@@ -185,7 +185,7 @@ toolchain(
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
     ],
-    toolchain = ":node_toolchain",
+    toolchain = ":toolchain",
     toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
 )
 ```
@@ -202,19 +202,19 @@ You can use the `--toolchain_resolution_debug` flag to `bazel` to help diagnose 
 **PARAMETERS**
 
 
-<h4 id="node_toolchain-name">name</h4>
+<h4 id="nodejs_toolchain-name">name</h4>
 
 Unique name for this target
 
 
 
-<h4 id="node_toolchain-node">node</h4>
+<h4 id="nodejs_toolchain-node">node</h4>
 
 Node.js executable
 
 Defaults to `None`
 
-<h4 id="node_toolchain-node_path">node_path</h4>
+<h4 id="nodejs_toolchain-node_path">node_path</h4>
 
 Path to Node.js executable file
 
@@ -224,13 +224,13 @@ Only one of `node` and `node_path` may be set.
 
 Defaults to `""`
 
-<h4 id="node_toolchain-npm">npm</h4>
+<h4 id="nodejs_toolchain-npm">npm</h4>
 
 Npm JavaScript entry point
 
 Defaults to `None`
 
-<h4 id="node_toolchain-npm_path">npm_path</h4>
+<h4 id="nodejs_toolchain-npm_path">npm_path</h4>
 
 Path to npm JavaScript entry point.
 
@@ -240,7 +240,7 @@ Only one of `npm` and `npm_path` may be set.
 
 Defaults to `""`
 
-<h4 id="node_toolchain-npm_srcs">npm_srcs</h4>
+<h4 id="nodejs_toolchain-npm_srcs">npm_srcs</h4>
 
 Additional source files required to run npm.
 
@@ -248,13 +248,13 @@ Not necessary if specifying `npm_path` to a non-hermetic npm installation.
 
 Defaults to `[]`
 
-<h4 id="node_toolchain-headers">headers</h4>
+<h4 id="nodejs_toolchain-headers">headers</h4>
 
 cc_library that contains the Node/v8 header files
 
 Defaults to `None`
 
-<h4 id="node_toolchain-kwargs">kwargs</h4>
+<h4 id="nodejs_toolchain-kwargs">kwargs</h4>
 
 Additional parameters
 

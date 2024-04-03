@@ -134,7 +134,7 @@ _nodejs_toolchain = rule(
     },
 )
 
-def node_toolchain(
+def nodejs_toolchain(
         name,
         node = None,
         node_path = "",
@@ -148,13 +148,13 @@ def node_toolchain(
     You can use this to refer to a vendored nodejs binary in your repository,
     or even to compile nodejs from sources using rules_foreign_cc or other rules.
 
-    First, in a BUILD.bazel file, create a node_toolchain definition:
+    First, in a BUILD.bazel file, create a nodejs_toolchain definition:
 
     ```starlark
-    load("@rules_nodejs//nodejs:toolchain.bzl", "node_toolchain")
+    load("@rules_nodejs//nodejs:toolchain.bzl", "nodejs_toolchain")
 
-    node_toolchain(
-        name = "node_toolchain",
+    nodejs_toolchain(
+        name = "toolchain",
         node = "//some/path/bin/node",
     )
     ```
@@ -169,7 +169,7 @@ def node_toolchain(
             "@platforms//os:linux",
             "@platforms//cpu:x86_64",
         ],
-        toolchain = ":node_toolchain",
+        toolchain = ":toolchain",
         toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
     )
     ```
@@ -213,9 +213,9 @@ def node_toolchain(
     if target_tool:
         # buildifier: disable=print
         print("""\
-WARNING: target_tool attribute of node_toolchain is deprecated; use node instead of target_tool.
+WARNING: target_tool attribute of nodejs_toolchain is deprecated; use node instead of target_tool.
 
-If your are not calling node_toolchain directly you may need to upgrade to rules_js 2.x to suppress this warning.
+If your are not calling nodejs_toolchain directly you may need to upgrade to rules_js 2.x to suppress this warning.
 """)
         node = target_tool
 
@@ -223,7 +223,7 @@ If your are not calling node_toolchain directly you may need to upgrade to rules
     if target_tool_path:
         # buildifier: disable=print
         print("""\
-WARNING: target_tool_path attribute of node_toolchain is deprecated; use node_path instead of target_tool_path
+WARNING: target_tool_path attribute of nodejs_toolchain is deprecated; use node_path instead of target_tool_path
 """)
         node_path = target_tool_path
 
@@ -231,7 +231,7 @@ WARNING: target_tool_path attribute of node_toolchain is deprecated; use node_pa
     if npm_files:
         # buildifier: disable=print
         print("""\
-WARNING: npm_files attribute of node_toolchain is deprecated; use npm_srcs instead of npm_files
+WARNING: npm_files attribute of nodejs_toolchain is deprecated; use npm_srcs instead of npm_files
 """)
         npm_srcs = npm_files
 
@@ -245,3 +245,18 @@ WARNING: npm_files attribute of node_toolchain is deprecated; use npm_srcs inste
         headers = headers,
         **kwargs
     )
+
+def node_toolchain(**kwargs):
+    """Deprecated. Use nodejs_toolchain instead.
+
+    Args:
+        **kwargs: Parameters to forward to nodejs_toolchain rule.
+    """
+
+    # buildifier: disable=print
+    print("""\
+WARNING: node_toolchain is deprecated; use nodejs_toolchain instead.
+
+If your are not calling node_toolchain directly you may need to upgrade to rules_js 2.x to suppress this warning.
+""")
+    nodejs_toolchain(**kwargs)
