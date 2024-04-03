@@ -91,7 +91,7 @@ def _nodejs_toolchain_impl(ctx):
         node = ctx.file.node,
         node_path = ctx.attr.node_path,
         npm = ctx.file.npm,
-        npm_path = ctx.attr.npm_path if ctx.attr.npm_path else _to_manifest_path(ctx, ctx.file.npm),  # _to_manifest_path for backward compat
+        npm_path = ctx.attr.npm_path if ctx.attr.npm_path else (_to_manifest_path(ctx, ctx.file.npm) if ctx.file.npm else ""),  # _to_manifest_path for backward compat
         npm_sources = npm_sources,
         headers = struct(
             providers_map = {
