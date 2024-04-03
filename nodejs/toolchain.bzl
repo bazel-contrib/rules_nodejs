@@ -32,7 +32,7 @@ For backward compability, if set then npm_path will be set to the runfiles path 
 
 For backward compability, npm_path is set to the runfiles path of npm if npm is set.
 """,
-        "npm_files": """Additional files required to run npm""",
+        "npm_srcs": """Additional source files required to run npm""",
         "headers": """\
 (struct) Information about the header files, with fields:
   * providers_map: a dict of string to provider instances. The key should be
@@ -57,6 +57,7 @@ For backward compability, npm_path is set to the runfiles path of npm if npm is 
         # DEPRECATED
         "target_tool_path": "(DEPRECATED) Path to Node.js executable for backward compatibility",
         "tool_files": """(DEPRECATED) Alias for [node] for backward compatibility""",
+        "npm_files": """(DEPRECATED) Alias for npm_srcs.to_list()""",
     },
 )
 
@@ -85,12 +86,13 @@ def _nodejs_toolchain_impl(ctx):
         files = depset([ctx.file.node]) if ctx.attr.node else depset(),
         runfiles = ctx.runfiles(files = [ctx.file.node] if ctx.attr.node else []),
     )
+    npm_srcs = depset([ctx.file.npm] + ctx.files.npm_srcs)
     nodeinfo = NodeInfo(
         node = ctx.file.node,
         node_path = ctx.attr.node_path,
         npm = ctx.file.npm,
         npm_path = ctx.attr.npm_path if ctx.attr.npm_path else _to_manifest_path(ctx, ctx.file.npm),  # _to_manifest_path for backward compat
-        npm_files = depset([ctx.file.npm] + ctx.files.npm_files).to_list() if ctx.attr.npm else [],
+        npm_srcs = npm_srcs,
         headers = struct(
             providers_map = {
                 "CcInfo": ctx.attr.headers[CcInfo],
@@ -100,6 +102,7 @@ def _nodejs_toolchain_impl(ctx):
         # For backward compat
         target_tool_path = _to_manifest_path(ctx, ctx.file.node) if ctx.attr.node else ctx.attr.node_path,
         tool_files = [ctx.file.node] if ctx.attr.node else [],
+        npm_files = npm_srcs.to_list(),
     )
 
     # Export all the providers inside our ToolchainInfo
@@ -126,7 +129,7 @@ _nodejs_toolchain = rule(
         "node_path": attr.string(),
         "npm": attr.label(allow_single_file = True),
         "npm_path": attr.string(),
-        "npm_files": attr.label_list(),
+        "npm_srcs": attr.label_list(),
         "headers": attr.label(),
     },
 )
@@ -137,7 +140,7 @@ def node_toolchain(
         node_path = "",
         npm = None,
         npm_path = "",
-        npm_files = [],
+        npm_srcs = [],
         headers = None,
         **kwargs):
     """Defines a node toolchain for a platform.
@@ -192,13 +195,13 @@ def node_toolchain(
 
         npm: Npm JavaScript entry point
 
-        npm_path: Path to npm JavaScript entry point
+        npm_path: Path to npm JavaScript entry point.
 
             This is typically an absolute path to a non-hermetic npm installation.
 
             Only one of `npm` and `npm_path` may be set.
 
-        npm_files: Additional files required to run npm
+        npm_srcs: Additional source files required to run npm.
 
             Not necessary if specifying `npm_path` to a non-hermetic npm installation.
 
@@ -224,13 +227,21 @@ WARNING: target_tool_path attribute of node_toolchain is deprecated; use node_pa
 """)
         node_path = target_tool_path
 
+    npm_files = kwargs.pop("npm_files", "")
+    if npm_files:
+        # buildifier: disable=print
+        print("""\
+WARNING: npm_files attribute of node_toolchain is deprecated; use npm_srcs instead of npm_files
+""")
+        npm_srcs = npm_files
+
     _nodejs_toolchain(
         name = name,
         node = node,
         node_path = node_path,
         npm = npm,
         npm_path = npm_path,
-        npm_files = npm_files,
+        npm_srcs = npm_srcs,
         headers = headers,
         **kwargs
     )

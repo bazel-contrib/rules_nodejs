@@ -156,7 +156,7 @@ Additional parameters
 **USAGE**
 
 <pre>
-node_toolchain(<a href="#node_toolchain-name">name</a>, <a href="#node_toolchain-node">node</a>, <a href="#node_toolchain-node_path">node_path</a>, <a href="#node_toolchain-npm">npm</a>, <a href="#node_toolchain-npm_path">npm_path</a>, <a href="#node_toolchain-npm_files">npm_files</a>, <a href="#node_toolchain-headers">headers</a>, <a href="#node_toolchain-kwargs">kwargs</a>)
+node_toolchain(<a href="#node_toolchain-name">name</a>, <a href="#node_toolchain-node">node</a>, <a href="#node_toolchain-node_path">node_path</a>, <a href="#node_toolchain-npm">npm</a>, <a href="#node_toolchain-npm_path">npm_path</a>, <a href="#node_toolchain-npm_srcs">npm_srcs</a>, <a href="#node_toolchain-headers">headers</a>, <a href="#node_toolchain-kwargs">kwargs</a>)
 </pre>
 
 Defines a node toolchain for a platform.
@@ -232,7 +232,7 @@ Defaults to `None`
 
 <h4 id="node_toolchain-npm_path">npm_path</h4>
 
-Path to npm JavaScript entry point
+Path to npm JavaScript entry point.
 
 This is typically an absolute path to a non-hermetic npm installation.
 
@@ -240,9 +240,9 @@ Only one of `npm` and `npm_path` may be set.
 
 Defaults to `""`
 
-<h4 id="node_toolchain-npm_files">npm_files</h4>
+<h4 id="node_toolchain-npm_srcs">npm_srcs</h4>
 
-Additional files required to run npm
+Additional source files required to run npm.
 
 Not necessary if specifying `npm_path` to a non-hermetic npm installation.
 
