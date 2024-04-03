@@ -2,12 +2,12 @@
 
 def _my_nodejs_impl(ctx):
     if ctx.attr.toolchain:
-        toolchain = ctx.attr.toolchain[platform_common.ToolchainInfo].nodeinfo
+        nodeinfo = ctx.attr.toolchain[platform_common.ToolchainInfo].nodeinfo
     else:
-        toolchain = ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo
+        nodeinfo = ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo
     ctx.actions.run(
-        inputs = toolchain.tool_files + [ctx.file.entry_point],
-        executable = toolchain.target_tool_path,
+        inputs = [ctx.file.entry_point],
+        executable = nodeinfo.node,
         arguments = [ctx.file.entry_point.path, ctx.outputs.out.path],
         outputs = [ctx.outputs.out],
     )

@@ -6,7 +6,7 @@ These are referenced with the `@repo//` syntax in your BUILD files.
 
 ## @nodejs
 
-This repository is created by calling the `node_repositories` function in your `WORKSPACE` file.
+This repository is created by calling the `nodejs_repositories` function in your `WORKSPACE` file.
 It contains the node, npm, and npx programs.
 
 As always, `bazel query` is useful for learning about what targets are available.

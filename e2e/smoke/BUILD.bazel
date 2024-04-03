@@ -243,9 +243,9 @@ my_nodejs(
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
     toolchain = select({
-        "@bazel_tools//src/conditions:linux_x86_64": "@node17_linux_amd64//:node_toolchain",
-        "@bazel_tools//src/conditions:darwin": "@node17_darwin_amd64//:node_toolchain",
-        "@bazel_tools//src/conditions:windows": "@node17_windows_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:linux_x86_64": "@node17_linux_amd64//:toolchain",
+        "@bazel_tools//src/conditions:darwin": "@node17_darwin_amd64//:toolchain",
+        "@bazel_tools//src/conditions:windows": "@node17_windows_amd64//:toolchain",
     }),
 )
 
@@ -263,9 +263,9 @@ my_nodejs(
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
     toolchain = select({
-        "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64//:node_toolchain",
-        "@bazel_tools//src/conditions:darwin": "@nodejs_darwin_amd64//:node_toolchain",
-        "@bazel_tools//src/conditions:windows": "@nodejs_windows_amd64//:node_toolchain",
+        "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64//:toolchain",
+        "@bazel_tools//src/conditions:darwin": "@nodejs_darwin_amd64//:toolchain",
+        "@bazel_tools//src/conditions:windows": "@nodejs_windows_amd64//:toolchain",
     }),
 )
 
