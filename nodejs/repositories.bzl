@@ -240,7 +240,7 @@ filegroup(
 )
 filegroup(
   name = "npm_files",
-  srcs = {npm_files_glob}[":node_files"],
+  srcs = glob(["bin/nodejs/**"]) + [":node_files"],
 )
 cc_library(
   name = "headers",
@@ -261,7 +261,6 @@ cc_library(
         node_bin_export = "\n  \"%s\"," % node_bin,
         npm_bin_export = "\n  \"%s\"," % npm_bin,
         npx_bin_export = "\n  \"%s\"," % npx_bin,
-        npm_files_glob = "glob([\"bin/nodejs/**\"]) + ",
         node_bin_label = node_bin_label,
         npm_bin_label = npm_bin_label,
         npx_bin_label = npx_bin_label,
@@ -277,7 +276,7 @@ node_toolchain(
     name = "node_toolchain",
     node = ":node_bin",
     npm = ":npm",
-    npm_files = [":npm_files"],
+    npm_srcs = [":npm_files"],
     headers = ":headers",
 )
 """
