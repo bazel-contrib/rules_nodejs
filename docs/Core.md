@@ -134,7 +134,7 @@ Defaults to `["https://nodejs.org/dist/v{version}/{filename}"]`
 
 The specific version of Node.js to install
 
-Defaults to `"18.20.0"`
+Defaults to `"18.20.1"`
 
 <h4 id="nodejs_repositories-node_version_from_nvmrc">node_version_from_nvmrc</h4>
 
