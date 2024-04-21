@@ -1,22 +1,14 @@
-"bzlmod dependencies"
-
-module(
-    name = "rules_nodejs_smoke_test",
-    version = "0.0.0",
-    compatibility_level = 1,
-)
-
 bazel_dep(name = "rules_nodejs", version = "0.0.0", dev_dependency = True)
-bazel_dep(name = "bazel_skylib", version = "1.4.1", dev_dependency = True)
-bazel_dep(name = "aspect_bazel_lib", version = "1.30.2", dev_dependency = True)
-bazel_dep(name = "platforms", version = "0.0.5", dev_dependency = True)
-
 local_path_override(
     module_name = "rules_nodejs",
     path = "../..",
 )
 
-node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+bazel_dep(name = "bazel_skylib", version = "1.4.1", dev_dependency = True)
+bazel_dep(name = "aspect_bazel_lib", version = "2.7.1", dev_dependency = True)
+bazel_dep(name = "platforms", version = "0.0.5", dev_dependency = True)
+
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
 
 node.toolchain(node_version = "16.5.0")
 node.toolchain(
