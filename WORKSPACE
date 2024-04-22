@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(
-    name = "rules_nodejs",
-)
+workspace(name = "rules_nodejs")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -59,12 +57,16 @@ http_archive(
 )
 
 #
-# Dependencies to run stardoc & generating documentation
+# Dependencies & toolchains needed for unit tests & generating documentation
 #
 
-load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies")
+load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies", "register_copy_directory_toolchains", "register_copy_to_directory_toolchains")
 
 aspect_bazel_lib_dependencies()
+
+register_copy_directory_toolchains()
+
+register_copy_to_directory_toolchains()
 
 # Needed for starlark unit testing
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
