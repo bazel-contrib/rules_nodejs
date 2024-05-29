@@ -1,3 +1,12 @@
+## [5.8.5](https://github.com/bazelbuild/rules_nodejs/compare/5.8.4...5.8.5) (2024-05-29)
+
+
+### Bug Fixes
+
+* **jasmine:** update jasmine core version check to support versions older then 4 ([#3691](https://github.com/bazelbuild/rules_nodejs/issues/3691)) ([c8e3fc8](https://github.com/bazelbuild/rules_nodejs/commit/c8e3fc8))
+
+
+
 ## [5.8.4](https://github.com/bazelbuild/rules_nodejs/compare/5.8.3...5.8.4) (2023-08-01)
 
 
