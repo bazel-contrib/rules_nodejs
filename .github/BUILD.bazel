@@ -1,5 +1,5 @@
-load("@rules_codeowners//tools:codeowners.bzl", "generate_codeowners")
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("@rules_codeowners//tools:codeowners.bzl", "generate_codeowners")
 
 generate_codeowners(
     name = "gen_codeowners",

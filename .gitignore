@@ -1,18 +1,18 @@
+bazel-*
 .bazelrc.user
-.idea
+node_modules/
 rules_nodejs-*.tar.gz
-dist
-bazel-out
-/e2e/*/bazel-*
-/packages/*/bazel-*
-node_modules
-yarn-error.log
+
+.idea/
+.ijwb/
+.vscode
 .DS_Store
 
-# Disable lockfile for now. It is unstable.
-# https://github.com/bazelbuild/bazel/issues/19026
-# https://github.com/bazelbuild/bazel/issues/19621
-# https://github.com/bazelbuild/bazel/issues/19971
-# https://github.com/bazelbuild/bazel/issues/20272
-# https://github.com/bazelbuild/bazel/issues/20369
+# Bazel's MODULE lockfile isn't ready to check in yet as of Bazel 7.1.
+# Do allow for it to be created, however, since it gives a performance boost for local development.
+# [Store resolved repository attributes in the Bzlmod lockfile](https://github.com/bazelbuild/bazel/issues/19026)
+# [MODULE.bazel.lock file contains user specific paths](https://github.com/bazelbuild/bazel/issues/19621)
+# [Consider skipping bazel_tools@_ from lockfile](https://github.com/bazelbuild/bazel/issues/19971)
+# [MODULE.bazel.lock file "reads through" already-locked package manager](https://github.com/bazelbuild/bazel/issues/20272)
+# [moduleFileHash in MODULE.bazel.lock causes frequent Git merge conflicts](https://github.com/bazelbuild/bazel/issues/20369)
 MODULE.bazel.lock

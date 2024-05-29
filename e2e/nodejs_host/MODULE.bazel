@@ -4,8 +4,8 @@ local_path_override(
     path = "../..",
 )
 
-bazel_dep(name = "bazel_skylib", version = "1.4.1", dev_dependency = True)
-bazel_dep(name = "aspect_bazel_lib", version = "2.7.1", dev_dependency = True)
+bazel_dep(name = "aspect_bazel_lib", version = "2.7.7", dev_dependency = True)
+bazel_dep(name = "bazel_skylib", version = "1.7.1", dev_dependency = True)
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
 
@@ -24,12 +24,19 @@ node.toolchain(
 # FIXME(6.0): a repo rule with name=foo should create a repo named @foo, not @foo_toolchains
 use_repo(
     node,
+    "node16",
     "node16_darwin_amd64",
     "node16_linux_amd64",
-    "node16_toolchains",
-    "node16_windows_amd64",
+    "node16_nvmrc",
     "node16_nvmrc_darwin_amd64",
     "node16_nvmrc_linux_amd64",
     "node16_nvmrc_toolchains",
     "node16_nvmrc_windows_amd64",
+    "node16_toolchains",
+    "node16_windows_amd64",
+    "nodejs",
+    "nodejs_darwin_amd64",
+    "nodejs_linux_amd64",
+    "nodejs_toolchains",
+    "nodejs_windows_amd64",
 )

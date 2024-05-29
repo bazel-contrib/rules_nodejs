@@ -1,9 +1,9 @@
 "Rules to be called from the users WORKSPACE"
 
-load("//nodejs/private:os_name.bzl", "assert_node_exists_for_host", "node_exists_for_os")
 load("//nodejs/private:node_versions.bzl", "NODE_VERSIONS")
 load("//nodejs/private:nodejs_repo_host_os_alias.bzl", "nodejs_repo_host_os_alias")
 load("//nodejs/private:nodejs_toolchains_repo.bzl", "PLATFORMS", "nodejs_toolchains_repo")
+load("//nodejs/private:os_name.bzl", "assert_node_exists_for_host", "node_exists_for_os")
 
 # Default base name for node toolchain repositories
 # created by the module extension
@@ -154,7 +154,6 @@ def _prepare_node(repository_ctx):
 
     node_bin_relative = _strip_bin(node_bin)
     npm_script_relative = _strip_bin(npm_script)
-    node_entry_relative = _strip_bin(node_entry)
     npx_script_relative = _strip_bin(npx_script)
 
     # The entry points for node for osx/linux and windows
