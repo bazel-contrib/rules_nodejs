@@ -7,10 +7,9 @@
 # rules_nodejs Bazel module
 
 Features:
-- A [Toolchain](https://docs.bazel.build/versions/main/toolchains.html) 
+- A [Toolchain](https://docs.bazel.build/versions/main/toolchains.html)
   that fetches a hermetic copy of node and npm - independent of what's on the developer's machine.
 - Core [Providers](https://docs.bazel.build/versions/main/skylark/rules.html#providers) to allow interop between JS rules.
-
 
 ## UserBuildSettingInfo
 
@@ -26,7 +25,7 @@ UserBuildSettingInfo(<a href="#UserBuildSettingInfo-value">value</a>)
 
 <h4 id="UserBuildSettingInfo-value">value</h4>
 
- (Undocumented) 
+ - 
 
 
 ## nodejs_repositories
