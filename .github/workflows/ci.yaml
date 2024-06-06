@@ -20,3 +20,8 @@ jobs:
     uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v6
     with:
       folders: '["."]'
+      # stardoc generated docs fail on diff_test with Bazel 6.4.0 so don't test against it
+      exclude: |
+        [
+          {"bazelversion": "6.4.0"},
+        ]
