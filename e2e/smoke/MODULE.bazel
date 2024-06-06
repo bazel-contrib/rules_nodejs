@@ -5,7 +5,7 @@ local_path_override(
 )
 
 bazel_dep(name = "bazel_skylib", version = "1.4.1", dev_dependency = True)
-bazel_dep(name = "aspect_bazel_lib", version = "2.7.1", dev_dependency = True)
+bazel_dep(name = "aspect_bazel_lib", version = "2.7.7", dev_dependency = True)
 bazel_dep(name = "platforms", version = "0.0.5", dev_dependency = True)
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)

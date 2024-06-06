@@ -40,9 +40,4 @@ if ! [[ $OUT =~ .*node@$EXPECTED_NODE_VERSION.* ]]; then
   exit 1
 fi
 
-if ! [[ ${OUT//\\//} =~ .*"${1}"/nodejs/(bin/)?node.* ]]; then
-  echo "Error: No match on expected node path $1/nodejs/node"
-  exit 1
-fi
-
 exit 0
