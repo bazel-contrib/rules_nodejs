@@ -472,6 +472,7 @@ def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, 
         name = name + "_host",
         user_node_repository_name = name,
     )
+
     nodejs_toolchains_repo(
         name = name + "_toolchains",
         user_node_repository_name = name,

@@ -68,10 +68,8 @@ diff_test(
     file1 = "expected",
     file2 = "actual1",
     tags = [
-        # no need to run on more than one platform
-        "no-bazelci-windows",
         # diff_test has line endings issues on Windows
-        "fix-windows",
+        "skip-on-bazelci-windows",
     ],
 )
 
@@ -132,10 +130,8 @@ diff_test(
     file1 = "actual2",
     file2 = "expected_ast.json",
     tags = [
-        # no need to run on more than one platform
-        "no-bazelci-windows",
         # diff_test has line endings issues on Windows
-        "fix-windows",
+        "skip-on-bazelci-windows",
     ],
 )
 
@@ -182,10 +178,8 @@ diff_test(
     file1 = "actual3",
     file2 = "expected_ast.json",
     tags = [
-        # no need to run on more than one platform
-        "no-bazelci-windows",
         # diff_test has line endings issues on Windows
-        "fix-windows",
+        "skip-on-bazelci-windows",
     ],
 )
 
