@@ -1,6 +1,7 @@
 "Pass information about stamp between rules"
 
 #Modelled after _GoContextData in rules_go/go/private/context.bzl
+# buildifier: disable=provider-params
 StampSettingInfo = provider(
     fields = {
         "value": "Whether stamping is enabled",

@@ -16,6 +16,7 @@ def codeowners(name = "OWNERS", no_parent = False, **kwargs):
     """Convenience macro to set some defaults
 
     Args:
+        name: Unique name for target
         no_parent: Mimic the google3 OWNERS file which allows a .no-parent rule to avoid inheriting global approvers, see http://go/owners#noparent
         **kwargs: see codeowners rule docs
     """
@@ -24,6 +25,7 @@ def codeowners(name = "OWNERS", no_parent = False, **kwargs):
     patterns = kwargs.pop("patterns") if "patterns" in kwargs.keys() else [kwargs.pop("pattern", "**")]
 
     if pkg.startswith("."):
+        # buildifier: disable=print
         print(pkg, name)
 
     # Googlers: see http://go/owners#noparent
