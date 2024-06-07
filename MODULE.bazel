@@ -23,16 +23,29 @@ use_repo(node, "nodejs_toolchains")
 # https://github.com/bazelbuild/rules_nodejs/blob/4c373209b058d46f2a5f9ab9f8abf11b161ae459/nodejs/repositories.bzl#L461/.
 # See https://github.com/bazelbuild/bazel/issues/19645 and https://github.com/bazelbuild/rules_nodejs/pull/3750 for more context.
 register_toolchains("@nodejs_toolchains//:linux_amd64_toolchain_target")
+
 register_toolchains("@nodejs_toolchains//:linux_amd64_toolchain")
+
 register_toolchains("@nodejs_toolchains//:linux_arm64_toolchain_target")
+
 register_toolchains("@nodejs_toolchains//:linux_arm64_toolchain")
+
 register_toolchains("@nodejs_toolchains//:linux_s390x_toolchain_target")
+
 register_toolchains("@nodejs_toolchains//:linux_s390x_toolchain")
+
 register_toolchains("@nodejs_toolchains//:linux_ppc64le_toolchain_target")
+
 register_toolchains("@nodejs_toolchains//:linux_ppc64le_toolchain")
+
 register_toolchains("@nodejs_toolchains//:darwin_amd64_toolchain_target")
+
 register_toolchains("@nodejs_toolchains//:darwin_amd64_toolchain")
+
 register_toolchains("@nodejs_toolchains//:darwin_arm64_toolchain_target")
+
 register_toolchains("@nodejs_toolchains//:darwin_arm64_toolchain")
+
 register_toolchains("@nodejs_toolchains//:windows_amd64_toolchain_target")
+
 register_toolchains("@nodejs_toolchains//:windows_amd64_toolchain")

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@buildifier_prebuilt//:rules.bzl", "buildifier")
 load("//:tools/defaults.bzl", "codeowners")
 
 package(default_visibility = ["//visibility:public"])
@@ -19,12 +20,26 @@ package(default_visibility = ["//visibility:public"])
 exports_files([
     ".bazelci/presubmit.yml",
     ".bazelversion",
-    "common.bazelrc",
     "package.json",
     "LICENSE",
 ])
 
-# BEGIN-INTERNAL
+buildifier(
+    name = "buildifier",
+    exclude_patterns = ["./.git/*"],
+    lint_mode = "fix",
+    mode = "fix",
+    tags = ["manual"],  # tag as manual so windows ci does not build it by default
+)
+
+buildifier(
+    name = "buildifier.check",
+    exclude_patterns = ["./.git/*"],
+    lint_mode = "warn",
+    mode = "diff",
+    tags = ["manual"],  # tag as manual so windows ci does not build it by default
+)
+
 codeowners(
     pattern = "*",
     teams = [
@@ -32,4 +47,3 @@ codeowners(
         "@gregmagolan",
     ],
 )
-# END-INTERNAL

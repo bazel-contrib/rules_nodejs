@@ -1,48 +1,12 @@
-# Import shared settings first so we can override below
-import %workspace%/common.bazelrc
-
-###############################
-# Remote Build Execution support
-# Turn on these settings with
-#  --config=remote
-###############################
-
-# Load default settings for Remote Build Execution.
-import %workspace%/third_party/github.com/bazelbuild/bazel-toolchains/bazelrc/bazel-4.1.0.bazelrc
-
-# Remote instance, borrow the one used by Angular devs
-build:remote --remote_instance_name=projects/internal-200822/instances/default_instance
-build:remote --project_id=internal-200822
-
-# To reproduce Windows issues where there is no runfiles symlink there
-build:no-runfiles --noenable_runfiles
-# workaround https://github.com/bazelbuild/bazel/issues/7994
-build:no-runfiles --spawn_strategy=standalone
-# This config is probably only used while debugging
-build:no-runfiles --define=VERBOSE_LOG=1
-
-# Docker Sandbox Mode
-# Useful for troubleshooting Remote Build Execution problems
-# See https://docs.bazel.build/versions/master/remote-execution-sandbox.html#prerequisites
-build:docker-sandbox --spawn_strategy=docker --strategy=Javac=docker --genrule_strategy=docker
-build:docker-sandbox --define=EXECUTOR=remote
-build:docker-sandbox --experimental_docker_verbose
-build:docker-sandbox --experimental_enable_docker_sandbox
-# This is the same image used on BazelCI rbe_ubuntu1604 job
-build:docker-sandbox --experimental_docker_image=gcr.io/cloud-marketplace/google/rbe-ubuntu16-04
-
-# Incompatible flags to run with
-build --incompatible_no_implicit_file_export
-# Fail if a glob doesn't match anything (https://github.com/bazelbuild/bazel/issues/8195)
-build --incompatible_disallow_empty_glob
-# TODO(mattem): flip this when dependencies allow
-# build --incompatible_struct_has_no_methods
-# TODO(alexeagle): turn on this flag when dependencies allow
-# build --incompatible_use_platforms_repo_for_constraints
-
-# Allow exclusive tests to run in a sandbox
-test --incompatible_exclusive_test_sandboxed
-
-# TODO: migrate all dependencies from WORKSPACE to MODULE.bazel
+# TODO: migrate all root WORKSPACE dependencies to MODULE.bazel
 # https://github.com/bazelbuild/rules_nodejs/issues/3695
 common --noenable_bzlmod
+
+# Load any settings specific to the current user.
+# .bazelrc.user should appear in .gitignore so that settings are not shared with team members
+# This needs to be last statement in this
+# config, as the user configuration should be able to overwrite flags from this file.
+# See https://docs.bazel.build/versions/master/best-practices.html#bazelrc
+# (Note that we use .bazelrc.user so the file appears next to .bazelrc in directory listing,
+# rather than user.bazelrc as suggested in the Bazel docs)
+try-import %workspace%/.bazelrc.user

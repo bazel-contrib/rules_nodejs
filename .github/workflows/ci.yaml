@@ -25,5 +25,6 @@ jobs:
         [
           {"bazelversion": "6.4.0", "os": "macos-latest"},
           {"bazelversion": "6.4.0", "os": "windows-latest"},
-          {"bazelversion": "6.4.0", folder: "."}
+          {"bazelversion": "6.4.0", folder: "."},
+          {"bazelversion": "6.4.0", bzlmodEnabled: true}
         ]

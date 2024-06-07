@@ -31,7 +31,16 @@ nodejs_register_toolchains(
 
 http_archive(
     name = "npm_acorn-8.5.0",
-    build_file = "acorn.BUILD",
+    build_file_content = """load("@aspect_bazel_lib//lib:copy_directory.bzl", "copy_directory")
+
+# Turn a source directory into a TreeArtifact for RBE-compat
+copy_directory(
+    name = "npm_acorn-8.5.0",
+    src = "package",
+    # We must give this as the directory in order for it to appear on NODE_PATH
+    out = "acorn",
+    visibility = ["//visibility:public"],
+)""",
     sha256 = "d8f9d40c4656537a60bf0c6daae6f0553f54df5ff2518f86464b7c785f20376b",
     urls = ["https://registry.npmjs.org/acorn/-/acorn-8.5.0.tgz"],
 )
