@@ -3,6 +3,12 @@ load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load(":defs.bzl", "my_nodejs")
 
+not_windows = select({
+    # There isn't a published rosetta binary for windows as of Feb 2024
+    "@platforms//os:windows": ["@platforms//:incompatible"],
+    "//conditions:default": [],
+})
+
 # Trivial test fixture: a nodejs program that writes to a file
 write_file(
     name = "js",
@@ -67,10 +73,8 @@ diff_test(
     name = "test_genrule",
     file1 = "expected",
     file2 = "actual1",
-    tags = [
-        # diff_test has line endings issues on Windows
-        "skip-on-bazelci-windows",
-    ],
+    # diff_test has line endings issues on Windows
+    target_compatible_with = not_windows,
 )
 
 # Here, my_nodejs is a fake for something like nodejs_binary or
@@ -129,10 +133,8 @@ diff_test(
     name = "test_acorn",
     file1 = "actual2",
     file2 = "expected_ast.json",
-    tags = [
-        # diff_test has line endings issues on Windows
-        "skip-on-bazelci-windows",
-    ],
+    # diff_test has line endings issues on Windows
+    target_compatible_with = not_windows,
 )
 
 ################################################
@@ -177,10 +179,8 @@ diff_test(
     name = "test_require_acorn",
     file1 = "actual3",
     file2 = "expected_ast.json",
-    tags = [
-        # diff_test has line endings issues on Windows
-        "skip-on-bazelci-windows",
-    ],
+    # diff_test has line endings issues on Windows
+    target_compatible_with = not_windows,
 )
 
 ################################################
