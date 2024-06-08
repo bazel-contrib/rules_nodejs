@@ -3,6 +3,8 @@ load("//nodejs/private:current_node_cc_headers.bzl", "current_node_cc_headers")
 load("//nodejs/private:nodejs_toolchains_repo.bzl", "PLATFORMS")
 load("//nodejs/private:user_build_settings.bzl", "user_args")
 
+package(default_visibility = ["//visibility:public"])
+
 exports_files([
     "index.for_docs.bzl",
     "providers.bzl",
@@ -11,7 +13,6 @@ exports_files([
 bzl_library(
     name = "index.for_docs",
     srcs = glob(["*.bzl"]) + ["@bazel_tools//tools:bzl_srcs"],
-    visibility = ["//visibility:public"],
     deps = [
         "//nodejs/private:bzl",
         "//nodejs/private/providers:bzl",
@@ -23,10 +24,7 @@ bzl_library(
 # attribute in order to get a node interpreter for the correct
 # platform.
 # See https://docs.bazel.build/versions/main/toolchains.html#writing-rules-that-use-toolchains
-toolchain_type(
-    name = "toolchain_type",
-    visibility = ["//visibility:public"],
-)
+toolchain_type(name = "toolchain_type")
 
 [
     platform(
@@ -42,13 +40,9 @@ toolchain_type(
 user_args(
     name = "default_args",
     build_setting_default = "--preserve-symlinks",
-    visibility = ["//visibility:public"],
 )
 
 # This target provides the C headers for whatever the current toolchain is
 # for the consuming rule. It basically acts like a cc_library by forwarding
 # on the providers for the underlying cc_library that the toolchain is using.
-current_node_cc_headers(
-    name = "current_node_cc_headers",
-    visibility = ["//visibility:public"],
-)
+current_node_cc_headers(name = "current_node_cc_headers")
