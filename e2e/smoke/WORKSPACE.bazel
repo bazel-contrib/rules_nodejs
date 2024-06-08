@@ -5,19 +5,6 @@ local_repository(
     path = "../..",
 )
 
-http_archive(
-    name = "aspect_bazel_lib",
-    sha256 = "6d758a8f646ecee7a3e294fbe4386daafbe0e5966723009c290d493f227c390b",
-    strip_prefix = "bazel-lib-2.7.7",
-    url = "https://github.com/aspect-build/bazel-lib/releases/download/v2.7.7/bazel-lib-v2.7.7.tar.gz",
-)
-
-load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies", "aspect_bazel_lib_register_toolchains")
-
-aspect_bazel_lib_dependencies()
-
-aspect_bazel_lib_register_toolchains()
-
 load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
 # The order matters because Bazel will provide the first registered toolchain when a rule asks Bazel to select it
@@ -44,6 +31,19 @@ copy_directory(
     sha256 = "d8f9d40c4656537a60bf0c6daae6f0553f54df5ff2518f86464b7c785f20376b",
     urls = ["https://registry.npmjs.org/acorn/-/acorn-8.5.0.tgz"],
 )
+
+http_archive(
+    name = "aspect_bazel_lib",
+    sha256 = "6d758a8f646ecee7a3e294fbe4386daafbe0e5966723009c290d493f227c390b",
+    strip_prefix = "bazel-lib-2.7.7",
+    url = "https://github.com/aspect-build/bazel-lib/releases/download/v2.7.7/bazel-lib-v2.7.7.tar.gz",
+)
+
+load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies", "aspect_bazel_lib_register_toolchains")
+
+aspect_bazel_lib_dependencies()
+
+aspect_bazel_lib_register_toolchains()
 
 #
 # RBE configuration
