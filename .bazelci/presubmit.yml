@@ -16,6 +16,16 @@ tasks:
       - "--test_tag_filters=-skip-on-bazelci-ubuntu"
     test_targets:
       - "//..."
+  ubuntu1804-headers:
+    name: ubuntu1804-headers
+    platform: ubuntu1804
+    working_directory: "e2e/headers"
+    build_targets:
+      - "//..."
+    test_flags:
+      - "--test_tag_filters=-skip-on-bazelci-ubuntu"
+    test_targets:
+      - "//..."
   ubuntu1804-smoke:
     name: ubuntu1804-smoke
     platform: ubuntu1804
@@ -36,8 +46,27 @@ tasks:
       - "--test_tag_filters=-skip-on-bazelci-ubuntu"
     test_targets:
       - "//..."
-  macos-smoke:
+  macos:
     name: macos
+    platform: macos
+    build_targets:
+      - "//..."
+    test_flags:
+      - "--test_tag_filters=-skip-on-bazelci-macos"
+    test_targets:
+      - "//..."
+  macos-headers:
+    name: macos-headers
+    platform: macos
+    working_directory: "e2e/headers"
+    build_targets:
+      - "//..."
+    test_flags:
+      - "--test_tag_filters=-skip-on-bazelci-macos"
+    test_targets:
+      - "//..."
+  macos-smoke:
+    name: macos-smoke
     platform: macos
     working_directory: "e2e/smoke"
     build_targets:
@@ -66,12 +95,11 @@ tasks:
       - "--test_tag_filters=-skip-on-bazelci-windows"
     test_targets:
       - "//..."
-  # Temporarily disabled RBE CI until cc toolchain failures are resolved
-  # rbe_ubuntu1604-smoke:
-  #   name: rbe_ubuntu1604-smoke
-  #   platform: rbe_ubuntu1604
-  #   working_directory: "e2e/smoke"
-  #   build_targets:
-  #   - "//..."
-  #   test_targets:
-  #   - "//..."
+  rbe_ubuntu1604-smoke:
+    name: rbe_ubuntu1604-smoke
+    platform: rbe_ubuntu1604
+    working_directory: "e2e/smoke"
+    build_targets:
+      - "//..."
+    test_targets:
+      - "//..."

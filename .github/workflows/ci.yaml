@@ -19,7 +19,7 @@ jobs:
   test:
     uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v6
     with:
-      folders: '[".", "e2e/smoke", "e2e/nodejs_host"]'
+      folders: '[".", "e2e/headers", "e2e/smoke", "e2e/nodejs_host"]'
       # stardoc generated docs fail on diff_test with Bazel 6.4.0 so don't test against it in root repository
       exclude: |
         [

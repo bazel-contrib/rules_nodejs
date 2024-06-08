@@ -43,7 +43,7 @@ cc_library(
     srcs = ["foo.cc"],
     # If toolchain sets this already, you can omit.
     copts = ["-std=c++14"],
-    deps = ["@rules_nodejs//:current_node_cc_headers"]
+    deps = ["@rules_nodejs//nodejs/headers:current_node_cc_headers"]
 )
 ```
 """,
