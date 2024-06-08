@@ -45,7 +45,7 @@ write_file(
         "#!/usr/bin/env bash",
         "cd $BUILD_WORKSPACE_DIRECTORY",
     ] + [
-        "cp -fv dist/bin/{1} docs/{0}.md".format(
+        "cp -fv bazel-bin/{1} docs/{0}.md".format(
             k,
             v.replace(":", "/"),
         )
