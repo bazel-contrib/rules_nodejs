@@ -249,7 +249,7 @@ Defaults to `[]`
 
 <h4 id="nodejs_toolchain-headers">headers</h4>
 
-cc_library that contains the Node/v8 header files
+filegroup that contains the Node/v8 header files
 
 Defaults to `None`
 

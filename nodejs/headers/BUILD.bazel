@@ -1,0 +1,34 @@
+load("//nodejs/private:current_node_cc_headers.bzl", "current_node_cc_headers")
+
+package(default_visibility = ["//visibility:public"])
+
+# Provides the currently active Node toolchain's C++ headers.
+#
+# Note, "node.h" is only usable from C++, and you'll need to
+# ensure you are compiling with c++14 or later.
+#
+# Also, on Windows, NodeJS releases do not ship headers, so this rule is currently
+# not usable with the built-in toolchains. If you define your own toolchain on Windows,
+# you can include the headers and then this rule will work.
+#
+# To use, simply depend on this target where you would have wanted the
+# toolchain's underlying `:headers` target:
+#
+# ```starlark
+# cc_library(
+#     name = "foo",
+#     srcs = ["foo.cc"],
+#     # If toolchain sets this already, you can omit.
+#     copts = ["-std=c++14"],
+#     deps = ["@rules_nodejs//:current_node_cc_headers"]
+# )
+# ```
+cc_library(
+    name = "current_node_cc_headers",
+    hdrs = [":current_node_cc_headers_filegroup"],
+    includes = ["../bin/nodejs/include/node"],
+)
+
+current_node_cc_headers(
+    name = "current_node_cc_headers_filegroup",
+)

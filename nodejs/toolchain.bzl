@@ -33,27 +33,7 @@ For backward compability, if set then npm_path will be set to the runfiles path 
 For backward compability, npm_path is set to the runfiles path of npm if npm is set.
 """,
         "npm_sources": """Additional source files required to run npm""",
-        "headers": """\
-(struct) Information about the header files, with fields:
-  * providers_map: a dict of string to provider instances. The key should be
-    a fully qualified name (e.g. `@rules_foo//bar:baz.bzl#MyInfo`) of the
-    provider to uniquely identify its type.
-
-    The following keys are always present:
-      * CcInfo: the CcInfo provider instance for the headers.
-      * DefaultInfo: the DefaultInfo provider instance for the headers.
-
-    A map is used to allow additional providers from the originating headers
-    target (typically a `cc_library`) to be propagated to consumers (directly
-    exposing a Target object can cause memory issues and is an anti-pattern).
-
-    When consuming this map, it's suggested to use `providers_map.values()` to
-    return all providers; or copy the map and filter out or replace keys as
-    appropriate. Note that any keys begining with `_` (underscore) are
-    considered private and should be forward along as-is (this better allows
-    e.g. `:current_node_cc_headers` to act as the underlying headers target it
-    represents).
-""",
+        "headers": "A filegroup containing the Node headers.",
         # DEPRECATED
         "target_tool_path": "(DEPRECATED) Path to Node.js executable for backward compatibility",
         "tool_files": """(DEPRECATED) Alias for [node] for backward compatibility""",
@@ -93,12 +73,7 @@ def _nodejs_toolchain_impl(ctx):
         npm = ctx.file.npm,
         npm_path = ctx.attr.npm_path if ctx.attr.npm_path else (_to_manifest_path(ctx, ctx.file.npm) if ctx.file.npm else ""),  # _to_manifest_path for backward compat
         npm_sources = npm_sources,
-        headers = struct(
-            providers_map = {
-                "CcInfo": ctx.attr.headers[CcInfo],
-                "DefaultInfo": ctx.attr.headers[DefaultInfo],
-            },
-        ) if ctx.attr.headers else None,
+        headers = ctx.attr.headers,
         # For backward compat
         target_tool_path = _to_manifest_path(ctx, ctx.file.node) if ctx.attr.node else ctx.attr.node_path,
         tool_files = [ctx.file.node] if ctx.attr.node else [],
@@ -205,7 +180,7 @@ def nodejs_toolchain(
 
             Not necessary if specifying `npm_path` to a non-hermetic npm installation.
 
-        headers: cc_library that contains the Node/v8 header files
+        headers: filegroup that contains the Node/v8 header files
 
         **kwargs: Additional parameters
     """

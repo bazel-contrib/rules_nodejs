@@ -276,10 +276,11 @@ cc_binary(
         "@platforms//os:windows": ["/std:c++14"],
         "//conditions:default": ["-std=c++14"],
     }),
+    tags = ["skip-on-rbe"],
     target_compatible_with = select({
         # Windows does not ship headers in the release artifact so this won't work yet.
         "@platforms//os:windows": ["@platforms//:incompatible"],
         "//conditions:default": [],
     }),
-    deps = ["@rules_nodejs//nodejs:current_node_cc_headers"],
+    deps = ["@rules_nodejs//nodejs/headers:current_node_cc_headers"],
 )

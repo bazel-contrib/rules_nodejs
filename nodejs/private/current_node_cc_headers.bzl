@@ -15,36 +15,11 @@
 """Implementation of current_node_cc_headers rule."""
 
 def _current_node_cc_headers_impl(ctx):
-    return ctx.toolchains["//nodejs:toolchain_type"].nodeinfo.headers.providers_map.values()
+    return DefaultInfo(
+        files = ctx.toolchains["//nodejs:toolchain_type"].nodeinfo.headers.files,
+    )
 
 current_node_cc_headers = rule(
     implementation = _current_node_cc_headers_impl,
     toolchains = ["//nodejs:toolchain_type"],
-    provides = [CcInfo],
-    doc = """\
-Provides the currently active Node toolchain's C++ headers.
-
-This is a wrapper around the underlying `cc_library()` for the
-C headers for the consuming target's currently active Node toolchain.
-
-Note, "node.h" is only usable from C++, and you'll need to
-ensure you are compiling with c++14 or later.
-
-Also, on Windows, Node.js releases do not ship headers, so this rule is currently
-not usable with the built-in toolchains. If you define your own toolchain on Windows,
-you can include the headers and then this rule will work.
-
-To use, simply depend on this target where you would have wanted the
-toolchain's underlying `:headers` target:
-
-```starlark
-cc_library(
-    name = "foo",
-    srcs = ["foo.cc"],
-    # If toolchain sets this already, you can omit.
-    copts = ["-std=c++14"],
-    deps = ["@rules_nodejs//:current_node_cc_headers"]
-)
-```
-""",
 )

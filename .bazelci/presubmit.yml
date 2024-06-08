@@ -14,67 +14,68 @@ tasks:
     name: ubuntu1804
     platform: ubuntu1804
     build_targets:
-    - "//..."
+      - "//..."
     test_flags:
-    - "--test_tag_filters=-skip-on-bazelci-ubuntu"
+      - "--test_tag_filters=-skip-on-bazelci-ubuntu"
     test_targets:
-    - "//..."
+      - "//..."
   ubuntu1804-smoke:
     name: ubuntu1804-smoke
     platform: ubuntu1804
     working_directory: "e2e/smoke"
     build_targets:
-    - "//..."
+      - "//..."
     test_flags:
-    - "--test_tag_filters=-skip-on-bazelci-ubuntu"
+      - "--test_tag_filters=-skip-on-bazelci-ubuntu"
     test_targets:
-    - "//..."
+      - "//..."
   ubuntu1804-nodejs_host:
     name: ubuntu1804-nodejs_host
     platform: ubuntu1804
     working_directory: "e2e/nodejs_host"
     build_targets:
-    - "//..."
+      - "//..."
     test_flags:
-    - "--test_tag_filters=-skip-on-bazelci-ubuntu"
+      - "--test_tag_filters=-skip-on-bazelci-ubuntu"
     test_targets:
-    - "//..."
+      - "//..."
   macos-smoke:
     name: macos
     platform: macos
     working_directory: "e2e/smoke"
     build_targets:
-    - "//..."
+      - "//..."
     test_flags:
-    - "--test_tag_filters=-skip-on-bazelci-macos"
+      - "--test_tag_filters=-skip-on-bazelci-macos"
     test_targets:
-    - "//..."
+      - "//..."
   windows-smoke:
     name: windows-smoke
     platform: windows
     working_directory: "e2e/smoke"
     build_targets:
-    - "//..."
+      - "//..."
     test_flags:
-    - "--test_tag_filters=-skip-on-bazelci-windows"
+      - "--test_tag_filters=-skip-on-bazelci-windows"
     test_targets:
-    - "//..."
+      - "//..."
   windows-nodejs_host:
     name: windows-nodejs_host
     platform: windows
     working_directory: "e2e/nodejs_host"
     build_targets:
-    - "//..."
+      - "//..."
     test_flags:
-    - "--test_tag_filters=-skip-on-bazelci-windows"
+      - "--test_tag_filters=-skip-on-bazelci-windows"
     test_targets:
-    - "//..."
-  # Temporarily disabled RBE CI until cc toolchain failures are resolved
-  # rbe_ubuntu1604-smoke:
-  #   name: rbe_ubuntu1604-smoke
-  #   platform: rbe_ubuntu1604
-  #   working_directory: "e2e/smoke"
-  #   build_targets:
-  #   - "//..."
-  #   test_targets:
-  #   - "//..."
+      - "//..."
+  rbe_ubuntu1604-smoke:
+    name: rbe_ubuntu1604-smoke
+    platform: rbe_ubuntu1604
+    working_directory: "e2e/smoke"
+    build_flags:
+      - "--build_tag_filters=-skip-on-rbe"
+    build_targets:
+      - "//..."
+    test_targets:
+      - "//..."
