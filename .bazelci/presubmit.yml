@@ -3,7 +3,7 @@ bazel: 7.1.1
 # Note, this will tell the user to do the wrong thing (manually run buildifer)
 # See https://github.com/bazelbuild/continuous-integration/issues/1161
 buildifier:
-  version: 4.0.1
+  version: 6.4.0
   # Keep this in sync with the list in .pre-commit-config.yaml
   # https://github.com/bazelbuild/buildtools/issues/479 should fix this by giving us a config file
 tasks:
