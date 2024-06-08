@@ -33,7 +33,8 @@ For backward compability, if set then npm_path will be set to the runfiles path 
 For backward compability, npm_path is set to the runfiles path of npm if npm is set.
 """,
         "npm_sources": """Additional source files required to run npm""",
-        "headers": """\
+        "headers": """Optional.\
+
 (struct) Information about the header files, with fields:
   * providers_map: a dict of string to provider instances. The key should be
     a fully qualified name (e.g. `@rules_foo//bar:baz.bzl#MyInfo`) of the

@@ -1,5 +1,4 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("//nodejs/private:current_node_cc_headers.bzl", "current_node_cc_headers")
 load("//nodejs/private:nodejs_toolchains_repo.bzl", "PLATFORMS")
 load("//nodejs/private:user_build_settings.bzl", "user_args")
 
@@ -41,8 +40,3 @@ user_args(
     name = "default_args",
     build_setting_default = "--preserve-symlinks",
 )
-
-# This target provides the C headers for whatever the current toolchain is
-# for the consuming rule. It basically acts like a cc_library by forwarding
-# on the providers for the underlying cc_library that the toolchain is using.
-current_node_cc_headers(name = "current_node_cc_headers")

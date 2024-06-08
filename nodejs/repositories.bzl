@@ -31,6 +31,7 @@ _ATTRS = {
     "node_urls": attr.string_list(),
     "node_version": attr.string(),
     "node_version_from_nvmrc": attr.label(allow_single_file = True),
+    "include_headers": attr.bool(),
     "platform": attr.string(
         doc = "Internal use only. Which platform to install as a toolchain. If unset, we assume the repository is named nodejs_[platform]",
         values = BUILT_IN_NODE_PLATFORMS,
@@ -241,6 +242,20 @@ filegroup(
   name = "npm_files",
   srcs = glob(["bin/nodejs/**"]) + [":node_files"],
 )
+""".format(
+        node_bin_export = "\n  \"%s\"," % node_bin,
+        npm_bin_export = "\n  \"%s\"," % npm_bin,
+        npx_bin_export = "\n  \"%s\"," % npx_bin,
+        node_bin_label = node_bin_label,
+        npm_bin_label = npm_bin_label,
+        npx_bin_label = npx_bin_label,
+        node_entry = node_entry,
+        npm_entry = npm_entry,
+        npx_entry = npx_entry,
+    )
+
+    if repository_ctx.attr.include_headers:
+        build_content += """
 cc_library(
   name = "headers",
   hdrs = glob(
@@ -256,17 +271,7 @@ cc_library(
   ),
   includes = ["bin/nodejs/include/node"],
 )
-""".format(
-        node_bin_export = "\n  \"%s\"," % node_bin,
-        npm_bin_export = "\n  \"%s\"," % npm_bin,
-        npx_bin_export = "\n  \"%s\"," % npx_bin,
-        node_bin_label = node_bin_label,
-        npm_bin_label = npm_bin_label,
-        npx_bin_label = npx_bin_label,
-        node_entry = node_entry,
-        npm_entry = npm_entry,
-        npx_entry = npx_entry,
-    )
+"""
 
     if repository_ctx.attr.platform:
         build_content += """
@@ -276,14 +281,15 @@ nodejs_toolchain(
     node = ":node_bin",
     npm = ":npm",
     npm_srcs = [":npm_files"],
-    headers = ":headers",
+    headers = {headers},
 )
 # alias for backward compat
 alias(
     name = "node_toolchain",
     actual = ":toolchain",
 )
-"""
+""".format(headers = "\":headers\"" if repository_ctx.attr.include_headers else "None")
+
     repository_ctx.file("BUILD.bazel", content = build_content)
 
 def _strip_bin(path):
@@ -314,6 +320,7 @@ def nodejs_repositories(
         node_urls = [DEFAULT_NODE_URL],
         node_version = DEFAULT_NODE_VERSION,
         node_version_from_nvmrc = None,
+        include_headers = False,
         **kwargs):
     """To be run in user's WORKSPACE to install rules_nodejs dependencies.
 
@@ -394,6 +401,10 @@ def nodejs_repositories(
 
             If set then the version found in the .nvmrc file is used instead of the one specified by node_version.
 
+        include_headers: Set headers field in NodeInfo provided by this toolchain.
+
+            This setting creates a dependency on a c++ toolchain.
+
         **kwargs: Additional parameters
     """
     use_nvmrc = kwargs.pop("use_nvmrc", None)
@@ -411,6 +422,7 @@ WARNING: use_nvmrc attribute of node_repositories is deprecated; use node_versio
         node_urls = node_urls,
         node_version = node_version,
         node_version_from_nvmrc = node_version_from_nvmrc,
+        include_headers = include_headers,
         **kwargs
     )
 

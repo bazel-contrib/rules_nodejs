@@ -34,7 +34,7 @@ UserBuildSettingInfo(<a href="#UserBuildSettingInfo-value">value</a>)
 
 <pre>
 nodejs_repositories(<a href="#nodejs_repositories-name">name</a>, <a href="#nodejs_repositories-node_download_auth">node_download_auth</a>, <a href="#nodejs_repositories-node_repositories">node_repositories</a>, <a href="#nodejs_repositories-node_urls">node_urls</a>, <a href="#nodejs_repositories-node_version">node_version</a>,
-                    <a href="#nodejs_repositories-node_version_from_nvmrc">node_version_from_nvmrc</a>, <a href="#nodejs_repositories-kwargs">kwargs</a>)
+                    <a href="#nodejs_repositories-node_version_from_nvmrc">node_version_from_nvmrc</a>, <a href="#nodejs_repositories-include_headers">include_headers</a>, <a href="#nodejs_repositories-kwargs">kwargs</a>)
 </pre>
 
 To be run in user's WORKSPACE to install rules_nodejs dependencies.
@@ -142,6 +142,14 @@ The .nvmrc file containing the version of Node.js to use.
 If set then the version found in the .nvmrc file is used instead of the one specified by node_version.
 
 Defaults to `None`
+
+<h4 id="nodejs_repositories-include_headers">include_headers</h4>
+
+Set headers field in NodeInfo provided by this toolchain.
+
+This setting creates a dependency on a c++ toolchain.
+
+Defaults to `False`
 
 <h4 id="nodejs_repositories-kwargs">kwargs</h4>
 

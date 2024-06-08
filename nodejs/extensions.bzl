@@ -26,6 +26,7 @@ def _toolchain_extension(module_ctx):
                 registrations[toolchain.name] = struct(
                     node_version = toolchain.node_version,
                     node_version_from_nvmrc = toolchain.node_version_from_nvmrc,
+                    include_headers = toolchain.include_headers,
                 )
 
     for k, v in registrations.items():
@@ -33,6 +34,7 @@ def _toolchain_extension(module_ctx):
             name = k,
             node_version = v.node_version,
             node_version_from_nvmrc = v.node_version_from_nvmrc,
+            include_headers = v.include_headers,
             register = False,
         )
 
@@ -53,6 +55,12 @@ node = module_extension(
                 doc = """The .nvmrc file containing the version of Node.js to use.
 
 If set then the version found in the .nvmrc file is used instead of the one specified by node_version.""",
+            ),
+            "include_headers": attr.bool(
+                doc = """Set headers field in NodeInfo provided by this toolchain.
+
+This setting creates a dependency on a c++ toolchain.
+""",
             ),
         }),
     },
