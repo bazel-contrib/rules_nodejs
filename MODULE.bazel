@@ -14,7 +14,7 @@ node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 
 # Note, this gets the default version of Node.js from
 # https://github.com/bazelbuild/rules_nodejs/blob/main/nodejs/repositories.bzl#L11
-node.toolchain(name = "nodejs")
+node.toolchain()
 use_repo(node, "nodejs_toolchains")
 
 # Toolchain registration under bzlmod should match the order of WORKSPACE registration
