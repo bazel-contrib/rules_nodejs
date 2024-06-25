@@ -14,6 +14,7 @@ def _toolchain_extension(module_ctx):
         for toolchain in mod.tags.toolchain:
             if toolchain.name != DEFAULT_NODE_REPOSITORY and not mod.is_root:
                 fail("Only the root module may provide a name for the node toolchain.")
+
             if toolchain.name in registrations.keys():
                 if toolchain.name == DEFAULT_NODE_REPOSITORY:
                     # Prioritize the root-most registration of the default node toolchain version and
@@ -38,13 +39,13 @@ def _toolchain_extension(module_ctx):
             else:
                 registrations[toolchain.name] = toolchain
 
-    for k, t in registrations.items():
+    for k, v in registrations.items():
         nodejs_register_toolchains(
             name = k,
-            node_version = t.node_version,
-            node_version_from_nvmrc = t.node_version_from_nvmrc,
-            node_urls = t.node_urls,
-            include_headers = t.include_headers,
+            node_version = v.node_version,
+            node_version_from_nvmrc = v.node_version_from_nvmrc,
+            node_urls = v.node_urls,
+            include_headers = v.include_headers,
             register = False,
         )
 
@@ -73,7 +74,13 @@ This setting creates a dependency on a c++ toolchain.
 """,
             ),
             "node_urls": attr.string_list(
-                doc = "Custom list of URL formats to use to download NodeJS, containing {version} and {filename}",
+                doc = """List of URLs to use to download Node.js.
+
+ Each entry is a template for downloading a node distribution.
+
+ The `{version}` parameter is substituted with the `node_version` attribute,
+ and `{filename}` with the matching entry from the `node_repositories` attribute.
+ """,
                 default = [DEFAULT_NODE_URL],
             ),
         }),
