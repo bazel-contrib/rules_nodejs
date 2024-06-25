@@ -10,5 +10,5 @@ node.toolchain(
 )
 node.toolchain(
     name = "mynode",
-    node_version = "18.2.0",
+    node_version = "15.14.0",
 )

@@ -6,9 +6,9 @@ local_path_override(
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
 node.toolchain(
-   name = "mynode",
+    name = "mynode",
 )
 node.toolchain(
-   name = "mynode",
-   include_headers = True,
+    name = "mynode",
+    include_headers = True,
 )

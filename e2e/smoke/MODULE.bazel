@@ -15,23 +15,23 @@ node.toolchain(
     node_version = "17.9.1",
 )
 node.toolchain(
-    name = "node18",
+    name = "node15",
     node_urls = [
         "https://nodejs.org/dist/v{version}/{filename}",
         "https://mirrors.dotsrc.org/nodejs/release/v{version}/{filename}",
     ],
-    node_version = "18.2.0",
+    node_version = "15.14.0",
 )
 
 # FIXME(6.0): a repo rule with name=foo should create a repo named @foo, not @foo_toolchains
 use_repo(
     node,
+    "node15_darwin_amd64",
+    "node15_linux_amd64",
+    "node15_windows_amd64",
     "node17_darwin_amd64",
     "node17_linux_amd64",
     "node17_windows_amd64",
-    "node18_darwin_amd64",
-    "node18_linux_amd64",
-    "node18_windows_amd64",
     "nodejs_darwin_amd64",
     "nodejs_linux_amd64",
     "nodejs_toolchains",
