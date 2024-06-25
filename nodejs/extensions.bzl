@@ -20,6 +20,7 @@ def _toolchain_extension(module_ctx):
         for toolchain in mod.tags.toolchain:
             if toolchain.name != DEFAULT_NODE_REPOSITORY and not mod.is_root:
                 fail("Only the root module may provide a name for the node toolchain.")
+
             if toolchain.name in registrations.keys():
                 if toolchain.name == DEFAULT_NODE_REPOSITORY:
                     # Prioritize the root-most registration of the default node toolchain version and
