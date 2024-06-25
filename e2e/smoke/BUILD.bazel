@@ -203,6 +203,12 @@ write_file(
 # Files used in test cases later that contain the correct nodejs version
 # that is imported into the workspace.
 write_file(
+    name = "write_node_version_18",
+    out = "expected_node_18",
+    content = ["v18.2.0"],
+)
+
+write_file(
     name = "write_node_version_17",
     out = "expected_node_17",
     content = ["v17.9.1"],
@@ -267,4 +273,23 @@ diff_test(
     name = "test_node_version_16",
     file1 = "write_node_version_16",
     file2 = "thing_toolchain_16",
+)
+
+my_nodejs(
+    name = "run_18",
+    out = "thing_toolchain_18",
+    entry_point = "version.js",
+    # using the select statement will download toolchains for all three platforms
+    # you can also just provide an individual toolchain if you don't want to download them all
+    toolchain = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "@node18_linux_amd64//:toolchain",
+        "@bazel_tools//src/conditions:darwin": "@node18_darwin_amd64//:toolchain",
+        "@bazel_tools//src/conditions:windows": "@node18_windows_amd64//:toolchain",
+    }),
+)
+
+diff_test(
+    name = "test_node_version_18",
+    file1 = "write_node_version_18",
+    file2 = "thing_toolchain_18",
 )
