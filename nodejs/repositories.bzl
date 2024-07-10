@@ -23,7 +23,7 @@ DEFAULT_NODE_VERSION = [
     if v.startswith("18.")
 ][-1]  # Versions are sorted increasing, so last one is the latest version
 
-NEWEST_KNOWN_NODE_VERSION = [
+LATEST_KNOWN_NODE_VERSION = [
     # 16.18.1-windows_amd64 -> 16.18.1
     v.split("-")[0]
     for v in NODE_VERSIONS.keys()
