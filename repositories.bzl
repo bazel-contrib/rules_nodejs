@@ -44,13 +44,6 @@ def rules_nodejs_dev_dependencies():
     )
 
     http_archive(
-        name = "rules_codeowners",
-        strip_prefix = "rules_codeowners-4f44c38b5f43ceecf5f02a502d129dc830b8c66f",
-        sha256 = "2858ba495f02432c715583f040ca1dd22a7f94786f36b58dc796e151d5014758",
-        urls = ["https://github.com/zegl/rules_codeowners/archive/4f44c38b5f43ceecf5f02a502d129dc830b8c66f.zip"],
-    )
-
-    http_archive(
         name = "aspect_bazel_lib",
         sha256 = "688354ee6beeba7194243d73eb0992b9a12e8edeeeec5b6544f4b531a3112237",
         strip_prefix = "bazel-lib-2.8.1",
