@@ -13,7 +13,6 @@
 # limitations under the License.
 
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
-load("//:tools/defaults.bzl", "codeowners")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -44,12 +43,4 @@ buildifier(
     lint_mode = "warn",
     mode = "diff",
     tags = ["manual"],  # tag as manual so windows ci does not build it by default
-)
-
-codeowners(
-    pattern = "*",
-    teams = [
-        "@mattem",
-        "@gregmagolan",
-    ],
 )
