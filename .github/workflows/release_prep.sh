@@ -31,7 +31,7 @@ http_archive(
     name = "rules_nodejs",
     sha256 = "${SHA}",
     strip_prefix = "${PREFIX}",
-    url = "https://github.com/bazelbuild/rules_nodejs/releases/download/${TAG}/${ARCHIVE}",
+    url = "https://github.com/bazel-contrib/rules_nodejs/releases/download/${TAG}/${ARCHIVE}",
 )
 EOF
 

@@ -10,7 +10,7 @@ bazel_dep(name = "bazel_skylib", version = "1.7.1", dev_dependency = True)
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
 
 # Note, this gets the default version of Node.js from
-# https://github.com/bazelbuild/rules_nodejs/blob/5.8.0/nodejs/repositories.bzl#L11
+# https://github.com/bazel-contrib/rules_nodejs/blob/5.8.0/nodejs/repositories.bzl#L11
 node.toolchain()
 node.toolchain(
     name = "node16",
