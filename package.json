@@ -1,13 +1,14 @@
 {
     "name": "@bazel/javascript",
     "description": "Build JavaScript with Bazel",
-    "version": "5.8.2",
+    "private": true,
+    "version": "0.0.0",
     "keywords": [
         "javascript",
         "bazel"
     ],
-    "homepage": "https://github.com/bazelbuild/rules_nodejs",
-    "repository": "https://github.com/bazelbuild/rules_nodejs",
+    "homepage": "https://github.com/bazel-contrib/rules_nodejs",
+    "repository": "https://github.com/bazel-contrib/rules_nodejs.git",
     "license": "Apache-2.0",
     "engines": {
         "node": ">=12 <=18",

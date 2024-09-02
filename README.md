@@ -1,7 +1,7 @@
 # JavaScript rules for Bazel
 
 [![Build status](https://badge.buildkite.com/af1a592b39b11923ef0f523cbb223dd3dbd61629f8bc813c07.svg?branch=stable)](https://buildkite.com/bazel/nodejs-rules-nodejs-postsubmit)
-![GitHub release (latest by date)](https://img.shields.io/github/downloads/bazelbuild/rules_nodejs/latest/total)
+![GitHub release (latest by date)](https://img.shields.io/github/downloads/bazel-contrib/rules_nodejs/latest/total)
 
 This ruleset provides a Node.js development toolchain and runtime with Bazel.
 It does not have any rules for using Node.js, such as `nodejs_binary`.

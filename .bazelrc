@@ -1,5 +1,5 @@
 # TODO: migrate all root WORKSPACE dependencies to MODULE.bazel
-# https://github.com/bazelbuild/rules_nodejs/issues/3695
+# https://github.com/bazel-contrib/rules_nodejs/issues/3695
 common --noenable_bzlmod
 
 # Specifies desired output mode for running tests.

@@ -5,11 +5,11 @@
     "version": "0.0.0-PLACEHOLDER",
     "repository": {
         "type" : "git",
-        "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+        "url" : "https://github.com/bazel-contrib/rules_nodejs.git",
         "directory": "packages/runfiles"
     },
     "bugs": {
-        "url": "https://github.com/bazelbuild/rules_nodejs/issues"
+        "url": "https://github.com/bazel-contrib/rules_nodejs/issues"
     },
     "keywords": [
         "bazel",

@@ -15,7 +15,7 @@ For example, in place of
 http_archive(
     name = "rules_nodejs",
     sha256 = "...",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/6.0.0/rules_nodejs-6.0.0.tar.gz"],
+    urls = ["https://github.com/bazel-contrib/rules_nodejs/releases/download/6.0.0/rules_nodejs-6.0.0.tar.gz"],
 )
 ```
 
@@ -48,6 +48,6 @@ http_archive(
     patch_args = ["-p1"],
     patches = ["//path/to/my.patch"],
     sha256 = "...",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/6.0.0/rules_nodejs-6.0.0.tar.gz"],
+    urls = ["https://github.com/bazel-contrib/rules_nodejs/releases/download/6.0.0/rules_nodejs-6.0.0.tar.gz"],
 )
 ```
