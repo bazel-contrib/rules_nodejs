@@ -1,5 +1,5 @@
 """ Generated code; do not edit
-Update by running yarn update-nodejs-versions
+Update by running npm run update-nodejs-versions
 """
 
 # @unsorted-dict-items

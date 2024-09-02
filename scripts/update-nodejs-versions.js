@@ -77,7 +77,7 @@ async function main() {
   const versions = await getNodeJsVersions();
   const nodeRepositories = await Promise.all(versions.map(getNodeJsVersion));
   console.log('""" Generated code; do not edit');
-  console.log('Update by running yarn update-nodejs-versions\n"""\n');
+  console.log('Update by running npm run update-nodejs-versions\n"""\n');
   // Suppress buildifier
   console.log('# @unsorted-dict-items');
   console.log('NODE_VERSIONS = {');

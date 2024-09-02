@@ -9,7 +9,7 @@ It's a lot of work for us to review and accept Pull Requests. Sometimes things c
 ## In-repo tests
 
 A number of tests in this repo are designed to function with local repository
-paths, meaning they can be run directly, and are faster to execute. The `yarn
+paths, meaning they can be run directly, and are faster to execute. The `npm
 test` command is a shortcut to exclude integration tests, eg
 
     bazel test //...
@@ -17,7 +17,7 @@ test` command is a shortcut to exclude integration tests, eg
 ## Integration tests
 
 In order to test that the rules work outside of this repo, this repo has full bazel WORKSPACEs for e2e tests
- to set up an environment with the package paths matching what end users will see.
+to set up an environment with the package paths matching what end users will see.
 The end-to-end tests in e2e are built this way.
 
 ## Debugging
