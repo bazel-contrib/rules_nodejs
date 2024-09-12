@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import {BAZEL_OUT_REGEX} from './paths';
+import { BAZEL_OUT_REGEX, REPO_MAPPING_RLOCATION } from './paths';
+import { RepoMappings, callerRepository } from './repository';
 
 /**
  * Class that provides methods for resolving Bazel runfiles.
@@ -17,8 +18,12 @@ export class Runfiles {
    * If the environment gives us enough hints, we can know the package path
    */
   package: string|undefined;
+  /**
+   * If the environment has repo mappings, we can use them to resolve repo relative paths.
+   */
+  repoMappings: RepoMappings|undefined;
 
-  constructor(private _env: typeof process.env) {
+  constructor(private _env = process.env) {
     // If Bazel sets a variable pointing to a runfiles manifest,
     // we'll always use it.
     // Note that this has a slight performance implication on Mac/Linux
@@ -29,8 +34,10 @@ export class Runfiles {
       this.manifest = this.loadRunfilesManifest(_env['RUNFILES_MANIFEST_FILE']!);
     } else if (!!_env['RUNFILES_DIR']) {
       this.runfilesDir = path.resolve(_env['RUNFILES_DIR']!);
+      this.repoMappings = this.parseRepoMapping(this.runfilesDir);
     } else if (!!_env['RUNFILES']) {
       this.runfilesDir = path.resolve(_env['RUNFILES']!);
+      this.repoMappings = this.parseRepoMapping(this.runfilesDir);
     } else {
       throw new Error(
           'Every node program run under Bazel must have a $RUNFILES_DIR, $RUNFILES or $RUNFILES_MANIFEST_FILE environment variable');
@@ -116,15 +123,61 @@ export class Runfiles {
     return runfilesEntries;
   }
 
+  parseRepoMapping(runfilesDir: string): RepoMappings | undefined {
+    const repoMappingPath = path.join(runfilesDir, REPO_MAPPING_RLOCATION);
+
+    if (!fs.existsSync(repoMappingPath)) {
+      // The repo mapping manifest only exists with Bzlmod, so it's not an
+      // error if it's missing. Since any repository name not contained in the
+      // mapping is assumed to be already canonical, an empty map is
+      // equivalent to not applying any mapping.
+      return Object.create(null);
+    }
+
+    const repoMappings: RepoMappings = Object.create(null);
+    const mappings = fs.readFileSync(repoMappingPath, { encoding: "utf-8" });
+
+    // Each line of the repository mapping manifest has the form:
+    // canonical name of source repo,apparent name of target repo,target repo runfiles directory
+    // https://cs.opensource.google/bazel/bazel/+/1b073ac0a719a09c9b2d1a52680517ab22dc971e:src/main/java/com/google/devtools/build/lib/analysis/RepoMappingManifestAction.java;l=117
+    for (const line of mappings.split("\n")) {
+      if (!line) continue;
+
+      const [sourceRepo, targetRepoApparentName, targetRepoDirectory] = line.split(",");
+
+      (repoMappings[sourceRepo] ??= Object.create(null))[targetRepoApparentName] = targetRepoDirectory;
+    }
+    return repoMappings;
+  }
+
   /** Resolves the given module path. */
-  resolve(modulePath: string) {
+  resolve(modulePath: string, sourceRepo?: string): string {
     // Normalize path by converting to forward slashes and removing all trailing
     // forward slashes
     modulePath = modulePath.replace(/\\/g, '/').replace(/\/+$/g, '')
     if (path.isAbsolute(modulePath)) {
       return modulePath;
     }
-    const result = this._resolve(modulePath, undefined);
+
+    if (this.repoMappings) {
+      // Determine the repository which runfiles is being invoked from by default.
+      if (sourceRepo === undefined) {
+        sourceRepo = callerRepository();
+      }
+
+      // If the repository mappings were loaded ensure the source repository is valid.
+      if (!(sourceRepo in this.repoMappings)) {
+        throw new Error(
+          `source repository ${sourceRepo} not found in repo mappings: ${JSON.stringify(
+            this.repoMappings,
+            null,
+            2,
+          )}`,
+        );
+      }
+    }
+
+    const result = this._resolve(sourceRepo, modulePath, undefined);
     if (result) {
       return result;
     }
@@ -175,7 +228,11 @@ export class Runfiles {
   }
 
   /** Helper for resolving a given module recursively in the runfiles. */
-  private _resolve(moduleBase: string, moduleTail: string|undefined): string|undefined {
+  private _resolve(
+    sourceRepo: string,
+    moduleBase: string,
+    moduleTail: string | undefined,
+  ): string | undefined {
     if (this.manifest) {
       const result = this._resolveFromManifest(moduleBase);
       if (result) {
@@ -186,6 +243,17 @@ export class Runfiles {
           }
         } else {
           return result;
+        }
+      }
+    }
+
+    // Apply repo mappings to the moduleBase if it is a known repo.
+    if (this.repoMappings && moduleBase in this.repoMappings[sourceRepo]) {
+      const mappedRepo = this.repoMappings[sourceRepo][moduleBase];
+      if (mappedRepo !== moduleBase) {
+        const maybe = this._resolve(sourceRepo, mappedRepo, moduleTail);
+        if (maybe !== undefined) {
+          return maybe;
         }
       }
     }
@@ -200,6 +268,10 @@ export class Runfiles {
       // no match
       return undefined;
     }
-    return this._resolve(dirname, path.join(path.basename(moduleBase), moduleTail || ''));
+    return this._resolve(
+      sourceRepo,
+      dirname,
+      path.join(path.basename(moduleBase), moduleTail || ""),
+    );
   }
 }
