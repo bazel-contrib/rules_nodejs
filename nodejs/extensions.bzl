@@ -8,11 +8,16 @@ load(
     "nodejs_register_toolchains",
 )
 
-def _toolchain_info(toolchain):
-    return {attr: getattr(toolchain, attr) for attr in _ATTRS}
-
 def _toolchain_repr(toolchain_info):
+    """ Return a `toolchain` tag object useful for diagnostics """
     return ", ".join(["%s = %r" % (attr, value) for attr, value in toolchain_info.items() if value])
+
+def _toolchains_equal(lhs, rhs):
+    """ Compare two `toolchain` tag objects """
+    for attr in _ATTRS:
+        if getattr(lhs, attr) != getattr(rhs, attr):
+            return False
+    return True
 
 def _toolchain_extension(module_ctx):
     registrations = {}
@@ -26,9 +31,7 @@ def _toolchain_extension(module_ctx):
                     # Prioritize the root-most registration of the default node toolchain version and
                     # ignore any further registrations (modules are processed breadth-first)
                     continue
-                toolchain_info = _toolchain_info(toolchain)
-                registered_toolchain_info = _toolchain_info(registrations[toolchain.name])
-                if toolchain_info != registered_toolchain_info:
+                if not _toolchains_equal(toolchain, registrations[toolchain.name]):
                     fail("Multiple conflicting toolchains declared:\n* {}\n* {}".format(
                         _toolchain_repr(toolchain_info),
                         _toolchain_repr(registered_toolchain_info),
