@@ -1,4 +1,4 @@
-"bzlmod declaration for bazelbuild/rules_nodejs"
+"bzlmod declaration for bazel-contrib/rules_nodejs"
 
 module(
     name = "rules_nodejs",
@@ -13,15 +13,15 @@ bazel_dep(name = "platforms", version = "0.0.5")
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 
 # Note, this gets the default version of Node.js from
-# https://github.com/bazelbuild/rules_nodejs/blob/main/nodejs/repositories.bzl#L11
+# https://github.com/bazel-contrib/rules_nodejs/blob/main/nodejs/repositories.bzl#L11
 node.toolchain()
 use_repo(node, "nodejs_toolchains")
 
 # Toolchain registration under bzlmod should match the order of WORKSPACE registration
-# which is the order specified in the PLATFORMS dict https://github.com/bazelbuild/rules_nodejs/blob/4c373209b058d46f2a5f9ab9f8abf11b161ae459/nodejs/private/nodejs_toolchains_repo.bzl#L20.
+# which is the order specified in the PLATFORMS dict https://github.com/bazel-contrib/rules_nodejs/blob/4c373209b058d46f2a5f9ab9f8abf11b161ae459/nodejs/private/nodejs_toolchains_repo.bzl#L20.
 # For each platform, `:<PLATFORM>_toolchain_target` should be registered before `:<PLATFORM>_toolchain`,
-# https://github.com/bazelbuild/rules_nodejs/blob/4c373209b058d46f2a5f9ab9f8abf11b161ae459/nodejs/repositories.bzl#L461/.
-# See https://github.com/bazelbuild/bazel/issues/19645 and https://github.com/bazelbuild/rules_nodejs/pull/3750 for more context.
+# https://github.com/bazel-contrib/rules_nodejs/blob/4c373209b058d46f2a5f9ab9f8abf11b161ae459/nodejs/repositories.bzl#L461/.
+# See https://github.com/bazelbuild/bazel/issues/19645 and https://github.com/bazel-contrib/rules_nodejs/pull/3750 for more context.
 register_toolchains("@nodejs_toolchains//:linux_amd64_toolchain_target")
 
 register_toolchains("@nodejs_toolchains//:linux_amd64_toolchain")

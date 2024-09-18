@@ -9,7 +9,7 @@ default_stages: [commit]
 repos:
   # Check formatting and lint for starlark code
   - repo: https://github.com/keith/pre-commit-buildifier
-    rev: 6.4.0
+    rev: 7.3.1
     hooks:
       - id: buildifier
       - id: buildifier-lint

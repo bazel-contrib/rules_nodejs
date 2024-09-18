@@ -23,6 +23,12 @@ DEFAULT_NODE_VERSION = [
     if v.startswith("18.")
 ][-1]  # Versions are sorted increasing, so last one is the latest version
 
+LATEST_KNOWN_NODE_VERSION = [
+    # 16.18.1-windows_amd64 -> 16.18.1
+    v.split("-")[0]
+    for v in NODE_VERSIONS.keys()
+][-1]  # Versions are sorted increasing, so last one is the latest version
+
 BUILT_IN_NODE_PLATFORMS = PLATFORMS.keys()
 
 _ATTRS = {
@@ -117,7 +123,7 @@ def _download_node(repository_ctx):
     ))
 
 def _prepare_node(repository_ctx):
-    """Sets up BUILD files and shell wrappers for the versions of Node.js, npm & yarn just set up.
+    """Sets up BUILD files and shell wrappers for the versions of Node.js, npm just set up.
 
     Windows and other OSes set up the node runtime with different names and paths, which we hide away via
     the BUILD file here.
@@ -172,7 +178,7 @@ exec "$SCRIPT_DIR/{node}" "$@"
             node = node_bin_relative,
         ))
     else:
-        # Sets PATH for node, npm & yarn and run user script
+        # Sets PATH for node, npm and run user script
         repository_ctx.file("bin/node.cmd", content = """
 @echo off
 SET SCRIPT_DIR=%~dp0
@@ -183,7 +189,7 @@ CALL "%SCRIPT_DIR%\\{node}" %*
     # The entry points for npm for osx/linux and windows
     # Runs npm using appropriate node entry point
     # --scripts-prepend-node-path is set to false since the correct paths
-    # for the Bazel entry points of node, npm & yarn are set in the node
+    # for the Bazel entry points of node, npm are set in the node
     # entry point
     for kind in [
         {"name": "npm", "script": npm_script_relative},

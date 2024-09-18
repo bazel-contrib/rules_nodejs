@@ -17,7 +17,7 @@ is maintained by community volunteers from [Aspect](https://aspect.dev).
 
 > 🚨 `@build_bazel_rules_nodejs` and `@bazel/*` packages are now mostly unmaintained! 🚨
 >
-> See the Maintenance Update in the [root README](https://github.com/bazelbuild/rules_nodejs#maintenance-update)
+> See the Maintenance Update in the [root README](https://github.com/bazel-contrib/rules_nodejs#maintenance-update)
 
 Previously this repository also contained the `@build_bazel_rules_nodejs` module and additional npm packages under the `@bazel` scope on [npm](http://npmjs.com/~bazel).
 

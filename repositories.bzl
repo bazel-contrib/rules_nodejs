@@ -39,27 +39,20 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_stardoc",
-        sha256 = "62bd2e60216b7a6fec3ac79341aa201e0956477e7c8f6ccc286f279ad1d96432",
-        urls = ["https://github.com/bazelbuild/stardoc/releases/download/0.6.2/stardoc-0.6.2.tar.gz"],
-    )
-
-    http_archive(
-        name = "rules_codeowners",
-        strip_prefix = "rules_codeowners-27fe3bbe6e5b0df196e360fc9e081835f22a10be",
-        sha256 = "0aada1d5df72cb13161a78dff965e02575930f3ea9550e778f6fa45f3f4e2537",
-        urls = ["https://github.com/zegl/rules_codeowners/archive/27fe3bbe6e5b0df196e360fc9e081835f22a10be.zip"],
+        sha256 = "dd7f32f4fe2537ce2452c51f816a5962d48888a5b07de2c195f3b3da86c545d3",
+        urls = ["https://github.com/bazelbuild/stardoc/releases/download/0.7.0/stardoc-0.7.0.tar.gz"],
     )
 
     http_archive(
         name = "aspect_bazel_lib",
-        sha256 = "6d758a8f646ecee7a3e294fbe4386daafbe0e5966723009c290d493f227c390b",
-        strip_prefix = "bazel-lib-2.7.7",
-        url = "https://github.com/aspect-build/bazel-lib/releases/download/v2.7.7/bazel-lib-v2.7.7.tar.gz",
+        sha256 = "688354ee6beeba7194243d73eb0992b9a12e8edeeeec5b6544f4b531a3112237",
+        strip_prefix = "bazel-lib-2.8.1",
+        url = "https://github.com/aspect-build/bazel-lib/releases/download/v2.8.1/bazel-lib-v2.8.1.tar.gz",
     )
 
     http_archive(
         name = "buildifier_prebuilt",
-        sha256 = "8ada9d88e51ebf5a1fdff37d75ed41d51f5e677cdbeafb0a22dda54747d6e07e",
-        strip_prefix = "buildifier-prebuilt-6.4.0",
-        urls = ["http://github.com/keith/buildifier-prebuilt/archive/6.4.0.tar.gz"],
+        sha256 = "7f85b688a4b558e2d9099340cfb510ba7179f829454fba842370bccffb67d6cc",
+        strip_prefix = "buildifier-prebuilt-7.3.1",
+        urls = ["http://github.com/keith/buildifier-prebuilt/archive/7.3.1.tar.gz"],
     )
