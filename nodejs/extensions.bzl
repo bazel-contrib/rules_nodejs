@@ -8,9 +8,10 @@ load(
     "nodejs_register_toolchains",
 )
 
-def _toolchain_repr(toolchain_info):
-    """ Return a `toolchain` tag object useful for diagnostics """
-    return ", ".join(["%s = %r" % (attr, value) for attr, value in toolchain_info.items() if value])
+def _toolchain_repr(toolchain):
+    """ Return a `toolchain` tag object representation useful for diagnostics """
+    key_values = [(attr, getattr(toolchain, attr)) for attr in _ATTRS]
+    return ", ".join(["%s = %r" % (attr, value) for attr, value in key_values if value])
 
 def _toolchains_equal(lhs, rhs):
     """ Compare two `toolchain` tag objects """
