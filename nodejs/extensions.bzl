@@ -34,8 +34,8 @@ def _toolchain_extension(module_ctx):
                     continue
                 if not _toolchains_equal(toolchain, registrations[toolchain.name]):
                     fail("Multiple conflicting toolchains declared:\n* {}\n* {}".format(
-                        _toolchain_repr(toolchain_info),
-                        _toolchain_repr(registered_toolchain_info),
+                        _toolchain_repr(toolchain),
+                        _toolchain_repr(registrations[toolchain.name]),
                     ))
                 else:
                     # No problem to register a matching toolchain twice
