@@ -168,7 +168,7 @@ export class Runfiles {
       // If the repository mappings were loaded ensure the source repository is valid.
       if (!(sourceRepo in this.repoMappings)) {
         throw new Error(
-          `source repository ${sourceRepo} not found in repo mappings: ${JSON.stringify(
+          `source repository "${sourceRepo}" not found in repo mappings: ${JSON.stringify(
             this.repoMappings,
             null,
             2,
@@ -181,7 +181,7 @@ export class Runfiles {
     if (result) {
       return result;
     }
-    const e = new Error(`could not resolve module ${modulePath}`);
+    const e = new Error(`could not resolve module "${modulePath}" from repository "${sourceRepo}"`);
     (e as any).code = 'MODULE_NOT_FOUND';
     throw e;
   }
