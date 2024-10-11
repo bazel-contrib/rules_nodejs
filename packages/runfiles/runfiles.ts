@@ -129,9 +129,9 @@ export class Runfiles {
     if (!fs.existsSync(repoMappingPath)) {
       // The repo mapping manifest only exists with Bzlmod, so it's not an
       // error if it's missing. Since any repository name not contained in the
-      // mapping is assumed to be already canonical, an empty map is
-      // equivalent to not applying any mapping.
-      return Object.create(null);
+      // mapping is assumed to be already canonical, no map is equivalent to
+      // not applying any mapping.
+      return undefined;
     }
 
     const repoMappings: RepoMappings = Object.create(null);
