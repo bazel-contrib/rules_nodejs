@@ -171,7 +171,7 @@ def nodejs_toolchain(
             "@platforms//cpu:x86_64",
         ],
         toolchain = ":toolchain",
-        toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
+        toolchain_type = "@rules_nodejs//nodejs:runtime_toolchain_type",
     )
     ```
 
@@ -261,3 +261,19 @@ WARNING: node_toolchain is deprecated; use nodejs_toolchain instead.
 If your are not calling node_toolchain directly you may need to upgrade to rules_js 2.x to suppress this warning.
 """)
     nodejs_toolchain(**kwargs)
+
+# Forward all the providers
+def _resolved_toolchain_impl(ctx):
+    toolchain_info = ctx.toolchains["@rules_nodejs//nodejs:runtime_toolchain_type"]
+    return [
+        toolchain_info,
+        toolchain_info.default,
+        toolchain_info.nodeinfo,
+        toolchain_info.template_variables,
+    ]
+
+# Based on https://github.com/bazelbuild/rules_java/blob/6a34389003a6bed549858bb8f4673dd521ad8a54/toolchains/java_toolchain_alias.bzl#L19-L40
+resolved_toolchain = rule(
+    implementation = _resolved_toolchain_impl,
+    toolchains = ["@rules_nodejs//nodejs:runtime_toolchain_type"],
+)
