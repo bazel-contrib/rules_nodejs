@@ -51,6 +51,7 @@ def _toolchain_extension(module_ctx):
             node_urls = v.node_urls,
             include_headers = v.include_headers,
             register = False,
+            incompatible_split_toolchains = v.incompatible_split_toolchains,
         )
 
 _ATTRS = {
@@ -83,6 +84,14 @@ This setting creates a dependency on a c++ toolchain.
  and `{filename}` with the matching entry from the `node_repositories` attribute.
  """,
         default = [DEFAULT_NODE_URL],
+    ),
+    "incompatible_split_toolchains": attr.bool(
+        default = False,
+        doc = """
+When true, the the `@rules_nodejs//nodejs:runtime_toolchain_type` (formerly
+`@rules_nodejs//nodejs:toolchain_type`) toolchain type will only contain toolchains suitable for
+*_binary rule outputs. See [#3795](https://github.com/bazel-contrib/rules_nodejs/issues/3795).
+""",
     ),
 }
 

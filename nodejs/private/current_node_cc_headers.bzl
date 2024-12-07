@@ -15,11 +15,11 @@
 """Implementation of current_node_cc_headers rule."""
 
 def _current_node_cc_headers_impl(ctx):
-    return ctx.toolchains["//nodejs:toolchain_type"].nodeinfo.headers.providers_map.values()
+    return ctx.toolchains["//nodejs:runtime_toolchain_type"].nodeinfo.headers.providers_map.values()
 
 current_node_cc_headers = rule(
     implementation = _current_node_cc_headers_impl,
-    toolchains = ["//nodejs:toolchain_type"],
+    toolchains = ["//nodejs:runtime_toolchain_type"],
     provides = [CcInfo],
     doc = """\
 Provides the currently active Node toolchain's C++ headers.
