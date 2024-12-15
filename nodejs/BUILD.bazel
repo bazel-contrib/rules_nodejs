@@ -1,6 +1,7 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("//nodejs/private:nodejs_toolchains_repo.bzl", "PLATFORMS")
 load("//nodejs/private:user_build_settings.bzl", "user_args")
+load("@rules_nodejs//nodejs:toolchain.bzl", "resolved_toolchain")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -19,11 +20,58 @@ bzl_library(
     ],
 )
 
-# This is the target rule authors should put in their "toolchains"
-# attribute in order to get a node interpreter for the correct
-# platform.
-# See https://docs.bazel.build/versions/main/toolchains.html#writing-rules-that-use-toolchains
-toolchain_type(name = "toolchain_type")
+# Appropriate for;
+# - Providing a runtime for *_binary rules.
+# - Compiling against the Node-API.
+# See also exec_runtime_toolchain_type.
+# See also :resolved_toolchain (e.g. for genrule)
+toolchain_type(name = "runtime_toolchain_type")
+
+# Helper for rules such as `genrule`.
+# Appropriate for (under target configuration);
+# - Providing a runtime for executable outputs.
+# - Compiling against the Node-API.
+# Appropriate for (under exec configuration);
+# - Providing a runtime for rule actions.
+# Appropriate for (under exec configuration with matching target constraints);
+# - Snapshot generation (--build-snapshot, --experimental-sea-config with `useSnapshot` or
+#   `useCodeCache`). Sensitive to OS, architecture NodeJS version and other factors constraints
+#   alone cannot capture such as;
+#   - V8 flags
+#   - CPU features
+resolved_toolchain(
+    name = "resolved_toolchain",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "toolchain_type",
+    actual = "runtime_toolchain_type",
+    deprecation = """
+Use one of the following instead;
+- @rules_nodejs//nodejs:runtime_toolchain_type
+- @rules_nodejs//nodejs:exec_runtime_toolchain_type
+- @rules_nodejs//nodejs:compilation_toolchain_type
+See https://github.com/bazel-contrib/rules_nodejs/issues/3795.
+"""
+)
+
+# Inverse of :runtime_toolchain_type, 
+# Appropriate for;
+# - Providing a runtime for rule actions.
+# See also :resolved_toolchain (e.g. for genrule).
+toolchain_type(name = "exec_runtime_toolchain_type")
+
+# Appropriate for;
+# - Snapshot generation (--build-snapshot, --experimental-sea-config with `useSnapshot` or
+#   `useCodeCache`). Sensitive to OS, architecture NodeJS version and other factors constraints
+#   alone cannot capture such as;
+#   - V8 flags
+#   - CPU features
+# This toolchain exists to cover niche scenarios where the runtime needs to be compatible across
+# target _and_ execution platforms. It should not be used without good reason.
+# See also resolved_toolchain (e.g. for genrule).
+toolchain_type(name = "compilation_toolchain_type")
 
 [
     platform(

@@ -160,6 +160,8 @@ Additional parameters
 
 ## nodejs_toolchain
 
+TODO Update to reflect toolchain splitting.
+
 **USAGE**
 
 <pre>
@@ -193,7 +195,7 @@ toolchain(
         "@platforms//cpu:x86_64",
     ],
     toolchain = ":toolchain",
-    toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
+    toolchain_type = "@rules_nodejs//nodejs:exec_runtime_toolchain_type",
 )
 ```
 

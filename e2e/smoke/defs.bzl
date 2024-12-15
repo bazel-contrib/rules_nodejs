@@ -4,7 +4,7 @@ def _my_nodejs_impl(ctx):
     if ctx.attr.toolchain:
         nodeinfo = ctx.attr.toolchain[platform_common.ToolchainInfo].nodeinfo
     else:
-        nodeinfo = ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo
+        nodeinfo = ctx.toolchains["@rules_nodejs//nodejs:exec_runtime_toolchain_type"].nodeinfo
     ctx.actions.run(
         inputs = [ctx.file.entry_point],
         executable = nodeinfo.node,
@@ -16,9 +16,12 @@ def _my_nodejs_impl(ctx):
 my_nodejs = rule(
     implementation = _my_nodejs_impl,
     attrs = {
-        "entry_point": attr.label(allow_single_file = True),
+        "entry_point": attr.label(
+            allow_single_file = True,
+            cfg = "exec",
+        ),
         "out": attr.output(),
-        "toolchain": attr.label(),
+        "toolchain": attr.label(cfg = "exec"),
     },
-    toolchains = ["@rules_nodejs//nodejs:toolchain_type"],
+    toolchains = ["@rules_nodejs//nodejs:exec_runtime_toolchain_type"],
 )

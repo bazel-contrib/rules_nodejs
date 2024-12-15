@@ -449,7 +449,12 @@ If your are not calling node_repositories directly you may need to upgrade to ru
     nodejs_repositories(**kwargs)
 
 # Wrapper macro around everything above, this is the primary API
-def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, **kwargs):
+def nodejs_register_toolchains(
+    name = DEFAULT_NODE_REPOSITORY,
+    register = True,
+    incompatible_split_toolchains = False,
+    **kwargs
+):
     """Convenience macro for users which does typical setup.
 
     - create a repository for each built-in platform like "node16_linux_amd64" -
@@ -465,6 +470,9 @@ def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, 
         register: whether to call Bazel register_toolchains on the created toolchains.
             Should be True when used from a WORKSPACE file, and False used from bzlmod
             which has its own toolchain registration syntax.
+        incompatible_split_toolchains: when true, the `:runtime_toolchain_type` (formerly
+            `:toolchain_type`) toolchain type will only contain toolchains suitable for *_binary
+            rule outputs. See [#3795](https://github.com/bazel-contrib/rules_nodejs/issues/3795).
         **kwargs: passed to each nodejs_repositories call
     """
     for platform in BUILT_IN_NODE_PLATFORMS:
@@ -475,9 +483,12 @@ def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, 
         )
         if register:
             native.register_toolchains(
-                "@%s_toolchains//:%s_toolchain_target" % (name, platform),
-                "@%s_toolchains//:%s_toolchain" % (name, platform),
+                "@%s_toolchains//:%s_runtime_toolchain" % (name, platform),
+                "@%s_toolchains//:%s_exec_runtime_toolchain" % (name, platform),
+                "@%s_toolchains//:%s_compilation_toolchain" % (name, platform),
             )
+            if incompatible_split_toolchains:
+                native.register_toolchains("@%s_toolchains//:%s_runtime_toolchain_exec_overload" % (name, platform))
 
     nodejs_repo_host_os_alias(
         name = name,
@@ -493,6 +504,7 @@ def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, 
     nodejs_toolchains_repo(
         name = name + "_toolchains",
         user_node_repository_name = name,
+        incompatible_split_toolchains = incompatible_split_toolchains,
     )
 
 def rules_nodejs_dependencies():
