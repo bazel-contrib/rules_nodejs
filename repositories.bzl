@@ -52,7 +52,7 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "buildifier_prebuilt",
-        sha256 = "7f85b688a4b558e2d9099340cfb510ba7179f829454fba842370bccffb67d6cc",
-        strip_prefix = "buildifier-prebuilt-7.3.1",
-        urls = ["http://github.com/keith/buildifier-prebuilt/archive/7.3.1.tar.gz"],
+        sha256 = "e31fe636a5004eb50b7b47ec31c3cea0afd597d14bb1991832aa213038837ecf",
+        strip_prefix = "buildifier-prebuilt-8.0.0",
+        urls = ["http://github.com/keith/buildifier-prebuilt/archive/8.0.0.tar.gz"],
     )
