@@ -45,9 +45,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "aspect_bazel_lib",
-        sha256 = "7b39d9f38b82260a8151b18dd4a6219d2d7fc4a0ac313d4f5a630ae6907d205d",
-        strip_prefix = "bazel-lib-2.10.0",
-        url = "https://github.com/aspect-build/bazel-lib/releases/download/v2.10.0/bazel-lib-v2.10.0.tar.gz",
+        sha256 = "c96db69dd2714a37f3298338a1a42b27e3a2696c3b36dd4441b9bf7a1a12bee0",
+        strip_prefix = "bazel-lib-2.11.0",
+        url = "https://github.com/aspect-build/bazel-lib/releases/download/v2.11.0/bazel-lib-v2.11.0.tar.gz",
     )
 
     http_archive(
