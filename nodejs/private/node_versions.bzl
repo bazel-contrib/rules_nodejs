@@ -2415,6 +2415,14 @@ NODE_VERSIONS = {
     "18.20.5-linux_s390x": ("node-v18.20.5-linux-s390x.tar.xz", "node-v18.20.5-linux-s390x", "617d7456e16534a4b4e03f5285cc8d13581f39cdad9196efff2516d6588de319"),
     "18.20.5-linux_amd64": ("node-v18.20.5-linux-x64.tar.xz", "node-v18.20.5-linux-x64", "e4a3a21e5ac7e074ed50d2533dd0087d8460647ab567464867141a2b643f3fb3"),
     "18.20.5-windows_amd64": ("node-v18.20.5-win-x64.zip", "node-v18.20.5-win-x64", "910237449895b4de61026568dc076fa6c3ffcd667563ed03112a4a77e1f1556b"),
+    # 18.20.6
+    "18.20.6-darwin_arm64": ("node-v18.20.6-darwin-arm64.tar.gz", "node-v18.20.6-darwin-arm64", "7105fb1ac42968010020db61edcc0ea0a366b37d792405d2959668e45b612753"),
+    "18.20.6-darwin_amd64": ("node-v18.20.6-darwin-x64.tar.gz", "node-v18.20.6-darwin-x64", "25a4040000e9838af28d0d168301c70d07dcc61294089dde5f5d9044dafda1e5"),
+    "18.20.6-linux_arm64": ("node-v18.20.6-linux-arm64.tar.xz", "node-v18.20.6-linux-arm64", "169d317cc39ba5513c9588f7aded1bdff7f807b82c4dacb40ca03fd427d288b0"),
+    "18.20.6-linux_ppc64le": ("node-v18.20.6-linux-ppc64le.tar.xz", "node-v18.20.6-linux-ppc64le", "3f431b1beb67141a43fea19b778e534357798bb20b4129de6360edae88a107bc"),
+    "18.20.6-linux_s390x": ("node-v18.20.6-linux-s390x.tar.xz", "node-v18.20.6-linux-s390x", "d58c4e6107b58b27b493c7a111b16b6f393e5af7ab69584b0548581fdca0a449"),
+    "18.20.6-linux_amd64": ("node-v18.20.6-linux-x64.tar.xz", "node-v18.20.6-linux-x64", "abf47264a9a13b2233743ce8a966945388a1a10a56f841310a6d4dd12e18ca9a"),
+    "18.20.6-windows_amd64": ("node-v18.20.6-win-x64.zip", "node-v18.20.6-win-x64", "611a152838d67e05ddde02fbf5abc7f40bccd80a7e68fdaeae8745f729acff59"),
     # 19.0.0
     "19.0.0-darwin_arm64": ("node-v19.0.0-darwin-arm64.tar.gz", "node-v19.0.0-darwin-arm64", "e30054d93857d3b2f55d22a4305e379ba9544adea885428900ff57bae465435e"),
     "19.0.0-darwin_amd64": ("node-v19.0.0-darwin-x64.tar.gz", "node-v19.0.0-darwin-x64", "a1b46d199bbc307f6ef8621b118e71356c626a279eb421c6b3ce7a7741573041"),
@@ -2751,6 +2759,14 @@ NODE_VERSIONS = {
     "20.18.1-linux_s390x": ("node-v20.18.1-linux-s390x.tar.xz", "node-v20.18.1-linux-s390x", "1df248c207d8557ec1c554242758b5852bad5e0da49108d2dd94abcb9e9eae52"),
     "20.18.1-linux_amd64": ("node-v20.18.1-linux-x64.tar.xz", "node-v20.18.1-linux-x64", "c6fa75c841cbffac851678a472f2a5bd612fff8308ef39236190e1f8dbb0e567"),
     "20.18.1-windows_amd64": ("node-v20.18.1-win-x64.zip", "node-v20.18.1-win-x64", "56e5aacdeee7168871721b75819ccacf2367de8761b78eaceacdecd41e04ca03"),
+    # 20.18.2
+    "20.18.2-darwin_arm64": ("node-v20.18.2-darwin-arm64.tar.gz", "node-v20.18.2-darwin-arm64", "fa76d5b5340f14070ebaa88ef8faa28c1e9271502725e830cb52f0cf5b6493de"),
+    "20.18.2-darwin_amd64": ("node-v20.18.2-darwin-x64.tar.gz", "node-v20.18.2-darwin-x64", "00a16bb0a82a2ad5d00d66b466ae1afa678482283747c27e9bce96668f334744"),
+    "20.18.2-linux_arm64": ("node-v20.18.2-linux-arm64.tar.xz", "node-v20.18.2-linux-arm64", "5c1437aa16e7e6a2e0687a42c4d3f0a8f8a2039cda8880cb3be8cd983aeefb44"),
+    "20.18.2-linux_ppc64le": ("node-v20.18.2-linux-ppc64le.tar.xz", "node-v20.18.2-linux-ppc64le", "828a2635261ca225cd4a8a4b1a914003cdc7b30656c2e9092ac7aab02ac361db"),
+    "20.18.2-linux_s390x": ("node-v20.18.2-linux-s390x.tar.xz", "node-v20.18.2-linux-s390x", "bcf3680e111f1d24e403db3d5600315266ae1f8d9d1f69f39c61dbf8d8c9036e"),
+    "20.18.2-linux_amd64": ("node-v20.18.2-linux-x64.tar.xz", "node-v20.18.2-linux-x64", "4e50f727ae09bdafecf2322c72faf7cd82bf3b8851a16b8bb63974e0d8d6eceb"),
+    "20.18.2-windows_amd64": ("node-v20.18.2-win-x64.zip", "node-v20.18.2-win-x64", "ed790b94570518a7dce67b62485e16bc4bffecee4ec3b6df35ed220ae91117a5"),
     # 21.0.0
     "21.0.0-darwin_arm64": ("node-v21.0.0-darwin-arm64.tar.gz", "node-v21.0.0-darwin-arm64", "d49aae353ab9e264a1d8c75f80eb26dcc4006f50b35ba05bda3a9c33f5554609"),
     "21.0.0-darwin_amd64": ("node-v21.0.0-darwin-x64.tar.gz", "node-v21.0.0-darwin-x64", "2ec98307e388407cfa62d1fb8abc4d6dc1e54c11bc70329d6675ed0595326763"),
@@ -2983,4 +2999,12 @@ NODE_VERSIONS = {
     "22.13.0-linux_s390x": ("node-v22.13.0-linux-s390x.tar.xz", "node-v22.13.0-linux-s390x", "f0a19c73fc8410c8ee649b1ec7a18916a9d555d237d03f7a932481c808e5ebc1"),
     "22.13.0-linux_amd64": ("node-v22.13.0-linux-x64.tar.xz", "node-v22.13.0-linux-x64", "3ff0d57063c33313d73d0bdcebc4c778ad6be948234584694a042c6fe57164f6"),
     "22.13.0-windows_amd64": ("node-v22.13.0-win-x64.zip", "node-v22.13.0-win-x64", "b0feb09ebf41328628e7383f7a092fb7342ce1e05c867a90cf8f1379205a8429"),
+    # 22.13.1
+    "22.13.1-darwin_arm64": ("node-v22.13.1-darwin-arm64.tar.gz", "node-v22.13.1-darwin-arm64", "97483ff4361d239a56d038c6335767a56a291e78c10f07446f463f05d9d19b89"),
+    "22.13.1-darwin_amd64": ("node-v22.13.1-darwin-x64.tar.gz", "node-v22.13.1-darwin-x64", "6fdcc8412d434664238b0651ebd5ad55d15a08598ff42dcb6d9cf1d434a6c4be"),
+    "22.13.1-linux_arm64": ("node-v22.13.1-linux-arm64.tar.xz", "node-v22.13.1-linux-arm64", "0a237c413ccbab920640438bf6e1a32edb19845bdc21f0e1cd5b91545ce1c126"),
+    "22.13.1-linux_ppc64le": ("node-v22.13.1-linux-ppc64le.tar.xz", "node-v22.13.1-linux-ppc64le", "377a7a1ea66f39251e1657f419e9404d526fcca9910620d0ecf0a870c6308f6b"),
+    "22.13.1-linux_s390x": ("node-v22.13.1-linux-s390x.tar.xz", "node-v22.13.1-linux-s390x", "22da01dbcead3ef7e69de6c1310a1c5c485039631f731a6ff0c35530cf5c811b"),
+    "22.13.1-linux_amd64": ("node-v22.13.1-linux-x64.tar.xz", "node-v22.13.1-linux-x64", "0d2a5af33c7deab5555c8309cd3f373446fe1526c1b95833935ab3f019733b3b"),
+    "22.13.1-windows_amd64": ("node-v22.13.1-win-x64.zip", "node-v22.13.1-win-x64", "398a61e250a5584a62a5959e2f69f5d597fc83f1a5ebe3ed8fff29ba39d55f14"),
 }
