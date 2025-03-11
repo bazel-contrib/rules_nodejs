@@ -2,9 +2,9 @@
 
 set -o errexit -o nounset -o pipefail
 
-# Set by GH actions, see
-# https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
-TAG=${GITHUB_REF_NAME}
+# Argument provided by reusable workflow caller, see
+# https://github.com/bazel-contrib/.github/blob/d197a6427c5435ac22e56e33340dff912bc9334e/.github/workflows/release_ruleset.yaml#L72
+TAG=$1
 # The prefix is chosen to match what GitHub generates for source archives
 PREFIX="rules_nodejs-${TAG:1}"
 ARCHIVE="rules_nodejs-$TAG.tar.gz"
@@ -12,9 +12,9 @@ git archive --format=tar --prefix="${PREFIX}/" "${TAG}" | gzip > "$ARCHIVE"
 SHA=$(shasum -a 256 "$ARCHIVE" | awk '{print $1}')
 
 cat << EOF
-## Using Bzlmod with Bazel 6
+## Using Bzlmod with Bazel 6 or greater
 
-1. Enable with \`common --enable_bzlmod\` in \`.bazelrc\`.
+1. (Bazel 6 only) Enable with \`common --enable_bzlmod\` in \`.bazelrc\`.
 2. Add to your \`MODULE.bazel\` file:
 
 \`\`\`starlark
