@@ -1,16 +1,22 @@
 # Cut a release whenever a new tag is pushed to the repo.
-# You should use an annotated tag, like `git tag -a v1.2.3`
-# and put the release notes into the commit message for the tag.
 name: Release
-
 on:
+  # Can be triggered from the tag.yaml workflow
+  workflow_call:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+  # Or, developers can manually push a tag from their clone
   push:
     tags:
       - "v*.*.*"
-
+permissions:
+  contents: write
 jobs:
   release:
-    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v6
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@0b644c3ee5c7cd9a7657f7e782b26a599d9b6d5c # 2025-01-23
     with:
       prerelease: false
       release_files: rules_nodejs-*.tar.gz
+      tag_name: ${{ inputs.tag_name }}

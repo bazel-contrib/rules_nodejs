@@ -13,28 +13,6 @@ pre-commit install
 
 Otherwise the Buildkite CI will yell at you about formatting/linting violations.
 
-### Before you contribute
-
-**Before we can use your code, you must sign the
-[Google Individual Contributor License Agreement](https://developers.google.com/open-source/cla/individual?csw=1)
-(CLA)**, which you can do online.
-
-The CLA is necessary mainly because you own the copyright to your changes,
-even after your contribution becomes part of our codebase, so we need your
-permission to use and distribute your code. We also need to be sure of
-various other things  for instance that you'll tell us if you know that
-your code infringes on other people's patents. You don't have to sign
-the CLA until after you've submitted your code for review and a member has
-approved it, but you must do it before we can put your code into our codebase.
-
-Before you start working on a larger contribution, you should get in touch
-with us first. Use the issue tracker to explain your idea so we can help and
-possibly guide you.
-
-**Before starting a complex contribution we strongly encourage you to share a design document**.
-
-[Here](https://goo.gl/YCQttR) you can find a document template.
-
 ### Code reviews and other contributions.
 
 **All submissions, including submissions by project members, require review.**
@@ -42,9 +20,25 @@ We use GitHub's code review system to suggest changes, then merge the changes
 to master when the PR is green and reviewed. The changes will then be in the
 next release.
 
-### The small print
+## Releasing
 
-Contributions made by corporations are covered by a different agreement than
-the one above, the
-[Software Grant and Corporate Contributor License Agreement](https://cla.developers.google.com/about/google-corporate).
+Releases are automated on a cron trigger.
+The new version is determined automatically from the commit history, assuming the commit messages follow conventions, using
+https://github.com/marketplace/actions/conventional-commits-versioner-action.
+If you do nothing, eventually the newest commits will be released automatically as a patch or minor release.
+This automation is defined in .github/workflows/tag.yaml.
 
+Rather than wait for the cron event, you can trigger manually. Navigate to
+https://github.com/bazel-contrib/rules_nodejs/actions/workflows/tag.yaml
+and press the "Run workflow" button.
+
+If you need control over the next release version, for example when making a release candidate for a new major,
+then: tag the repo and push the tag, for example
+
+```sh
+% git fetch
+% git tag v1.0.0-rc0 origin/main
+% git push origin v1.0.0-rc0
+```
+
+Then watch the automation run on GitHub actions which creates the release.
