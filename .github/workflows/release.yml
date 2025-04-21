@@ -15,8 +15,19 @@ permissions:
   contents: write
 jobs:
   release:
-    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@0b644c3ee5c7cd9a7657f7e782b26a599d9b6d5c # 2025-01-23
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.2.0
     with:
       prerelease: false
       release_files: rules_nodejs-*.tar.gz
-      tag_name: ${{ inputs.tag_name }}
+      tag_name: ${{ inputs.tag_name || github.ref_name }}
+  publish:
+    needs: release
+    uses: ./.github/workflows/publish.yaml
+    with:
+      tag_name: ${{ inputs.tag_name || github.ref_name }}
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
+    secrets:
+      publish_token: ${{ secrets.BCR_PUBLISH_TOKEN }}
