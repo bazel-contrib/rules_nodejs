@@ -30,4 +30,4 @@ jobs:
       id-token: write
     secrets:
       # Necessary to push to the BCR fork, and to open a pull request against a registry
-      publish_token: ${{ secrets.BCR_PUBLISH_TOKEN }}
+      publish_token: ${{ secrets.publish_token || secrets.BCR_PUBLISH_TOKEN }}
