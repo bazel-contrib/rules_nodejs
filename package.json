@@ -11,7 +11,7 @@
   "repository": "https://github.com/bazel-contrib/rules_nodejs.git",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=12 <=18"
+    "node": ">=12 <20"
   },
   "packageManager": "pnpm@8.11.0",
   "devDependencies": {
