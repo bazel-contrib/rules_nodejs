@@ -275,6 +275,7 @@ cc_library(
     # -> no results ...
     allow_empty = True,
   ),
+  copts = ["-std=c++17"],
   includes = ["bin/nodejs/include/node"],
 )
 """
