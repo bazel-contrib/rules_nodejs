@@ -42,7 +42,7 @@ cc_library(
     name = "foo",
     srcs = ["foo.cc"],
     # If toolchain sets this already, you can omit.
-    copts = ["-std=c++14"],
+    copts = ["-std=c++17"],
     deps = ["@rules_nodejs//nodejs/headers:current_node_cc_headers"]
 )
 ```
