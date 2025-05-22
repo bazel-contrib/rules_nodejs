@@ -23,7 +23,8 @@ write_file(
 )
 
 # This technique can be used to directly grab a node binary as a label, however it has the
-# downside that analysis phase on this select() statement will cause an eager fetch of all
+# downside that un-configured analysis (bazel query for example)
+# on this select() statement will cause an eager fetch of all
 # the platforms and therefore download a bunch of node binaries.
 # This is what toolchains solves, so we don't recommend doing this.
 # alias(
