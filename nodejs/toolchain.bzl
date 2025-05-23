@@ -216,7 +216,7 @@ def nodejs_toolchain(
         print("""\
 WARNING: target_tool attribute of nodejs_toolchain is deprecated; use node instead of target_tool.
 
-If your are not calling nodejs_toolchain directly you may need to upgrade to rules_js 2.x to suppress this warning.
+If you are not calling nodejs_toolchain directly you may need to upgrade to rules_js 2.x to suppress this warning.
 """)
         node = target_tool
 
@@ -258,6 +258,6 @@ def node_toolchain(**kwargs):
     print("""\
 WARNING: node_toolchain is deprecated; use nodejs_toolchain instead.
 
-If your are not calling node_toolchain directly you may need to upgrade to rules_js 2.x to suppress this warning.
+If you are not calling node_toolchain directly you may need to upgrade to rules_js 2.x to suppress this warning.
 """)
     nodejs_toolchain(**kwargs)
