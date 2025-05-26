@@ -444,7 +444,7 @@ def node_repositories(**kwargs):
     print("""\
 WARNING: node_repositories is deprecated; use nodejs_repositories instead.
 
-If your are not calling node_repositories directly you may need to upgrade to rules_js 2.x to suppress this warning.
+If you are not calling node_repositories directly you may need to upgrade to rules_js 2.x to suppress this warning.
 """)
 
     nodejs_repositories(**kwargs)
