@@ -20,7 +20,6 @@ jobs:
     uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v6
     with:
       folders: '[".", "e2e/headers", "e2e/smoke", "e2e/nodejs_host", "e2e/conflicting_toolchains"]'
-      # stardoc generated docs fail on diff_test with Bazel 6.4.0 so don't test against it in root repository
       exclude: |
         [
           {"bazelversion": "6.4.0", "os": "macos-latest"},

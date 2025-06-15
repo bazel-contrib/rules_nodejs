@@ -49,3 +49,5 @@ register_toolchains("@nodejs_toolchains//:darwin_arm64_toolchain")
 register_toolchains("@nodejs_toolchains//:windows_amd64_toolchain_target")
 
 register_toolchains("@nodejs_toolchains//:windows_amd64_toolchain")
+
+bazel_dep(name = "aspect_bazel_lib", version = "2.19.3", dev_dependency = True)

@@ -11,8 +11,11 @@ exports_files([
 
 bzl_library(
     name = "index.for_docs",
-    srcs = glob(["*.bzl"]) + ["@bazel_tools//tools:bzl_srcs"],
+    srcs = glob(["*.bzl"]),
     deps = [
+        "//nodejs:providers.bzl",
+        "//nodejs:repositories.bzl",
+        "//nodejs:toolchain.bzl",
         "//nodejs/private:bzl",
         "//nodejs/private/providers:bzl",
         "@bazel_skylib//lib:paths",
