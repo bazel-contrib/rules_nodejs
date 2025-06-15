@@ -45,4 +45,3 @@ Specifying `node_urls` is optional. If omitted, the default values will be used.
 
 You can use your own Node.js binary rather than fetching from the internet.
 You could check in a binary file, or build Node.js from sources.
-To use See [`nodejs_toolchain`](./Core.md#nodejs_toolchain) for docs.

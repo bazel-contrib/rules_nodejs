@@ -8,10 +8,7 @@ toc: true
 
 The `@rules_nodejs` Bazel module contains a toolchain that fetches a hermetic node and npm (independent of what's on the developer's machine).
 It is currently useful for Bazel Rules developers who want to make their own JavaScript support, and
-is maintained by community volunteers from [Aspect](https://aspect.dev).
-    - [Install and setup](install.md)
-    - [Rules API](Core.md)
-    - [Toolchains](Toolchains.md)
+is maintained by community volunteers from [Aspect](https://aspect.dev). - [Install and setup](install.md) - [Toolchains](Toolchains.md)
 
 ## Deprecated modules
 
@@ -36,4 +33,3 @@ In many cases, there are trade-offs. We try not to make these decisions for you,
 The JS ecosystem is also full of false equivalence arguments. The first question we often get is "What's better, Webpack or Bazel?".
 This is understandable, since most JS tooling is forced to provide a single turn-key experience with an isolated ecosystem of plugins, and humans love a head-to-head competition.
 Instead Bazel just orchestrates calling these tools.
-

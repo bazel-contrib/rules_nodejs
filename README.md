@@ -19,5 +19,5 @@ See the 5.x branch for the prior state of the repo.
 
 ## Documentation
 
-Comprehensive documentation for installing and using the rules, including generated API docs:
+Comprehensive documentation for installing and using the rules:
 https://bazel-contrib.github.io/rules_nodejs/
