@@ -23,6 +23,7 @@ jobs:
       # stardoc generated docs fail on diff_test with Bazel 6.4.0 so don't test against it in root repository
       exclude: |
         [
+          {"bazelversion": "7.3.1", "os": "ubuntu-latest", folder: "."},
           {"bazelversion": "6.4.0", "os": "macos-latest"},
           {"bazelversion": "6.4.0", "os": "windows-latest"},
           {"bazelversion": "6.4.0", folder: "."},
