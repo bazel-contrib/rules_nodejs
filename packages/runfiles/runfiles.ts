@@ -32,13 +32,13 @@ export class Runfiles {
     // where we could use the runfiles tree already laid out on disk
     // but this just costs one file read for the external npm/node_modules
     // and one for each first-party module, not one per file.
-    if (!!this._env['RUNFILES_MANIFEST_FILE']) {
-      this.manifest = this.loadRunfilesManifest(this._env['RUNFILES_MANIFEST_FILE']!);
-    } else if (!!this._env['RUNFILES_DIR']) {
-      this.runfilesDir = path.resolve(this._env['RUNFILES_DIR']!);
+    if (!!_env['RUNFILES_MANIFEST_FILE']) {
+      this.manifest = this.loadRunfilesManifest(_env['RUNFILES_MANIFEST_FILE']!);
+    } else if (!!_env['RUNFILES_DIR']) {
+      this.runfilesDir = path.resolve(_env['RUNFILES_DIR']!);
       this.repoMappings = this.parseRepoMapping(this.runfilesDir);
-    } else if (!!this._env['RUNFILES']) {
-      this.runfilesDir = path.resolve(this._env['RUNFILES']!);
+    } else if (!!_env['RUNFILES']) {
+      this.runfilesDir = path.resolve(_env['RUNFILES']!);
       this.repoMappings = this.parseRepoMapping(this.runfilesDir);
     } else {
       this._runfilesResolutionError = true;
@@ -47,7 +47,7 @@ export class Runfiles {
     // Bazel sets RUNFILES_MANIFEST_ONLY=1.
     // When this happens, we need to read the manifest file to locate
     // inputs
-    if (this._env['RUNFILES_MANIFEST_ONLY'] === '1' && !this._env['RUNFILES_MANIFEST_FILE']) {
+    if (_env['RUNFILES_MANIFEST_ONLY'] === '1' && !_env['RUNFILES_MANIFEST_FILE']) {
       console.warn(`Workaround https://github.com/bazelbuild/bazel/issues/7994
                  RUNFILES_MANIFEST_FILE should have been set but wasn't.
                  falling back to using runfiles symlinks.
@@ -55,11 +55,11 @@ export class Runfiles {
                  --spawn_strategy=standalone to the command line.`);
     }
     // Bazel starts actions with pwd=execroot/my_wksp or pwd=runfiles/my_wksp
-    this.workspace = this._env['BAZEL_WORKSPACE'] || this._env['JS_BINARY__WORKSPACE'] || undefined;
+    this.workspace = _env['BAZEL_WORKSPACE'] || _env['JS_BINARY__WORKSPACE'] || undefined;
     // If target is from an external workspace such as @npm//rollup/bin:rollup
     // resolvePackageRelative is not supported since package is in an external
     // workspace.
-    let target = this._env['BAZEL_TARGET'] || this._env['JS_BINARY__TARGET'];
+    let target = _env['BAZEL_TARGET'] || _env['JS_BINARY__TARGET'];
     if (!!target && !target.startsWith('@')) {
       // //path/to:target -> path/to
       this.package = target.split(':')[0].replace(/^\/\//, '');
@@ -107,7 +107,6 @@ export class Runfiles {
     }
     return result;
   }
-
 
   /**
    * The runfiles manifest maps from short_path
