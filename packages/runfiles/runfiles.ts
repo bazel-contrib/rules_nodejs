@@ -23,12 +23,9 @@ export class Runfiles {
    */
   repoMappings: RepoMappings|undefined;
 
-  private _initialized = false;
+  private _runfilesResolutionError = false;
 
-  constructor(private _env = process.env) {}
-
-  private _initialize() {
-    if (this._initialized) return;
+  constructor(private _env = process.env) {
     // If Bazel sets a variable pointing to a runfiles manifest,
     // we'll always use it.
     // Note that this has a slight performance implication on Mac/Linux
@@ -44,8 +41,7 @@ export class Runfiles {
       this.runfilesDir = path.resolve(this._env['RUNFILES']!);
       this.repoMappings = this.parseRepoMapping(this.runfilesDir);
     } else {
-      throw new Error(
-          'Every node program run under Bazel must have a $RUNFILES_DIR, $RUNFILES or $RUNFILES_MANIFEST_FILE environment variable');
+      this._runfilesResolutionError = true;
     }
     // Under --noenable_runfiles (in particular on Windows)
     // Bazel sets RUNFILES_MANIFEST_ONLY=1.
@@ -68,7 +64,13 @@ export class Runfiles {
       // //path/to:target -> path/to
       this.package = target.split(':')[0].replace(/^\/\//, '');
     }
-    this._initialized = true;
+  }
+
+  private _assertRunfilesResolved() {
+    if (this._runfilesResolutionError) {
+      throw new Error(
+        'Every node program run under Bazel must have a $RUNFILES_DIR, $RUNFILES or $RUNFILES_MANIFEST_FILE environment variable');
+    }
   }
 
   /** Resolves the given path from the runfile manifest. */
@@ -117,7 +119,6 @@ export class Runfiles {
    * See https://github.com/bazelbuild/bazel/issues/3726
    */
   loadRunfilesManifest(manifestPath: string) {
-    this._initialize();
     const runfilesEntries = new Map();
     const input = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
 
@@ -131,7 +132,6 @@ export class Runfiles {
   }
 
   parseRepoMapping(runfilesDir: string): RepoMappings | undefined {
-    this._initialize();
     const repoMappingPath = path.join(runfilesDir, REPO_MAPPING_RLOCATION);
 
     if (!fs.existsSync(repoMappingPath)) {
@@ -160,7 +160,8 @@ export class Runfiles {
 
   /** Resolves the given module path. */
   resolve(modulePath: string, sourceRepo?: string): string {
-    this._initialize();
+    this._assertRunfilesResolved();
+
     // Normalize path by converting to forward slashes and removing all trailing
     // forward slashes
     modulePath = modulePath.replace(/\\/g, '/').replace(/\/+$/g, '')
@@ -197,7 +198,6 @@ export class Runfiles {
 
   /** Resolves the given path relative to the current Bazel workspace. */
   resolveWorkspaceRelative(modulePath: string) {
-    this._initialize();
     // Normalize path by converting to forward slashes and removing all trailing
     // forward slashes
     modulePath = modulePath.replace(/\\/g, '/').replace(/\/+$/g, '')
@@ -210,7 +210,6 @@ export class Runfiles {
 
   /** Resolves the given path relative to the current Bazel package. */
   resolvePackageRelative(modulePath: string) {
-    this._initialize();
     // Normalize path by converting to forward slashes and removing all trailing
     // forward slashes
     modulePath = modulePath.replace(/\\/g, '/').replace(/\/+$/g, '')
@@ -231,7 +230,6 @@ export class Runfiles {
    * @deprecated Use the runfile helpers directly instead.
    **/
   patchRequire() {
-    this._initialize();
     const requirePatch = this._env['BAZEL_NODE_PATCH_REQUIRE'];
     if (!requirePatch) {
       throw new Error('require patch location could not be determined from the environment');
