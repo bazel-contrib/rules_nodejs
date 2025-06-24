@@ -29,7 +29,6 @@ export class Runfiles {
 
   private _initialize() {
     if (this._initialized) return;
-    this._initialized = true;
     // If Bazel sets a variable pointing to a runfiles manifest,
     // we'll always use it.
     // Note that this has a slight performance implication on Mac/Linux
@@ -69,6 +68,7 @@ export class Runfiles {
       // //path/to:target -> path/to
       this.package = target.split(':')[0].replace(/^\/\//, '');
     }
+    this._initialized = true;
   }
 
   /** Resolves the given path from the runfile manifest. */
