@@ -20,6 +20,7 @@
         "nodejs",
         "node16",
         "node16_nvmrc",
+        "node17_custom",
     ]
 ]
 
@@ -64,5 +65,7 @@
         ("node16", "npx", []),
         ("node16_nvmrc", "npm", []),
         ("node16_nvmrc", "npx", []),
+        ("node17_custom", "npm", []),
+        ("node17_custom", "npx", []),
     ]
 ]
