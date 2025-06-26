@@ -23,6 +23,8 @@ export class Runfiles {
    */
   repoMappings: RepoMappings|undefined;
 
+  private _runfilesResolutionError = false;
+
   constructor(private _env = process.env) {
     // If Bazel sets a variable pointing to a runfiles manifest,
     // we'll always use it.
@@ -39,8 +41,7 @@ export class Runfiles {
       this.runfilesDir = path.resolve(_env['RUNFILES']!);
       this.repoMappings = this.parseRepoMapping(this.runfilesDir);
     } else {
-      throw new Error(
-          'Every node program run under Bazel must have a $RUNFILES_DIR, $RUNFILES or $RUNFILES_MANIFEST_FILE environment variable');
+      this._runfilesResolutionError = true;
     }
     // Under --noenable_runfiles (in particular on Windows)
     // Bazel sets RUNFILES_MANIFEST_ONLY=1.
@@ -62,6 +63,13 @@ export class Runfiles {
     if (!!target && !target.startsWith('@')) {
       // //path/to:target -> path/to
       this.package = target.split(':')[0].replace(/^\/\//, '');
+    }
+  }
+
+  private _assertRunfilesResolved() {
+    if (this._runfilesResolutionError) {
+      throw new Error(
+        'Every node program run under Bazel must have a $RUNFILES_DIR, $RUNFILES or $RUNFILES_MANIFEST_FILE environment variable');
     }
   }
 
@@ -99,7 +107,6 @@ export class Runfiles {
     }
     return result;
   }
-
 
   /**
    * The runfiles manifest maps from short_path
@@ -152,6 +159,8 @@ export class Runfiles {
 
   /** Resolves the given module path. */
   resolve(modulePath: string, sourceRepo?: string): string {
+    this._assertRunfilesResolved();
+
     // Normalize path by converting to forward slashes and removing all trailing
     // forward slashes
     modulePath = modulePath.replace(/\\/g, '/').replace(/\/+$/g, '')
