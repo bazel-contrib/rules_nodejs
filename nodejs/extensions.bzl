@@ -49,6 +49,7 @@ def _toolchain_extension(module_ctx):
             node_version = v.node_version,
             node_version_from_nvmrc = v.node_version_from_nvmrc,
             node_urls = v.node_urls,
+            node_repositories = v.node_repositories,
             include_headers = v.include_headers,
             register = False,
         )
@@ -83,6 +84,15 @@ This setting creates a dependency on a c++ toolchain.
  and `{filename}` with the matching entry from the `node_repositories` attribute.
  """,
         default = [DEFAULT_NODE_URL],
+    ),
+    "node_repositories": attr.string_list_dict(
+        doc = """Custom list of node repositories to use
+
+A dictionary mapping Node.js versions to sets of hosts and their corresponding (filename, strip_prefix, sha256) tuples.
+You should list a node binary for every platform users have, likely Mac, Windows, and Linux.
+
+By default, if this attribute has no items, we'll use a list of all public Node.js releases.
+""",
     ),
 }
 
