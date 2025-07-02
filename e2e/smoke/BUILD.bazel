@@ -184,6 +184,14 @@ diff_test(
     target_compatible_with = not_windows,
 )
 
+genrule(
+    name = "npm_help",
+    outs = ["help.txt"],
+    cmd = "$(NPM_PATH) --help > $@ || true",
+    toolchains = ["@nodejs_toolchains//:resolved_toolchain"],
+    tools = ["@nodejs_toolchains//:resolved_toolchain"],
+)
+
 ################################################
 # Tests and setup for the toolchain changes
 
