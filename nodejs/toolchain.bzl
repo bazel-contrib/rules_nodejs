@@ -83,9 +83,10 @@ def _nodejs_toolchain_impl(ctx):
         "NODE_PATH": ctx.file.node.path if ctx.attr.node else ctx.attr.node_path,
         "NPM_PATH": ctx.file.npm.path if ctx.attr.npm else ctx.attr.npm_path,
     })
+    files = [getattr(ctx.file, f) for f in ["node", "npm"] if f]
     default = DefaultInfo(
-        files = depset([ctx.file.node]) if ctx.attr.node else depset(),
-        runfiles = ctx.runfiles(files = [ctx.file.node] if ctx.attr.node else []),
+        files = depset(files),
+        runfiles = ctx.runfiles(files = files),
     )
     npm_sources = depset([ctx.file.npm] + ctx.files.npm_srcs)
     nodeinfo = NodeInfo(
