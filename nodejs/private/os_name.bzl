@@ -37,9 +37,6 @@ def os_name(rctx):
     Returns:
       A string describing the os for a repository rule
     """
-    if is_windows_os(rctx):
-        return "windows_amd64"
-
     arch = rctx.os.arch
     if arch == "aarch64":
         arch = "arm64"
@@ -56,6 +53,8 @@ def os_name(rctx):
         os_name = "linux"
     elif os_name.startswith("freebsd"):
         os_name = "freebsd"
+    elif is_windows_os(rctx):
+        os_name = "windows"
 
     os_and_arch = (os_name, arch)
     if os_and_arch not in OS_ARCH_NAMES:

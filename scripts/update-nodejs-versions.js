@@ -14,6 +14,7 @@ const REPOSITORY_TYPES = {
   "linux-arm64.tar.xz": "linux_arm64",
   "linux-s390x.tar.xz": "linux_s390x",
   "win-x64.zip": "windows_amd64",
+  "win-arm64.zip": "windows_arm64",
   "linux-ppc64le.tar.xz": "linux_ppc64le",
 };
 
