@@ -49,3 +49,7 @@ register_toolchains("@nodejs_toolchains//:darwin_arm64_toolchain")
 register_toolchains("@nodejs_toolchains//:windows_amd64_toolchain_target")
 
 register_toolchains("@nodejs_toolchains//:windows_amd64_toolchain")
+
+register_toolchains("@nodejs_toolchains//:windows_arm64_toolchain_target")
+
+register_toolchains("@nodejs_toolchains//:windows_arm64_toolchain")
