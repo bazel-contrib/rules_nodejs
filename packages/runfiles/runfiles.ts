@@ -144,17 +144,73 @@ export class Runfiles {
     const repoMappings: RepoMappings = Object.create(null);
     const mappings = fs.readFileSync(repoMappingPath, { encoding: "utf-8" });
 
-    // Each line of the repository mapping manifest has the form:
-    // canonical name of source repo,apparent name of target repo,target repo runfiles directory
-    // https://cs.opensource.google/bazel/bazel/+/1b073ac0a719a09c9b2d1a52680517ab22dc971e:src/main/java/com/google/devtools/build/lib/analysis/RepoMappingManifestAction.java;l=117
     for (const line of mappings.split("\n")) {
       if (!line) continue;
 
-      const [sourceRepo, targetRepoApparentName, targetRepoDirectory] = line.split(",");
-
-      (repoMappings[sourceRepo] ??= Object.create(null))[targetRepoApparentName] = targetRepoDirectory;
+      try {
+        const parsed = this.parseBzlmodRepoMappingLine(line) || this.parseLegacyRepoMappingLine(line);
+        
+        if (parsed) {
+          const { sourceRepo, targetRepoApparentName, targetRepoDirectory } = parsed;
+          (repoMappings[sourceRepo] ??= Object.create(null))[targetRepoApparentName] = targetRepoDirectory;
+        }
+      } catch (error) {
+        console.warn(`Failed to parse repo mapping line: "${line}"`);
+      }
     }
     return repoMappings;
+  }
+
+  private parseBzlmodRepoMappingLine(line: string): {
+    sourceRepo: string;
+    targetRepoApparentName: string;
+    targetRepoDirectory: string;
+  } | null {
+    const trimmedLine = line.trim();
+    if (!trimmedLine || trimmedLine.startsWith('#')) {
+      return null;
+    }
+
+    const parts = trimmedLine.split(',');
+    if (parts.length < 3) {
+      return null;
+    }
+
+    const [sourceRepo, targetRepoApparentName, targetRepoDirectory] = parts;
+    
+    if (!sourceRepo.trim() || !targetRepoApparentName.trim() || !targetRepoDirectory.trim()) {
+      return null;
+    }
+
+    return {
+      sourceRepo: sourceRepo.trim(),
+      targetRepoApparentName: targetRepoApparentName.trim(),
+      targetRepoDirectory: targetRepoDirectory.trim()
+    };
+  }
+
+  private parseLegacyRepoMappingLine(line: string): {
+    sourceRepo: string;
+    targetRepoApparentName: string;
+    targetRepoDirectory: string;
+  } | null {
+    const trimmedLine = line.trim();
+    if (!trimmedLine) {
+      return null;
+    }
+
+    const parts = trimmedLine.split(',');
+    if (parts.length !== 3) {
+      return null;
+    }
+
+    const [sourceRepo, targetRepoApparentName, targetRepoDirectory] = parts;
+
+    return {
+      sourceRepo,
+      targetRepoApparentName,
+      targetRepoDirectory
+    };
   }
 
   /** Resolves the given module path. */
