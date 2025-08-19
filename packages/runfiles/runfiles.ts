@@ -155,12 +155,6 @@ export class Runfiles {
       (repoMappings[sourceRepo] ??= Object.create(null))[targetRepoApparentName] = targetRepoDirectory;
     }
     
-    // Ensure empty source repository mapping exists
-    if (!repoMappings[""]) {
-      repoMappings[""] = Object.create(null);
-      repoMappings[""]["__main__"] = "__main__";
-    }
-    
     return repoMappings;
   }
 
@@ -183,13 +177,31 @@ export class Runfiles {
 
       // If the repository mappings were loaded ensure the source repository is valid.
       if (!(sourceRepo in this.repoMappings)) {
-        throw new Error(
-          `source repository "${sourceRepo}" not found in repo mappings: ${JSON.stringify(
-            this.repoMappings,
-            null,
-            2,
-          )}`,
-        );
+        // Try common main repository names as fallback
+        const mainRepoAliases = ['__main__', '_main'];
+        for (const alias of mainRepoAliases) {
+          if (alias in this.repoMappings) {
+            sourceRepo = alias;
+            break;
+          }
+        }
+        
+        // If no fallback worked, create a synthetic mapping for the main repository
+        if (!(sourceRepo in this.repoMappings)) {
+          // In non-bzlmod mode, create a synthetic mapping from empty repo to main repo
+          if (sourceRepo === '') {
+            this.repoMappings[''] = {};
+            sourceRepo = '';
+          } else {
+            throw new Error(
+              `source repository "${sourceRepo}" not found in repo mappings: ${JSON.stringify(
+                this.repoMappings,
+                null,
+                2,
+              )}`,
+            );
+          }
+        }
       }
     }
 
@@ -264,7 +276,7 @@ export class Runfiles {
     }
 
     // Apply repo mappings to the moduleBase if it is a known repo.
-    if (this.repoMappings && moduleBase in this.repoMappings[sourceRepo]) {
+    if (this.repoMappings && this.repoMappings[sourceRepo] && moduleBase in this.repoMappings[sourceRepo]) {
       const mappedRepo = this.repoMappings[sourceRepo][moduleBase];
       if (mappedRepo !== moduleBase) {
         const maybe = this._resolve(sourceRepo, mappedRepo, moduleTail);
@@ -277,6 +289,17 @@ export class Runfiles {
       const maybe = path.join(this.runfilesDir, moduleBase, moduleTail || '');
       if (fs.existsSync(maybe)) {
         return maybe;
+      }
+      
+      // If not found and we have repo mappings, try under main repository aliases
+      if (this.repoMappings && !this.repoMappings[sourceRepo]) {
+        const mainRepoAliases = ['__main__', '_main'];
+        for (const alias of mainRepoAliases) {
+          const fallbackPath = path.join(this.runfilesDir, alias, moduleBase, moduleTail || '');
+          if (fs.existsSync(fallbackPath)) {
+            return fallbackPath;
+          }
+        }
       }
     }
     const dirname = path.dirname(moduleBase);
