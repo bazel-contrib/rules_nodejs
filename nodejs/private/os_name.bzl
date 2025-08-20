@@ -19,6 +19,7 @@ load(":node_versions.bzl", "NODE_VERSIONS")
 
 OS_ARCH_NAMES = [
     ("windows", "amd64"),
+    ("windows", "arm64"),
     ("darwin", "amd64"),
     ("darwin", "arm64"),
     ("linux", "amd64"),
@@ -78,4 +79,4 @@ def assert_node_exists_for_host(rctx):
     if not node_exists_for_os(node_version, os_name(rctx), node_repositories):
         fail("No nodejs is available for {} at version {}".format(os_name(rctx), node_version) +
              "\n    Consider upgrading by setting node_version in a call to node_repositories in WORKSPACE." +
-             "\n    Note that Node 16.x is the minimum published for Apple Silicon (M1 Macs)")
+             "\n    Note that Node 16.x is the minimum published for Apple Silicon (M1 Macs), and 20.x is the minimum for Windows ARM64.")
