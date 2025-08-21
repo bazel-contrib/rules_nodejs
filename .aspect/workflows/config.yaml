@@ -1,5 +1,8 @@
 # See https://docs.aspect.build/workflows/configuration
 tasks:
   - test:
+bazel:
+  flags:
+    - --config=ci
 notifications:
   github: {}
