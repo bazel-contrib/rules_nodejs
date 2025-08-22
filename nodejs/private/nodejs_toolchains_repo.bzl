@@ -106,24 +106,24 @@ resolved_toolchain(name = "resolved_toolchain", visibility = ["//visibility:publ
 """
 
     for [platform, meta] in PLATFORMS.items():
+        # Toolchain resolution is quite complex when it has to choose between both target and exec platform.
+        # When building any target it has both exec and target platform set.
+        # On the other hand the toolchain resolution tries to find the first one that matches. The order is lexicographical
+        # based on native.toolchain's name.
+        # This means that when you build a target for linux-arm64 on linux-amd64
+        # toolchain resolution would match following toolchains:
+        #   toolchain(name=linux-amd64, exec_compatible_with==linux-amd64)
+        #   toolchain(name=linux-arm64, target_compatible_with=linux-arm64)
+        # and "linux-amd64" would be chosen as the first one lexicographically.
+        # Such result would lead to issues for cross platform builds, for example amd64 choosing wrongling for arm64 target.
+        # To circumvent this, we define 2 types of toolchains:
+        # - target toolchain that matches target platform constraint (but doesn't bother about exec).
+        # - exec toolchain that must match both exec and target platform.
+        # As a result, targets that have target platform different from exec platform will only be able to pick
+        # target toolchains.
+        # On the other hand we assume that if one wants to execute the rule, target platform should match exec platform.
+        # In such cases it doesn't matter whether the target or exec toolchain is picked.
         build_content += """
-# Toolchain resolution is quite complex when it has to choose between both target and exec platform.
-# When building any target it has both exec and target platform set.
-# On the other hand the toolchain resolution tries to find the first one that matches. The order is lexicographical
-# based on native.toolchain's name.
-# This means that when you build a target for linux-arm64 on linux-amd64
-# toolchain resolution would match following toolchains:
-#   toolchain(name=linux-amd64, exec_compatible_with==linux-amd64)
-#   toolchain(name=linux-arm64, target_compatible_with=linux-arm64)
-# and "linux-amd64" would be chosen as the first one lexicographically.
-# Such result would lead to issues for cross platform builds, for example amd64 choosing wrongling for arm64 target.
-# To circumvent this, we define 2 types of toolchains:
-# - target toolchain that matches target platform constraint (but doesn't bother about exec).
-# - exec toolchain that must match both exec and target platform.
-# As a result, targets that have target platform different from exec platform will only be able to pick
-# target toolchains.
-# On the other hand we assume that if one wants to execute the rule, target platform should match exec platform.
-# In such cases it doesn't matter whether the target or exec toolchain is picked.
 toolchain(
     name = "{platform}_toolchain",
     exec_compatible_with = {compatible_with},
