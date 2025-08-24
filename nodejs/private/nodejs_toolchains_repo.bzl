@@ -96,7 +96,7 @@ See https://github.com/bazel-contrib/rules_nodejs/issues/3795.
 toolchain(
     name = "{platform}_toolchain",
     exec_compatible_with = {compatible_with},
-    target_compatible_with = {compatible_with}, # https://github.com/bazel-contrib/rules_nodejs/issues/3854
+    target_compatible_with = {compatible_with}, # prevent Node from this toolchain being bundled by js_image_oci to incompatible target platforms (https://github.com/bazel-contrib/rules_nodejs/issues/3854)
     toolchain = "@{user_node_repository_name}_{platform}//:toolchain",
     toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
 )

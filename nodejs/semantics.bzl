@@ -13,18 +13,21 @@
 # limitations under the License.
 """Rules NodeJS Semantics"""
 
+_NODE_TOOLCHAIN_TYPE = Label("//nodejs:toolchain_type")
+_NODE_RUNTIME_TOOLCHAIN_TYPE = Label("//nodejs:runtime_toolchain_type")
+
 def _find_node_toolchain(ctx):
-    return ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo
+    return ctx.toolchains[_NODE_TOOLCHAIN_TYPE].nodeinfo
 
 def _find_node_runtime_toolchain(ctx):
-    return ctx.toolchains["@rules_nodejs//nodejs:runtime_toolchain_type"].nodeinfo
+    return ctx.toolchains[_NODE_RUNTIME_TOOLCHAIN_TYPE].nodeinfo
 
 semantics = struct(
-    NODE_TOOLCHAIN_LABEL = "@rules_nodejs//nodejs:current_node_toolchain",
-    NODE_TOOLCHAIN_TYPE = "@rules_nodejs//nodejs:toolchain_type",
-    NODE_TOOLCHAIN = config_common.toolchain_type("@rules_nodejs//nodejs:toolchain_type", mandatory = True),
+    NODE_TOOLCHAIN_LABEL = Label("//nodejs:current_node_toolchain"),
+    NODE_TOOLCHAIN_TYPE = _NODE_TOOLCHAIN_TYPE,
+    NODE_TOOLCHAIN = config_common.toolchain_type(_NODE_TOOLCHAIN_TYPE, mandatory = True),
     find_node_toolchain = _find_node_toolchain,
-    NODE_RUNTIME_TOOLCHAIN_TYPE = "@rules_nodejs//nodejs:runtime_toolchain_type",
-    NODE_RUNTIME_TOOLCHAIN = config_common.toolchain_type("@rules_nodejs//nodejs:runtime_toolchain_type", mandatory = True),
+    NODE_RUNTIME_TOOLCHAIN_TYPE = _NODE_RUNTIME_TOOLCHAIN_TYPE,
+    NODE_RUNTIME_TOOLCHAIN = config_common.toolchain_type(_NODE_RUNTIME_TOOLCHAIN_TYPE, mandatory = True),
     find_node_runtime_toolchain = _find_node_runtime_toolchain,
 )

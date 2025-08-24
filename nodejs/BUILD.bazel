@@ -2,7 +2,7 @@
 load("@bazel_lib//:bzl_library.bzl", "bzl_library")
 load("//nodejs/private:nodejs_toolchains_repo.bzl", "PLATFORMS")
 load("//nodejs/private:user_build_settings.bzl", "user_args")
-load(":node_toolchain_alias.bzl", "node_host_runtime_alias", "node_runtime_alias", "node_toolchain_alias")
+load(":node_toolchain_alias.bzl", "node_runtime_alias", "node_toolchain_alias")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -55,12 +55,11 @@ toolchain_type(name = "toolchain_type")
 toolchain_type(name = "runtime_toolchain_type")
 
 # Points to toolchain[":runtime_toolchain_type"]
+# Use this for executing and packaging Node applications for target platform (eg., js_binary, js_test or js_image_oci).
 node_runtime_alias(name = "current_node_runtime")
 
-# Host configuration of ":current_node_runtime"
-node_host_runtime_alias(name = "current_host_node_runtime")
-
 # Points to toolchain[":toolchain_type"]
+# Use this for tools (eg., when action execution is needed).
 node_toolchain_alias(name = "current_node_toolchain")
 
 # The platforms that are supported by the Node toolchains.

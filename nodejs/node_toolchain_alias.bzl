@@ -15,7 +15,6 @@
 """Node toolchain aliases using toolchain resolution."""
 
 load(":semantics.bzl", "semantics")
-load(":toolchain.bzl", "NodeInfo")
 
 def _node_runtime_alias(ctx):
     """Implementation of node_runtime_alias using toolchain resolution."""
@@ -35,47 +34,17 @@ node_runtime_alias = rule(
     toolchains = [semantics.NODE_RUNTIME_TOOLCHAIN],
 )
 
-def _node_host_runtime_alias(ctx):
-    """Implementation of node_host_runtime_alias using toolchain resolution."""
-    runtime = ctx.attr._runtime
-    toolchain = runtime[NodeInfo]
-    template_variable_info = runtime[platform_common.TemplateVariableInfo]
-    default_info = runtime[DefaultInfo]
-    toolchain_info = platform_common.ToolchainInfo(nodeinfo = toolchain)
-    return [
-        toolchain,
-        template_variable_info,
-        toolchain_info,
-        default_info,
-    ]
-
-node_host_runtime_alias = rule(
-    implementation = _node_host_runtime_alias,
-    attrs = {
-        "_runtime": attr.label(
-            default = Label("//nodejs:current_node_runtime"),
-            providers = [
-                NodeInfo,
-                platform_common.TemplateVariableInfo,
-            ],
-            cfg = "exec",
-        ),
-    },
-    provides = [
-        NodeInfo,
-        platform_common.TemplateVariableInfo,
-        platform_common.ToolchainInfo,
-    ],
-)
-
 def _node_toolchain_alias(ctx):
     """An implementation of node_toolchain_alias using toolchain resolution."""
     toolchain_info = ctx.toolchains[semantics.NODE_TOOLCHAIN_TYPE]
     toolchain = toolchain_info.nodeinfo
-
+    template_variable_info = toolchain_info.template_variables
+    default_info = toolchain_info.default
     return [
         toolchain_info,
         toolchain,
+        template_variable_info,
+        default_info,
     ]
 
 node_toolchain_alias = rule(

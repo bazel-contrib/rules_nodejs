@@ -4,7 +4,7 @@ def _my_nodejs_impl(ctx):
     if ctx.attr.toolchain:
         nodeinfo = ctx.attr.toolchain[platform_common.ToolchainInfo].nodeinfo
     else:
-        nodeinfo = ctx.toolchains["@rules_nodejs//nodejs:runtime_toolchain_type"].nodeinfo
+        nodeinfo = ctx.toolchains["@rules_nodejs//nodejs:toolchain_type"].nodeinfo
     ctx.actions.run(
         inputs = [ctx.file.entry_point],
         executable = nodeinfo.node,
@@ -20,5 +20,5 @@ my_nodejs = rule(
         "out": attr.output(),
         "toolchain": attr.label(),
     },
-    toolchains = ["@rules_nodejs//nodejs:runtime_toolchain_type"],
+    toolchains = ["@rules_nodejs//nodejs:toolchain_type"],
 )
