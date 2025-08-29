@@ -9,6 +9,12 @@ not_windows = select({
     "//conditions:default": [],
 })
 
+not_silicon = select({
+    # There isn't a published arm64 binary for Node 15
+    "@platforms//cpu:arm64": ["@platforms//:incompatible"],
+    "//conditions:default": [],
+})
+
 # Trivial test fixture: a nodejs program that writes to a file
 write_file(
     name = "js",
@@ -67,7 +73,6 @@ genrule(
     outs = ["actual1"],
     cmd = "$(NODE_PATH) $(execpath some.js) $@",
     toolchains = ["@nodejs_toolchains//:resolved_toolchain"],
-    tools = ["@nodejs_toolchains//:resolved_toolchain"],
 )
 
 diff_test(
@@ -253,7 +258,9 @@ my_nodejs(
     # you can also just provide an individual toolchain if you don't want to download them all
     toolchain = select({
         "@bazel_tools//src/conditions:linux_x86_64": "@node17_linux_amd64//:toolchain",
-        "@bazel_tools//src/conditions:darwin": "@node17_darwin_amd64//:toolchain",
+        "@bazel_tools//src/conditions:linux_aarch64": "@node17_linux_arm64//:toolchain",
+        "@bazel_tools//src/conditions:darwin_x86_64": "@node17_darwin_amd64//:toolchain",
+        "@bazel_tools//src/conditions:darwin_arm64": "@node17_darwin_arm64//:toolchain",
         "@bazel_tools//src/conditions:windows": "@node17_windows_amd64//:toolchain",
     }),
 )
@@ -273,7 +280,9 @@ my_nodejs(
     # you can also just provide an individual toolchain if you don't want to download them all
     toolchain = select({
         "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64//:toolchain",
-        "@bazel_tools//src/conditions:darwin": "@nodejs_darwin_amd64//:toolchain",
+        "@bazel_tools//src/conditions:linux_aarch64": "@nodejs_linux_arm64//:toolchain",
+        "@bazel_tools//src/conditions:darwin_x86_64": "@nodejs_darwin_amd64//:toolchain",
+        "@bazel_tools//src/conditions:darwin_arm64": "@nodejs_darwin_arm64//:toolchain",
         "@bazel_tools//src/conditions:windows": "@nodejs_windows_amd64//:toolchain",
     }),
 )
@@ -288,11 +297,12 @@ my_nodejs(
     name = "run_15",
     out = "thing_toolchain_15",
     entry_point = "version.js",
+    target_compatible_with = not_silicon,
     # using the select statement will download toolchains for all three platforms
     # you can also just provide an individual toolchain if you don't want to download them all
     toolchain = select({
         "@bazel_tools//src/conditions:linux_x86_64": "@node15_linux_amd64//:toolchain",
-        "@bazel_tools//src/conditions:darwin": "@node15_darwin_amd64//:toolchain",
+        "@bazel_tools//src/conditions:darwin_x86_64": "@node15_darwin_amd64//:toolchain",
         "@bazel_tools//src/conditions:windows": "@node15_windows_amd64//:toolchain",
     }),
 )
