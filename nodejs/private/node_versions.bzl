@@ -3201,6 +3201,15 @@ NODE_VERSIONS = {
     "22.18.0-linux_amd64": ("node-v22.18.0-linux-x64.tar.xz", "node-v22.18.0-linux-x64", "c1bfeecf1d7404fa74728f9db72e697decbd8119ccc6f5a294d795756dfcfca7"),
     "22.18.0-windows_arm64": ("node-v22.18.0-win-arm64.zip", "node-v22.18.0-win-arm64", "023afb3d25c4c7d10cb6eb8a64865c347b56d4b07e6690606d021130a9192263"),
     "22.18.0-windows_amd64": ("node-v22.18.0-win-x64.zip", "node-v22.18.0-win-x64", "c95d8a7e1c99e669cc08c9f1176e068c1f50847c37908fcb8c35b62482366511"),
+    # 22.19.0
+    "22.19.0-darwin_arm64": ("node-v22.19.0-darwin-arm64.tar.gz", "node-v22.19.0-darwin-arm64", "c59006db713c770d6ec63ae16cb3edc11f49ee093b5c415d667bb4f436c6526d"),
+    "22.19.0-darwin_amd64": ("node-v22.19.0-darwin-x64.tar.gz", "node-v22.19.0-darwin-x64", "3cfed4795cd97277559763c5f56e711852d2cc2420bda1cea30c8aa9ac77ce0c"),
+    "22.19.0-linux_arm64": ("node-v22.19.0-linux-arm64.tar.xz", "node-v22.19.0-linux-arm64", "0b2d9f564b6594222a62c82e1df2efe119dd4a4aff29644f4dd325bf360b6bcc"),
+    "22.19.0-linux_ppc64le": ("node-v22.19.0-linux-ppc64le.tar.xz", "node-v22.19.0-linux-ppc64le", "fd1395179c23daec4f5e7d91353ba297b886de2ec7693ed01eb159bc382b18b2"),
+    "22.19.0-linux_s390x": ("node-v22.19.0-linux-s390x.tar.xz", "node-v22.19.0-linux-s390x", "874beeae662ae6d27d9078de99b9e553284a614da35abea3b1a13fe5ef79bb8e"),
+    "22.19.0-linux_amd64": ("node-v22.19.0-linux-x64.tar.xz", "node-v22.19.0-linux-x64", "c0649af18e6a24f6fe5535a3e86b341dd49a8e71117c8b68bde973ef834f16f2"),
+    "22.19.0-windows_arm64": ("node-v22.19.0-win-arm64.zip", "node-v22.19.0-win-arm64", "e4a7336010d58ff35b53d9dd5869095c56089c70913cf22508cf8183593e56b2"),
+    "22.19.0-windows_amd64": ("node-v22.19.0-win-x64.zip", "node-v22.19.0-win-x64", "ea3fad0e67a991d8477d8c01344b56e69c676ccb733f065b22436994b1253f86"),
     # 23.0.0
     "23.0.0-darwin_arm64": ("node-v23.0.0-darwin-arm64.tar.gz", "node-v23.0.0-darwin-arm64", "72ce7905b83f9499b92501675cf76e53b545cb9d0a42dca497fa80c8eb5fbcf9"),
     "23.0.0-darwin_amd64": ("node-v23.0.0-darwin-x64.tar.gz", "node-v23.0.0-darwin-x64", "13915842f15bc32f76a24f8ea17fd43d650898d12d21c7b676b01d0e00dcb7fd"),
