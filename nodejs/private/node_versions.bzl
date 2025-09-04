@@ -2868,6 +2868,15 @@ NODE_VERSIONS = {
     "20.19.4-linux_amd64": ("node-v20.19.4-linux-x64.tar.xz", "node-v20.19.4-linux-x64", "7a488a09e2fc02fbd1bc4ae084bea8a589314f741c182fc02c5f3f07c79a29d4"),
     "20.19.4-windows_arm64": ("node-v20.19.4-win-arm64.zip", "node-v20.19.4-win-arm64", "1554251027d777d3dbb276af0553b2e9f89822a1579067216bc0b9522a3a22d3"),
     "20.19.4-windows_amd64": ("node-v20.19.4-win-x64.zip", "node-v20.19.4-win-x64", "1bf83e5958157d13673507349238236aec4f6efc95cf426cbe126a999a3e4c0b"),
+    # 20.19.5
+    "20.19.5-darwin_arm64": ("node-v20.19.5-darwin-arm64.tar.gz", "node-v20.19.5-darwin-arm64", "cfed7503d8d99fbcf2f52e408ec52f616058eb0867b34dbc3437259993ef5cba"),
+    "20.19.5-darwin_amd64": ("node-v20.19.5-darwin-x64.tar.gz", "node-v20.19.5-darwin-x64", "f9cff058f2766d4d0631dc69b5f7f27664b3a42ff186e25ac7e1ac269af7e696"),
+    "20.19.5-linux_arm64": ("node-v20.19.5-linux-arm64.tar.xz", "node-v20.19.5-linux-arm64", "d462267863ae8ee556039ebdf559055a8ec562c633889ef1403f3adb449ba1dd"),
+    "20.19.5-linux_ppc64le": ("node-v20.19.5-linux-ppc64le.tar.xz", "node-v20.19.5-linux-ppc64le", "ef98025e71d6d498476a95f144e353be074b24431b22eaa81bc64f921ea7d57f"),
+    "20.19.5-linux_s390x": ("node-v20.19.5-linux-s390x.tar.xz", "node-v20.19.5-linux-s390x", "a2e56c4b7fbffd0e6eef3a89e1c5945962fe85b4e2acfa59edc77a9238cc7901"),
+    "20.19.5-linux_amd64": ("node-v20.19.5-linux-x64.tar.xz", "node-v20.19.5-linux-x64", "315046739a513a70e03a4a55a8afda8cf979f30852e576075c340084e3f8ac0f"),
+    "20.19.5-windows_arm64": ("node-v20.19.5-win-arm64.zip", "node-v20.19.5-win-arm64", "5010e32f6b40699b27dc5fa1d8bb9d77bdcd55e9f62d2baa5d83833d20fa41c6"),
+    "20.19.5-windows_amd64": ("node-v20.19.5-win-x64.zip", "node-v20.19.5-win-x64", "c48159529572a5a947eef2d55d6485dfdc4ce8e67216402e2f6de52ad5d95695"),
     # 21.0.0
     "21.0.0-darwin_arm64": ("node-v21.0.0-darwin-arm64.tar.gz", "node-v21.0.0-darwin-arm64", "d49aae353ab9e264a1d8c75f80eb26dcc4006f50b35ba05bda3a9c33f5554609"),
     "21.0.0-darwin_amd64": ("node-v21.0.0-darwin-x64.tar.gz", "node-v21.0.0-darwin-x64", "2ec98307e388407cfa62d1fb8abc4d6dc1e54c11bc70329d6675ed0595326763"),
