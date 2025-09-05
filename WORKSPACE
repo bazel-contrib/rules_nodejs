@@ -60,6 +60,19 @@ http_archive(
 # Dependencies & toolchains needed for unit tests & generating documentation
 #
 
+# workaround for https://github.com/bazelbuild/bazel/issues/25124
+zlib_version = "1.3.1"
+
+zlib_sha256 = "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23"
+
+http_archive(
+    name = "zlib",
+    build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
+    sha256 = zlib_sha256,
+    strip_prefix = "zlib-%s" % zlib_version,
+    urls = ["https://github.com/madler/zlib/releases/download/v{v}/zlib-{v}.tar.gz".format(v = zlib_version)],
+)
+
 load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies", "register_copy_directory_toolchains", "register_copy_to_directory_toolchains")
 
 aspect_bazel_lib_dependencies()
