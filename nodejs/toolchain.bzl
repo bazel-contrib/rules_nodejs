@@ -162,7 +162,7 @@ def nodejs_toolchain(
     ```
 
     Next, declare which execution platforms or target platforms the toolchain should be selected for
-    based on constraints.
+    based on constraints. A separate toolchain type is used for runtime target platform selection.
 
     ```starlark
     toolchain(
@@ -173,6 +173,15 @@ def nodejs_toolchain(
         ],
         toolchain = ":toolchain",
         toolchain_type = "@rules_nodejs//nodejs:toolchain_type",
+    )
+    toolchain(
+        name = "my_nodejs_runtime",
+        target_compatible_with = [
+            "@platforms//os:linux",
+            "@platforms//cpu:x86_64",
+        ],
+        toolchain = ":toolchain",
+        toolchain_type = "@rules_nodejs//nodejs:runtime_toolchain_type",
     )
     ```
 
