@@ -14,8 +14,14 @@
 
 load("@bazel_lib//:bzl_library.bzl", "bzl_library")
 
+package(default_visibility = ["//nodejs:__subpackages__"])
+
 bzl_library(
-    name = "bzl",
-    srcs = glob(["*.bzl"]),
-    visibility = ["//visibility:public"],
+    name = "stamp_setting_info",
+    srcs = ["stamp_setting_info.bzl"],
+)
+
+bzl_library(
+    name = "user_build_settings",
+    srcs = ["user_build_settings.bzl"],
 )
