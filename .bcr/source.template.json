@@ -1,5 +1,6 @@
 {
-    "integrity": "**leave this alone**",
-    "strip_prefix": "{REPO}-{VERSION}",
-    "url": "https://github.com/{OWNER}/{REPO}/releases/download/{TAG}/rules_nodejs-{TAG}.tar.gz"
+  "integrity": "**leave this alone**",
+  "strip_prefix": "{REPO}-{VERSION}",
+  "docs_url": "https://github.com/{OWNER}/{REPO}/releases/download/{TAG}/rules_nodejs-{TAG}.docs.tar.gz",
+  "url": "https://github.com/{OWNER}/{REPO}/releases/download/{TAG}/rules_nodejs-{TAG}.tar.gz"
 }
