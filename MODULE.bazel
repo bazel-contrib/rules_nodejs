@@ -6,6 +6,7 @@ module(
 )
 
 # Lower-bounds (minimum) versions for direct runtime dependencies
+bazel_dep(name = "bazel_lib", version = "3.0.0-beta.1")
 bazel_dep(name = "bazel_skylib", version = "1.4.1")
 bazel_dep(name = "platforms", version = "0.0.5")
 
