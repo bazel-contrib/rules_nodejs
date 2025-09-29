@@ -1,28 +1,39 @@
+# gazelle:map_kind bzl_library bzl_library @bazel_lib//:bzl_library.bzl
 load("@bazel_lib//:bzl_library.bzl", "bzl_library")
 load("//nodejs/private:nodejs_toolchains_repo.bzl", "PLATFORMS")
 load("//nodejs/private:user_build_settings.bzl", "user_args")
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files([
-    "index.for_docs.bzl",
-    "providers.bzl",
-])
+bzl_library(
+    name = "providers",
+    srcs = ["providers.bzl"],
+    deps = [
+        "//nodejs/private/providers:stamp_setting_info",
+        "//nodejs/private/providers:user_build_settings",
+    ],
+)
 
 bzl_library(
-    name = "index.for_docs",
-    srcs = [
-        "index.for_docs.bzl",
-        "providers.bzl",
-        "repositories.bzl",
-        "toolchain.bzl",
-        "@bazel_tools//tools:bzl_srcs",
-    ],
+    name = "repositories",
+    srcs = ["repositories.bzl"],
     deps = [
-        "//nodejs/private:bzl",
-        "//nodejs/private/providers:bzl",
-        "@bazel_skylib//lib:paths",
+        "//nodejs/private:node_versions",
+        "//nodejs/private:nodejs_repo_host_os_alias",
+        "//nodejs/private:nodejs_toolchains_repo",
+        "//nodejs/private:os_name",
     ],
+)
+
+bzl_library(
+    name = "toolchain",
+    srcs = ["toolchain.bzl"],
+)
+
+bzl_library(
+    name = "extensions",
+    srcs = ["extensions.bzl"],
+    deps = ["repositories"],
 )
 
 # This is the target rule authors should put in their "toolchains"
