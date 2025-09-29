@@ -1,6 +1,6 @@
 "Wrap stardoc to set our repo-wide defaults"
 
-load("@aspect_bazel_lib//lib:docs.bzl", _stardoc = "stardoc_with_diff_test")
+load("@bazel_lib//lib:docs.bzl", _stardoc = "stardoc_with_diff_test")
 
 _PKG = "@rules_nodejs//tools/stardoc"
 

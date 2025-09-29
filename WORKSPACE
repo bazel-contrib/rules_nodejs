@@ -60,9 +60,9 @@ http_archive(
 # Dependencies & toolchains needed for unit tests & generating documentation
 #
 
-load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies", "register_copy_directory_toolchains", "register_copy_to_directory_toolchains")
+load("@bazel_lib//lib:repositories.bzl", "bazel_lib_dependencies", "register_copy_directory_toolchains", "register_copy_to_directory_toolchains")
 
-aspect_bazel_lib_dependencies()
+bazel_lib_dependencies()
 
 register_copy_directory_toolchains()
 
