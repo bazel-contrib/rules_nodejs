@@ -16,6 +16,15 @@ nodejs_register_toolchains(
     node_version = "17.9.1",
 )
 
+nodejs_register_toolchains(
+    name = "node15",
+    node_urls = [
+        "https://nodejs.org/dist/v{version}/{filename}",
+        "https://mirrors.dotsrc.org/nodejs/release/v{version}/{filename}",
+    ],
+    node_version = "15.14.0",
+)
+
 http_archive(
     name = "npm_acorn-8.5.0",
     build_file_content = """load("@bazel_lib//lib:copy_directory.bzl", "copy_directory")
