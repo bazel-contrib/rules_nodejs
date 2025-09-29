@@ -24,7 +24,7 @@ jobs:
       new-tag: ${{ steps.ccv.outputs.new-tag }}
       new-tag-version: ${{steps.ccv.outputs.new-tag-version}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # Need enough history to find the prior release tag
           fetch-depth: 0
@@ -39,3 +39,5 @@ jobs:
     if: needs.tag.outputs.new-tag == 'true' && needs.tag.outputs.new-tag-version-type != 'major'
     permissions:
       contents: write # allow create release
+      attestations: write
+      id-token: write
