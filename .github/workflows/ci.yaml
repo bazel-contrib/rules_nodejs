@@ -28,6 +28,5 @@ jobs:
           {"bazelversion": "6.4.0", "os": "windows-latest"},
           {"bazelversion": "6.4.0", folder: "."},
           {"bazelversion": "6.4.0", bzlmodEnabled: true}
-          # this test is for bzlmod only
           {folder: "e2e/conflicting_toolchains", bzlmodEnabled: false},
         ]
