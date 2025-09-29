@@ -38,12 +38,6 @@ def rules_nodejs_dev_dependencies():
     )
 
     http_archive(
-        name = "io_bazel_stardoc",
-        sha256 = "fabb280f6c92a3b55eed89a918ca91e39fb733373c81e87a18ae9e33e75023ec",
-        urls = ["https://github.com/bazelbuild/stardoc/releases/download/0.7.1/stardoc-0.7.1.tar.gz"],
-    )
-
-    http_archive(
         name = "bazel_lib",
         sha256 = "46960e9fa6c9352d883768280951ac388dba8cb9ff0256182fb77925eae2b6ac",
         strip_prefix = "bazel-lib-3.0.0-beta.1",
