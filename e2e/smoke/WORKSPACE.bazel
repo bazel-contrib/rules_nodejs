@@ -18,7 +18,7 @@ nodejs_register_toolchains(
 
 http_archive(
     name = "npm_acorn-8.5.0",
-    build_file_content = """load("@aspect_bazel_lib//lib:copy_directory.bzl", "copy_directory")
+    build_file_content = """load("@bazel_lib//lib:copy_directory.bzl", "copy_directory")
 
 # Turn a source directory into a TreeArtifact for RBE-compat
 copy_directory(
@@ -33,14 +33,14 @@ copy_directory(
 )
 
 http_archive(
-    name = "aspect_bazel_lib",
-    sha256 = "6d758a8f646ecee7a3e294fbe4386daafbe0e5966723009c290d493f227c390b",
-    strip_prefix = "bazel-lib-2.7.7",
-    url = "https://github.com/aspect-build/bazel-lib/releases/download/v2.7.7/bazel-lib-v2.7.7.tar.gz",
+    name = "bazel_lib",
+    sha256 = "46960e9fa6c9352d883768280951ac388dba8cb9ff0256182fb77925eae2b6ac",
+    strip_prefix = "bazel-lib-3.0.0-beta.1",
+    url = "https://github.com/bazel-contrib/bazel-lib/releases/download/v3.0.0-beta.1/bazel-lib-v3.0.0-beta.1.tar.gz",
 )
 
-load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies", "aspect_bazel_lib_register_toolchains")
+load("@bazel_lib//lib:repositories.bzl", "bazel_lib_dependencies", "bazel_lib_register_toolchains")
 
-aspect_bazel_lib_dependencies()
+bazel_lib_dependencies()
 
-aspect_bazel_lib_register_toolchains()
+bazel_lib_register_toolchains()
