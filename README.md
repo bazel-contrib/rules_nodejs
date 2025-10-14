@@ -19,4 +19,4 @@ See the 5.x branch for the prior state of the repo.
 
 ## Documentation
 
-See the docs/ folder, and generated API docs on https://registry.bazel.build/modules/rules_nodejs
+See the docs/ folder, and generated API docs on https://registry.bazel.build/docs/rules_nodejs
