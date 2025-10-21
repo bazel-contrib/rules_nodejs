@@ -476,7 +476,7 @@ def nodejs_register_toolchains(name = DEFAULT_NODE_REPOSITORY, register = True, 
         )
         if register:
             native.register_toolchains(
-                "@%s_toolchains//:%s_toolchain_target" % (name, platform),
+                "@%s_toolchains//:%s_runtime_toolchain" % (name, platform),
                 "@%s_toolchains//:%s_toolchain" % (name, platform),
             )
 

@@ -10,6 +10,9 @@ bazel_dep(name = "bazel_lib", version = "3.0.0-beta.1")
 bazel_dep(name = "bazel_skylib", version = "1.4.1")
 bazel_dep(name = "platforms", version = "0.0.5")
 
+# workaround for https://github.com/bazelbuild/bazel/issues/25124
+bazel_dep(name = "zlib", version = "1.3.1.bcr.6", dev_dependency = True)
+
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 
 # Note, this gets the default version of Node.js from
@@ -19,37 +22,37 @@ use_repo(node, "nodejs_toolchains")
 
 # Toolchain registration under bzlmod should match the order of WORKSPACE registration
 # which is the order specified in the PLATFORMS dict https://github.com/bazel-contrib/rules_nodejs/blob/4c373209b058d46f2a5f9ab9f8abf11b161ae459/nodejs/private/nodejs_toolchains_repo.bzl#L20.
-# For each platform, `:<PLATFORM>_toolchain_target` should be registered before `:<PLATFORM>_toolchain`,
+# For each platform, `:<PLATFORM>_runtime_toolchain` should be registered before `:<PLATFORM>_toolchain`,
 # https://github.com/bazel-contrib/rules_nodejs/blob/4c373209b058d46f2a5f9ab9f8abf11b161ae459/nodejs/repositories.bzl#L461/.
 # See https://github.com/bazelbuild/bazel/issues/19645 and https://github.com/bazel-contrib/rules_nodejs/pull/3750 for more context.
-register_toolchains("@nodejs_toolchains//:linux_amd64_toolchain_target")
+register_toolchains("@nodejs_toolchains//:linux_amd64_runtime_toolchain")
 
 register_toolchains("@nodejs_toolchains//:linux_amd64_toolchain")
 
-register_toolchains("@nodejs_toolchains//:linux_arm64_toolchain_target")
+register_toolchains("@nodejs_toolchains//:linux_arm64_runtime_toolchain")
 
 register_toolchains("@nodejs_toolchains//:linux_arm64_toolchain")
 
-register_toolchains("@nodejs_toolchains//:linux_s390x_toolchain_target")
+register_toolchains("@nodejs_toolchains//:linux_s390x_runtime_toolchain")
 
 register_toolchains("@nodejs_toolchains//:linux_s390x_toolchain")
 
-register_toolchains("@nodejs_toolchains//:linux_ppc64le_toolchain_target")
+register_toolchains("@nodejs_toolchains//:linux_ppc64le_runtime_toolchain")
 
 register_toolchains("@nodejs_toolchains//:linux_ppc64le_toolchain")
 
-register_toolchains("@nodejs_toolchains//:darwin_amd64_toolchain_target")
+register_toolchains("@nodejs_toolchains//:darwin_amd64_runtime_toolchain")
 
 register_toolchains("@nodejs_toolchains//:darwin_amd64_toolchain")
 
-register_toolchains("@nodejs_toolchains//:darwin_arm64_toolchain_target")
+register_toolchains("@nodejs_toolchains//:darwin_arm64_runtime_toolchain")
 
 register_toolchains("@nodejs_toolchains//:darwin_arm64_toolchain")
 
-register_toolchains("@nodejs_toolchains//:windows_amd64_toolchain_target")
+register_toolchains("@nodejs_toolchains//:windows_amd64_runtime_toolchain")
 
 register_toolchains("@nodejs_toolchains//:windows_amd64_toolchain")
 
-register_toolchains("@nodejs_toolchains//:windows_arm64_toolchain_target")
+register_toolchains("@nodejs_toolchains//:windows_arm64_runtime_toolchain")
 
 register_toolchains("@nodejs_toolchains//:windows_arm64_toolchain")
