@@ -28,10 +28,7 @@ jobs:
         with:
           node-version: "14.x"
       - uses: pnpm/action-setup@v4
-      - name: Run update-nodejs-versions
-        run: |
-          npm run update-nodejs-versions
-          bazel run docs:update
+      - run: npm run update-nodejs-versions
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3

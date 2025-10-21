@@ -1,21 +1,28 @@
-load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+# gazelle:map_kind bzl_library bzl_library @bazel_lib//:bzl_library.bzl
+load("@bazel_lib//:bzl_library.bzl", "bzl_library")
 load("//nodejs/private:nodejs_toolchains_repo.bzl", "PLATFORMS")
 load("//nodejs/private:user_build_settings.bzl", "user_args")
+load(":node_toolchain_alias.bzl", "node_runtime_alias", "node_toolchain_alias")
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files([
-    "index.for_docs.bzl",
-    "providers.bzl",
-])
+bzl_library(
+    name = "providers",
+    srcs = ["providers.bzl"],
+    deps = [
+        "//nodejs/private/providers:stamp_setting_info",
+        "//nodejs/private/providers:user_build_settings",
+    ],
+)
 
 bzl_library(
-    name = "index.for_docs",
-    srcs = glob(["*.bzl"]) + ["@bazel_tools//tools:bzl_srcs"],
+    name = "repositories",
+    srcs = ["repositories.bzl"],
     deps = [
-        "//nodejs/private:bzl",
-        "//nodejs/private/providers:bzl",
-        "@bazel_skylib//lib:paths",
+        "//nodejs/private:node_versions",
+        "//nodejs/private:nodejs_repo_host_os_alias",
+        "//nodejs/private:nodejs_toolchains_repo",
+        "//nodejs/private:os_name",
     ],
 )
 
@@ -23,8 +30,39 @@ bzl_library(
 # attribute in order to get a node interpreter for the correct
 # platform.
 # See https://docs.bazel.build/versions/main/toolchains.html#writing-rules-that-use-toolchains
+# A single binary distribution of a Node provides two different types of toolchains from the
+# perspective of Bazel:
+
+# (1) The transpilation toolchain, which provides the Node runtime used to execute the transpiler
+# (and type checker), as well as various helper tools and settings.
+#
+# Toolchains of this type typically have constraints on the execution platform so that their Node
+# runtime can run the transpiler, but not on the target platform as Node transpilation outputs are
+# platform independent.
+#
+# Obtain the associated NodeInfo via:
+#   ctx.toolchains["@bazel_tools//tools/jdk:toolchain_type"].nodeinfo
 toolchain_type(name = "toolchain_type")
 
+# (2) The Node runtime that executable Node outputs (e.g., js_binary) will run on.
+#
+# Toolchains of this type typically have constraints on the target platform so that the runtime's
+# native 'node' binary can be run there, but not on the execution platform as building an executable
+# Node target only requires copying or symlinking the runtime, which can be done on any platform.
+#
+# Obtain the associated NodeRuntimeInfo via:
+#   ctx.toolchains["@bazel_tools//tools/jdk:runtime_toolchain_type"].nodeinfo
+toolchain_type(name = "runtime_toolchain_type")
+
+# Points to toolchain[":runtime_toolchain_type"]
+# Use this for executing and packaging Node applications for target platform (eg., js_binary, js_test or js_image_oci).
+node_runtime_alias(name = "current_node_runtime")
+
+# Points to toolchain[":toolchain_type"]
+# Use this for tools (eg., when action execution is needed).
+node_toolchain_alias(name = "current_node_toolchain")
+
+# The platforms that are supported by the Node toolchains.
 [
     platform(
         name = key,

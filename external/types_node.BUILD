@@ -1,4 +1,4 @@
-load("@aspect_bazel_lib//lib:copy_directory.bzl", "copy_directory")
+load("@bazel_lib//lib:copy_directory.bzl", "copy_directory")
 
 # Turn a source directory into a TreeArtifact for RBE-compat
 copy_directory(

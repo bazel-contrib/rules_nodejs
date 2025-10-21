@@ -1,6 +1,6 @@
 "Provide convenience repository for the host platform"
 
-load("//nodejs/private:os_name.bzl", "is_windows_os", "os_name")
+load(":os_name.bzl", "is_windows_os", "os_name")
 
 def _nodejs_host_os_alias_impl(repository_ctx):
     ext = ".exe" if is_windows_os(repository_ctx) else ""

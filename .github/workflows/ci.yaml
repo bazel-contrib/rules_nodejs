@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   test:
-    uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v6
+    uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v7.2.3
     with:
       folders: '[".", "e2e/headers", "e2e/smoke", "e2e/nodejs_host", "e2e/conflicting_toolchains"]'
       # stardoc generated docs fail on diff_test with Bazel 6.4.0 so don't test against it in root repository
@@ -27,7 +27,6 @@ jobs:
           {"bazelversion": "6.4.0", "os": "macos-latest"},
           {"bazelversion": "6.4.0", "os": "windows-latest"},
           {"bazelversion": "6.4.0", folder: "."},
-          {"bazelversion": "6.4.0", bzlmodEnabled: true}
-          # this test is for bzlmod only
-          {folder: "e2e/conflicting_toolchains", bzlmodEnabled: false},
+          {"bazelversion": "6.4.0", bzlmodEnabled: true},
+          {folder: "e2e/conflicting_toolchains", bzlmodEnabled: false}
         ]

@@ -1,11 +1,43 @@
-load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@bazel_lib//:bzl_library.bzl", "bzl_library")
+
+package(default_visibility = ["//nodejs:__subpackages__"])
 
 bzl_library(
-    name = "bzl",
-    srcs = glob(["*.bzl"]),
-    visibility = ["//visibility:public"],
-    deps = [
-        "//nodejs/private/providers:bzl",
-        "@bazel_skylib//lib:dicts",
-    ],
+    name = "current_node_cc_headers",
+    srcs = ["current_node_cc_headers.bzl"],
+)
+
+bzl_library(
+    name = "node_versions",
+    srcs = ["node_versions.bzl"],
+)
+
+bzl_library(
+    name = "os_name",
+    srcs = ["os_name.bzl"],
+    deps = ["node_versions"],
+)
+
+bzl_library(
+    name = "nodejs_repo_host_os_alias",
+    srcs = ["nodejs_repo_host_os_alias.bzl"],
+    deps = ["os_name"],
+)
+
+bzl_library(
+    name = "nodejs_toolchains_repo",
+    srcs = ["nodejs_toolchains_repo.bzl"],
+    deps = ["os_name"],
+)
+
+bzl_library(
+    name = "stamp",
+    srcs = ["stamp.bzl"],
+    deps = ["//nodejs/private/providers:stamp_setting_info"],
+)
+
+bzl_library(
+    name = "user_build_settings",
+    srcs = ["user_build_settings.bzl"],
+    deps = ["//nodejs/private/providers:user_build_settings"],
 )
