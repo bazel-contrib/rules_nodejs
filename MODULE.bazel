@@ -8,9 +8,6 @@ module(
 # Lower-bounds (minimum) versions for direct runtime dependencies
 bazel_dep(name = "bazel_lib", version = "3.0.0-beta.1")
 bazel_dep(name = "bazel_skylib", version = "1.4.1")
-
-bazel_dep(name = "bazelrc-preset.bzl", version = "1.2.0", dev_dependency = True)
-
 bazel_dep(name = "platforms", version = "0.0.5")
 
 # workaround for https://github.com/bazelbuild/bazel/issues/25124
@@ -20,9 +17,7 @@ node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 
 # Note, this gets the default version of Node.js from
 # https://github.com/bazel-contrib/rules_nodejs/blob/main/nodejs/repositories.bzl#L11
-node.toolchain(
-    node_version = "16.5.0",
-)
+node.toolchain()
 use_repo(node, "nodejs_toolchains")
 
 # Toolchain registration under bzlmod should match the order of WORKSPACE registration
