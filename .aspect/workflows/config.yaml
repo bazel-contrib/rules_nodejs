@@ -1,5 +1,9 @@
+# Test the root workspace using "dev dependencies" on Linux only, and with the version in .bazelversion.
+# Look in /.github/workflows/ci.yaml for test matrix on other OS and Bazel version
 # See https://docs.aspect.build/workflows/configuration
 tasks:
   - test:
+  - format:
+  - buildozer:
 notifications:
   github: {}
