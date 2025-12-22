@@ -234,6 +234,12 @@ write_file(
     content = ["v16.5.0"],
 )
 
+write_file(
+    name = "write_node_version_24",
+    out = "expected_node_24",
+    content = ["v24.12.0"],
+)
+
 # To see what nodejs version is used by default
 my_nodejs(
     name = "run_no_toolchain",
@@ -311,4 +317,25 @@ diff_test(
     name = "test_node_version_15",
     file1 = "write_node_version_15",
     file2 = "thing_toolchain_15",
+)
+
+my_nodejs(
+    name = "run_24",
+    out = "thing_toolchain_24",
+    entry_point = "version.js",
+    # using the select statement will download toolchains for all three platforms
+    # you can also just provide an individual toolchain if you don't want to download them all
+    toolchain = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "@node24_linux_amd64//:toolchain",
+        "@bazel_tools//src/conditions:linux_aarch64": "@node24_linux_arm64//:toolchain",
+        "@bazel_tools//src/conditions:darwin_x86_64": "@node24_darwin_amd64//:toolchain",
+        "@bazel_tools//src/conditions:darwin_arm64": "@node24_darwin_arm64//:toolchain",
+        "@bazel_tools//src/conditions:windows": "@node24_windows_amd64//:toolchain",
+    }),
+)
+
+diff_test(
+    name = "test_node_version_24",
+    file1 = "write_node_version_24",
+    file2 = "thing_toolchain_24",
 )

@@ -15,8 +15,6 @@
 """Helper function for repository rules
 """
 
-load(":node_versions.bzl", "NODE_VERSIONS")
-
 OS_ARCH_NAMES = [
     ("windows", "amd64"),
     ("windows", "arm64"),
@@ -65,18 +63,3 @@ def os_name(rctx):
 
 def is_windows_os(rctx):
     return rctx.os.name.find("windows") != -1
-
-def node_exists_for_os(node_version, os_name, node_repositories):
-    if not node_repositories:
-        node_repositories = NODE_VERSIONS
-
-    return "-".join([node_version, os_name]) in node_repositories.keys()
-
-def assert_node_exists_for_host(rctx):
-    node_version = rctx.attr.node_version
-    node_repositories = rctx.attr.node_repositories
-
-    if not node_exists_for_os(node_version, os_name(rctx), node_repositories):
-        fail("No nodejs is available for {} at version {}".format(os_name(rctx), node_version) +
-             "\n    Consider upgrading by setting node_version in a call to node_repositories in WORKSPACE." +
-             "\n    Note that Node 16.x is the minimum published for Apple Silicon (M1 Macs), and 20.x is the minimum for Windows ARM64.")

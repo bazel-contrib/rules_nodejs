@@ -25,6 +25,11 @@ nodejs_register_toolchains(
     node_version = "15.14.0",
 )
 
+nodejs_register_toolchains(
+    name = "node24",
+    node_version = "24.12.0",
+)
+
 http_archive(
     name = "npm_acorn-8.5.0",
     build_file_content = """load("@bazel_lib//lib:copy_directory.bzl", "copy_directory")
