@@ -7,43 +7,35 @@ buildifier:
   # Keep this in sync with the list in .pre-commit-config.yaml
   # https://github.com/bazelbuild/buildtools/issues/479 should fix this by giving us a config file
 tasks:
-  ubuntu1804:
-    name: ubuntu1804
-    platform: ubuntu1804
+  ubuntu2204:
+    name: ubuntu2204
+    platform: ubuntu2204
     build_targets:
       - "//..."
-    test_flags:
-      - "--test_tag_filters=-skip-on-bazelci-ubuntu"
     test_targets:
       - "//..."
-  ubuntu1804-headers:
-    name: ubuntu1804-headers
-    platform: ubuntu1804
+  ubuntu2204-headers:
+    name: ubuntu2204-headers
+    platform: ubuntu2204
     working_directory: "e2e/headers"
     build_targets:
       - "//..."
-    test_flags:
-      - "--test_tag_filters=-skip-on-bazelci-ubuntu"
     test_targets:
       - "//..."
-  ubuntu1804-smoke:
-    name: ubuntu1804-smoke
-    platform: ubuntu1804
+  ubuntu2204-smoke:
+    name: ubuntu2204-smoke
+    platform: ubuntu2204
     working_directory: "e2e/smoke"
     build_targets:
       - "//..."
-    test_flags:
-      - "--test_tag_filters=-skip-on-bazelci-ubuntu"
     test_targets:
       - "//..."
-  ubuntu1804-nodejs_host:
-    name: ubuntu1804-nodejs_host
-    platform: ubuntu1804
+  ubuntu2204-nodejs_host:
+    name: ubuntu2204-nodejs_host
+    platform: ubuntu2204
     working_directory: "e2e/nodejs_host"
     build_targets:
       - "//..."
-    test_flags:
-      - "--test_tag_filters=-skip-on-bazelci-ubuntu"
     test_targets:
       - "//..."
   macos:
@@ -91,13 +83,11 @@ tasks:
     working_directory: "e2e/nodejs_host"
     build_targets:
       - "//..."
-    test_flags:
-      - "--test_tag_filters=-skip-on-bazelci-windows"
     test_targets:
       - "//..."
-  rbe_ubuntu1604-smoke:
-    name: rbe_ubuntu1604-smoke
-    platform: rbe_ubuntu1604
+  rbe_ubuntu2204-smoke:
+    name: rbe_ubuntu2204-smoke
+    platform: rbe_ubuntu2204
     working_directory: "e2e/smoke"
     build_targets:
       - "//..."

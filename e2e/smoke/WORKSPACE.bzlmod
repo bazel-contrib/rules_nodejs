@@ -14,8 +14,8 @@ http_archive(
 load("@bazelci_rules//:rbe_repo.bzl", "rbe_preconfig")
 
 # Creates toolchain configuration for remote execution with BuildKite CI
-# for rbe_ubuntu1604
+# for rbe_ubuntu2204
 rbe_preconfig(
     name = "buildkite_config",
-    toolchain = "ubuntu1804-bazel-java11",
+    toolchain = "ubuntu2204",
 )
