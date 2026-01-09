@@ -22,6 +22,10 @@ node.toolchain(
     ],
     node_version = "15.14.0",
 )
+node.toolchain(
+    name = "node24",
+    node_version = "24.12.0",
+)
 
 # FIXME(6.0): a repo rule with name=foo should create a repo named @foo, not @foo_toolchains
 use_repo(
@@ -34,6 +38,11 @@ use_repo(
     "node17_linux_amd64",
     "node17_linux_arm64",
     "node17_windows_amd64",
+    "node24_darwin_amd64",
+    "node24_darwin_arm64",
+    "node24_linux_amd64",
+    "node24_linux_arm64",
+    "node24_windows_amd64",
     "nodejs_darwin_amd64",
     "nodejs_darwin_arm64",
     "nodejs_linux_amd64",

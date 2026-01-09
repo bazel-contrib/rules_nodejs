@@ -3,7 +3,6 @@
 load("//nodejs/private:node_versions.bzl", "NODE_VERSIONS")
 load("//nodejs/private:nodejs_repo_host_os_alias.bzl", "nodejs_repo_host_os_alias")
 load("//nodejs/private:nodejs_toolchains_repo.bzl", "PLATFORMS", "nodejs_toolchains_repo")
-load("//nodejs/private:os_name.bzl", "assert_node_exists_for_host", "node_exists_for_os")
 
 # Default base name for node toolchain repositories
 # created by the module extension
@@ -85,19 +84,17 @@ def _download_node(repository_ctx):
     if not node_repositories.items():
         node_repositories = NODE_VERSIONS
 
-    # Skip the download if we know it will fail
-    if not node_exists_for_os(node_version, host_os, node_repositories):
-        return
-
     node_urls = repository_ctx.attr.node_urls[:]
     if not node_urls:
         # Go back the default if the user explicitly specifies []
         node_urls = [DEFAULT_NODE_URL]
 
-    # Download node & npm
     version_host_os = "%s-%s" % (node_version, host_os)
-    if not version_host_os in node_repositories:
-        fail("Unknown Node.js version-host %s" % version_host_os)
+    if version_host_os not in node_repositories.keys():
+        fail("No nodejs is available for {} at version {}".format(host_os, node_version) +
+             "\n    Consider upgrading by setting node_version in a call to node_repositories in WORKSPACE." +
+             "\n    Note that Node 16.x is the minimum published for Apple Silicon (M1 Macs), and 20.x is the minimum for Windows ARM64.")
+
     filename, strip_prefix, sha256 = node_repositories[version_host_os]
 
     urls = [url.format(version = node_version, filename = filename) for url in node_urls]
@@ -311,7 +308,6 @@ def _verify_version_is_valid(version):
         fail("Invalid node version: %s" % version)
 
 def _nodejs_repositories_impl(repository_ctx):
-    assert_node_exists_for_host(repository_ctx)
     _download_node(repository_ctx)
     _prepare_node(repository_ctx)
 
