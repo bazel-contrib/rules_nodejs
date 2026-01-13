@@ -11,7 +11,7 @@ DEFAULT_NODE_REPOSITORY = "nodejs"
 # Default Node.js URL used as the default for node_urls
 DEFAULT_NODE_URL = "https://nodejs.org/dist/v{version}/{filename}"
 
-# Currently v18 is the "active" LTS release:
+# Currently v22 is the "active" LTS release:
 # https://nodejs.dev/en/about/releases/
 # We can only change that in a major release of rules_nodejs,
 # as it's a semver-breaking change for our users who rely on it.
@@ -19,7 +19,7 @@ DEFAULT_NODE_VERSION = [
     # 16.18.1-windows_amd64 -> 16.18.1
     v.split("-")[0]
     for v in NODE_VERSIONS.keys()
-    if v.startswith("20.")
+    if v.startswith("22.")
 ][-1]  # Versions are sorted increasing, so last one is the latest version
 
 LATEST_KNOWN_NODE_VERSION = [
