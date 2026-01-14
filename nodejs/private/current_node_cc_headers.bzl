@@ -14,6 +14,8 @@
 
 """Implementation of current_node_cc_headers rule."""
 
+load("@rules_cc//cc:defs.bzl", "CcInfo")
+
 def _current_node_cc_headers_impl(ctx):
     return ctx.toolchains["//nodejs:toolchain_type"].nodeinfo.headers.providers_map.values()
 
