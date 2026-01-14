@@ -7,6 +7,7 @@ module(
 
 # Lower-bounds (minimum) versions for direct runtime dependencies
 bazel_dep(name = "bazel_lib", version = "3.0.0")
+bazel_dep(name = "bazel_features", version = "1.39.0")
 bazel_dep(name = "bazel_skylib", version = "1.4.1")
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "rules_cc", version = "0.2.16")  # to expose headers
@@ -57,3 +58,25 @@ register_toolchains("@nodejs_toolchains//:windows_amd64_toolchain")
 register_toolchains("@nodejs_toolchains//:windows_arm64_runtime_toolchain")
 
 register_toolchains("@nodejs_toolchains//:windows_arm64_toolchain")
+
+############
+# Dev dependencies
+bazel_dep(name = "buildifier_prebuilt", version = "8.2.1.1", dev_dependency = True)
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "npm_typescript",
+    build_file = "//:external/typescript.BUILD",
+    dev_dependency = True,
+    sha256 = "6e2faae079c9047aa921e8a307f0cec0da4dc4853e20bb31d18acc678f5bf505",
+    urls = ["https://registry.npmjs.org/typescript/-/typescript-4.9.5.tgz"],
+)
+
+http_archive(
+    name = "npm_types_node",
+    build_file = "//:external/types_node.BUILD",
+    dev_dependency = True,
+    sha256 = "6ef16adadc11a80601c023e1271887425c5c5c1867266d35493c7e92d7cc00fa",
+    urls = ["https://registry.npmjs.org/@types/node/-/node-16.18.23.tgz"],
+)
