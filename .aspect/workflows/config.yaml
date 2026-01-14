@@ -2,13 +2,6 @@
 # Look in /.github/workflows/ci.yaml for test matrix on other OS
 # See https://docs.aspect.build/workflows/configuration
 tasks:
-  - format:
-  - buildozer:
-  - test:
-      name: Bazel 6
-      id: bazel-6
-      env:
-        USE_BAZEL_VERSION: 6.x
   - test:
       name: Bazel 7
       id: bazel-7
