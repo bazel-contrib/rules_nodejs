@@ -1,3 +1,5 @@
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
 cc_test(
     name = "using_headers_test",
     srcs = ["using_headers.cc"],

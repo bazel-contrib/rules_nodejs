@@ -1,3 +1,5 @@
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
+
 # Dummy test target that imports various targets from the
 # "@nodejs" repository. If a target of the repository is
 # misconfigured, Bazel will complain about missing input files.
