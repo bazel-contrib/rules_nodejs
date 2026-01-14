@@ -1,14 +1,14 @@
-bazel_dep(name = "rules_nodejs", version = "0.0.0", dev_dependency = True)
+bazel_dep(name = "rules_nodejs")
 local_path_override(
     module_name = "rules_nodejs",
     path = "../..",
 )
 
-bazel_dep(name = "bazel_lib", version = "3.0.0-beta.1", dev_dependency = True)
-bazel_dep(name = "bazel_skylib", version = "1.7.1", dev_dependency = True)
-bazel_dep(name = "platforms", version = "0.0.10", dev_dependency = True)
+bazel_dep(name = "bazel_lib", version = "3.0.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.1")
+bazel_dep(name = "platforms", version = "0.0.10")
 
-node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 node.toolchain(node_version = "16.5.0")
 node.toolchain(
     name = "node17",

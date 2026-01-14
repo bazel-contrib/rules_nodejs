@@ -1,5 +1,21 @@
+# Test the root workspace using "dev dependencies" on Linux only, and with the version in .bazelversion.
+# Look in /.github/workflows/ci.yaml for test matrix on other OS
 # See https://docs.aspect.build/workflows/configuration
 tasks:
   - test:
+      name: Bazel 7
+      id: bazel-7
+      env:
+        USE_BAZEL_VERSION: 7.x
+  - test:
+      name: Bazel 8
+      id: bazel-8
+      env:
+        USE_BAZEL_VERSION: 8.x
+  - test:
+      name: Bazel 9
+      id: bazel-9
+      env:
+        USE_BAZEL_VERSION: 9.*
 notifications:
   github: {}

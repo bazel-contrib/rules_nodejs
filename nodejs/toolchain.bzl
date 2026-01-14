@@ -15,6 +15,8 @@
 """This module implements the node toolchain rule.
 """
 
+load("@rules_cc//cc:defs.bzl", "CcInfo")
+
 NodeInfo = provider(
     doc = "Information about how to invoke Node.js and npm.",
     fields = {
