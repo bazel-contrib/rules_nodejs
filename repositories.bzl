@@ -39,9 +39,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "bazel_lib",
-        sha256 = "fd0fe4df9b6b7837d5fd765c04ffcea462530a08b3d98627fb6be62a693f4e12",
-        strip_prefix = "bazel-lib-3.1.0",
-        url = "https://github.com/bazel-contrib/bazel-lib/releases/download/v3.1.0/bazel-lib-v3.1.0.tar.gz",
+        sha256 = "06cbcd5b98af3f530d20b505a89fb6761f09950b780cdd7726df42ee84b49d04",
+        strip_prefix = "bazel-lib-3.1.1",
+        url = "https://github.com/bazel-contrib/bazel-lib/releases/download/v3.1.1/bazel-lib-v3.1.1.tar.gz",
     )
 
     http_archive(
