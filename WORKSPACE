@@ -16,17 +16,6 @@ workspace(name = "rules_nodejs")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-http_archive(
-    name = "bazel_features",
-    sha256 = "5ab1a90d09fd74555e0df22809ad589627ddff263cff82535815aa80ca3e3562",
-    strip_prefix = "bazel_features-1.39.0",
-    url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.39.0/bazel_features-v1.39.0.tar.gz",
-)
-
-load("@bazel_features//:deps.bzl", "bazel_features_deps")
-
-bazel_features_deps()
-
 #
 # Install rules_nodejs dev dependencies
 #
@@ -34,6 +23,10 @@ bazel_features_deps()
 load("//:repositories.bzl", "rules_nodejs_dev_dependencies")
 
 rules_nodejs_dev_dependencies()
+
+load("@bazel_features//:deps.bzl", "bazel_features_deps")
+
+bazel_features_deps()
 
 #
 # Setup rules_nodejs npm dependencies
@@ -83,6 +76,10 @@ register_copy_to_directory_toolchains()
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
+
+load("@rules_cc//cc:extensions.bzl", "compatibility_proxy_repo")
+
+compatibility_proxy_repo()
 
 # Buildifier
 load("@buildifier_prebuilt//:deps.bzl", "buildifier_prebuilt_deps")
