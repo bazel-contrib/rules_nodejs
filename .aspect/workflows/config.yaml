@@ -16,6 +16,6 @@ tasks:
       name: Bazel 9
       id: bazel-9
       env:
-        USE_BAZEL_VERSION: 9.*
+        USE_BAZEL_VERSION: 9.x
 notifications:
   github: {}
