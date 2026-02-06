@@ -34,9 +34,9 @@ def tsc(name, srcs, tsconfig, **kwargs):
             "--outDir",
             "$(RULEDIR)",
         ]),
-        toolchains = ["//nodejs:toolchain_type"] if _TOOLCHAIN_TYPES_SUPPORTED else ["@node16_toolchains//:resolved_toolchain"],
+        toolchains = ["//nodejs:toolchain_type"] if _TOOLCHAIN_TYPES_SUPPORTED else ["@nodejs_toolchains//:resolved_toolchain"],
         tools = ([] if _TOOLCHAIN_TYPES_SUPPORTED else [
-            "@node16_toolchains//:resolved_toolchain",
+            "@nodejs_toolchains//:resolved_toolchain",
         ]) + [
             "@npm_typescript",
             "@npm_types_node",
