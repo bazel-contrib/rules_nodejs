@@ -7,6 +7,12 @@ load(":node_toolchain_alias.bzl", "node_runtime_alias", "node_toolchain_alias")
 package(default_visibility = ["//visibility:public"])
 
 bzl_library(
+    name = "extensions",
+    srcs = ["extensions.bzl"],
+    deps = [":repositories"],
+)
+
+bzl_library(
     name = "providers",
     srcs = ["providers.bzl"],
     deps = [
@@ -23,6 +29,16 @@ bzl_library(
         "//nodejs/private:nodejs_repo_host_os_alias",
         "//nodejs/private:nodejs_toolchains_repo",
         "//nodejs/private:os_name",
+    ],
+)
+
+bzl_library(
+    name = "toolchain",
+    srcs = ["toolchain.bzl"],
+    deps = [
+        "//nodejs/private:current_node_cc_headers",
+        "//nodejs/private:os_name",
+        "@rules_cc//cc:defs_bzl",
     ],
 )
 

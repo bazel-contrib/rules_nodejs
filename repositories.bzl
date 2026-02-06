@@ -30,6 +30,12 @@ def rules_nodejs_dev_dependencies():
     These are in this file to keep version information in one place, and make the WORKSPACE
     shorter.
     """
+    http_archive(
+        name = "bazel_features",
+        sha256 = "5ab1a90d09fd74555e0df22809ad589627ddff263cff82535815aa80ca3e3562",
+        strip_prefix = "bazel_features-1.39.0",
+        url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.39.0/bazel_features-v1.39.0.tar.gz",
+    )
 
     http_archive(
         name = "bazel_skylib",
@@ -49,4 +55,11 @@ def rules_nodejs_dev_dependencies():
         sha256 = "e31fe636a5004eb50b7b47ec31c3cea0afd597d14bb1991832aa213038837ecf",
         strip_prefix = "buildifier-prebuilt-8.0.0",
         urls = ["http://github.com/keith/buildifier-prebuilt/archive/8.0.0.tar.gz"],
+    )
+
+    http_archive(
+        name = "rules_cc",
+        sha256 = "458b658277ba51b4730ea7a2020efdf1c6dcadf7d30de72e37f4308277fa8c01",
+        strip_prefix = "rules_cc-0.2.16",
+        url = "https://github.com/bazelbuild/rules_cc/releases/download/0.2.16/rules_cc-0.2.16.tar.gz",
     )

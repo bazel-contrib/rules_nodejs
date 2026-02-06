@@ -1,4 +1,13 @@
-"extensions for bzlmod"
+"""Module extensions for nodejs toolchain registration in MODULE.bazel
+
+Example usage, assuming a `.nvmrc` file is present in the same directory as the `MODULE.bazel` file:
+
+```starlark
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+node.toolchain(node_version_from_nvmrc = "//:.nvmrc")
+use_repo(node, "nodejs_toolchains")
+```
+"""
 
 load(
     ":repositories.bzl",
@@ -67,11 +76,13 @@ _ATTRS = {
         allow_single_file = True,
         doc = """The .nvmrc file containing the version of Node.js to use.
 
+This is recommended to ensure Bazel uses the same Node.js version as non-Bazel tooling.
 If set then the version found in the .nvmrc file is used instead of the one specified by node_version.""",
     ),
     "include_headers": attr.bool(
         doc = """Set headers field in NodeInfo provided by this toolchain.
 
+Required to compile native code into a Node.js binary.
 This setting creates a dependency on a c++ toolchain.
 """,
     ),
