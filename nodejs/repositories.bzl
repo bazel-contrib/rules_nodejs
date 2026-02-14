@@ -119,6 +119,9 @@ def _download_node(repository_ctx):
         sha256 = sha256,
     ))
 
+    # Return whether the download was reproducible
+    return sha256 != None
+
 def _prepare_node(repository_ctx):
     """Sets up BUILD files and shell wrappers for the versions of Node.js, npm just set up.
 
@@ -309,8 +312,14 @@ def _verify_version_is_valid(version):
         fail("Invalid node version: %s" % version)
 
 def _nodejs_repositories_impl(repository_ctx):
-    _download_node(repository_ctx)
+    reproducible = _download_node(repository_ctx)
     _prepare_node(repository_ctx)
+
+    # Bazel <8.3.0 lacks repository_ctx.repo_metadata
+    if not hasattr(repository_ctx, "repo_metadata"):
+        return None
+
+    return repository_ctx.repo_metadata(reproducible = reproducible)
 
 _nodejs_repositories = repository_rule(
     _nodejs_repositories_impl,
