@@ -39,7 +39,7 @@ PLATFORMS = {
     "linux_ppc64le": struct(
         compatible_with = [
             "@platforms//os:linux",
-            "@platforms//cpu:ppc",
+            "@platforms//cpu:ppc64le",
         ],
     ),
     "darwin_amd64": struct(
