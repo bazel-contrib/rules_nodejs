@@ -417,7 +417,7 @@ def js_library(
         # TODO: remove once legacy module_mapping is removed
         module_name = package_name if package_name != "$node_modules$" else None,
         is_windows = select({
-            "@bazel_tools//src/conditions:host_windows": True,
+            "@platforms//os:windows": True,
             "//conditions:default": False,
         }),
         **kwargs
