@@ -1,13 +1,18 @@
 {
-    "homepage": "https://github.com/bazel-contrib/rules_nodejs",
-    "maintainers": [
-        {
-            "email": "alex@aspect.dev",
-            "github": "alexeagle",
-            "name": "Alex Eagle"
-        }
-    ],
-    "repository": ["github:bazel-contrib/rules_nodejs"],
-    "versions": [],
-    "yanked_versions": {}
+  "homepage": "https://github.com/bazel-contrib/rules_nodejs",
+  "maintainers": [
+    {
+      "email": "eagle@post.harvard.edu",
+      "github": "alexeagle",
+      "name": "Alex Eagle"
+    },
+    {
+      "email": "jason@aspect.build",
+      "github": "jbedard",
+      "name": "Jason Bedard"
+    }
+  ],
+  "repository": ["github:bazel-contrib/rules_nodejs"],
+  "versions": [],
+  "yanked_versions": {}
 }
