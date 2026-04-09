@@ -416,9 +416,6 @@ def js_library(
         # which is still being used in a couple of tests
         # TODO: remove once legacy module_mapping is removed
         module_name = package_name if package_name != "$node_modules$" else None,
-        is_windows = select({
-            "@platforms//os:windows": True,
-            "//conditions:default": False,
-        }),
+        is_windows = False,
         **kwargs
     )

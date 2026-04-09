@@ -202,10 +202,7 @@ def copy_file(name, src, out, is_directory = False, is_executable = False, allow
         name = name,
         src = src,
         out = out,
-        is_windows = select({
-            "@platforms//os:windows": True,
-            "//conditions:default": False,
-        }),
+        is_windows = False,
         is_executable = is_executable,
         allow_symlink = allow_symlink,
         **kwargs

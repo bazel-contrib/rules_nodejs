@@ -150,9 +150,6 @@ set to the target's package & the files provided from the targets DefaultInfo.
         deps = [target],
         package_name = package_name,
         package_path = package_path,
-        is_windows = select({
-            "@platforms//os:windows": True,
-            "//conditions:default": False,
-        }),
+        is_windows = False,
         **kwargs
     )

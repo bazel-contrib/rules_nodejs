@@ -57,9 +57,6 @@ def copy_to_bin(name, srcs, **kwargs):
     _copy_to_bin(
         name = name,
         srcs = srcs,
-        is_windows = select({
-            "@platforms//os:windows": True,
-            "//conditions:default": False,
-        }),
+        is_windows = False,
         **kwargs
     )

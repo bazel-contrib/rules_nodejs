@@ -124,9 +124,6 @@ def params_file(
         args = args,
         data = data,
         newline = newline or "auto",
-        is_windows = select({
-            "@platforms//os:windows": True,
-            "//conditions:default": False,
-        }),
+        is_windows = False,
         **kwargs
     )

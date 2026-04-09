@@ -375,18 +375,12 @@ def pkg_npm_macro(name, tgz = None, **kwargs):
 
     native.alias(
         name = name + ".pack",
-        actual = select({
-            "@platforms//os:windows": name + ".pack.bat",
-            "//conditions:default": name + ".pack.sh",
-        }),
+        actual = name + ".pack.sh",
     )
 
     native.alias(
         name = name + ".publish",
-        actual = select({
-            "@platforms//os:windows": name + ".publish.bat",
-            "//conditions:default": name + ".publish.sh",
-        }),
+        actual = name + ".publish.sh",
     )
 
     if tgz != None:
