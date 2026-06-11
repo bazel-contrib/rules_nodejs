@@ -35,6 +35,10 @@ node.toolchain(
     node_urls = ["https://nodejs.org/dist/v17.0.1/{filename}"],
     node_version = "17.0.1.custom",
 )
+node.toolchain(
+    name = "node26_facts",
+    node_version = "26.3.0",
+)
 
 # FIXME(6.0): a repo rule with name=foo should create a repo named @foo, not @foo_toolchains
 use_repo(
@@ -60,6 +64,13 @@ use_repo(
     "node17_custom_linux_arm64",
     "node17_custom_toolchains",
     "node17_custom_windows_amd64",
+    "node26_facts",
+    "node26_facts_darwin_amd64",
+    "node26_facts_darwin_arm64",
+    "node26_facts_linux_amd64",
+    "node26_facts_linux_arm64",
+    "node26_facts_toolchains",
+    "node26_facts_windows_amd64",
     "nodejs",
     "nodejs_darwin_amd64",
     "nodejs_darwin_arm64",

@@ -9,6 +9,9 @@ use_repo(node, "nodejs_toolchains")
 ```
 """
 
+load("//nodejs/private:fetch_node_repositories.bzl", "fetch_node_repositories")
+load("//nodejs/private:nodejs_toolchains_repo.bzl", "PLATFORMS")
+load("//nodejs/private:version_from_attr.bzl", "version_from_attr")
 load(
     ":repositories.bzl",
     "DEFAULT_NODE_REPOSITORY",
@@ -28,6 +31,57 @@ def _toolchains_equal(lhs, rhs):
         if getattr(lhs, attr) != getattr(rhs, attr):
             return False
     return True
+
+def _use_repository_facts(registration):
+    """Whether we should use facts (if available) for the given registration."""
+
+    if registration.node_repositories.items():
+        return False  # custom repositories, do not mess with them.
+    if registration.node_urls != [DEFAULT_NODE_URL]:
+        return False  # we do not know how to fetch shas with custom URLs.
+
+    return True
+
+def _update_repository_facts(module_ctx, registrations):
+    """Fetch / update the necessary repository facts for the given registrations.
+
+    * Takes into account existing facts.
+    * Returns empty dict if facts are not supported.
+    """
+
+    if not hasattr(module_ctx, "facts"):
+        # facts not supported.
+        # repository rules will fallback to builtin NODE_VERSIONS.
+        return {}
+
+    new_facts = {}
+
+    for registration in registrations.values():
+        if not _use_repository_facts(registration):
+            continue
+
+        version = version_from_attr(module_ctx, registration)
+
+        should_fetch = False
+
+        # Get repository values for the default PLATFORMS.
+        # These are the only platforms supported by the extension anyways.
+        for platform in PLATFORMS:
+            key = version + "-" + platform
+
+            existing = new_facts.get(key) or module_ctx.facts.get(key)
+            if existing:
+                new_facts[key] = existing
+            else:
+                should_fetch = True
+
+        if should_fetch:
+            # Note: Even after fetching, it is possible that keys are not in facts:
+            # Old node versions might not have all platforms.
+            # In that case, we want to fail lazily when the repository is actually used.
+            new_facts.update(fetch_node_repositories(module_ctx, version))
+
+    return new_facts
 
 def _toolchain_extension(module_ctx):
     registrations = {}
@@ -52,15 +106,25 @@ def _toolchain_extension(module_ctx):
             else:
                 registrations[toolchain.name] = toolchain
 
+    repository_facts = _update_repository_facts(module_ctx, registrations)
+
     for k, v in registrations.items():
         nodejs_register_toolchains(
             name = k,
             node_version = v.node_version,
             node_version_from_nvmrc = v.node_version_from_nvmrc,
             node_urls = v.node_urls,
-            node_repositories = v.node_repositories,
+            node_repositories = (
+                repository_facts if _use_repository_facts(v) else v.node_repositories
+            ),
             include_headers = v.include_headers,
             register = False,
+        )
+
+    if hasattr(module_ctx, "facts"):
+        return module_ctx.extension_metadata(
+            reproducible = True,
+            facts = repository_facts,
         )
 
 _ATTRS = {
