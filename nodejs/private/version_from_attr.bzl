@@ -14,7 +14,8 @@ def version_from_attr(ctx, attr):
       ctx: repository or module context
       attr: A struct with fields node_version and node_version_from_nvmrc
 
-    Returns: node version.
+    Returns:
+      The node version.
     """
 
     node_version = attr.node_version

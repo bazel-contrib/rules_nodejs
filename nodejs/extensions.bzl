@@ -126,6 +126,8 @@ def _toolchain_extension(module_ctx):
             reproducible = True,
             facts = repository_facts,
         )
+    else:
+        return  # buildifier: disable=return-value (allow no value)
 
 _ATTRS = {
     "name": attr.string(

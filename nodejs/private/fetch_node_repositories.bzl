@@ -15,6 +15,13 @@ def fetch_node_repositories(module_ctx, version):
     """Fetches node repositories for the given node version.
 
     Port of scripts/update-nodejs-versions.js
+
+    Args:
+      module_ctx: Module context
+      version: The node version to fetch repositories for.
+
+    Returns:
+      A dictionary in the shape of node_repositories.
     """
 
     shasums_filename = "{version}-SHASUMS256.txt".format(version = version)
