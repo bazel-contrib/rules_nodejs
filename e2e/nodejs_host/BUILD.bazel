@@ -1,3 +1,4 @@
+load("@bazel_features//:features.bzl", "bazel_features")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 
 # Dummy test target that imports various targets from the
@@ -23,8 +24,9 @@ load("@rules_shell//shell:sh_test.bzl", "sh_test")
         "node16",
         "node16_nvmrc",
         "node17_custom",
-        "node26_facts",
-    ]
+    ] + (
+        ["node26_facts"] if bazel_features.external_deps.has_facts else []
+    )
 ]
 
 [
@@ -67,7 +69,10 @@ load("@rules_shell//shell:sh_test.bzl", "sh_test")
         ("node16_nvmrc", "npx"),
         ("node17_custom", "npm"),
         ("node17_custom", "npx"),
-        ("node26_facts", "npm"),
-        ("node26_facts", "npx"),
-    ]
+    ] + (
+        [
+            ("node26_facts", "npm"),
+            ("node26_facts", "npx"),
+        ] if bazel_features.external_deps.has_facts else []
+    )
 ]
