@@ -16,17 +16,13 @@ DEFAULT_NODE_URL = "https://nodejs.org/dist/v{version}/{filename}"
 # We can only change that in a major release of rules_nodejs,
 # as it's a semver-breaking change for our users who rely on it.
 DEFAULT_NODE_VERSION = [
-    # 16.18.1-windows_amd64 -> 16.18.1
-    v.split("-")[0]
+    v
     for v in NODE_VERSIONS.keys()
     if v.startswith("22.")
 ][-1]  # Versions are sorted increasing, so last one is the latest version
 
-LATEST_KNOWN_NODE_VERSION = [
-    # 16.18.1-windows_amd64 -> 16.18.1
-    v.split("-")[0]
-    for v in NODE_VERSIONS.keys()
-][-1]  # Versions are sorted increasing, so last one is the latest version
+# Versions are sorted increasing, so last one is the latest version
+LATEST_KNOWN_NODE_VERSION = NODE_VERSIONS.keys()[-1]
 
 BUILT_IN_NODE_PLATFORMS = PLATFORMS.keys()
 
@@ -82,7 +78,7 @@ def _download_node(repository_ctx):
     # We insert our default value here, not on the attribute's default, so it isn't documented.
     # The size of NODE_VERSIONS constant is huge and not useful to document.
     if not node_repositories.items():
-        node_repositories = NODE_VERSIONS
+        node_repositories = NODE_VERSIONS.get(node_version, {})
 
     node_urls = repository_ctx.attr.node_urls[:]
     if not node_urls:
