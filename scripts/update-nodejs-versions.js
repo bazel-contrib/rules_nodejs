@@ -83,18 +83,18 @@ async function main() {
   console.log('# @unsorted-dict-items');
   console.log('NODE_VERSIONS = {');
   nodeRepositories.forEach(({ version, repositories }) => {
+    const versionStr = version.join(".");
     console.log(
       [
-        `# ${version.join(".")}`,
+        `"${versionStr}": {`,
         ...repositories.map(
           ({ filename, sha, type }) =>
-            `"${version.join(
-              "."
-            )}-${type}": ("${filename}", "${filename.replace(
+          `    "${versionStr}-${type}": ("${filename}", "${filename.replace(
               /(\.tar)?\.[^.]+$/,
               ""
             )}", "${sha}"),`
         ),
+	"},",
       ]
         .map((line) => `    ${line}`)
         .join("\n")
