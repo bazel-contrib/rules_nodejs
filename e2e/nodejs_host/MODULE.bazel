@@ -6,14 +6,8 @@ local_path_override(
 
 bazel_dep(name = "bazel_lib", version = "3.0.0-beta.1")
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
-bazel_dep(name = "bazel_features", version = "1.48.1")
+bazel_dep(name = "bazel_features", version = "1.49.0")
 bazel_dep(name = "rules_shell", version = "0.6.1")
-
-git_override(
-    module_name = "bazel_features",
-    commit = "bcc80f8223e1e69343eb25e6d2eee25f23e0fc30",
-    remote = "git@github.com:bazel-contrib/bazel_features.git",
-)
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 
