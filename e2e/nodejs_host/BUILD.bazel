@@ -23,6 +23,7 @@ load("@rules_shell//shell:sh_test.bzl", "sh_test")
         "node16",
         "node16_nvmrc",
         "node17_custom",
+        "node26_auto_fetch",
     ]
 ]
 
@@ -66,5 +67,7 @@ load("@rules_shell//shell:sh_test.bzl", "sh_test")
         ("node16_nvmrc", "npx"),
         ("node17_custom", "npm"),
         ("node17_custom", "npx"),
+        ("node26_auto_fetch", "npm"),
+        ("node26_auto_fetch", "npx"),
     ]
 ]

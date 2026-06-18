@@ -9,7 +9,13 @@ package(default_visibility = ["//visibility:public"])
 bzl_library(
     name = "extensions",
     srcs = ["extensions.bzl"],
-    deps = [":repositories"],
+    deps = [
+        ":repositories",
+        "//nodejs/private:fetch_node_repositories",
+        "//nodejs/private:node_versions",
+        "//nodejs/private:version_from_attr",
+        "@bazel_features//:features",
+    ],
 )
 
 bzl_library(
@@ -29,6 +35,7 @@ bzl_library(
         "//nodejs/private:nodejs_repo_host_os_alias",
         "//nodejs/private:nodejs_toolchains_repo",
         "//nodejs/private:os_name",
+        "//nodejs/private:version_from_attr",
     ],
 )
 

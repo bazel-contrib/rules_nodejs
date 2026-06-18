@@ -3,6 +3,7 @@
 load("//nodejs/private:node_versions.bzl", "NODE_VERSIONS")
 load("//nodejs/private:nodejs_repo_host_os_alias.bzl", "nodejs_repo_host_os_alias")
 load("//nodejs/private:nodejs_toolchains_repo.bzl", "PLATFORMS", "nodejs_toolchains_repo")
+load("//nodejs/private:version_from_attr.bzl", "version_from_attr")
 
 # Default base name for node toolchain repositories
 # created by the module extension
@@ -66,12 +67,7 @@ def _download_node(repository_ctx):
     # @nodejs_PLATFORM where PLATFORM is one of BUILT_IN_NODE_PLATFORMS
     host_os = repository_ctx.attr.platform or repository_ctx.name.split("nodejs_", 1)[1]
 
-    node_version = repository_ctx.attr.node_version
-
-    if repository_ctx.attr.node_version_from_nvmrc:
-        node_version = str(repository_ctx.read(repository_ctx.attr.node_version_from_nvmrc)).strip()
-
-    _verify_version_is_valid(node_version)
+    node_version = version_from_attr(repository_ctx, repository_ctx.attr)
 
     node_repositories = repository_ctx.attr.node_repositories
 
@@ -301,11 +297,6 @@ def _strip_bin(path):
         fail("Expected path to start with 'bin/' but was %s" % path)
 
     return path[len("bin/"):]
-
-def _verify_version_is_valid(version):
-    major, minor, patch = (version.split(".") + [None, None, None])[:3]
-    if not major.isdigit() or not minor.isdigit() or not patch.isdigit():
-        fail("Invalid node version: %s" % version)
 
 def _nodejs_repositories_impl(repository_ctx):
     reproducible = _download_node(repository_ctx)
