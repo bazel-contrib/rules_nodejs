@@ -9,6 +9,7 @@ use_repo(node, "nodejs_toolchains")
 ```
 """
 
+load("@bazel_features//:features.bzl", "bazel_features")
 load("//nodejs/private:fetch_node_repositories.bzl", "fetch_node_repositories")
 load("//nodejs/private:node_versions.bzl", "NODE_VERSIONS")
 load("//nodejs/private:version_from_attr.bzl", "version_from_attr")
@@ -80,13 +81,19 @@ def _toolchain_extension(module_ctx):
             register = False,
         )
 
-    if supports_facts:
-        return module_ctx.extension_metadata(
-            reproducible = True,
-            facts = new_repository_facts,
-        )
-    else:
+    if not hasattr(module_ctx, "extension_metadata"):
         return  # buildifier: disable=return-value (allow no value)
+
+    if not bazel_features.external_deps.extension_metadata_has_reproducible:
+        return module_ctx.extension_metadata()
+
+    if not supports_facts:
+        return module_ctx.extension_metadata(reproducible = True)
+
+    return module_ctx.extension_metadata(
+        reproducible = True,
+        facts = new_repository_facts,
+    )
 
 _ATTRS = {
     "name": attr.string(

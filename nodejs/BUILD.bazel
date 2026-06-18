@@ -14,6 +14,7 @@ bzl_library(
         "//nodejs/private:fetch_node_repositories",
         "//nodejs/private:node_versions",
         "//nodejs/private:version_from_attr",
+        "@bazel_features//:features",
     ],
 )
 
