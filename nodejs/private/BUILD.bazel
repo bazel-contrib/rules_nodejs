@@ -41,3 +41,13 @@ bzl_library(
     srcs = ["user_build_settings.bzl"],
     deps = ["//nodejs/private/providers:user_build_settings"],
 )
+
+bzl_library(
+    name = "version_from_attr",
+    srcs = ["version_from_attr.bzl"],
+)
+
+bzl_library(
+    name = "fetch_node_repositories",
+    srcs = ["fetch_node_repositories.bzl"],
+)
