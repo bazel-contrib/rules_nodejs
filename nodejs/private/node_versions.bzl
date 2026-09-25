@@ -3782,6 +3782,16 @@ NODE_VERSIONS = {
         "22.23.2-windows_arm64": ("node-v22.23.2-win-arm64.zip", "node-v22.23.2-win-arm64", "fec025a6da31757e3b6af84c5a1628e9d38442ca99a2161091d78f2fcfa35ef3"),
         "22.23.2-windows_amd64": ("node-v22.23.2-win-x64.zip", "node-v22.23.2-win-x64", "1177b4137ba5adaa56354ae40f1080c7450e8ae09cecb47da459d1c52ac99f97"),
     },
+    "22.23.3": {
+        "22.23.3-darwin_arm64": ("node-v22.23.3-darwin-arm64.tar.gz", "node-v22.23.3-darwin-arm64", "23b25245dcfb9af7262f8ff142e9e2e0af025368117329e7a7458a51e5922f53"),
+        "22.23.3-darwin_amd64": ("node-v22.23.3-darwin-x64.tar.gz", "node-v22.23.3-darwin-x64", "8a677b0219178efd6eb0e475457c4afb452b521a92f6e67845a73bd85727f2a8"),
+        "22.23.3-linux_arm64": ("node-v22.23.3-linux-arm64.tar.xz", "node-v22.23.3-linux-arm64", "a44aeb94849a299b22df10b9e622ec2f605c2183501bc40590705131de7c740f"),
+        "22.23.3-linux_ppc64le": ("node-v22.23.3-linux-ppc64le.tar.xz", "node-v22.23.3-linux-ppc64le", "0214e542c73686134856784c0cbd2762b5414097640762b4afc2e33e6e499207"),
+        "22.23.3-linux_s390x": ("node-v22.23.3-linux-s390x.tar.xz", "node-v22.23.3-linux-s390x", "a311c8f0b352e7dedc13958b612ac190a56456fc837dd26cd5e5845713a1eb1d"),
+        "22.23.3-linux_amd64": ("node-v22.23.3-linux-x64.tar.xz", "node-v22.23.3-linux-x64", "df450af89261115ef9f9e3830c3eeb2cc9213b63c720b1af623cb5dcbe2e02de"),
+        "22.23.3-windows_arm64": ("node-v22.23.3-win-arm64.zip", "node-v22.23.3-win-arm64", "33dad22e4cef5ee8f9fbb1b0d037fdacd0e56d12a4580f0d63f68b894deab535"),
+        "22.23.3-windows_amd64": ("node-v22.23.3-win-x64.zip", "node-v22.23.3-win-x64", "2b0ff57b049cda1bbcea2240eec20467018713c1efe1f7360c2681859b90ed71"),
+    },
     "23.0.0": {
         "23.0.0-darwin_arm64": ("node-v23.0.0-darwin-arm64.tar.gz", "node-v23.0.0-darwin-arm64", "72ce7905b83f9499b92501675cf76e53b545cb9d0a42dca497fa80c8eb5fbcf9"),
         "23.0.0-darwin_amd64": ("node-v23.0.0-darwin-x64.tar.gz", "node-v23.0.0-darwin-x64", "13915842f15bc32f76a24f8ea17fd43d650898d12d21c7b676b01d0e00dcb7fd"),
