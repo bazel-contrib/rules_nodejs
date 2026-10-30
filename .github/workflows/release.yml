@@ -29,3 +29,63 @@ jobs:
       tag_name: ${{ inputs.tag_name || github.ref_name }}
     secrets:
       BCR_PUBLISH_TOKEN: ${{ secrets.BCR_PUBLISH_TOKEN }}
+
+  publish-npm:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.tag_name || github.ref }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 20
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed
+        with:
+          workload_identity_provider: 'projects/305452601764/locations/global/workloadIdentityPools/builders/providers/github'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f
+
+      - name: Build and stage @bazel/runfiles to OSS Exit Gate
+        env:
+          TAG_NAME: ${{ inputs.tag_name || github.ref_name }}
+        run: |
+          set -euo pipefail
+          VERSION="${TAG_NAME#v}"
+          bazel build //packages/runfiles:npm_package
+          PKG_DIR="$(bazel info bazel-bin)/packages/runfiles/npm_package"
+          chmod -R u+w "$PKG_DIR"
+          npm --prefix "$PKG_DIR" version "$VERSION" --no-git-tag-version --allow-same-version
+          cat << 'EOF' > "$PKG_DIR/.npmrc"
+          registry=https://us-npm.pkg.dev/oss-exit-gate-prod/rules-nodejs--npm/
+          //us-npm.pkg.dev/oss-exit-gate-prod/rules-nodejs--npm/:always-auth=true
+          EOF
+          npx --yes google-artifactregistry-auth --repo-config="$PKG_DIR/.npmrc" --credential-config="$HOME/.npmrc"
+          npm publish "$PKG_DIR" --registry="https://us-npm.pkg.dev/oss-exit-gate-prod/rules-nodejs--npm/" --provenance=false
+          cat << EOF > manifest.json
+          {
+            "publish_all": false,
+            "publishing_groups": [
+              {
+                "packages": [
+                  {
+                    "name": "@bazel/runfiles",
+                    "version": "${VERSION}"
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          gcloud storage cp manifest.json \
+            "gs://oss-exit-gate-prod-projects-bucket/rules-nodejs/npm/manifests/manifest-${{ github.run_id }}-${{ github.run_attempt }}.json"
