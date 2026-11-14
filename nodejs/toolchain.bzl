@@ -34,6 +34,7 @@ For backward compability, if set then npm_path will be set to the runfiles path 
 
 For backward compability, npm_path is set to the runfiles path of npm if npm is set.
 """,
+        "node_data": """Additional runtime files required by the Node.js executable (depset of Files).""",
         "npm_sources": """Additional source files required to run npm""",
         "headers": """Optional.\
 
@@ -86,14 +87,16 @@ def _nodejs_toolchain_impl(ctx):
         "NPM_PATH": ctx.file.npm.path if ctx.attr.npm else ctx.attr.npm_path,
     })
     files = [f for f in [ctx.file.node, ctx.file.npm] if f]
+    node_data = depset(ctx.files.node_data)
     default = DefaultInfo(
         files = depset(files),
-        runfiles = ctx.runfiles(files = files),
+        runfiles = ctx.runfiles(files = files, transitive_files = node_data),
     )
     npm_sources = depset([ctx.file.npm] + ctx.files.npm_srcs)
     nodeinfo = NodeInfo(
         node = ctx.file.node,
         node_path = ctx.attr.node_path,
+        node_data = node_data,
         npm = ctx.file.npm,
         npm_path = ctx.attr.npm_path if ctx.attr.npm_path else (_to_manifest_path(ctx, ctx.file.npm) if ctx.file.npm else ""),  # _to_manifest_path for backward compat
         npm_sources = npm_sources,
@@ -131,6 +134,7 @@ _nodejs_toolchain = rule(
             allow_single_file = True,
         ),
         "node_path": attr.string(),
+        "node_data": attr.label_list(allow_files = True),
         "npm": attr.label(allow_single_file = True),
         "npm_path": attr.string(),
         "npm_srcs": attr.label_list(),
@@ -142,6 +146,7 @@ def nodejs_toolchain(
         name,
         node = None,
         node_path = "",
+        node_data = [],
         npm = None,
         npm_path = "",
         npm_srcs = [],
@@ -206,6 +211,8 @@ def nodejs_toolchain(
 
             Only one of `node` and `node_path` may be set.
 
+        node_data: Additional runtime files required by the Node.js executable.
+
         npm: Npm JavaScript entry point
 
         npm_path: Path to npm JavaScript entry point.
@@ -252,6 +259,7 @@ WARNING: npm_files attribute of nodejs_toolchain is deprecated; use npm_srcs ins
         name = name,
         node = node,
         node_path = node_path,
+        node_data = node_data,
         npm = npm,
         npm_path = npm_path,
         npm_srcs = npm_srcs,

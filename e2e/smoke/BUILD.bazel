@@ -1,7 +1,8 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
-load(":defs.bzl", "my_nodejs")
+load("@rules_nodejs//nodejs:toolchain.bzl", "nodejs_toolchain")
+load(":defs.bzl", "check_node_data", "my_nodejs")
 
 not_windows = select({
     # There isn't a published rosetta binary for windows as of Feb 2024
@@ -338,4 +339,56 @@ diff_test(
     name = "test_node_version_24",
     file1 = "write_node_version_24",
     file2 = "thing_toolchain_24",
+)
+
+################################################
+# Test that node_data files are available in the sandbox
+
+write_file(
+    name = "write_companion",
+    out = "companion.txt",
+    content = ["companion_data"],
+)
+
+# checks that each path in argv[2..] exists, writes "found" or "not_found"
+write_file(
+    name = "write_check_node_data",
+    out = "check_node_data.js",
+    content = [
+        "const fs = require('fs');",
+        "const paths = process.argv.slice(3);",
+        "const allExist = paths.every(p => fs.existsSync(p));",
+        "fs.writeFileSync(process.argv[2], allExist ? 'found' : 'not_found');",
+    ],
+)
+
+write_file(
+    name = "write_expected_found",
+    out = "expected_found",
+    content = ["found"],
+)
+
+nodejs_toolchain(
+    name = "node_with_data_impl",
+    node = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64//:node_bin",
+        "@bazel_tools//src/conditions:linux_aarch64": "@nodejs_linux_arm64//:node_bin",
+        "@bazel_tools//src/conditions:darwin_x86_64": "@nodejs_darwin_amd64//:node_bin",
+        "@bazel_tools//src/conditions:darwin_arm64": "@nodejs_darwin_arm64//:node_bin",
+        "@bazel_tools//src/conditions:windows": "@nodejs_windows_amd64//:node_bin",
+    }),
+    node_data = [":companion.txt"],
+)
+
+check_node_data(
+    name = "run_node_data",
+    out = "node_data_result",
+    entry_point = "check_node_data.js",
+    toolchain = ":node_with_data_impl",
+)
+
+diff_test(
+    name = "test_node_data",
+    file1 = "expected_found",
+    file2 = "node_data_result",
 )
