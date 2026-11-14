@@ -252,8 +252,7 @@ filegroup(
         npx_entry = npx_entry,
     )
 
-    if repository_ctx.attr.include_headers:
-        build_content += """
+    build_content += """
 load("@rules_cc//cc:defs.bzl", "cc_library")
 cc_library(
   name = "headers",
